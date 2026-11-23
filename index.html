@@ -129,7 +129,10 @@
   .eggCoins i { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--coin); opacity: .4; }
   .eggCoins i.on { background: var(--coin); opacity: 1; }
   .eggSub { display: flex; align-items: center; gap: 6px; min-height: 16px; }
-  #eggBar.alert .eggCoins, #eggBar.alert .autoChip { display: none; }   /* the alert takes the whole line */
+  #eggBar.alert .eggCoins { display: none; }          /* the alert takes the whole line */
+  .fireWrap { justify-self: end; position: relative; max-width: 100%; display: flex; }
+  .fireWrap .autoChip { position: absolute; left: -6px; top: -11px; z-index: 2; box-shadow: 0 0 0 2px var(--bg), inset 0 0 0 1.5px rgba(255,255,255,.25); background: #1b2548; }
+  .fireWrap .autoChip.on { box-shadow: 0 0 0 2px var(--bg); background: var(--ua-yellow); }
   /* auto-fire chip: tap to switch; shows auto-fire's current accuracy (better with a coin streak) */
   .autoChip { margin: 0; padding: 2px 7px; font-size: 11px; font-weight: 800; line-height: 1.3; border-radius: 8px;
     color: var(--muted); background: transparent; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.25); white-space: nowrap; }
@@ -561,10 +564,14 @@
       <!-- line 1: coins collected and Shaheds shot down; line 2: progress to the next rocket,
            replaced by the red alert while a Shahed is incoming -->
       <div class="eggTop"><span id="coinCount" class="coinChip"><i></i><b>0</b></span><span class="eggKills" id="eggKills">🎯 0</span></div>
-      <div class="eggSub"><span class="eggCoins" id="eggCoins"><i></i><i></i><i></i></span><span id="eggNext"></span><button id="autoChip" class="autoChip" type="button"></button></div>
+      <div class="eggSub"><span class="eggCoins" id="eggCoins"><i></i><i></i><i></i></span><span id="eggNext"></span></div>
     </div>
     <button id="pauseBtn" type="button" data-i18n-title="pause" data-i18n-aria="pause" aria-label="Pause">⏸</button>
-    <button id="rocketBtn" type="button" disabled><span class="rk">🚀</span><span data-i18n="launch">FIRE</span><b id="rocketN">0</b></button>
+    <!-- FIRE, with the auto-fire chip as a tab on its top-left corner (rocket count badge is top-right) -->
+    <div class="fireWrap">
+      <button id="rocketBtn" type="button" disabled><span class="rk">🚀</span><span data-i18n="launch">FIRE</span><b id="rocketN">0</b></button>
+      <button id="autoChip" class="autoChip" type="button"></button>
+    </div>
   </div>
 
   <div id="hud">
