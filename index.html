@@ -1568,20 +1568,25 @@ window.LD_RULES = (() => {
         d.ang += (want - d.ang) * Math.min(1, dt * 12);
       }
       d.x = nx;
-      if (!d.dead && Math.abs(d.x - player.x) < player.w / 2 + 14 && d.y + 22 > player.y + 8 && d.y - 22 < player.y + player.h - 8) {
-        // Hit: a blast that costs fuel and speed, not a life.
+      if (!d.dead && d.y >= impactY) {
+        // It strikes the road level with your car, in its lane, and always explodes there.
         d.dead = true;
-        explode(player.x, player.y + 10);
-        fuel = Math.max(0, fuel - DRONE_FUEL);
-        speed *= POTHOLE_SLOW; shake = 0.45; streak = 0; killCombo = 0;
-        floatText(player.x, player.y - 24, t('fuelFloat', { n: '−' + DRONE_FUEL }), getVar('--enemy'));
-        if (navigator.vibrate) navigator.vibrate(150);
-      } else if (!d.dead && !d.passed && d.y - 22 > player.y + player.h) {
-        // Dodged: it flew past without hitting you.
-        d.passed = true;
-        const pts = DODGE_PTS * level;
-        bonus += pts;
-        floatText(d.x, player.y - 20, t('dodged') + ' +' + num(pts), '#4fd1c5');
+        const lx = laneX(d.lane);
+        explode(lx, impactY);
+        objects.push({ type: 'scorch', lane: d.lane, y: impactY - 22, w: laneW * 0.7, h: 44, seed: Math.random() * 100 });
+        if (Math.abs(player.x - lx) < laneW * 0.5) {
+          // You were in that lane: a blast that costs fuel and speed, not a life.
+          fuel = Math.max(0, fuel - DRONE_FUEL);
+          speed *= POTHOLE_SLOW; shake = 0.45; streak = 0; killCombo = 0;
+          floatText(player.x, player.y - 24, t('fuelFloat', { n: '−' + DRONE_FUEL }), getVar('--enemy'));
+          if (navigator.vibrate) navigator.vibrate(150);
+        } else {
+          // You got out of its lane in time.
+          shake = Math.max(shake, 0.15);
+          const pts = DODGE_PTS * level;
+          bonus += pts;
+          floatText(lx, impactY - 40, t('dodged') + ' +' + num(pts), '#4fd1c5');
+        }
       }
     }
     for (const r of rockets) {
@@ -2068,7 +2073,7 @@ window.LD_RULES = (() => {
     const px = player.x - player.w / 2, py = player.y;
     for (const o of objects) {
       o.y += step;
-      if (o.type === 'finish' || o.dead || o.used) continue;
+      if (o.type === 'finish' || o.type === 'scorch' || o.dead || o.used) continue;   // scorch marks are harmless
       const ox = laneX(o.lane) - o.w / 2;
       const ins = o.type === 'hole' ? 10 : 6; // potholes are round: a slightly kinder hitbox
       if (ox < px + player.w - ins && ox + o.w > px + ins && o.y < py + player.h - ins && o.y + o.h > py + ins) {
@@ -2206,6 +2211,17 @@ window.LD_RULES = (() => {
     ctx.fillStyle = '#05060c'; blob(cx, cy, rx, ry, seed, 0);   // the hole
     ctx.fillStyle = 'rgba(139,147,181,.18)';                      // far wall catching the light
     blob(cx, cy + ry * 0.35, rx * 0.7, ry * 0.4, seed + 3, 0);
+  }
+
+  // Scorch mark where a Shahed hit the road: a soot blot with a few glowing embers.
+  function drawScorch(cx, cy, rx, ry, seed) {
+    ctx.fillStyle = 'rgba(5,6,12,.45)'; blob(cx, cy, rx, ry, seed, 6);
+    ctx.fillStyle = 'rgba(5,6,12,.7)';  blob(cx, cy, rx * 0.65, ry * 0.65, seed + 2, 0);
+    for (let i = 0; i < 4; i++) {
+      const a = seed + i * 1.7, r = 0.3 + 0.15 * (i % 3);
+      ctx.fillStyle = i % 2 ? 'rgba(246,173,85,.8)' : 'rgba(245,101,101,.7)';
+      ctx.fillRect(cx + Math.cos(a) * rx * r - 1.5, cy + Math.sin(a) * ry * r - 1.5, 3, 3);
+    }
   }
 
   // Red-and-white striped road barrier on two legs.
@@ -2372,6 +2388,7 @@ window.LD_RULES = (() => {
 
     for (const o of objects) {
       if (o.type === 'finish') drawFinish(o.y, o.h);
+      else if (o.type === 'scorch') drawScorch(laneX(o.lane), o.y + o.h / 2, o.w / 2, o.h / 2, o.seed);
     }
     for (const o of objects) {
       const cx = laneX(o.lane);
