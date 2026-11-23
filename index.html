@@ -18,7 +18,7 @@
   :root {
     --bg: #0f1220;
     --road: #1b1f33;
-    --line: #3a4166;
+    --line: #8c95bb;
     --player: #4fd1c5;
     --enemy: #f56565;
     --coin: #f6e05e;
@@ -2034,6 +2034,35 @@ window.LD_RULES = (() => {
       }
     }
   }
+  // Lane markings: solid edge lines, dashed lane lines, and cat's eyes (road studs)
+  // in the gaps between dashes, UK style: white on lane lines, red on the left edge,
+  // amber on the right.
+  const STUD = { lane: '#f4f4f8', left: '#ff5a5a', right: '#ffb020' };
+  function drawStud(x, y, color) {
+    ctx.globalAlpha = 0.22;                       // soft reflection halo
+    ctx.fillStyle = color;
+    roundRect(x - 6, y - 4, 12, 8, 4); ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = '#2a2f4a';                    // the stud's housing
+    roundRect(x - 4, y - 3, 8, 6, 2); ctx.fill();
+    ctx.fillStyle = color;                        // the reflector
+    ctx.fillRect(x - 2.5, y - 1.5, 5, 3);
+  }
+  function drawRoadMarkings() {
+    const edgeX = [5, W - 5];
+    ctx.fillStyle = getVar('--line');
+    for (const x of edgeX) ctx.fillRect(x - 2, -10, 4, H + 20);        // solid edge lines
+    for (let i = 1; i < LANES; i++) {
+      for (let y = -80 + roadOffset; y < H; y += 80) ctx.fillRect(laneW * i - 3, y, 6, 44);
+    }
+    for (let y = -80 + roadOffset; y < H + 40; y += 80) {
+      const sy = y + 62;                                                // middle of each gap
+      for (let i = 1; i < LANES; i++) drawStud(laneW * i, sy, STUD.lane);
+      drawStud(edgeX[0] + 9, sy, STUD.left);
+      drawStud(edgeX[1] - 9, sy, STUD.right);
+    }
+  }
+
   // Checkpoint label: drawn after the barriers, on a dark pill, so a barrier on the
   // same row can't cover it.
   function drawFinishLabel(y) {
@@ -2111,10 +2140,7 @@ window.LD_RULES = (() => {
     ctx.fillStyle = getVar('--road');
     ctx.fillRect(-10, -10, W + 20, H + 20);
 
-    ctx.fillStyle = getVar('--line');
-    for (let i = 1; i < LANES; i++) {
-      for (let y = -80 + roadOffset; y < H; y += 80) ctx.fillRect(laneW * i - 3, y, 6, 44);
-    }
+    drawRoadMarkings();
 
     for (const o of objects) {
       if (o.type === 'finish') drawFinish(o.y, o.h);
