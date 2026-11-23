@@ -1237,7 +1237,7 @@ window.LD_RULES = (() => {
   // Nearest live drone that no rocket is already chasing.
   function target() {
     let best = null;
-    for (const d of drones) if (!d.dead && d.y > -40 && !rockets.some(r => r.target === d) && (!best || d.y > best.y)) best = d;
+    for (const d of drones) if (!d.dead && !rockets.some(r => r.target === d) && (!best || d.y > best.y)) best = d;
     return best;
   }
   function fire() {
@@ -1262,7 +1262,9 @@ window.LD_RULES = (() => {
       drones.push({ lane: player.lane, x: laneX(player.lane), y: -60, t: 0 });
       if (!droneSeen) { droneSeen = true; showBanner(t('shahedBanner'), t('shahedSub', { n: ROCKET_COST }), true); }
     }
-    const v = 220 + speed * 0.35; // slower than the road: time to dodge or shoot
+    // Faster than the road, so against the ground it really flies nose-first towards you
+    // (slower than the road made it drift backwards, tail first).
+    const v = speed + 140;
     for (const d of drones) {
       d.t += dt; d.y += v * dt; d.x = laneX(d.lane);
       if (!d.dead && Math.abs(d.x - player.x) < player.w / 2 + 14 && d.y + 22 > player.y + 8 && d.y - 22 < player.y + player.h - 8) {
