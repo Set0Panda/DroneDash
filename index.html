@@ -1904,11 +1904,12 @@ window.LD_RULES = (() => {
 
   // ---- Car upgrades: every few levels the car gets something new for the rest of the run ----
   const UPGRADES = [
-    // Frequent early (most runs end before level 10), then still something to chase.
-    { level: 2, key: 'upStripes' },  { level: 3, key: 'upSpoiler' },  { level: 4, key: 'upNumber' },
-    { level: 5, key: 'upFlames' },   { level: 6, key: 'upGlow' },     { level: 7, key: 'upLivery' },
-    { level: 8, key: 'upLightbar' }, { level: 9, key: 'upChrome' },   { level: 10, key: 'upGold' },
-    { level: 12, key: 'upTrail' },   { level: 15, key: 'upGoldPod' }, { level: 20, key: 'upChains' },
+    // Three quick ones to start, then one every 2 levels right through to level 25,
+    // so there's always a next reward within reach.
+    { level: 2, key: 'upStripes' },   { level: 3, key: 'upSpoiler' },  { level: 4, key: 'upNumber' },
+    { level: 6, key: 'upFlames' },    { level: 8, key: 'upGlow' },     { level: 10, key: 'upLivery' },
+    { level: 12, key: 'upLightbar' }, { level: 14, key: 'upChrome' },  { level: 16, key: 'upGold' },
+    { level: 18, key: 'upTrail' },    { level: 20, key: 'upChains' },  { level: 23, key: 'upGoldPod' },
     { level: 25, key: 'upFlag' }
   ];
   const UP_AT = Object.fromEntries(UPGRADES.map(u => [u.key, u.level]));
