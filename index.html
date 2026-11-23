@@ -287,7 +287,7 @@
   }
   @keyframes roadMove { to { background-position: 58px 24px, 118px 24px; } }
   .demo .car {
-    position: absolute; bottom: 12px; left: 76px; width: 28px; height: 42px; animation: carMove 4.5s infinite;
+    position: absolute; bottom: 12px; left: 78.5px; width: 23px; height: 42px; animation: carMove 4.5s infinite;
   }
   /* wheels: one per side, box-shadow copies it to the rear */
   .demo .car i::before, .demo .car i::after {
@@ -306,10 +306,10 @@
   .demo .car b::before { top: 10px; left: 4px; right: 4px; height: 7px; clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%); }
   .demo .car b::after { bottom: 8px; left: 4px; right: 4px; height: 5px; clip-path: polygon(0 0, 100% 0, 90% 100%, 10% 100%); }
   @keyframes carMove {
-    0%, 8%   { left: 76px; }
-    14%, 41% { left: 136px; }
-    47%, 74% { left: 16px; }
-    80%, 100% { left: 76px; }
+    0%, 8%   { left: 78.5px; }
+    14%, 41% { left: 138.5px; }
+    47%, 74% { left: 18.5px; }
+    80%, 100% { left: 78.5px; }
   }
   .demo .tap {
     position: absolute; top: 44px; left: 150px; width: 44px; height: 44px; margin: -22px 0 0 -22px;
@@ -1257,7 +1257,7 @@ window.LD_RULES = (() => {
     rowPothole:   L => Math.min(0.2 + 0.08 * (L - 1), 0.6),        // pothole in a row's spare lane
     gapPothole:   L => L < 2 ? 0 : Math.min(0.15 + 0.07 * (L - 2), 0.55), // pothole between two rows
     // Car size (px): also used by the fairness simulator
-    carW: laneW => Math.min(laneW * 0.46, 58), CAR_H: 66
+    carW: laneW => Math.min(laneW * 0.37, 40), CAR_H: 66   // ~0.6 as wide as long, like a real car from above
   };
 
   // The planner decides each row's clear lane one row ahead, so a pothole in the gap
@@ -1917,7 +1917,7 @@ window.LD_RULES = (() => {
     ctx = c2;
     try {
       c2.setTransform(d * scale, 0, 0, d * scale, 0, 0);
-      const w = 46, h = R.CAR_H;
+      const w = 39, h = R.CAR_H;
       drawCar(cssW / scale / 2, (cssH / scale - h) / 2 - 4, w, h, paint, lv);
     } finally { ctx = saved; }
   }
@@ -2378,7 +2378,7 @@ window.LD_RULES = (() => {
       }
     }
     ctx.fillStyle = '#0b0d17';
-    const ww = 8, wh = h * 0.2;
+    const ww = 7, wh = h * 0.19;
     for (const wy of [y + h * 0.13, y + h * 0.67]) {
       roundRect(l - 3, wy, ww, wh, 3); ctx.fill();
       roundRect(r - ww + 3, wy, ww, wh, 3); ctx.fill();
