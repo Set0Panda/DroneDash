@@ -42,6 +42,11 @@
   }
   #streak.on { visibility: visible; }
   #lives { margin-left: auto; letter-spacing: 4px; color: var(--enemy); font-size: 18px; }
+  #mute {
+    pointer-events: auto; margin: 0; padding: 5px 7px; font-size: 16px; line-height: 1; border-radius: 8px;
+    background: rgba(255,255,255,.1); color: var(--text); box-shadow: none;
+  }
+  #mute:active { transform: scale(.92); box-shadow: none; }
   .tag { flex: none; width: 44px; font-size: 12px; font-weight: 800; letter-spacing: 1px; color: var(--muted); }
   .bar { flex: 1; height: 10px; border-radius: 5px; background: rgba(255,255,255,.1); overflow: hidden; }
   .bar > div { height: 100%; width: 0; border-radius: 5px; transition: background-color .3s; }
@@ -200,7 +205,7 @@
   <canvas id="game"></canvas>
 
   <div id="hud">
-    <div class="hrow"><span id="score">0</span><span id="streak">×2</span><span id="lives"></span></div>
+    <div class="hrow"><span id="score">0</span><span id="streak">×2</span><span id="lives"></span><button id="mute" type="button" aria-label="Mute sound">🔊</button></div>
     <div class="hrow"><span class="tag" id="level">LV 1</span><div class="bar"><div id="prog"></div></div><span class="small" id="togo">400 m</span></div>
     <div class="hrow" id="fuelRow"><span class="tag">FUEL</span><div class="bar"><div id="fuel"></div></div><span id="pips" title="Coins until next fuel top-up"><i></i><i></i><i></i><i></i><i></i></span></div>
   </div>
@@ -220,7 +225,7 @@
         <li><span class="ico"><span class="ico coin"></span></span>Every 5 coins refills 40% fuel. Chain coins for up to ×5 points.</li>
         <li><span class="ico"><span class="ico block"></span></span>Dodge the barriers. 3 crashes and you're out.</li>
       </ul>
-      <p class="keys">Keyboard: ← → or A / D</p>
+      <p class="keys">Keyboard: ← → or A / D · M to mute</p>
       <button id="startBtn">Got it!</button>
     </div>
   </div>
@@ -273,11 +278,136 @@
   let W = 0, H = 0, dpr = 1, laneW = 0;
   let state = 'menu'; // menu | countdown | play | stall | over
   let player, objects, particles, floats, lives, speed, spawnDist, flash, roadOffset, shake, last;
-  let level, levelDist, distance, bonus, fuel, coins, coinMeter, streak, finishSpawned, stallT;
+  let level, levelDist, distance, bonus, fuel, coins, coinMeter, streak, finishSpawned, stallT, lowFuelT = 0;
   let countT = 0, shownCount = null;
 
   function readNum(k) { try { return +localStorage.getItem(k) || 0; } catch { return 0; } }
   function writeNum(k, v) { try { localStorage.setItem(k, v); } catch {} }
+
+  // ---------- Sound: everything is synthesised with Web Audio, no files ----------
+  const sfx = (() => {
+    let ac = null, master = null, engine = null, noiseBuf = null;
+    let muted = readNum('laneDodgerMuted') === 1;
+    const VOL = 0.6;
+
+    function ensure() {
+      if (!ac) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        ac = new AC();
+        master = ac.createGain();
+        master.gain.value = muted ? 0 : VOL;
+        master.connect(ac.destination);
+        noiseBuf = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
+        const d = noiseBuf.getChannelData(0);
+        for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      }
+      if (ac.state === 'suspended' && !document.hidden) ac.resume();
+    }
+
+    function tone(freq, dur, { type = 'sine', vol = 0.3, slide = 0, delay = 0, attack = 0.005 } = {}) {
+      if (!ac) return;
+      const t = ac.currentTime + delay;
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, t);
+      if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(20, freq * slide), t + dur);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + attack);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g).connect(master);
+      o.start(t); o.stop(t + dur + 0.02);
+    }
+
+    function noise(dur, { vol = 0.3, from = 2000, to = 200, delay = 0 } = {}) {
+      if (!ac) return;
+      const t = ac.currentTime + delay;
+      const src = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain();
+      src.buffer = noiseBuf;
+      f.type = 'lowpass';
+      f.frequency.setValueAtTime(from, t);
+      f.frequency.exponentialRampToValueAtTime(to, t + dur);
+      g.gain.setValueAtTime(vol, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      src.connect(f).connect(g).connect(master);
+      src.start(t); src.stop(t + dur + 0.02);
+    }
+
+    const arp = (notes, step, opts) => notes.forEach((f, i) => tone(f, opts.dur || 0.2, { ...opts, delay: (opts.delay || 0) + i * step }));
+
+    return {
+      ensure,
+      get muted() { return muted; },
+      toggle() {
+        muted = !muted;
+        writeNum('laneDodgerMuted', muted ? 1 : 0);
+        if (master) master.gain.setTargetAtTime(muted ? 0 : VOL, ac.currentTime, 0.02);
+        return muted;
+      },
+      suspend() { if (ac && ac.state === 'running') ac.suspend(); },
+      count()     { tone(520, 0.14, { type: 'square', vol: 0.12 }); },
+      go()        { tone(880, 0.4, { type: 'square', vol: 0.13 }); tone(1320, 0.4, { type: 'square', vol: 0.07, delay: 0.03 }); },
+      lane()      { tone(260, 0.07, { type: 'triangle', vol: 0.07, slide: 1.8 }); },
+      // pitch climbs with the streak, so chains sound rewarding
+      coin(s)     { const b = 880 * Math.pow(1.122, s - 1); tone(b, 0.07, { type: 'square', vol: 0.09 }); tone(b * 1.5, 0.18, { type: 'square', vol: 0.09, delay: 0.06 }); },
+      refuel()    { arp([523, 659, 784, 1047], 0.07, { type: 'triangle', vol: 0.2, dur: 0.2 }); noise(0.35, { vol: 0.08, from: 600, to: 3000 }); },
+      crash()     { noise(0.5, { vol: 0.55, from: 2500, to: 120 }); tone(130, 0.45, { type: 'sawtooth', vol: 0.25, slide: 0.35 }); },
+      levelUp()   { arp([523, 659, 784, 1047, 1319], 0.08, { type: 'square', vol: 0.09, dur: 0.22 }); tone(1568, 0.6, { type: 'triangle', vol: 0.14, delay: 0.42 }); },
+      lowFuel()   { tone(660, 0.09, { type: 'square', vol: 0.07 }); tone(660, 0.09, { type: 'square', vol: 0.07, delay: 0.14 }); },
+      outOfFuel() { for (let i = 0; i < 5; i++) { tone(95 - i * 10, 0.12, { type: 'sawtooth', vol: 0.16, delay: i * 0.18 }); noise(0.08, { vol: 0.12, from: 900, to: 200, delay: i * 0.18 }); } },
+      gameOver()  { arp([392, 330, 262, 196], 0.16, { type: 'triangle', vol: 0.18, dur: 0.32, delay: 0.35 }); },
+      // Engine: two detuned oscillators (low body + an octave up so phone speakers
+      // can reproduce it), a resonant filter, and a "firing" pulse for rumble.
+      // Pitch, brightness and pulse rate all follow road speed.
+      engine(on, spd) {
+        if (!ac) return;
+        const t = ac.currentTime;
+        if (on && !engine) {
+          const lo = ac.createOscillator(), hi = ac.createOscillator();
+          const f = ac.createBiquadFilter(), g = ac.createGain();
+          const pulse = ac.createGain(), lfo = ac.createOscillator(), lfoDepth = ac.createGain();
+          lo.type = 'sawtooth'; hi.type = 'square'; hi.detune.value = 8;
+          const hiGain = ac.createGain(); hiGain.gain.value = 0.35;
+          f.type = 'lowpass'; f.Q.value = 4; f.frequency.value = 700;
+          // pulse gain wobbles between 0.65 and 1.0 → cylinder-like throb
+          pulse.gain.value = 0.82; lfo.type = 'sine'; lfoDepth.gain.value = 0.18;
+          lfo.connect(lfoDepth).connect(pulse.gain);
+          lo.connect(f); hi.connect(hiGain).connect(f);
+          f.connect(pulse).connect(g).connect(master);
+          g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.11, t + 0.4);
+          [lo, hi, lfo].forEach(o => o.start());
+          engine = { lo, hi, lfo, f, g };
+        }
+        if (engine) {
+          if (on) {
+            const base = 52 + spd * 0.14;                  // ~90 Hz at level 1, ~150 Hz flat out
+            engine.base = base;
+            if (t >= (engine.revUntil || 0)) {             // don't stomp on a rev blip
+              engine.lo.frequency.setTargetAtTime(base, t, 0.12);
+              engine.hi.frequency.setTargetAtTime(base * 2, t, 0.12);
+            }
+            engine.lfo.frequency.setTargetAtTime(base / 4, t, 0.12);
+            engine.f.frequency.setTargetAtTime(500 + spd * 1.2, t, 0.15);
+          } else {
+            engine.g.gain.setTargetAtTime(0.0001, t, 0.1);
+            [engine.lo, engine.hi, engine.lfo].forEach(o => o.stop(t + 0.6));
+            engine = null;
+          }
+        }
+      },
+      // Short rev blip when changing lanes on top of the engine.
+      rev() {
+        if (!engine || !ac) return;
+        const t = ac.currentTime, b = engine.base || 90;
+        for (const [o, m] of [[engine.lo, 1], [engine.hi, 2]]) {
+          o.frequency.cancelScheduledValues(t);
+          o.frequency.setTargetAtTime(b * m * 1.3, t, 0.025);
+          o.frequency.setTargetAtTime(b * m, t + 0.1, 0.08);
+        }
+        engine.revUntil = t + 0.3;
+      },
+    };
+  })();
 
   function resize() {
     const r = canvas.getBoundingClientRect();
@@ -299,7 +429,7 @@
     objects = []; particles = []; floats = [];
     lives = MAX_LIVES; level = 1; speed = levelSpeed(1);
     spawnDist = 200; flash = 0; roadOffset = 0; shake = 0;
-    levelDist = 0; distance = 0; bonus = 0; fuel = 100; coins = 0; coinMeter = 0; streak = 0; finishSpawned = false;
+    levelDist = 0; distance = 0; bonus = 0; fuel = 100; coins = 0; coinMeter = 0; streak = 0; lowFuelT = 0; finishSpawned = false;
     el.banner.innerHTML = '';
     updateHud();
   }
@@ -322,9 +452,14 @@
   // Lane changes work during the countdown too, so you can line up before GO.
   const canSteer = () => state === 'play' || state === 'countdown';
 
+  function setLane(l) {
+    l = Math.max(0, Math.min(LANES - 1, l));
+    if (l !== player.lane) { player.lane = l; sfx.lane(); sfx.rev(); }
+  }
+
   function move(dir) {
     if (!canSteer()) return;
-    player.lane = Math.max(0, Math.min(LANES - 1, player.lane + dir));
+    setLane(player.lane + dir);
   }
 
   function spawn() {
@@ -375,8 +510,10 @@
       burst(cx, o.y + o.h / 2, getVar('--coin'), 12);
       floatText(cx, o.y, '+' + pts + (streak > 1 ? '  ×' + streak : ''), getVar('--coin'));
       coinMeter++;
+      sfx.coin(streak);
       if (coinMeter >= COINS_PER_REFUEL) {
         coinMeter = 0;
+        sfx.refuel();
         fuel = Math.min(100, fuel + REFUEL);
         floatText(player.x, player.y - 30, '+' + REFUEL + '% FUEL', getVar('--fuel'));
         burst(player.x, player.y, getVar('--fuel'), 20);
@@ -386,6 +523,7 @@
     }
     o.dead = true;
     lives--; flash = FLASH_TIME; shake = 0.35; streak = 0;
+    sfx.crash();
     burst(player.x, player.y + player.h / 2, getVar('--enemy'), 24);
     if (navigator.vibrate) navigator.vibrate(120);
     if (lives <= 0) gameOver('crash');
@@ -399,12 +537,14 @@
     const pts = 100 * (level - 1);
     bonus += pts;
     spawnDist = Math.max(spawnDist, 260); // short breather after the line
+    sfx.levelUp();
     showBanner('LEVEL ' + level, '+' + pts + ' pts · +' + CHECKPOINT_FUEL + '% fuel · faster!');
     for (let i = 0; i < LANES; i++) burst(laneX(i), player.y - 30, [getVar('--accent'), getVar('--coin'), '#f4f4f8'][i], 14);
   }
 
   function gameOver(reason) {
     state = 'over';
+    sfx.gameOver();
     const s = score();
     const best = Math.max(readNum('laneDodgerBest'), s);
     const bestLevel = Math.max(readNum('laneDodgerBestLevel'), level);
@@ -421,6 +561,7 @@
   }
 
   function showCount(text) {
+    if (text === 'GO!') sfx.go(); else sfx.count();
     el.count.classList.toggle('go', text === 'GO!');
     el.count.innerHTML = '';
     const s = document.createElement('span');
@@ -503,8 +644,14 @@
     slidePlayer(dt);
 
     fuel = Math.max(0, fuel - fuelDrain(level) * dt);
+    // Warning beeps while low, faster when nearly empty.
+    if (fuel <= 25) {
+      lowFuelT -= dt;
+      if (lowFuelT <= 0) { sfx.lowFuel(); lowFuelT = fuel <= 10 ? 0.8 : 1.6; }
+    } else lowFuelT = 0;
     if (fuel <= 0) {
       state = 'stall'; stallT = 1.4; streak = 0;
+      sfx.outOfFuel();
       showBanner('OUT OF FUEL', 'Grab coins to keep your tank topped up', true);
       updateHud();
       return;
@@ -686,6 +833,7 @@
     last = t;
     update(dt);
     draw();
+    sfx.engine(state === 'play' || state === 'stall', speed);
     requestAnimationFrame(loop);
   }
 
@@ -703,8 +851,7 @@
   function goToPointerLane(e) {
     if (!canSteer()) return;
     const r = canvas.getBoundingClientRect();
-    const lane = Math.floor((e.clientX - r.left) / (r.width / LANES));
-    player.lane = Math.max(0, Math.min(LANES - 1, lane));
+    setLane(Math.floor((e.clientX - r.left) / (r.width / LANES)));
   }
   canvas.addEventListener('pointerdown', e => {
     dragging = true;
@@ -715,6 +862,21 @@
   const endDrag = () => { dragging = false; };
   canvas.addEventListener('pointerup', endDrag);
   canvas.addEventListener('pointercancel', endDrag);
+
+  // ---- Sound controls ----
+  // Browsers only allow audio after a user gesture, so unlock it on the first touch/key.
+  window.addEventListener('pointerdown', sfx.ensure, true);
+  window.addEventListener('keydown', sfx.ensure, true);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) sfx.suspend(); else sfx.ensure(); });
+  const muteBtn = $('mute');
+  function paintMute() {
+    muteBtn.textContent = sfx.muted ? '🔇' : '🔊';
+    muteBtn.setAttribute('aria-label', sfx.muted ? 'Unmute sound' : 'Mute sound');
+  }
+  function toggleMute() { sfx.ensure(); sfx.toggle(); paintMute(); muteBtn.blur(); }
+  muteBtn.addEventListener('click', toggleMute);
+  window.addEventListener('keydown', e => { if (e.key === 'm' || e.key === 'M') toggleMute(); });
+  paintMute();
 
   $('startBtn').addEventListener('click', beginCountdown);
   $('retryBtn').addEventListener('click', restart);
