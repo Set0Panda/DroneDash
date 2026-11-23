@@ -75,7 +75,8 @@
   /* Shahed drones: rocket counter / fire button */
   /* Launch bar under the road: coin progress on the left, a big fire button on the right */
   #eggBar {
-    flex: none; display: flex; align-items: center; gap: 12px; padding: 8px 12px;
+    /* three columns, equal sides, so the pause button sits dead centre */
+    flex: none; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; padding: 8px 12px;
     background: linear-gradient(#141831, #0f1220); border-top: 3px solid; border-image: linear-gradient(90deg, #0057B7 50%, #FFD700 50%) 1;
   }
   #wrap.at-home #eggBar { visibility: hidden; }
@@ -90,7 +91,7 @@
   .eggCoins i.on { background: var(--coin); opacity: 1; }
   #eggNext { font-size: 12px; line-height: 1.25; font-weight: 700; color: var(--muted); overflow-wrap: anywhere; }
   #rocketBtn {
-    flex: none; position: relative; margin: 0; padding: 10px 18px 10px 14px; min-width: 132px; min-height: 54px;
+    justify-self: end; position: relative; margin: 0; padding: 10px 14px 10px 12px; min-width: 0; max-width: 100%; min-height: 54px;
     display: flex; align-items: center; justify-content: center; gap: 8px;
     font-size: 18px; font-weight: 900; letter-spacing: 1px; line-height: 1;
     color: #0f1220; background: #FFD700; border-radius: 14px; box-shadow: 0 5px 0 #b38f00;
@@ -297,6 +298,16 @@
   .ico.fuel {
     width: 26px; height: 10px; border-radius: 5px; background: rgba(255,255,255,.15);
     box-shadow: inset 17px 0 0 var(--fuel);
+  }
+  .ico.drone {            /* little delta-wing drone, nose down */
+    width: 24px; height: 18px; background: #8b90a0;
+    clip-path: polygon(50% 100%, 100% 12%, 92% 0, 50% 28%, 8% 0, 0 12%);
+  }
+  .ico.pause {            /* round button with two bars, like the in-game one */
+    width: 22px; height: 22px; border-radius: 50%;
+    background: linear-gradient(var(--text), var(--text)) 7px 6.5px / 3px 9px no-repeat,
+                linear-gradient(var(--text), var(--text)) 12px 6.5px / 3px 9px no-repeat,
+                rgba(255,255,255,.16);
   }
   .ico.flag {
     width: 26px; height: 14px; border-radius: 2px;
@@ -524,8 +535,10 @@
         <li><span class="ico"><span class="ico coin"></span></span><span data-i18n="rule3" data-rich><b>5 coins</b> = +40% fuel</span></li>
         <li><span class="ico"><span class="ico block"></span></span><span data-i18n="rule4" data-rich><b>3 crashes</b> and you're out</span></li>
         <li><span class="ico"><span class="ico hole"></span></span><span data-i18n="rule5" data-rich><b>Potholes</b> cost 8% fuel</span></li>
+        <li><span class="ico"><span class="ico drone"></span></span><span data-i18n="rule6" data-rich><b>Shaheds</b> dive at you: dodge, or <b>FIRE</b> a rocket (3 coins)</span></li>
+        <li><span class="ico"><span class="ico pause"></span></span><span data-i18n="rule7" data-rich><b>Pause</b> any time</span></li>
       </ul>
-      <p class="keys" data-i18n="keys">Keyboard: ← → or A / D · M to mute</p>
+      <p class="keys" data-i18n="keys">Keyboard: ← → or A / D · Space fire · P pause · M mute</p>
       <button id="startBtn" data-i18n="gotIt">Got it!</button>
     </div>
   </div>
@@ -573,7 +586,9 @@ window.I18N = (() => {
       rule3: "**5 coins** = +40% fuel",
       rule4: "**3 crashes** and you're out",
       rule5: "**Potholes** cost 8% fuel",
-      keys: 'Keyboard: ← → or A / D · M to mute', gotIt: 'Got it!',
+      rule6: "**Shaheds** dive at you: dodge, or **FIRE** a rocket (3 coins)",
+      rule7: "**Pause** any time",
+      keys: "Keyboard: ← → or A / D · Space fire · P pause · M mute", gotIt: 'Got it!',
       crashed: 'Crashed!', outOfFuel: 'Out of fuel!', score: 'Score: {n}',
       level: 'Level', distance: 'Distance', coins: 'Coins',
       bestLine: 'Best: {best} · Highest level: {level}', retry: 'Retry', home: 'Home',
@@ -604,7 +619,9 @@ window.I18N = (() => {
       rule3: "**5 monedas** = +40 % de combustible",
       rule4: "**3 choques** y quedas fuera",
       rule5: "**Los baches** cuestan un 8 % de combustible",
-      keys: 'Teclado: ← → o A / D · M para silenciar', gotIt: '¡Entendido!',
+      rule6: "**Shaheds** en picado: esquívalos o **DISPARA** un cohete (3 monedas)",
+      rule7: "**Pausa** cuando quieras",
+      keys: "Teclado: ← → o A / D · Espacio dispara · P pausa · M silencio", gotIt: '¡Entendido!',
       crashed: '¡Choque!', outOfFuel: '¡Sin combustible!', score: 'Puntos: {n}',
       level: 'Nivel', distance: 'Distancia', coins: 'Monedas',
       bestLine: 'Récord: {best} · Nivel máximo: {level}', retry: 'Reintentar', home: 'Inicio',
@@ -635,7 +652,9 @@ window.I18N = (() => {
       rule3: `**5 pièces** = +40${NB}% d'essence`,
       rule4: "**3 accidents** et c'est fini",
       rule5: `**Les nids-de-poule** coûtent 8${NB}% d'essence`,
-      keys: `Clavier${NB}: ← → ou A / D · M pour couper le son`, gotIt: `C'est parti${NB}!`,
+      rule6: `**Shaheds** en piqué${NB}: esquive ou **FEU**, une roquette (3 pièces)`,
+      rule7: "**Pause** à tout moment",
+      keys: `Clavier${NB}: ← → ou A / D · Espace tir · P pause · M son`, gotIt: `C'est parti${NB}!`,
       crashed: `Accident${NB}!`, outOfFuel: `Panne d'essence${NB}!`, score: `Score${NB}: {n}`,
       level: 'Niveau', distance: 'Distance', coins: 'Pièces',
       bestLine: `Record${NB}: {best} · Niveau max${NB}: {level}`, retry: 'Rejouer', home: 'Accueil',
@@ -666,7 +685,9 @@ window.I18N = (() => {
       rule3: "**5 Münzen** = +40 % Sprit",
       rule4: "**3 Unfälle** und du bist raus",
       rule5: "**Schlaglöcher** kosten 8 % Sprit",
-      keys: 'Tastatur: ← → oder A / D · M für Ton aus', gotIt: 'Verstanden!',
+      rule6: "**Shaheds** stürzen auf dich zu: ausweichen oder **FEUER** (Rakete = 3 Münzen)",
+      rule7: "**Pause** jederzeit",
+      keys: "Tastatur: ← → oder A / D · Leertaste Feuer · P Pause · M Ton aus", gotIt: 'Verstanden!',
       crashed: 'Unfall!', outOfFuel: 'Tank leer!', score: 'Punkte: {n}',
       level: 'Level', distance: 'Strecke', coins: 'Münzen',
       bestLine: 'Rekord: {best} · Höchstes Level: {level}', retry: 'Nochmal', home: 'Start',
@@ -697,7 +718,9 @@ window.I18N = (() => {
       rule3: "**5 moedas** = +40% de combustível",
       rule4: "**3 batidas** e você está fora",
       rule5: "**Buracos** custam 8% de combustível",
-      keys: 'Teclado: ← → ou A / D · M para silenciar', gotIt: 'Entendi!',
+      rule6: "**Shaheds** mergulham em você: desvie ou **DISPARE** um foguete (3 moedas)",
+      rule7: "**Pausa** quando quiser",
+      keys: "Teclado: ← → ou A / D · Espaço dispara · P pausa · M som", gotIt: 'Entendi!',
       crashed: 'Bateu!', outOfFuel: 'Sem combustível!', score: 'Pontos: {n}',
       level: 'Nível', distance: 'Distância', coins: 'Moedas',
       bestLine: 'Recorde: {best} · Nível máximo: {level}', retry: 'Tentar de novo', home: 'Início',
@@ -728,7 +751,9 @@ window.I18N = (() => {
       rule3: "**5 monete** = +40% di carburante",
       rule4: "**3 incidenti** e sei fuori",
       rule5: "**Le buche** costano l'8% di carburante",
-      keys: `Tastiera: ← → o A / D · M per l'audio`, gotIt: 'Ho capito!',
+      rule6: "**Shahed** in picchiata: schivali o premi **FUOCO** (razzo = 3 monete)",
+      rule7: "**Pausa** quando vuoi",
+      keys: "Tastiera: ← → o A / D · Spazio fuoco · P pausa · M audio", gotIt: 'Ho capito!',
       crashed: 'Incidente!', outOfFuel: 'A secco!', score: 'Punti: {n}',
       level: 'Livello', distance: 'Distanza', coins: 'Monete',
       bestLine: 'Record: {best} · Livello max: {level}', retry: 'Riprova', home: 'Home',
@@ -759,7 +784,9 @@ window.I18N = (() => {
       rule3: "**コイン5枚**で燃料+40%",
       rule4: "**3回クラッシュ**でアウト",
       rule5: "**穴ぼこ**は燃料−8%",
-      keys: 'キーボード：← → または A / D・M でミュート', gotIt: 'OK！',
+      rule6: "**シャヘド**が突っ込んでくる：よけるか**発射**（ロケット＝コイン3枚）",
+      rule7: "いつでも**一時停止**できる",
+      keys: "キーボード：← → または A / D・スペースで発射・P で一時停止・M でミュート", gotIt: 'OK！',
       crashed: 'クラッシュ！', outOfFuel: '燃料切れ！', score: 'スコア：{n}',
       level: 'レベル', distance: '距離', coins: 'コイン',
       bestLine: 'ベスト：{best}・最高レベル：{level}', retry: 'リトライ', home: 'ホーム',
@@ -790,7 +817,9 @@ window.I18N = (() => {
       rule3: "**5 枚金币** = 燃油 +40%",
       rule4: "**撞 3 次**就出局",
       rule5: "**坑洞**扣 8% 燃油",
-      keys: '键盘：← → 或 A / D · M 静音', gotIt: '知道了！',
+      rule6: "**沙赫德**俯冲而来：躲开或按**发射**（火箭 = 3 枚金币）",
+      rule7: "随时可以**暂停**",
+      keys: "键盘：← → 或 A / D · 空格 发射 · P 暂停 · M 静音", gotIt: '知道了！',
       crashed: '撞车了！', outOfFuel: '没油了！', score: '得分：{n}',
       level: '关卡', distance: '距离', coins: '金币',
       bestLine: '最高分：{best} · 最高关卡：{level}', retry: '重试', home: '主页',
@@ -821,7 +850,9 @@ window.I18N = (() => {
       rule3: "**코인 5개** = 연료 +40%",
       rule4: "**3번 충돌**하면 끝",
       rule5: "**포트홀**은 연료 −8%",
-      keys: '키보드: ← → 또는 A / D · M 음소거', gotIt: '알겠어요!',
+      rule6: "**샤헤드**가 돌진: 피하거나 **발사** (로켓 = 코인 3개)",
+      rule7: "언제든 **일시 정지**",
+      keys: "키보드: ← → 또는 A / D · 스페이스 발사 · P 일시 정지 · M 음소거", gotIt: '알겠어요!',
       crashed: '충돌!', outOfFuel: '연료 고갈!', score: '점수: {n}',
       level: '레벨', distance: '거리', coins: '코인',
       bestLine: '최고 점수: {best} · 최고 레벨: {level}', retry: '다시 하기', home: '홈',
@@ -852,7 +883,9 @@ window.I18N = (() => {
       rule3: "**5 सिक्के** = +40% ईंधन",
       rule4: "**3 टक्कर** और आप बाहर",
       rule5: "**गड्ढे** = −8% ईंधन",
-      keys: 'कीबोर्ड: ← → या A / D · M से म्यूट', gotIt: 'समझ गया!',
+      rule6: "**शाहेद** झपटते हैं: बचो या **फ़ायर** करो (रॉकेट = 3 सिक्के)",
+      rule7: "कभी भी **रोकें**",
+      keys: "कीबोर्ड: ← → या A / D · स्पेस फ़ायर · P रोकें · M म्यूट", gotIt: 'समझ गया!',
       crashed: 'टक्कर!', outOfFuel: 'ईंधन ख़त्म!', score: 'स्कोर: {n}',
       level: 'लेवल', distance: 'दूरी', coins: 'सिक्के',
       bestLine: 'सर्वश्रेष्ठ: {best} · सबसे ऊँचा लेवल: {level}', retry: 'फिर से खेलें', home: 'होम',
@@ -883,7 +916,9 @@ window.I18N = (() => {
       rule3: '**5 монет** = +40% пального',
       rule4: '**3 аварії** — і ти вибуваєш',
       rule5: '**Ями** забирають 8% пального',
-      keys: 'Клавіатура: ← → або A / D · M — вимкнути звук', gotIt: 'Зрозуміло!',
+      rule6: "**Шахеди** пікірують: ухиляйся або тисни **ПУСК** (ракета = 3 монети)",
+      rule7: "**Пауза** будь-коли",
+      keys: "Клавіатура: ← → або A / D · Пробіл — пуск · P — пауза · M — звук", gotIt: 'Зрозуміло!',
       crashed: 'Аварія!', outOfFuel: 'Пальне скінчилося!', score: 'Рахунок: {n}',
       level: 'Рівень', distance: 'Відстань', coins: 'Монети',
       bestLine: 'Рекорд: {best} · Найвищий рівень: {level}', retry: 'Ще раз', home: 'Меню',
@@ -916,7 +951,9 @@ window.I18N = (() => {
       rule3: '**5 მონეტა** = +40% საწვავი',
       rule4: '**3 ავარია** და თამაში დასრულდა',
       rule5: '**ორმოები** 8% საწვავს გართმევს',
-      keys: 'კლავიატურა: ← → ან A / D · M ხმის გამორთვა', gotIt: 'გასაგებია!',
+      rule6: "**შაჰედები** გეტევიან: აიცილე ან **გასროლა** (რაკეტა = 3 მონეტა)",
+      rule7: "**პაუზა** ნებისმიერ დროს",
+      keys: "კლავიატურა: ← → ან A / D · Space გასროლა · P პაუზა · M ხმა", gotIt: 'გასაგებია!',
       crashed: 'ავარია!', outOfFuel: 'საწვავი გათავდა!', score: 'ქულა: {n}',
       level: 'დონე', distance: 'მანძილი', coins: 'მონეტები',
       bestLine: 'რეკორდი: {best} · უმაღლესი დონე: {level}', retry: 'თავიდან', home: 'მენიუ',
