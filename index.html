@@ -423,6 +423,7 @@
                 linear-gradient(var(--text), var(--text)) 12px 6.5px / 3px 9px no-repeat,
                 rgba(255,255,255,.16);
   }
+  .rules .autoIco { font-size: 20px; line-height: 1; }
   .ico.flag {
     width: 26px; height: 14px; border-radius: 2px;
     background: repeating-conic-gradient(#f4f4f8 0 25%, #0b0d17 0 50%) 0 0 / 7px 7px;
@@ -666,6 +667,7 @@
         <li><span class="ico"><span class="ico block"></span></span><span data-i18n="rule4" data-rich><b>3 crashes</b> = out · <b>10 coins</b> = a <b>♥</b></span></li>
         <li><span class="ico"><span class="ico hole"></span></span><span data-i18n="rule5" data-rich><b>Potholes</b> = −8% fuel</span></li>
         <li><span class="ico"><span class="ico drone"></span></span><span data-i18n="rule6" data-rich><b>FIRE</b> (3 coins) shoots <b>Shaheds</b> and barriers</span></li>
+        <li><span class="ico autoIco">🤖</span><span data-i18n="ruleAuto" data-rich><b>Auto-fire</b>: aims for you, better with a coin streak</span></li>
       </ul>
       <p class="keys" data-i18n="keys">Keyboard: ← → or A / D · Space fire · P pause · M mute</p>
       <button id="startBtn" data-i18n="gotIt">Got it!</button>
@@ -716,6 +718,7 @@ window.I18N = (() => {
       rule4: "**3 crashes** = out · **10 coins** = a **♥**",
       rule5: "**Potholes** = −8% fuel",
       rule6: "**FIRE** (3 coins) shoots **Shaheds** and barriers",
+      ruleAuto: "**Auto-fire**: aims for you, better with a coin streak",
       keys: "Keyboard: ← → or A / D · Space fire · P pause · M mute", gotIt: 'Got it!',
       crashed: 'Crashed!', outOfFuel: 'Out of fuel!', score: 'Score: {n}',
       level: 'Level', distance: 'Distance', coins: 'Coins',
@@ -750,6 +753,7 @@ window.I18N = (() => {
       rule4: "**3 choques** = fuera · **10 monedas** = un **♥**",
       rule5: "**Baches** = −8% combustible",
       rule6: "**DISPARAR** (3 monedas) derriba **Shaheds** y barreras",
+      ruleAuto: "**Disparo automático**: apunta por ti, mejor con racha de monedas",
       keys: "Teclado: ← → o A / D · Espacio dispara · P pausa · M silencio", gotIt: '¡Entendido!',
       crashed: '¡Choque!', outOfFuel: '¡Sin combustible!', score: 'Puntos: {n}',
       level: 'Nivel', distance: 'Distancia', coins: 'Monedas',
@@ -784,6 +788,7 @@ window.I18N = (() => {
       rule4: "**3 accidents** = fini · **10 pièces** = un **♥**",
       rule5: `**Nids-de-poule** = −8${NB}% d'essence`,
       rule6: "**FEU** (3 pièces) abat les **Shaheds** et les barrières",
+      ruleAuto: `**Tir auto**${NB}: vise pour toi, mieux avec une série de pièces`,
       keys: `Clavier${NB}: ← → ou A / D · Espace tir · P pause · M son`, gotIt: `C'est parti${NB}!`,
       crashed: `Accident${NB}!`, outOfFuel: `Panne d'essence${NB}!`, score: `Score${NB}: {n}`,
       level: 'Niveau', distance: 'Distance', coins: 'Pièces',
@@ -818,6 +823,7 @@ window.I18N = (() => {
       rule4: "**3 Unfälle** = raus · **10 Münzen** = ein **♥**",
       rule5: "**Schlaglöcher** = −8 % Sprit",
       rule6: "**FEUER** (3 Münzen) schießt **Shaheds** und Barrieren ab",
+      ruleAuto: "**Auto-Feuer**: zielt für dich, besser mit Münzserie",
       keys: "Tastatur: ← → oder A / D · Leertaste Feuer · P Pause · M Ton aus", gotIt: 'Verstanden!',
       crashed: 'Unfall!', outOfFuel: 'Tank leer!', score: 'Punkte: {n}',
       level: 'Level', distance: 'Strecke', coins: 'Münzen',
@@ -852,6 +858,7 @@ window.I18N = (() => {
       rule4: "**3 batidas** = fim · **10 moedas** = um **♥**",
       rule5: "**Buracos** = −8% combustível",
       rule6: "**DISPARAR** (3 moedas) derruba **Shaheds** e barreiras",
+      ruleAuto: "**Disparo automático**: mira por você, melhor com sequência de moedas",
       keys: "Teclado: ← → ou A / D · Espaço dispara · P pausa · M som", gotIt: 'Entendi!',
       crashed: 'Bateu!', outOfFuel: 'Sem combustível!', score: 'Pontos: {n}',
       level: 'Nível', distance: 'Distância', coins: 'Moedas',
@@ -886,6 +893,7 @@ window.I18N = (() => {
       rule4: "**3 incidenti** = fuori · **10 monete** = un **♥**",
       rule5: "**Buche** = −8% carburante",
       rule6: "**FUOCO** (3 monete) abbatte **Shahed** e barriere",
+      ruleAuto: "**Fuoco automatico**: mira per te, meglio con una serie di monete",
       keys: "Tastiera: ← → o A / D · Spazio fuoco · P pausa · M audio", gotIt: 'Ho capito!',
       crashed: 'Incidente!', outOfFuel: 'A secco!', score: 'Punti: {n}',
       level: 'Livello', distance: 'Distanza', coins: 'Monete',
@@ -920,6 +928,7 @@ window.I18N = (() => {
       rule4: "**3回クラッシュ**で終了・**コイン10枚**で**♥**",
       rule5: "**穴ぼこ**は燃料−8%",
       rule6: "**発射**（コイン3枚）で**シャヘド**もバリアも撃破",
+      ruleAuto: "**自動発射**：自動で狙う。コイン連続で命中率アップ",
       keys: "キーボード：← → または A / D・スペースで発射・P で一時停止・M でミュート", gotIt: 'OK！',
       crashed: 'クラッシュ！', outOfFuel: '燃料切れ！', score: 'スコア：{n}',
       level: 'レベル', distance: '距離', coins: 'コイン',
@@ -954,6 +963,7 @@ window.I18N = (() => {
       rule4: "**撞3次**出局 · **10 枚金币** = 一颗 **♥**",
       rule5: "**坑洞**扣 8% 燃油",
       rule6: "**发射**（3 枚金币）击落**沙赫德**、炸毁路障",
+      ruleAuto: "**自动射击**：替你瞄准，连续吃金币命中更高",
       keys: "键盘：← → 或 A / D · 空格 发射 · P 暂停 · M 静音", gotIt: '知道了！',
       crashed: '撞车了！', outOfFuel: '没油了！', score: '得分：{n}',
       level: '关卡', distance: '距离', coins: '金币',
@@ -988,6 +998,7 @@ window.I18N = (() => {
       rule4: "**3번 충돌**하면 끝 · **코인 10개** = **♥** 하나",
       rule5: "**포트홀**은 연료 −8%",
       rule6: "**발사** (코인 3개)로 **샤헤드**와 바리케이드 파괴",
+      ruleAuto: "**자동 발사**: 대신 조준, 코인 연속일수록 정확",
       keys: "키보드: ← → 또는 A / D · 스페이스 발사 · P 일시 정지 · M 음소거", gotIt: '알겠어요!',
       crashed: '충돌!', outOfFuel: '연료 고갈!', score: '점수: {n}',
       level: '레벨', distance: '거리', coins: '코인',
@@ -1022,6 +1033,7 @@ window.I18N = (() => {
       rule4: "**3 टक्कर** = बाहर · **10 सिक्के** = एक **♥**",
       rule5: "**गड्ढे** = −8% ईंधन",
       rule6: "**फ़ायर** (3 सिक्के) से **शाहेद** और बैरियर तोड़ो",
+      ruleAuto: "**ऑटो-फ़ायर**: आपके लिए निशाना, सिक्कों की लड़ी से बेहतर",
       keys: "कीबोर्ड: ← → या A / D · स्पेस फ़ायर · P रोकें · M म्यूट", gotIt: 'समझ गया!',
       crashed: 'टक्कर!', outOfFuel: 'ईंधन ख़त्म!', score: 'स्कोर: {n}',
       level: 'लेवल', distance: 'दूरी', coins: 'सिक्के',
@@ -1056,6 +1068,7 @@ window.I18N = (() => {
       rule4: "**3 аварії** — кінець · **10 монет** = **♥**",
       rule5: "**Ями** = −8% пального",
       rule6: "**ПУСК** (3 монети) збиває **шахеди** й бар'єри",
+      ruleAuto: "**Автопуск**: цілиться за тебе, точніше з серією монет",
       keys: "Клавіатура: ← → або A / D · Пробіл — пуск · P — пауза · M — звук", gotIt: 'Зрозуміло!',
       crashed: 'Аварія!', outOfFuel: 'Пальне скінчилося!', score: 'Рахунок: {n}',
       level: 'Рівень', distance: 'Відстань', coins: 'Монети',
@@ -1092,6 +1105,7 @@ window.I18N = (() => {
       rule4: "**3 ავარია** = დასასრული · **10 მონეტა** = **♥**",
       rule5: "**ორმოები** = −8% საწვავი",
       rule6: "**გასროლა** (3 მონეტა) ჩამოაგდებს **შაჰედებს** და ბარიერებს",
+      ruleAuto: "**ავტოგასროლა**: შენ მაგივრად უმიზნებს, მონეტების სერიით უკეთესად",
       keys: "კლავიატურა: ← → ან A / D · Space გასროლა · P პაუზა · M ხმა", gotIt: 'გასაგებია!',
       crashed: 'ავარია!', outOfFuel: 'საწვავი გათავდა!', score: 'ქულა: {n}',
       level: 'დონე', distance: 'მანძილი', coins: 'მონეტები',
