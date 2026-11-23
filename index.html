@@ -64,10 +64,16 @@
   #mute:active { transform: scale(.92); box-shadow: none; }
   /* Pause: round button in the bottom bar, between the coin info and FIRE */
   #pauseBtn {
-    flex: none; width: 48px; height: 48px; margin: 0; padding: 0; border-radius: 50%;
-    font-size: 20px; line-height: 1; color: var(--text);
-    background: rgba(255,255,255,.1); box-shadow: 0 4px 0 rgba(0,0,0,.35);
+    flex: none; position: relative; width: 56px; height: 56px; margin: 0; padding: 0; border-radius: 50%;
+    font-size: 0; color: transparent;              /* bars are drawn below, not the ⏸ emoji (it sits off-centre) */
+    background: rgba(255,255,255,.12); box-shadow: 0 4px 0 rgba(0,0,0,.35);
   }
+  #pauseBtn::before, #pauseBtn::after {
+    content: ""; position: absolute; top: 50%; width: 6px; height: 20px; margin-top: -10px;
+    border-radius: 2px; background: var(--text);
+  }
+  #pauseBtn::before { left: calc(50% - 9px); }
+  #pauseBtn::after  { left: calc(50% + 3px); }
   #pauseBtn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.35); }
   #pause { background: rgba(6, 8, 16, .78); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
   .pauseCard { gap: 18px; max-width: 300px; }
@@ -76,7 +82,7 @@
   /* Launch bar under the road: coin progress on the left, a big fire button on the right */
   #eggBar {
     /* three columns, equal sides, so the pause button sits dead centre */
-    flex: none; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; padding: 8px 12px;
+    flex: none; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 10px; padding: 8px 12px;
     background: linear-gradient(#141831, #0f1220); border-top: 3px solid; border-image: linear-gradient(90deg, #0057B7 50%, #FFD700 50%) 1;
   }
   #wrap.at-home #eggBar { visibility: hidden; }
