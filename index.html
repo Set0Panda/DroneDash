@@ -61,6 +61,16 @@
     background: rgba(255,255,255,.1); color: var(--text); box-shadow: none;
   }
   #mute:active { transform: scale(.92); box-shadow: none; }
+  /* Ukrainian easter egg: rocket counter / fire button */
+  #rocketBtn {
+    pointer-events: auto; margin: 0; padding: 4px 9px; font-size: 15px; line-height: 1; border-radius: 8px;
+    background: rgba(255,255,255,.1); color: var(--text); box-shadow: none; display: flex; align-items: center; gap: 4px;
+  }
+  #rocketBtn b { color: var(--coin); font-variant-numeric: tabular-nums; }
+  #rocketBtn:disabled { opacity: .45; }
+  #rocketBtn.ready { background: #0057B7; box-shadow: 0 0 0 2px #FFD700, 0 0 16px rgba(255,215,0,.6); animation: rocketPulse .5s ease-in-out infinite alternate; }
+  #rocketBtn:active { transform: scale(.92); }
+  @keyframes rocketPulse { to { transform: scale(1.12); } }
   .tag { flex: none; min-width: 44px; white-space: nowrap; font-size: 12px; font-weight: 800; letter-spacing: 1px; color: var(--muted); }
   .bar { flex: 1; height: 10px; border-radius: 5px; background: rgba(255,255,255,.1); overflow: hidden; }
   .bar > div { height: 100%; width: 0; border-radius: 5px; transition: background-color .3s; }
@@ -332,7 +342,7 @@
   <canvas id="game"></canvas>
 
   <div id="hud">
-    <div class="hrow"><span id="score">0</span><span id="streak">×2</span><span id="lives"></span><button id="mute" type="button" aria-label="Mute sound">🔊</button></div>
+    <div class="hrow"><span id="score">0</span><span id="streak">×2</span><button id="rocketBtn" type="button" hidden>🚀<b id="rocketN">0</b></button><span id="lives"></span><button id="mute" type="button" aria-label="Mute sound">🔊</button></div>
     <div class="hrow"><span class="tag" id="level">LV 1</span><div class="bar"><div id="prog"></div></div><span class="small" id="togo">400 m</span></div>
     <div class="hrow" id="fuelRow"><span class="tag" data-i18n="fuel">FUEL</span><div class="bar"><div id="fuel"></div></div><span id="pips" data-i18n-title="pipsTitle" title="Coins until next fuel top-up"><i></i><i></i><i></i><i></i><i></i></span></div>
   </div>
@@ -685,6 +695,9 @@ window.I18N = (() => {
       checkpoint: 'ЧЕКПОІНТ · РІВЕНЬ {n}', homeBest: '🏆 Рекорд {best} · Рівень {level}',
       scoreLabel: 'Рахунок', newBest: 'Новий рекорд!',
       unlocked: "Відкрито: {item}", upStripes: "Гоночні смуги", upSpoiler: "Спойлер", upPaint: "Фіолетова фарба", upFlames: "Полум'я з вихлопу", upGlow: "Неонове підсвічування", upGold: "Золота фарба",
+      // Easter egg (Ukrainian only): Shahed drones and rockets bought with coins
+      shahedBanner: 'ШАХЕД!', shahedSub: 'Тисни на нього · 🚀 = {n} монети',
+      shotDown: 'ЗБИТО!', rocketTitle: 'Ракета: {n} монети (пробіл)',
       language: 'Мова', auto: 'Авто'
     },
     ka: {
@@ -969,6 +982,10 @@ window.LD_RULES = (() => {
   let planner; // row planner state (see LD_RULES.planRow)
   let level, levelDist, distance, bonus, fuel, coins, coinMeter, streak, finishSpawned, stallT, lowFuelT = 0;
   let countT = 0, shownCount = null;
+  // Easter egg, Ukrainian only: Shahed drones dive at your lane; spend coins on rockets to shoot them down.
+  const EGG = () => I18N.lang === 'uk';
+  const ROCKET_COST = 3, DRONE_FUEL = 15, ROCKET_V = 1100;
+  let drones = [], rockets = [], booms = [], wallet = 0, droneT = 0, droneSeen = false;
 
   function readNum(k) { try { return +localStorage.getItem(k) || 0; } catch { return 0; } }
   function writeNum(k, v) { try { localStorage.setItem(k, v); } catch {} }
@@ -1046,6 +1063,28 @@ window.LD_RULES = (() => {
       lowFuel()   { tone(660, 0.09, { type: 'square', vol: 0.07 }); tone(660, 0.09, { type: 'square', vol: 0.07, delay: 0.14 }); },
       outOfFuel() { for (let i = 0; i < 5; i++) { tone(95 - i * 10, 0.12, { type: 'sawtooth', vol: 0.16, delay: i * 0.18 }); noise(0.08, { vol: 0.12, from: 900, to: 200, delay: i * 0.18 }); } },
       gameOver()  { arp([392, 330, 262, 196], 0.16, { type: 'triangle', vol: 0.18, dur: 0.32, delay: 0.35 }); },
+      launch()    { noise(0.45, { vol: 0.25, from: 4000, to: 700 }); tone(280, 0.35, { type: 'sawtooth', vol: 0.08, slide: 3 }); },
+      boom()      { noise(0.8, { vol: 0.6, from: 1800, to: 60 }); tone(70, 0.6, { vol: 0.45, slide: 0.4 }); },
+      // The Shahed's moped-like two-stroke buzz, while one is on screen.
+      buzz(on) {
+        if (!ac) return;
+        const t = ac.currentTime;
+        if (on && !this._bz) {
+          const o = ac.createOscillator(), f = ac.createBiquadFilter(), g = ac.createGain();
+          const lfo = ac.createOscillator(), lg = ac.createGain();
+          o.type = 'sawtooth'; o.frequency.value = 118;
+          lfo.frequency.value = 23; lg.gain.value = 9; lfo.connect(lg).connect(o.frequency);
+          f.type = 'lowpass'; f.frequency.value = 1100;
+          o.connect(f).connect(g).connect(master);
+          g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.07, t + 0.5);
+          o.start(); lfo.start();
+          this._bz = { o, lfo, g };
+        } else if (!on && this._bz) {
+          const b = this._bz; this._bz = null;
+          b.g.gain.setTargetAtTime(0.0001, t, 0.08);
+          b.o.stop(t + 0.5); b.lfo.stop(t + 0.5);
+        }
+      },
       // Engine: two detuned oscillators (low body + an octave up so phone speakers
       // can reproduce it), a resonant filter, and a "firing" pulse for rumble.
       // Pitch, brightness and pulse rate all follow road speed.
@@ -1120,6 +1159,7 @@ window.LD_RULES = (() => {
     lives = MAX_LIVES; level = 1; speed = levelSpeed(1);
     spawnDist = 200; flash = 0; roadOffset = 0; shake = 0; planner = R.newPlanner(Math.random);
     levelDist = 0; distance = 0; bonus = 0; fuel = 100; coins = 0; coinMeter = 0; streak = 0; lowFuelT = 0; finishSpawned = false;
+    drones = []; rockets = []; booms = []; wallet = 0; droneT = 7; droneSeen = false;
     el.banner.innerHTML = '';
     updateHud();
   }
@@ -1137,6 +1177,80 @@ window.LD_RULES = (() => {
     el.fuel.style.backgroundColor = fuel > 50 ? '' : fuel > 25 ? getVar('--fuel-mid') : '';
     el.fuelRow.classList.toggle('low', fuel <= 25);
     [...el.pips.children].forEach((p, i) => p.classList.toggle('on', i < coinMeter));
+    const egg = EGG() && state !== 'home';
+    rocketBtn.hidden = !egg;
+    if (egg) {
+      const n = Math.floor(wallet / ROCKET_COST);
+      if (rocketN.textContent !== String(n)) rocketN.textContent = n;
+      rocketBtn.disabled = n === 0;
+      rocketBtn.classList.toggle('ready', n > 0 && !!target());
+    }
+  }
+  const rocketBtn = $('rocketBtn'), rocketN = $('rocketN');
+
+  // ---- Easter egg: Shaheds and rockets ----
+  // Nearest live drone that no rocket is already chasing.
+  function target() {
+    let best = null;
+    for (const d of drones) if (!d.dead && d.y > -40 && !rockets.some(r => r.target === d) && (!best || d.y > best.y)) best = d;
+    return best;
+  }
+  function fire() {
+    if (state !== 'play' || !EGG() || wallet < ROCKET_COST) return false;
+    const tg = target();
+    if (!tg) return false;
+    wallet -= ROCKET_COST;
+    rockets.push({ x: player.x, y: player.y, vx: 0, vy: -ROCKET_V, target: tg });
+    sfx.launch();
+    return true;
+  }
+  function explode(x, y) {
+    booms.push({ x, y, life: 0.4 });
+    burst(x, y, '#f6ad55', 18); burst(x, y, '#fefcbf', 10); burst(x, y, '#f56565', 8);
+    sfx.boom();
+  }
+  function updateDrones(dt) {
+    droneT -= dt;
+    if (droneT <= 0 && !drones.length) {
+      droneT = 9 + Math.random() * 7;
+      // It dives at the lane you're in, so you can always dodge it.
+      drones.push({ lane: player.lane, x: laneX(player.lane), y: -60, t: 0 });
+      if (!droneSeen) { droneSeen = true; showBanner(t('shahedBanner'), t('shahedSub', { n: ROCKET_COST }), true); }
+    }
+    const v = 220 + speed * 0.35; // slower than the road: time to dodge or shoot
+    for (const d of drones) {
+      d.t += dt; d.y += v * dt; d.x = laneX(d.lane);
+      if (!d.dead && Math.abs(d.x - player.x) < player.w / 2 + 14 && d.y + 22 > player.y + 8 && d.y - 22 < player.y + player.h - 8) {
+        // Hit: a blast that costs fuel and speed, not a life.
+        d.dead = true;
+        explode(player.x, player.y + 10);
+        fuel = Math.max(0, fuel - DRONE_FUEL);
+        speed *= POTHOLE_SLOW; shake = 0.45; streak = 0;
+        floatText(player.x, player.y - 24, t('fuelFloat', { n: '−' + DRONE_FUEL }), getVar('--enemy'));
+        if (navigator.vibrate) navigator.vibrate(150);
+      }
+    }
+    for (const r of rockets) {
+      const tg = r.target;
+      if (tg && !tg.dead) {
+        const dx = tg.x - r.x, dy = tg.y - r.y, dist = Math.hypot(dx, dy);
+        if (dist < 24) {
+          tg.dead = r.dead = true;
+          explode(tg.x, tg.y);
+          const pts = 150 * level;
+          bonus += pts;
+          floatText(tg.x, tg.y - 10, t('shotDown') + ' +' + num(pts), '#FFD700');
+          continue;
+        }
+        r.vx = dx / dist * ROCKET_V; r.vy = dy / dist * ROCKET_V;
+      }
+      r.x += r.vx * dt; r.y += r.vy * dt;
+      particles.push({ x: r.x, y: r.y + 8, vx: (Math.random() - 0.5) * 40, vy: 60, life: 0.35, color: 'rgba(200,205,220,.7)' });
+    }
+    rockets = rockets.filter(r => !r.dead && r.y > -60);
+    drones = drones.filter(d => !d.dead && d.y < H + 60);
+    booms.forEach(b => { b.life -= dt; });
+    booms = booms.filter(b => b.life > 0);
   }
 
   // Lane changes work during the countdown too, so you can line up before GO.
@@ -1202,7 +1316,7 @@ window.LD_RULES = (() => {
     const cx = laneX(o.lane);
     if (o.type === 'coin') {
       o.dead = true;
-      coins++;
+      coins++; wallet++;
       streak = Math.min(MAX_STREAK, streak + 1);
       const pts = coinValue(level, streak);
       bonus += pts;
@@ -1468,6 +1582,7 @@ window.LD_RULES = (() => {
       if (o.type === 'coin') streak = 0; // missed a coin: streak broken
       return false;
     });
+    if (EGG() && state === 'play') updateDrones(dt);
     updateHud();
   }
 
@@ -1608,6 +1723,50 @@ window.LD_RULES = (() => {
     ctx.fillText(t('checkpoint', { n: level + 1 }), W / 2, y - 8, W - 16);
   }
 
+  // Shahed-style delta-wing drone seen from above, nose down (diving at you).
+  function drawShahed(x, y, t) {
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,.28)';                       // shadow on the road
+    ctx.translate(x + 14, y + 22);
+    poly([[0, 26], [30, -14], [0, -10], [-30, -14]]);
+    ctx.restore();
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(Math.sin(t * 3) * 0.07);
+    ctx.fillStyle = '#7a7f8e';
+    poly([[0, 26], [31, -13], [28, -18], [0, -11], [-28, -18], [-31, -13]]);
+    ctx.fillStyle = '#5b606e';
+    roundRect(-5, -22, 10, 46, 5); ctx.fill();
+    ctx.fillStyle = '#3d414d';                                 // wingtip fins
+    ctx.fillRect(-31, -21, 4, 11); ctx.fillRect(27, -21, 4, 11);
+    ctx.fillStyle = Math.floor(t * 4) % 2 ? '#f56565' : '#5b1d1d'; // blinking light
+    ctx.beginPath(); ctx.arc(0, 14, 2.5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(225,228,240,.55)';                   // spinning pusher prop
+    ctx.beginPath(); ctx.ellipse(0, -24, 2 + Math.abs(Math.cos(t * 47)) * 11, 2, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+  function drawReticle(x, y) {
+    ctx.strokeStyle = '#f56565'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(x, y, 30, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x - 42, y); ctx.lineTo(x - 20, y); ctx.moveTo(x + 20, y); ctx.lineTo(x + 42, y);
+    ctx.moveTo(x, y - 42); ctx.lineTo(x, y - 20); ctx.moveTo(x, y + 20); ctx.lineTo(x, y + 42);
+    ctx.stroke();
+  }
+  function drawRocket(r) {
+    ctx.save();
+    ctx.translate(r.x, r.y);
+    ctx.rotate(Math.atan2(r.vy, r.vx) + Math.PI / 2);
+    ctx.fillStyle = '#f6ad55';
+    poly([[-3, 9], [3, 9], [0, 18 + Math.random() * 8]]);
+    ctx.fillStyle = '#f4f4f8'; ctx.fillRect(-3, -9, 6, 18);
+    ctx.fillStyle = '#0057B7'; ctx.fillRect(-3, -2, 6, 4);
+    ctx.fillStyle = '#FFD700'; ctx.fillRect(-3, 2, 6, 3);
+    ctx.fillStyle = '#c53030'; poly([[-3, -9], [3, -9], [0, -15]]);
+    ctx.fillStyle = '#4a5072'; poly([[-3, 5], [-7, 10], [-3, 9]]); poly([[3, 5], [7, 10], [3, 9]]);
+    ctx.restore();
+  }
+
   function drawCoin(cx, cy, r) {
     ctx.fillStyle = getVar('--coin');
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
@@ -1642,8 +1801,25 @@ window.LD_RULES = (() => {
       else if (o.type === 'hole') drawPothole(cx, o.y + o.h / 2, o.w / 2, o.h / 2, o.seed);
     }
 
+    // Shahed warning: a blinking red target on your lane while one is incoming.
+    for (const d of drones) {
+      if (d.y < player.y - 70 && Math.floor(d.t * 6) % 2 === 0) drawReticle(d.x, player.y + player.h / 2);
+    }
+
     if (!(flash > 0 && Math.floor(flash * 16) % 2 === 0)) {
       drawCar(player.x, player.y, player.w, player.h, carPaint(), true);
+    }
+
+    for (const d of drones) drawShahed(d.x, d.y, d.t);
+    for (const r of rockets) drawRocket(r);
+    for (const b of booms) {
+      const k = 1 - b.life / 0.4;
+      ctx.globalAlpha = b.life / 0.4;
+      ctx.fillStyle = '#fefcbf';
+      ctx.beginPath(); ctx.arc(b.x, b.y, 10 + k * 46, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#f6ad55';
+      ctx.beginPath(); ctx.arc(b.x, b.y, 6 + k * 30, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
     }
 
     for (const p of particles) {
@@ -1663,11 +1839,12 @@ window.LD_RULES = (() => {
   }
 
   function loop(t) {
-    const dt = Math.min(0.05, (t - (last || t)) / 1000);
+    const dt = Math.max(0, Math.min(0.05, (t - (last || t)) / 1000));
     last = t;
     update(dt);
     draw();
     sfx.engine(state === 'play' || state === 'stall', speed);
+    sfx.buzz(state === 'play' && drones.length > 0);
     requestAnimationFrame(loop);
   }
 
@@ -1677,6 +1854,7 @@ window.LD_RULES = (() => {
     else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') move(1);
     else if ((e.key === 'Enter' || e.key === ' ') && state === 'home' && !e.target.closest('button')) { e.preventDefault(); startPlay(); }
     else if ((e.key === 'Enter' || e.key === ' ') && state === 'menu' && !e.target.closest('button')) { e.preventDefault(); closeHelp(); }
+    else if ((e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') && state === 'play' && EGG()) { e.preventDefault(); fire(); }
     else if (e.key === 'Escape' && (state === 'menu' || state === 'over' || state === 'bye')) goHome();
     else if ((e.key === 'Enter' || e.key === ' ') && state === 'over') { e.preventDefault(); restart(); }
   });
@@ -1690,6 +1868,11 @@ window.LD_RULES = (() => {
     setLane(Math.floor((e.clientX - r.left) / (r.width / LANES)));
   }
   canvas.addEventListener('pointerdown', e => {
+    // Easter egg: tapping a Shahed fires a rocket at it instead of steering.
+    if (state === 'play' && EGG() && drones.length) {
+      const r = canvas.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+      if (drones.some(d => Math.hypot(d.x - x, d.y - y) < 55) && fire()) return;
+    }
     dragging = true;
     canvas.setPointerCapture(e.pointerId);
     goToPointerLane(e);
@@ -1716,6 +1899,8 @@ window.LD_RULES = (() => {
 
   $('startBtn').addEventListener('click', closeHelp);
   $('retryBtn').addEventListener('click', restart);
+  rocketBtn.addEventListener('click', () => { fire(); rocketBtn.blur(); });
+  I18N.onChange(() => { rocketBtn.title = t('rocketTitle', { n: ROCKET_COST }); rocketBtn.setAttribute('aria-label', rocketBtn.title); });
   $('playBtn').addEventListener('click', startPlay);
   $('helpBtn').addEventListener('click', () => openHelp(true));
   $('exitBtn').addEventListener('click', exitGame);
