@@ -70,14 +70,24 @@
   }
   @keyframes roadMove { to { background-position: 58px 24px, 118px 24px; } }
   .demo .car {
-    position: absolute; bottom: 14px; left: 76px; width: 28px; height: 40px; border-radius: 7px;
-    background: var(--player); animation: carMove 4.5s infinite;
+    position: absolute; bottom: 14px; left: 76px; width: 28px; height: 42px; animation: carMove 4.5s infinite;
   }
-  .demo .car::before, .demo .car::after {
-    content: ""; position: absolute; left: 4px; right: 4px; border-radius: 3px; background: rgba(15,18,32,.75);
+  /* wheels: one per side, box-shadow copies it to the rear */
+  .demo .car i::before, .demo .car i::after {
+    content: ""; position: absolute; top: 6px; width: 5px; height: 9px; border-radius: 2px;
+    background: #0b0d17; box-shadow: 0 20px 0 #0b0d17;
   }
-  .demo .car::before { top: 7px; height: 9px; }
-  .demo .car::after { bottom: 7px; height: 7px; }
+  .demo .car i::before { left: -2px; }
+  .demo .car i::after { right: -2px; }
+  .demo .car b {
+    position: absolute; inset: 0; border-radius: 9px; background: var(--player);
+    box-shadow: inset 3px 0 0 rgba(0,0,0,.14), inset -3px 0 0 rgba(0,0,0,.14);
+  }
+  .demo .car b::before, .demo .car b::after {
+    content: ""; position: absolute; background: rgba(15,18,32,.85);
+  }
+  .demo .car b::before { top: 10px; left: 4px; right: 4px; height: 7px; clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%); }
+  .demo .car b::after { bottom: 8px; left: 4px; right: 4px; height: 5px; clip-path: polygon(0 0, 100% 0, 90% 100%, 10% 100%); }
   @keyframes carMove {
     0%, 8%   { left: 76px; }
     14%, 41% { left: 136px; }
@@ -107,7 +117,10 @@
   .rules { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; gap: 10px; text-align: left; }
   .rules li { display: flex; align-items: center; gap: 12px; font-size: 15px; }
   .rules .ico { flex: none; width: 26px; height: 26px; display: grid; place-items: center; }
-  .ico.block { background: var(--enemy); border-radius: 6px; width: 24px; height: 20px; }
+  .ico.block {
+    width: 26px; height: 12px; border-radius: 3px;
+    background: repeating-linear-gradient(-45deg, var(--enemy) 0 5px, #f4f4f8 5px 10px);
+  }
   .ico.coin { background: var(--coin); border-radius: 50%; width: 20px; height: 20px; }
   .ico.heart { color: var(--enemy); font-size: 22px; }
   .keys { font-size: 13px; }
@@ -138,12 +151,12 @@
     <div class="card" role="dialog" aria-labelledby="introTitle">
       <h1 id="introTitle">Lane Dodger</h1>
       <h2>How to play</h2>
-      <div class="demo" aria-hidden="true"><div class="car"></div><div class="tap"></div></div>
+      <div class="demo" aria-hidden="true"><div class="car"><i></i><b></b></div><div class="tap"></div></div>
       <p class="lead">Tap any lane to jump straight there.<br>Hold and drag to slide across.</p>
       <ul class="rules">
-        <li><span class="ico"><span class="ico block"></span></span>Dodge the red blocks</li>
+        <li><span class="ico"><span class="ico block"></span></span>Dodge the barriers</li>
         <li><span class="ico"><span class="ico coin"></span></span>Grab coins for +50 points</li>
-        <li><span class="ico heart">♥</span>3 lives – the road keeps getting faster</li>
+        <li><span class="ico heart">♥</span>3 lives – every crash costs one</li>
       </ul>
       <p class="keys">Keyboard: ← → or A / D</p>
       <button id="startBtn">Got it!</button>
@@ -162,7 +175,9 @@
 (() => {
   const LANES = 3;
   const MAX_LIVES = 3;
-  const INVULN_TIME = 1.5; // seconds after a hit
+  const FLASH_TIME = 0.5;  // car blinks after a hit (visual only – every hit counts)
+  const MIN_GAP = 340;     // min px between obstacle rows, so there's always room to recover
+  const BARRIER_H = 38;
   const COUNTDOWN = 3;     // 3-2-1, then GO
 
   const canvas = document.getElementById('game');
@@ -177,7 +192,7 @@
 
   let W = 0, H = 0, dpr = 1, laneW = 0;
   let state = 'menu'; // menu | countdown | play | over
-  let player, objects, score, lives, speed, spawnTimer, invuln, roadOffset, shake, particles, last;
+  let player, objects, score, lives, speed, spawnDist, flash, roadOffset, shake, particles, last;
   let countT = 0, shownCount = null;
 
   function readBest() { try { return +localStorage.getItem('laneDodgerBest') || 0; } catch { return 0; } }
@@ -201,7 +216,7 @@
     player = { lane: 1, x: laneX(1), y: H - 110, w: Math.min(laneW * 0.55, 70), h: 80 };
     objects = [];
     particles = [];
-    score = 0; lives = MAX_LIVES; speed = 280; spawnTimer = 0.6; invuln = 0; roadOffset = 0; shake = 0;
+    score = 0; lives = MAX_LIVES; speed = 280; spawnDist = 200; flash = 0; roadOffset = 0; shake = 0;
     updateHud();
   }
 
@@ -222,12 +237,12 @@
     // Block 1–2 lanes, always leave at least one free
     const blocks = Math.random() < Math.min(0.15 + score / 4000, 0.55) ? 2 : 1;
     const lanes = [0, 1, 2].sort(() => Math.random() - 0.5);
-    const h = 60 + Math.random() * 30;
+    const h = BARRIER_H;
     for (let i = 0; i < blocks; i++) {
-      objects.push({ type: 'enemy', lane: lanes[i], y: -h, w: laneW * 0.62, h });
+      objects.push({ type: 'enemy', lane: lanes[i], y: -h, w: laneW * 0.8, h });
     }
     if (Math.random() < 0.35) {
-      objects.push({ type: 'coin', lane: lanes[LANES - 1], y: -h - 120, w: 28, h: 28 });
+      objects.push({ type: 'coin', lane: lanes[LANES - 1], y: -h - 150, w: 28, h: 28 });
     }
   }
 
@@ -244,9 +259,8 @@
       burst(laneX(o.lane), o.y + o.h / 2, getVar('--coin'), 12);
       return;
     }
-    if (invuln > 0) return;
     o.dead = true;
-    lives--; invuln = INVULN_TIME; shake = 0.35;
+    lives--; flash = FLASH_TIME; shake = 0.35;
     burst(player.x, player.y + player.h / 2, getVar('--enemy'), 24);
     if (navigator.vibrate) navigator.vibrate(120);
     updateHud();
@@ -323,13 +337,14 @@
 
     speed += 9 * dt;               // gradually faster
     score += speed * dt * 0.05;
-    invuln = Math.max(0, invuln - dt);
+    flash = Math.max(0, flash - dt);
     slidePlayer(dt);
 
-    spawnTimer -= dt;
-    if (spawnTimer <= 0) {
+    // Spawn by distance travelled, not time, so rows never bunch up at high speed.
+    spawnDist -= speed * dt;
+    if (spawnDist <= 0) {
       spawn();
-      spawnTimer = Math.max(0.38, 260 / speed * 0.9) + Math.random() * 0.25;
+      spawnDist = MIN_GAP + Math.random() * 140;
     }
 
     const px = player.x - player.w / 2, py = player.y;
@@ -354,12 +369,71 @@
     ctx.closePath();
   }
 
+  function poly(pts) {
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.closePath(); ctx.fill();
+  }
+
+  // Top-down car, front facing up the road.
   function drawCar(x, y, w, h, color) {
+    const l = x - w / 2, r = x + w / 2;
+    // wheels (poke out from under the body)
+    ctx.fillStyle = '#0b0d17';
+    const ww = 8, wh = h * 0.2;
+    for (const wy of [y + h * 0.13, y + h * 0.67]) {
+      roundRect(l - 3, wy, ww, wh, 3); ctx.fill();
+      roundRect(r - ww + 3, wy, ww, wh, 3); ctx.fill();
+    }
+    // body
     ctx.fillStyle = color;
-    roundRect(x - w / 2, y, w, h, 12); ctx.fill();
-    ctx.fillStyle = 'rgba(15,18,32,.75)';
-    roundRect(x - w / 2 + 8, y + 14, w - 16, h * 0.25, 6); ctx.fill();
-    roundRect(x - w / 2 + 8, y + h * 0.62, w - 16, h * 0.18, 6); ctx.fill();
+    roundRect(l, y, w, h, Math.min(w * 0.32, 16)); ctx.fill();
+    // side shading for a bit of depth
+    ctx.fillStyle = 'rgba(0,0,0,.14)';
+    roundRect(l, y + h * 0.18, w * 0.12, h * 0.64, 4); ctx.fill();
+    roundRect(r - w * 0.12, y + h * 0.18, w * 0.12, h * 0.64, 4); ctx.fill();
+    // windshield
+    ctx.fillStyle = 'rgba(15,18,32,.85)';
+    poly([[x - w * 0.30, y + h * 0.24], [x + w * 0.30, y + h * 0.24],
+          [x + w * 0.37, y + h * 0.41], [x - w * 0.37, y + h * 0.41]]);
+    // roof
+    ctx.fillStyle = 'rgba(255,255,255,.16)';
+    roundRect(x - w * 0.33, y + h * 0.43, w * 0.66, h * 0.25, 5); ctx.fill();
+    // rear window
+    ctx.fillStyle = 'rgba(15,18,32,.85)';
+    poly([[x - w * 0.35, y + h * 0.70], [x + w * 0.35, y + h * 0.70],
+          [x + w * 0.29, y + h * 0.81], [x - w * 0.29, y + h * 0.81]]);
+    // headlights + tail lights
+    ctx.fillStyle = '#fff6c2';
+    roundRect(l + 5, y + 3, w * 0.22, 5, 2); ctx.fill();
+    roundRect(r - 5 - w * 0.22, y + 3, w * 0.22, 5, 2); ctx.fill();
+    ctx.fillStyle = '#c53030';
+    roundRect(l + 5, y + h - 7, w * 0.2, 4, 2); ctx.fill();
+    roundRect(r - 5 - w * 0.2, y + h - 7, w * 0.2, 4, 2); ctx.fill();
+  }
+
+  // Red-and-white striped road barrier on two legs.
+  function drawBarrier(cx, y, w, h) {
+    const x = cx - w / 2, boardH = h * 0.62;
+    ctx.fillStyle = '#4a5072';
+    ctx.fillRect(x + 10, y + boardH - 4, 6, h - boardH + 4);
+    ctx.fillRect(x + w - 16, y + boardH - 4, 6, h - boardH + 4);
+    ctx.fillRect(x + 4, y + h - 5, 18, 5);
+    ctx.fillRect(x + w - 22, y + h - 5, 18, 5);
+    ctx.save();
+    roundRect(x, y, w, boardH, 5); ctx.clip();
+    ctx.fillStyle = '#f4f4f8';
+    ctx.fillRect(x, y, w, boardH);
+    ctx.fillStyle = getVar('--enemy');
+    for (let s = -boardH; s < w; s += 24) {
+      poly([[x + s, y + boardH], [x + s + 12, y + boardH], [x + s + 12 + boardH, y], [x + s + boardH, y]]);
+    }
+    ctx.restore();
+    // amber warning lamps on top
+    ctx.fillStyle = '#ffb020';
+    ctx.beginPath(); ctx.arc(x + 13, y - 2, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x + w - 13, y - 2, 4, 0, Math.PI * 2); ctx.fill();
   }
 
   function draw() {
@@ -379,10 +453,7 @@
     for (const o of objects) {
       const cx = laneX(o.lane);
       if (o.type === 'enemy') {
-        ctx.fillStyle = getVar('--enemy');
-        roundRect(cx - o.w / 2, o.y, o.w, o.h, 10); ctx.fill();
-        ctx.fillStyle = 'rgba(0,0,0,.25)';
-        roundRect(cx - o.w / 2 + 6, o.y + o.h - 14, o.w - 12, 8, 4); ctx.fill();
+        drawBarrier(cx, o.y, o.w, o.h);
       } else {
         ctx.fillStyle = getVar('--coin');
         ctx.beginPath(); ctx.arc(cx, o.y + o.h / 2, o.w / 2, 0, Math.PI * 2); ctx.fill();
@@ -392,7 +463,7 @@
     }
 
     // player (blinks while invulnerable)
-    if (!(invuln > 0 && Math.floor(invuln * 12) % 2 === 0)) {
+    if (!(flash > 0 && Math.floor(flash * 16) % 2 === 0)) {
       drawCar(player.x, player.y, player.w, player.h, getVar('--player'));
     }
 
