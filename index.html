@@ -48,7 +48,7 @@
     position: absolute; bottom: 0; left: 0; right: 0; display: flex; pointer-events: none; opacity: .0;
     transition: opacity .4s;
   }
-  #touchHint div { flex: 1; text-align: center; padding: 18px 0; color: var(--muted); font-size: 28px; }
+  #touchHint div { flex: 1; text-align: center; padding: 18px 0; color: var(--muted); font-size: 18px; text-transform: uppercase; letter-spacing: 2px; }
   #touchHint.show { opacity: .5; }
 </style>
 </head>
@@ -56,12 +56,12 @@
 <div id="wrap">
   <canvas id="game"></canvas>
   <div id="hud"><span id="score">0</span><span id="lives"></span></div>
-  <div id="touchHint"><div>◀</div><div>▶</div></div>
+  <div id="touchHint"><div>tap</div><div>tap</div><div>tap</div></div>
 
   <div id="start" class="overlay">
     <h1>Lane Dodger</h1>
     <p>Dodge the red blocks. Grab yellow coins for bonus points.</p>
-    <p>Tap left / right side or swipe<br>Keyboard: ← → or A / D</p>
+    <p>Tap a lane to jump there, or drag<br>Keyboard: ← → or A / D</p>
     <button id="startBtn">Play</button>
   </div>
 
@@ -200,7 +200,7 @@
 
     // smooth lane slide
     const tx = laneX(player.lane);
-    player.x += (tx - player.x) * Math.min(1, dt * 18);
+    player.x += (tx - player.x) * Math.min(1, dt * 28);
     player.y = H - 110;
 
     spawnTimer -= dt;
@@ -297,21 +297,24 @@
     else if ((e.key === 'Enter' || e.key === ' ') && state !== 'play') { e.preventDefault(); start(); }
   });
 
-  let touchStart = null;
+  // Touch / mouse: the car goes straight to the lane under your finger,
+  // and follows it while you drag — so lane 1 → 3 is a single touch.
+  let dragging = false;
+  function goToPointerLane(e) {
+    if (state !== 'play') return;
+    const r = canvas.getBoundingClientRect();
+    const lane = Math.floor((e.clientX - r.left) / (r.width / LANES));
+    player.lane = Math.max(0, Math.min(LANES - 1, lane));
+  }
   canvas.addEventListener('pointerdown', e => {
-    touchStart = { x: e.clientX, y: e.clientY, t: performance.now() };
+    dragging = true;
+    canvas.setPointerCapture(e.pointerId);
+    goToPointerLane(e);
   });
-  canvas.addEventListener('pointerup', e => {
-    if (!touchStart) return;
-    const dx = e.clientX - touchStart.x;
-    if (Math.abs(dx) > 30) move(dx > 0 ? 1 : -1);          // swipe
-    else {                                                   // tap side
-      const r = canvas.getBoundingClientRect();
-      move(e.clientX - r.left < r.width / 2 ? -1 : 1);
-    }
-    touchStart = null;
-  });
-  canvas.addEventListener('pointercancel', () => { touchStart = null; });
+  canvas.addEventListener('pointermove', e => { if (dragging) goToPointerLane(e); });
+  const endDrag = () => { dragging = false; };
+  canvas.addEventListener('pointerup', endDrag);
+  canvas.addEventListener('pointercancel', endDrag);
 
   document.getElementById('startBtn').addEventListener('click', start);
   document.getElementById('retryBtn').addEventListener('click', start);
