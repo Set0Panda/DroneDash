@@ -383,6 +383,23 @@
     border: 4px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.6); pointer-events: none;
   }
 
+  /* black → colour → white slider */
+  .shadeRow { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 260px; font-size: 14px; }
+  #shade {
+    -webkit-appearance: none; appearance: none; flex: 1; height: 16px; margin: 0; border-radius: 8px; cursor: pointer;
+    background: linear-gradient(90deg, hsl(0,0%,8%), var(--hue, #4fd1c5), #fff);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); touch-action: none;
+  }
+  #shade::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%; background: var(--player);
+    border: 4px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.6);
+  }
+  #shade::-moz-range-thumb {
+    width: 20px; height: 20px; border-radius: 50%; background: var(--player);
+    border: 4px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.6);
+  }
+  #shade:focus-visible { outline: 2px solid var(--text); outline-offset: 4px; }
+
   /* ---- Records ---- */
   .recCard { gap: 12px; }
   .recList { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; gap: 6px; }
@@ -453,6 +470,7 @@
         <div class="disc"><canvas id="carPreview"></canvas></div>
         <span class="knob" id="knob"></span>
       </div>
+      <div class="shadeRow"><span aria-hidden="true">⚫</span><input type="range" id="shade" min="0" max="100" step="1" data-i18n-aria="shade"><span aria-hidden="true">⚪</span></div>
       <p data-i18n="garageHint">Drag around the wheel to pick a colour</p>
       <button id="garageDone" data-i18n="done">Done</button>
     </div>
@@ -539,7 +557,7 @@ window.I18N = (() => {
       scoreLabel: "Score", newBest: "New best!",
       unlocked: "Unlocked: {item}", upStripes: "Racing stripes", upSpoiler: "Spoiler", upNumber: "Racing number", upFlames: "Exhaust flames", upGlow: "Neon glow", upGold: "Gold trim",
       garageTitle: "Your car", garageHint: "Drag around the wheel to pick a colour", colourBtn: "Colour",
-      records: "Records", noRuns: "No runs yet. Go play!", done: "Done",
+      records: "Records", noRuns: "No runs yet. Go play!", done: "Done", shade: "Shade: black to white",
       language: 'Language', auto: 'Auto'
     },
     es: {
@@ -566,7 +584,7 @@ window.I18N = (() => {
       scoreLabel: "Puntos", newBest: "¡Nuevo récord!",
       unlocked: "Desbloqueado: {item}", upStripes: "Franjas de carreras", upSpoiler: "Alerón", upNumber: "Número de carreras", upFlames: "Llamas de escape", upGlow: "Luz de neón", upGold: "Detalles dorados",
       garageTitle: "Tu coche", garageHint: "Desliza por la rueda para elegir un color", colourBtn: "Color",
-      records: "Récords", noRuns: "Aún no hay partidas. ¡A jugar!", done: "Listo",
+      records: "Récords", noRuns: "Aún no hay partidas. ¡A jugar!", done: "Listo", shade: "Tono: de negro a blanco",
       language: 'Idioma', auto: 'Automático'
     },
     fr: {
@@ -593,7 +611,7 @@ window.I18N = (() => {
       scoreLabel: "Score", newBest: `Nouveau record${NB}!`,
       unlocked: `Débloqué${NB}: {item}`, upStripes: "Bandes de course", upSpoiler: "Aileron", upNumber: "Numéro de course", upFlames: "Flammes d'échappement", upGlow: "Néons", upGold: "Finitions dorées",
       garageTitle: "Ta voiture", garageHint: "Fais glisser autour de la roue pour choisir une couleur", colourBtn: "Couleur",
-      records: "Records", noRuns: `Aucune partie pour l'instant. À toi de jouer${NB}!`, done: "OK",
+      records: "Records", noRuns: `Aucune partie pour l'instant. À toi de jouer${NB}!`, done: "OK", shade: `Nuance${NB}: du noir au blanc`,
       language: 'Langue', auto: 'Auto'
     },
     de: {
@@ -620,7 +638,7 @@ window.I18N = (() => {
       scoreLabel: "Punkte", newBest: "Neuer Rekord!",
       unlocked: "Freigeschaltet: {item}", upStripes: "Rennstreifen", upSpoiler: "Heckspoiler", upNumber: "Startnummer", upFlames: "Auspuffflammen", upGlow: "Neonlicht", upGold: "Goldene Akzente",
       garageTitle: "Dein Auto", garageHint: "Am Farbkreis ziehen, um eine Farbe zu wählen", colourBtn: "Farbe",
-      records: "Rekorde", noRuns: "Noch keine Fahrten. Los geht’s!", done: "Fertig",
+      records: "Rekorde", noRuns: "Noch keine Fahrten. Los geht’s!", done: "Fertig", shade: "Helligkeit: Schwarz bis Weiß",
       language: 'Sprache', auto: 'Automatisch'
     },
     pt: {
@@ -647,7 +665,7 @@ window.I18N = (() => {
       scoreLabel: "Pontos", newBest: "Novo recorde!",
       unlocked: "Desbloqueado: {item}", upStripes: "Faixas de corrida", upSpoiler: "Aerofólio", upNumber: "Número de corrida", upFlames: "Chamas no escapamento", upGlow: "Luz neon", upGold: "Detalhes dourados",
       garageTitle: "Seu carro", garageHint: "Arraste pela roda para escolher uma cor", colourBtn: "Cor",
-      records: "Recordes", noRuns: "Nenhuma partida ainda. Bora jogar!", done: "Pronto",
+      records: "Recordes", noRuns: "Nenhuma partida ainda. Bora jogar!", done: "Pronto", shade: "Tom: do preto ao branco",
       language: 'Idioma', auto: 'Automático'
     },
     it: {
@@ -674,7 +692,7 @@ window.I18N = (() => {
       scoreLabel: "Punti", newBest: "Nuovo record!",
       unlocked: "Sbloccato: {item}", upStripes: "Strisce da corsa", upSpoiler: "Alettone", upNumber: "Numero di gara", upFlames: "Fiamme di scarico", upGlow: "Luci al neon", upGold: "Finiture dorate",
       garageTitle: "La tua auto", garageHint: "Trascina lungo la ruota per scegliere un colore", colourBtn: "Colore",
-      records: "Record", noRuns: "Ancora nessuna partita. Gioca!", done: "Fatto",
+      records: "Record", noRuns: "Ancora nessuna partita. Gioca!", done: "Fatto", shade: "Tonalità: dal nero al bianco",
       language: 'Lingua', auto: 'Automatica'
     },
     ja: {
@@ -701,7 +719,7 @@ window.I18N = (() => {
       scoreLabel: "スコア", newBest: "ベスト更新！",
       unlocked: "解放：{item}", upStripes: "レーシングストライプ", upSpoiler: "スポイラー", upNumber: "ゼッケン", upFlames: "マフラーの炎", upGlow: "ネオンライト", upGold: "ゴールドトリム",
       garageTitle: "あなたの車", garageHint: "ホイールをなぞって色を選ぼう", colourBtn: "カラー",
-      records: "記録", noRuns: "まだ記録がありません。さあ走ろう！", done: "完了",
+      records: "記録", noRuns: "まだ記録がありません。さあ走ろう！", done: "完了", shade: "明るさ：黒から白",
       language: '言語', auto: '自動'
     },
     zh: {
@@ -728,7 +746,7 @@ window.I18N = (() => {
       scoreLabel: "得分", newBest: "新纪录！",
       unlocked: "解锁：{item}", upStripes: "赛车条纹", upSpoiler: "尾翼", upNumber: "赛车号码", upFlames: "排气火焰", upGlow: "霓虹底灯", upGold: "金色饰边",
       garageTitle: "你的赛车", garageHint: "沿色环拖动来选择颜色", colourBtn: "颜色",
-      records: "记录", noRuns: "还没有记录，快去玩吧！", done: "完成",
+      records: "记录", noRuns: "还没有记录，快去玩吧！", done: "完成", shade: "明暗：从黑到白",
       language: '语言', auto: '自动'
     },
     ko: {
@@ -755,7 +773,7 @@ window.I18N = (() => {
       scoreLabel: "점수", newBest: "최고 기록!",
       unlocked: "잠금 해제: {item}", upStripes: "레이싱 스트라이프", upSpoiler: "스포일러", upNumber: "레이싱 넘버", upFlames: "배기 불꽃", upGlow: "네온 라이트", upGold: "골드 트림",
       garageTitle: "내 자동차", garageHint: "휠을 따라 드래그해서 색을 고르세요", colourBtn: "색상",
-      records: "기록", noRuns: "아직 기록이 없어요. 플레이해 보세요!", done: "완료",
+      records: "기록", noRuns: "아직 기록이 없어요. 플레이해 보세요!", done: "완료", shade: "밝기: 검정에서 흰색까지",
       language: '언어', auto: '자동'
     },
     hi: {
@@ -782,7 +800,7 @@ window.I18N = (() => {
       scoreLabel: "स्कोर", newBest: "नया रिकॉर्ड!",
       unlocked: "अनलॉक: {item}", upStripes: "रेसिंग धारियाँ", upSpoiler: "स्पॉइलर", upNumber: "रेसिंग नंबर", upFlames: "एग्ज़ॉस्ट की लपटें", upGlow: "नियॉन रोशनी", upGold: "सुनहरी ट्रिम",
       garageTitle: "आपकी कार", garageHint: "रंग चुनने के लिए पहिये पर उंगली घुमाएँ", colourBtn: "रंग",
-      records: "रिकॉर्ड", noRuns: "अभी तक कोई रन नहीं। खेलना शुरू करें!", done: "हो गया",
+      records: "रिकॉर्ड", noRuns: "अभी तक कोई रन नहीं। खेलना शुरू करें!", done: "हो गया", shade: "शेड: काले से सफ़ेद तक",
       language: 'भाषा', auto: 'स्वचालित'
     },
     uk: {
@@ -809,7 +827,7 @@ window.I18N = (() => {
       scoreLabel: 'Рахунок', newBest: 'Новий рекорд!',
       unlocked: "Відкрито: {item}", upStripes: "Гоночні смуги", upSpoiler: "Спойлер", upNumber: "Гоночний номер", upFlames: "Полум'я з вихлопу", upGlow: "Неонове підсвічування", upGold: "Золоте оздоблення",
       garageTitle: "Твоя машина", garageHint: "Веди по колу, щоб вибрати колір", colourBtn: "Колір",
-      records: "Рекорди", noRuns: "Ще немає заїздів. Час грати!", done: "Готово",
+      records: "Рекорди", noRuns: "Ще немає заїздів. Час грати!", done: "Готово", shade: "Відтінок: від чорного до білого",
       // Easter egg (Ukrainian only): Shahed drones and rockets bought with coins
       shahedBanner: 'ШАХЕД!', shahedSub: 'Тисни ПУСК або на нього · 🚀 = {n} монети',
       shotDown: 'ЗБИТО!', rocketTitle: 'Ракета: {n} монети (пробіл)',
@@ -842,7 +860,7 @@ window.I18N = (() => {
       scoreLabel: 'ქულა', newBest: 'ახალი რეკორდი!',
       unlocked: "გაიხსნა: {item}", upStripes: "სარბოლო ზოლები", upSpoiler: "სპოილერი", upNumber: "სარბოლო ნომერი", upFlames: "გამონაბოლქვის ალი", upGlow: "ნეონის განათება", upGold: "ოქროსფერი დეტალები",
       garageTitle: "შენი მანქანა", garageHint: "გადაატარე წრეზე ფერის ასარჩევად", colourBtn: "ფერი",
-      records: "რეკორდები", noRuns: "ჯერ არცერთი თამაში არ გაქვს. წადი ითამაშე!", done: "მზადაა",
+      records: "რეკორდები", noRuns: "ჯერ არცერთი თამაში არ გაქვს. წადი ითამაშე!", done: "მზადაა", shade: "ტონი: შავიდან თეთრამდე",
       language: 'ენა', auto: 'ავტო'
     }
   };
@@ -1472,19 +1490,38 @@ window.LD_RULES = (() => {
   const UP_AT = Object.fromEntries(UPGRADES.map(u => [u.key, u.level]));
 
   // ---- Car colour: picked on the colour wheel, kept between runs ----
-  const hueColor = h => `hsl(${Math.round(h)},72%,58%)`;
-  let carHue = 174;                                           // ≈ the original teal
-  try { const v = localStorage.getItem('laneDodgerHue'); if (v !== null && v !== '' && isFinite(+v)) carHue = +v; } catch {}
+  // Hue comes from the wheel; shade (0-100) from the slider under it:
+  // 0 = black, 50 = the full colour, 100 = white. Saturation fades towards both ends.
+  const hueColor = (h, v = 50) => {
+    const k = (v - 50) / 50;                                  // -1 … 0 … 1
+    const L = k < 0 ? 58 + 46 * k : 58 + 38 * k;              // 12% … 58% … 96%
+    const S = 72 * (1 - Math.abs(k));                         // greyer towards the ends: true black / white
+    return `hsl(${Math.round(h)},${S.toFixed(0)}%,${L.toFixed(0)}%)`;
+  };
+  // Everything drawCar() needs to paint a car: body colour, underglow, and whether
+  // the body is dark enough to need a light rim to stand out on the road.
+  const carPaint = (h, v = 50) => ({ body: hueColor(h, v), glow: hueColor(h, 50), dark: v < 30 });
+  const readStored = (k, d) => { try { const s = localStorage.getItem(k); return s !== null && s !== '' && isFinite(+s) ? +s : d; } catch { return d; } };
+  let carHue = readStored('laneDodgerHue', 174);              // ≈ the original teal
+  let carShade = readStored('laneDodgerShade', 50);
+  function paintSwatch() {
+    document.documentElement.style.setProperty('--player', hueColor(carHue, carShade)); // demo car + swatch
+  }
   function setHue(h) {
     carHue = ((Math.round(h) % 360) + 360) % 360;
     writeNum('laneDodgerHue', carHue);
-    document.documentElement.style.setProperty('--player', hueColor(carHue)); // how-to-play demo car + swatch
+    paintSwatch();
+  }
+  function setShade(v) {
+    carShade = Math.max(0, Math.min(100, Math.round(v)));
+    writeNum('laneDodgerShade', carShade);
+    paintSwatch();
   }
   setHue(carHue);
 
   // Draw a car with a given colour and the upgrades of a given level onto another canvas
   // (garage preview, records list). drawCar() paints on `ctx`, so swap it for a moment.
-  function paintCarOn(cv, cssW, cssH, hue, lv, scale) {
+  function paintCarOn(cv, cssW, cssH, paint, lv, scale) {
     const d = Math.min(window.devicePixelRatio || 1, 2);
     cv.width = Math.round(cssW * d); cv.height = Math.round(cssH * d);
     cv.style.width = cssW + 'px'; cv.style.height = cssH + 'px';
@@ -1493,7 +1530,7 @@ window.LD_RULES = (() => {
     try {
       c2.setTransform(d * scale, 0, 0, d * scale, 0, 0);
       const w = 46, h = R.CAR_H;
-      drawCar(cssW / scale / 2, (cssH / scale - h) / 2 - 4, w, h, hueColor(hue), lv);
+      drawCar(cssW / scale / 2, (cssH / scale - h) / 2 - 4, w, h, paint, lv);
     } finally { ctx = saved; }
   }
 
@@ -1564,7 +1601,7 @@ window.LD_RULES = (() => {
     writeNum('laneDodgerBest', best);
     writeNum('laneDodgerBestLevel', bestLevel);
     if (s > 0) {
-      const run = { s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, h: carHue, t: Date.now() };
+      const run = { s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, h: carHue, v: carShade, t: Date.now() };
       if (saveRun(run)) latestRunT = run.t;
     }
     el.over.classList.toggle('fuel', reason === 'fuel');
@@ -1628,13 +1665,17 @@ window.LD_RULES = (() => {
   }
 
   // ---- Garage: hue wheel around a live preview of the car ----
-  const wheel = $('wheel'), knob = $('knob'), preview = $('carPreview');
+  const wheel = $('wheel'), knob = $('knob'), preview = $('carPreview'), shadeEl = $('shade');
+  shadeEl.addEventListener('input', () => { setShade(+shadeEl.value); paintGarage(); });
+  shadeEl.addEventListener('keydown', e => e.stopPropagation()); // arrows adjust the slider, not the car
   function paintGarage() {
     const a = carHue * Math.PI / 180, rad = 94;      // knob rides the middle of the ring
     knob.style.transform = `translate(${(Math.sin(a) * rad).toFixed(1)}px, ${(-Math.cos(a) * rad).toFixed(1)}px)`;
     knob.style.background = hueColor(carHue);
     wheel.setAttribute('aria-valuenow', carHue);
-    paintCarOn(preview, 100, 124, carHue, 0, 1.35);
+    shadeEl.value = carShade;
+    shadeEl.style.setProperty('--hue', hueColor(carHue));    // slider runs black → this colour → white
+    paintCarOn(preview, 100, 124, carPaint(carHue, carShade), 0, 1.35);
   }
   function pickHue(e) {
     const r = wheel.getBoundingClientRect();
@@ -1686,7 +1727,7 @@ window.LD_RULES = (() => {
       info.append(b, small);
       li.append(rank, cv, info);
       list.appendChild(li);
-      paintCarOn(cv, 50, 70, r.h, r.l, 0.76);
+      paintCarOn(cv, 50, 70, carPaint(r.h, r.v ?? 50), r.l, 0.76);  // older runs have no shade
     });
   }
   function openRecords() { state = 'records'; renderRecords(); show('records'); }
@@ -1857,14 +1898,15 @@ window.LD_RULES = (() => {
   }
 
   // Top-down car, front facing up the road, with the upgrades earned by level `lv` (0 = none).
-  function drawCar(x, y, w, h, color, lv) {
+  function drawCar(x, y, w, h, paint, lv) {
+    const color = paint.body;
     const l = x - w / 2, r = x + w / 2;
     const has = key => lv >= UP_AT[key];
     const gold = has('upGold');
     if (has('upGlow')) {                      // neon underglow in the car's own colour
       ctx.save();
-      ctx.shadowColor = color; ctx.shadowBlur = 24; ctx.globalAlpha = 0.6;
-      ctx.fillStyle = color;
+      ctx.shadowColor = paint.glow; ctx.shadowBlur = 24; ctx.globalAlpha = 0.6;
+      ctx.fillStyle = paint.glow;                         // full colour, even on a black or white car
       roundRect(l - 5, y + 6, w + 10, h - 10, 14); ctx.fill();
       ctx.restore();
     }
@@ -1885,6 +1927,10 @@ window.LD_RULES = (() => {
     }
     ctx.fillStyle = color;
     roundRect(l, y, w, h, Math.min(w * 0.32, 16)); ctx.fill();
+    if (paint.dark && !gold) {                // dark paint: a soft light rim so it stands out on the road
+      ctx.strokeStyle = 'rgba(232,236,248,.45)'; ctx.lineWidth = 1.5;
+      roundRect(l + 0.75, y + 0.75, w - 1.5, h - 1.5, Math.min(w * 0.31, 15.5)); ctx.stroke();
+    }
     if (gold) {                               // gold trim: a gold outline round the body
       ctx.strokeStyle = '#f6c945'; ctx.lineWidth = 2.5;
       roundRect(l + 1.2, y + 1.2, w - 2.4, h - 2.4, Math.min(w * 0.3, 15)); ctx.stroke();
@@ -2087,7 +2133,7 @@ window.LD_RULES = (() => {
     }
 
     if (!(flash > 0 && Math.floor(flash * 16) % 2 === 0)) {
-      drawCar(player.x, player.y, player.w, player.h, hueColor(carHue), level);
+      drawCar(player.x, player.y, player.w, player.h, carPaint(carHue, carShade), level);
     }
 
     for (const d of drones) drawShahed(d.x, d.y, d.t);
