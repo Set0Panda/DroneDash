@@ -99,6 +99,34 @@
   }
   button:active { transform: translateY(4px); box-shadow: 0 2px 0 #2c8f86; }
 
+  /* ---- Home screen ---- */
+  #home {
+    gap: 10px;
+    background: radial-gradient(circle at 50% 28%, rgba(79,209,197,.2), rgba(10,12,24,.95) 62%);
+  }
+  .logo {
+    width: 132px; height: 132px; border-radius: 30px;
+    box-shadow: 0 18px 40px rgba(0,0,0,.55), 0 0 0 3px rgba(79,209,197,.35);
+    animation: logoIn .6s cubic-bezier(.2,1.4,.4,1) both, bob 3s ease-in-out .6s infinite;
+  }
+  @keyframes logoIn { from { transform: translateY(30px) scale(.6); opacity: 0; } }
+  @keyframes bob { 50% { transform: translateY(-8px) rotate(-2deg); } }
+  .title {
+    margin: 14px 0 0; font-size: 48px; font-weight: 900; letter-spacing: 3px; line-height: .95;
+    text-shadow: 0 6px 24px rgba(0,0,0,.6); animation: fadeUp .5s .15s both;
+  }
+  .title span { display: block; color: var(--accent); }
+  .tagline { max-width: 250px; animation: fadeUp .5s .25s both; }
+  #homeBest { font-size: 14px; color: var(--coin) !important; font-weight: 700; animation: fadeUp .5s .3s both; }
+  @keyframes fadeUp { from { transform: translateY(14px); opacity: 0; } }
+  .menuBtns { display: grid; gap: 14px; width: 220px; margin-top: 18px; animation: fadeUp .5s .35s both; }
+  .menuBtns button { width: 100%; margin: 0; }
+  button.secondary {
+    background: rgba(255,255,255,.1); color: var(--text); box-shadow: 0 6px 0 rgba(0,0,0,.35);
+  }
+  button.secondary:active { box-shadow: 0 2px 0 rgba(0,0,0,.35); }
+  #wrap.at-home #hud { visibility: hidden; }
+
   /* ---- How-to-play popup ---- */
   #intro { background: rgba(10, 12, 24, .7); }
   .card {
@@ -223,7 +251,7 @@
 </style>
 </head>
 <body>
-<div id="wrap">
+<div id="wrap" class="at-home">
   <canvas id="game"></canvas>
 
   <div id="hud">
@@ -235,7 +263,26 @@
   <div id="count"></div>
   <div id="banner"></div>
 
-  <div id="intro" class="overlay">
+  <div id="home" class="overlay">
+    <img class="logo" src="icons/icon-512.png" alt="" width="132" height="132">
+    <h1 class="title">LANE<span>DODGER</span></h1>
+    <p class="tagline">Dodge the barriers. Grab the coins. Don't run out of fuel.</p>
+    <p id="homeBest" hidden></p>
+    <div class="menuBtns">
+      <button id="playBtn">▶ Play</button>
+      <button id="exitBtn" class="secondary">Exit</button>
+    </div>
+    <button id="installBtn" class="ghost" hidden>📲 Install app</button>
+    <p id="installHint" hidden></p>
+  </div>
+
+  <div id="bye" class="overlay hidden">
+    <h1>Thanks for playing!</h1>
+    <p>You can close this window now.</p>
+    <button id="byeBack" class="secondary">Back to menu</button>
+  </div>
+
+  <div id="intro" class="overlay hidden">
     <div class="card" role="dialog" aria-labelledby="introTitle">
       <h1 id="introTitle">Lane Dodger</h1>
       <h2>How to play</h2>
@@ -243,14 +290,12 @@
       <p class="lead">Tap any lane to jump straight there.<br>Hold and drag to slide across.</p>
       <ul class="rules">
         <li><span class="ico"><span class="ico flag"></span></span>Reach each checkpoint to level up. Every level is longer and faster.</li>
-        <li><span class="ico"><span class="ico fuel"></span></span>Fuel keeps draining. Run dry and it's over.</li>
+        <li><span class="ico"><span class="ico fuel"></span></span>Fuel keeps draining. Run out and it's over.</li>
         <li><span class="ico"><span class="ico coin"></span></span>Every 5 coins refills 40% fuel. Chain coins for up to ×5 points.</li>
         <li><span class="ico"><span class="ico block"></span></span>Dodge the barriers. 3 crashes and you're out.</li>
       </ul>
       <p class="keys">Keyboard: ← → or A / D · M to mute</p>
       <button id="startBtn">Got it!</button>
-      <button id="installBtn" class="ghost" hidden>📲 Install app</button>
-      <p id="installHint" hidden></p>
     </div>
   </div>
 
@@ -264,6 +309,7 @@
     </div>
     <p>Best: <span id="best">0</span> · Highest level: <span id="bestLevel">1</span></p>
     <button id="retryBtn">Retry</button>
+    <button id="homeBtn" class="ghost">Home</button>
   </div>
 </div>
 
@@ -300,7 +346,7 @@
   };
 
   let W = 0, H = 0, dpr = 1, laneW = 0;
-  let state = 'menu'; // menu | countdown | play | stall | over
+  let state = 'home'; // home | menu (how-to-play) | countdown | play | stall | over | bye
   let player, objects, particles, floats, lives, speed, spawnDist, flash, roadOffset, shake, last;
   let level, levelDist, distance, bonus, fuel, coins, coinMeter, streak, finishSpawned, stallT, lowFuelT = 0;
   let countT = 0, shownCount = null;
@@ -604,6 +650,37 @@
     shownCount = null;
   }
 
+  // ---- Home screen ----
+  const wrapEl = $('wrap');
+  function show(id) {
+    for (const o of ['home', 'bye', 'intro', 'over']) $(o).classList.toggle('hidden', o !== id);
+    wrapEl.classList.toggle('at-home', id === 'home' || id === 'bye');
+  }
+  function goHome() {
+    reset();
+    state = 'home';
+    el.count.innerHTML = '';
+    const best = readNum('laneDodgerBest');
+    const hb = $('homeBest');
+    hb.hidden = !best;
+    hb.textContent = '🏆 Best ' + best + ' · Level ' + Math.max(1, readNum('laneDodgerBestLevel'));
+    show('home');
+  }
+  // Play → how-to-play popup → 3-2-1-GO.
+  function openHelp() {
+    state = 'menu';
+    show('intro');
+  }
+  // Exit: close the app where the platform allows it (installed app windows, native
+  // wrappers). iOS and normal browser tabs refuse, so fall back to a goodbye screen.
+  function exitGame() {
+    sfx.suspend();
+    const cap = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App;
+    if (cap && cap.exitApp) { cap.exitApp(); return; }
+    try { window.close(); } catch (e) {}
+    setTimeout(() => { if (!window.closed) { state = 'bye'; show('bye'); } }, 250);
+  }
+
   // Retry: no countdown, just a quick GO! and straight back in.
   function restart() {
     reset();
@@ -865,7 +942,9 @@
   window.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') move(-1);
     else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') move(1);
+    else if ((e.key === 'Enter' || e.key === ' ') && state === 'home') { e.preventDefault(); openHelp(); }
     else if ((e.key === 'Enter' || e.key === ' ') && state === 'menu') { e.preventDefault(); beginCountdown(); }
+    else if (e.key === 'Escape' && (state === 'menu' || state === 'over' || state === 'bye')) goHome();
     else if ((e.key === 'Enter' || e.key === ' ') && state === 'over') { e.preventDefault(); restart(); }
   });
 
@@ -904,8 +983,12 @@
 
   $('startBtn').addEventListener('click', beginCountdown);
   $('retryBtn').addEventListener('click', restart);
+  $('playBtn').addEventListener('click', openHelp);
+  $('exitBtn').addEventListener('click', exitGame);
+  $('homeBtn').addEventListener('click', goHome);
+  $('byeBack').addEventListener('click', () => { sfx.ensure(); goHome(); });
 
-  reset();
+  goHome();
   requestAnimationFrame(loop);
 })();
 </script>
