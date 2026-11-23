@@ -12,6 +12,8 @@
     --player: #4fd1c5;
     --enemy: #f56565;
     --coin: #f6e05e;
+    --fuel: #48bb78;
+    --fuel-mid: #ed8936;
     --text: #e8ecf8;
     --muted: #8b93b5;
     --accent: #4fd1c5;
@@ -25,12 +27,36 @@
   }
   #wrap { position: relative; width: 100%; height: 100%; max-width: 480px; margin: 0 auto; }
   canvas { display: block; width: 100%; height: 100%; }
+
+  /* ---- HUD ---- */
   #hud {
-    position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between;
-    align-items: center; padding: 12px 16px; font-weight: 700; font-size: 18px; pointer-events: none;
-    text-shadow: 0 2px 4px rgba(0,0,0,.5);
+    position: absolute; top: 0; left: 0; right: 0; padding: 10px 16px 18px; pointer-events: none;
+    display: grid; gap: 6px;
+    background: linear-gradient(rgba(15,18,32,.92) 60%, rgba(15,18,32,0));
   }
-  #lives { letter-spacing: 4px; color: var(--enemy); }
+  .hrow { display: flex; align-items: center; gap: 10px; }
+  #score { font-weight: 800; font-size: 22px; font-variant-numeric: tabular-nums; }
+  #streak {
+    font-weight: 800; font-size: 14px; color: #0f1220; background: var(--coin); border-radius: 6px;
+    padding: 1px 6px; visibility: hidden;
+  }
+  #streak.on { visibility: visible; }
+  #lives { margin-left: auto; letter-spacing: 4px; color: var(--enemy); font-size: 18px; }
+  .tag { flex: none; width: 44px; font-size: 12px; font-weight: 800; letter-spacing: 1px; color: var(--muted); }
+  .bar { flex: 1; height: 10px; border-radius: 5px; background: rgba(255,255,255,.1); overflow: hidden; }
+  .bar > div { height: 100%; width: 0; border-radius: 5px; transition: background-color .3s; }
+  #prog { background: var(--accent); }
+  #fuel { background: var(--fuel); }
+  .small { flex: none; width: 54px; text-align: right; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  #pips { flex: none; width: 54px; display: flex; justify-content: flex-end; gap: 3px; }
+  #pips i { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--coin); opacity: .45; }
+  #pips i.on { background: var(--coin); opacity: 1; }
+  #pips.full i { animation: pipFlash .6s ease-out; }
+  @keyframes pipFlash { 0%, 50% { background: var(--fuel); border-color: var(--fuel); opacity: 1; transform: scale(1.4); } }
+  #fuelRow.low .tag { color: var(--enemy); animation: blink .5s steps(1) infinite; }
+  #fuelRow.low #fuel { background: var(--enemy); }
+  @keyframes blink { 50% { opacity: .25; } }
+
   .overlay {
     position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center;
     justify-content: center; gap: 14px; background: rgba(10, 12, 24, .82); text-align: center; padding: 16px;
@@ -49,8 +75,8 @@
   /* ---- How-to-play popup ---- */
   #intro { background: rgba(10, 12, 24, .7); }
   .card {
-    width: 100%; max-width: 340px; background: var(--card); border-radius: 20px; padding: 24px 20px 22px;
-    display: flex; flex-direction: column; align-items: center; gap: 14px;
+    width: 100%; max-width: 340px; max-height: 100%; overflow-y: auto; background: var(--card); border-radius: 20px;
+    padding: 22px 20px 20px; display: flex; flex-direction: column; align-items: center; gap: 12px;
     box-shadow: 0 20px 50px rgba(0,0,0,.5); animation: cardIn .35s cubic-bezier(.2,1.4,.4,1);
   }
   @keyframes cardIn { from { transform: scale(.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -59,7 +85,7 @@
 
   /* mini road demo: 3 lanes, 60px each */
   .demo {
-    position: relative; width: 180px; height: 150px; background: var(--road); border-radius: 12px; overflow: hidden;
+    position: relative; flex: none; width: 180px; height: 130px; background: var(--road); border-radius: 12px; overflow: hidden;
     background-image:
       linear-gradient(var(--line) 60%, transparent 60%),
       linear-gradient(var(--line) 60%, transparent 60%);
@@ -70,7 +96,7 @@
   }
   @keyframes roadMove { to { background-position: 58px 24px, 118px 24px; } }
   .demo .car {
-    position: absolute; bottom: 14px; left: 76px; width: 28px; height: 42px; animation: carMove 4.5s infinite;
+    position: absolute; bottom: 12px; left: 76px; width: 28px; height: 42px; animation: carMove 4.5s infinite;
   }
   /* wheels: one per side, box-shadow copies it to the rear */
   .demo .car i::before, .demo .car i::after {
@@ -95,7 +121,7 @@
     80%, 100% { left: 76px; }
   }
   .demo .tap {
-    position: absolute; top: 48px; left: 150px; width: 44px; height: 44px; margin: -22px 0 0 -22px;
+    position: absolute; top: 44px; left: 150px; width: 44px; height: 44px; margin: -22px 0 0 -22px;
     border-radius: 50%; border: 3px solid var(--text); opacity: 0; animation: tapMove 4.5s infinite;
   }
   .demo .tap::after {
@@ -113,19 +139,26 @@
     86%  { left: 90px;  opacity: 0; transform: scale(1.3); }
     100% { left: 90px;  opacity: 0; transform: scale(.5); }
   }
-  .lead { color: var(--text) !important; font-weight: 600; font-size: 17px; }
-  .rules { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; gap: 10px; text-align: left; }
-  .rules li { display: flex; align-items: center; gap: 12px; font-size: 15px; }
+  .lead { color: var(--text) !important; font-weight: 600; font-size: 16px; }
+  .rules { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; gap: 9px; text-align: left; }
+  .rules li { display: flex; align-items: center; gap: 12px; font-size: 14px; line-height: 1.3; }
   .rules .ico { flex: none; width: 26px; height: 26px; display: grid; place-items: center; }
   .ico.block {
     width: 26px; height: 12px; border-radius: 3px;
     background: repeating-linear-gradient(-45deg, var(--enemy) 0 5px, #f4f4f8 5px 10px);
   }
   .ico.coin { background: var(--coin); border-radius: 50%; width: 20px; height: 20px; }
-  .ico.heart { color: var(--enemy); font-size: 22px; }
+  .ico.fuel {
+    width: 26px; height: 10px; border-radius: 5px; background: rgba(255,255,255,.15);
+    box-shadow: inset 17px 0 0 var(--fuel);
+  }
+  .ico.flag {
+    width: 26px; height: 14px; border-radius: 2px;
+    background: repeating-conic-gradient(#f4f4f8 0 25%, #0b0d17 0 50%) 0 0 / 7px 7px;
+  }
   .keys { font-size: 13px; }
 
-  /* ---- Countdown ---- */
+  /* ---- Countdown / GO ---- */
   #count {
     position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none;
     font-size: 120px; font-weight: 900; color: var(--text); text-shadow: 0 6px 24px rgba(0,0,0,.6);
@@ -139,13 +172,41 @@
     75%  { transform: scale(.95); opacity: 1; }
     100% { transform: scale(.7);  opacity: 0; }
   }
+
+  /* ---- Level-up / out-of-fuel banner ---- */
+  #banner {
+    position: absolute; left: 0; right: 0; top: 30%; text-align: center; pointer-events: none;
+    text-shadow: 0 4px 18px rgba(0,0,0,.7);
+  }
+  #banner .t { font-size: 44px; font-weight: 900; color: var(--accent); }
+  #banner .s { font-size: 16px; font-weight: 700; color: var(--text); margin-top: 4px; }
+  #banner.warn .t { color: var(--enemy); }
+  #banner .show { animation: bannerPop 1.9s ease-out forwards; }
+  @keyframes bannerPop {
+    0%   { transform: scale(1.6); opacity: 0; }
+    12%  { transform: scale(1);   opacity: 1; }
+    80%  { transform: scale(1);   opacity: 1; }
+    100% { transform: translateY(-20px); opacity: 0; }
+  }
+
+  /* ---- Game over ---- */
+  .stats { display: grid; grid-template-columns: repeat(3, auto); gap: 4px 22px; margin: 4px 0; }
+  .stats b { display: block; font-size: 22px; color: var(--text); }
+  .stats span { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
 </style>
 </head>
 <body>
 <div id="wrap">
   <canvas id="game"></canvas>
-  <div id="hud"><span id="score">0</span><span id="lives"></span></div>
+
+  <div id="hud">
+    <div class="hrow"><span id="score">0</span><span id="streak">×2</span><span id="lives"></span></div>
+    <div class="hrow"><span class="tag" id="level">LV 1</span><div class="bar"><div id="prog"></div></div><span class="small" id="togo">400 m</span></div>
+    <div class="hrow" id="fuelRow"><span class="tag">FUEL</span><div class="bar"><div id="fuel"></div></div><span id="pips" title="Coins until next fuel top-up"><i></i><i></i><i></i><i></i><i></i></span></div>
+  </div>
+
   <div id="count"></div>
+  <div id="banner"></div>
 
   <div id="intro" class="overlay">
     <div class="card" role="dialog" aria-labelledby="introTitle">
@@ -154,9 +215,10 @@
       <div class="demo" aria-hidden="true"><div class="car"><i></i><b></b></div><div class="tap"></div></div>
       <p class="lead">Tap any lane to jump straight there.<br>Hold and drag to slide across.</p>
       <ul class="rules">
-        <li><span class="ico"><span class="ico block"></span></span>Dodge the barriers</li>
-        <li><span class="ico"><span class="ico coin"></span></span>Grab coins for +50 points</li>
-        <li><span class="ico heart">♥</span>3 lives – every crash costs one</li>
+        <li><span class="ico"><span class="ico flag"></span></span>Reach each checkpoint to level up. Every level is longer and faster.</li>
+        <li><span class="ico"><span class="ico fuel"></span></span>Fuel keeps draining. Run dry and it's over.</li>
+        <li><span class="ico"><span class="ico coin"></span></span>Every 5 coins refills 40% fuel. Chain coins for up to ×5 points.</li>
+        <li><span class="ico"><span class="ico block"></span></span>Dodge the barriers. 3 crashes and you're out.</li>
       </ul>
       <p class="keys">Keyboard: ← → or A / D</p>
       <button id="startBtn">Got it!</button>
@@ -164,39 +226,58 @@
   </div>
 
   <div id="over" class="overlay hidden">
-    <h1>Crashed!</h1>
+    <h1 id="overTitle">Crashed!</h1>
     <p class="big">Score: <span id="finalScore">0</span></p>
-    <p>Best: <span id="best">0</span></p>
+    <div class="stats">
+      <div><b id="statLevel">1</b><span>Level</span></div>
+      <div><b id="statDist">0 m</b><span>Distance</span></div>
+      <div><b id="statCoins">0</b><span>Coins</span></div>
+    </div>
+    <p>Best: <span id="best">0</span> · Highest level: <span id="bestLevel">1</span></p>
     <button id="retryBtn">Retry</button>
   </div>
 </div>
 
 <script>
 (() => {
+  // ---------- Tuning ----------
   const LANES = 3;
   const MAX_LIVES = 3;
-  const FLASH_TIME = 0.5;  // car blinks after a hit (visual only – every hit counts)
-  const MIN_GAP = 340;     // min px between obstacle rows, so there's always room to recover
+  const FLASH_TIME = 0.5;   // car blinks after a hit (visual only – every hit counts)
+  const MIN_GAP = 340;      // min px between obstacle rows
   const BARRIER_H = 38;
-  const COUNTDOWN = 3;     // 3-2-1, then GO
+  const COUNTDOWN = 3;
+  const PX_PER_M = 10;      // 10 px of road = 1 metre
+  const COINS_PER_REFUEL = 5; // fill the coin meter to earn a top-up
+  const REFUEL = 40;          // % fuel per full coin meter
+  const CHECKPOINT_FUEL = 15;
+  const MAX_STREAK = 5;
 
-  const canvas = document.getElementById('game');
+  // Difficulty curve per level
+  const levelLength  = L => 400 + 100 * (L - 1);                       // metres to next checkpoint
+  const levelSpeed   = L => Math.min(280 + 40 * (L - 1), 720);         // px/s at level start
+  const fuelDrain    = L => 3.2 + 0.4 * (L - 1);                       // % per second
+  const doubleChance = L => Math.min(0.12 + 0.07 * (L - 1), 0.6);      // rows with 2 barriers
+  const coinChance   = L => Math.max(0.28, 0.55 - 0.04 * (L - 1));
+  const coinValue    = (L, streak) => 10 * L * streak;
+
+  const $ = id => document.getElementById(id);
+  const canvas = $('game');
   const ctx = canvas.getContext('2d');
-  const scoreEl = document.getElementById('score');
-  const livesEl = document.getElementById('lives');
-  const introEl = document.getElementById('intro');
-  const overEl = document.getElementById('over');
-  const finalEl = document.getElementById('finalScore');
-  const bestEl = document.getElementById('best');
-  const countEl = document.getElementById('count');
+  const el = {
+    score: $('score'), streak: $('streak'), lives: $('lives'), level: $('level'), prog: $('prog'),
+    togo: $('togo'), fuel: $('fuel'), pips: $('pips'), fuelRow: $('fuelRow'),
+    intro: $('intro'), over: $('over'), count: $('count'), banner: $('banner'),
+  };
 
   let W = 0, H = 0, dpr = 1, laneW = 0;
-  let state = 'menu'; // menu | countdown | play | over
-  let player, objects, score, lives, speed, spawnDist, flash, roadOffset, shake, particles, last;
+  let state = 'menu'; // menu | countdown | play | stall | over
+  let player, objects, particles, floats, lives, speed, spawnDist, flash, roadOffset, shake, last;
+  let level, levelDist, distance, bonus, fuel, coins, coinMeter, streak, finishSpawned, stallT;
   let countT = 0, shownCount = null;
 
-  function readBest() { try { return +localStorage.getItem('laneDodgerBest') || 0; } catch { return 0; } }
-  function writeBest(v) { try { localStorage.setItem('laneDodgerBest', v); } catch {} }
+  function readNum(k) { try { return +localStorage.getItem(k) || 0; } catch { return 0; } }
+  function writeNum(k, v) { try { localStorage.setItem(k, v); } catch {} }
 
   function resize() {
     const r = canvas.getBoundingClientRect();
@@ -211,18 +292,31 @@
   resize();
 
   const laneX = lane => laneW * lane + laneW / 2;
+  const score = () => Math.floor(distance / PX_PER_M) + bonus;
 
   function reset() {
     player = { lane: 1, x: laneX(1), y: H - 110, w: Math.min(laneW * 0.55, 70), h: 80 };
-    objects = [];
-    particles = [];
-    score = 0; lives = MAX_LIVES; speed = 280; spawnDist = 200; flash = 0; roadOffset = 0; shake = 0;
+    objects = []; particles = []; floats = [];
+    lives = MAX_LIVES; level = 1; speed = levelSpeed(1);
+    spawnDist = 200; flash = 0; roadOffset = 0; shake = 0;
+    levelDist = 0; distance = 0; bonus = 0; fuel = 100; coins = 0; coinMeter = 0; streak = 0; finishSpawned = false;
+    el.banner.innerHTML = '';
     updateHud();
   }
 
   function updateHud() {
-    scoreEl.textContent = Math.floor(score);
-    livesEl.textContent = '♥'.repeat(lives) + '♡'.repeat(MAX_LIVES - lives);
+    el.score.textContent = score();
+    el.streak.textContent = '×' + streak;
+    el.streak.classList.toggle('on', streak > 1);
+    el.lives.textContent = '♥'.repeat(lives) + '♡'.repeat(MAX_LIVES - lives);
+    el.level.textContent = 'LV ' + level;
+    const lenPx = levelLength(level) * PX_PER_M;
+    el.prog.style.width = Math.min(100, levelDist / lenPx * 100) + '%';
+    el.togo.textContent = Math.max(0, Math.ceil((lenPx - levelDist) / PX_PER_M)) + ' m';
+    el.fuel.style.width = fuel + '%';
+    el.fuel.style.backgroundColor = fuel > 50 ? '' : fuel > 25 ? getVar('--fuel-mid') : '';
+    el.fuelRow.classList.toggle('low', fuel <= 25);
+    [...el.pips.children].forEach((p, i) => p.classList.toggle('on', i < coinMeter));
   }
 
   // Lane changes work during the countdown too, so you can line up before GO.
@@ -235,13 +329,15 @@
 
   function spawn() {
     // Block 1–2 lanes, always leave at least one free
-    const blocks = Math.random() < Math.min(0.15 + score / 4000, 0.55) ? 2 : 1;
+    const blocks = Math.random() < doubleChance(level) ? 2 : 1;
     const lanes = [0, 1, 2].sort(() => Math.random() - 0.5);
     const h = BARRIER_H;
     for (let i = 0; i < blocks; i++) {
       objects.push({ type: 'enemy', lane: lanes[i], y: -h, w: laneW * 0.8, h });
     }
-    if (Math.random() < 0.35) {
+    // A little mercy: coins are more common when fuel is low.
+    const chance = coinChance(level) + (fuel < 30 ? 0.25 : 0);
+    if (Math.random() < chance) {
       objects.push({ type: 'coin', lane: lanes[LANES - 1], y: -h - 150, w: 28, h: 28 });
     }
   }
@@ -253,43 +349,91 @@
     }
   }
 
+  function floatText(x, y, text, color) {
+    floats.push({ x, y, text, color, life: 0.9 });
+  }
+
+  function showBanner(title, sub, warn) {
+    el.banner.classList.toggle('warn', !!warn);
+    el.banner.innerHTML = '';
+    const d = document.createElement('div');
+    d.className = 'show';
+    d.innerHTML = '<div class="t"></div><div class="s"></div>';
+    d.firstChild.textContent = title;
+    d.lastChild.textContent = sub || '';
+    el.banner.appendChild(d);
+  }
+
   function hit(o) {
+    const cx = laneX(o.lane);
     if (o.type === 'coin') {
-      score += 50; o.dead = true;
-      burst(laneX(o.lane), o.y + o.h / 2, getVar('--coin'), 12);
+      o.dead = true;
+      coins++;
+      streak = Math.min(MAX_STREAK, streak + 1);
+      const pts = coinValue(level, streak);
+      bonus += pts;
+      burst(cx, o.y + o.h / 2, getVar('--coin'), 12);
+      floatText(cx, o.y, '+' + pts + (streak > 1 ? '  ×' + streak : ''), getVar('--coin'));
+      coinMeter++;
+      if (coinMeter >= COINS_PER_REFUEL) {
+        coinMeter = 0;
+        fuel = Math.min(100, fuel + REFUEL);
+        floatText(player.x, player.y - 30, '+' + REFUEL + '% FUEL', getVar('--fuel'));
+        burst(player.x, player.y, getVar('--fuel'), 20);
+        el.pips.classList.remove('full'); void el.pips.offsetWidth; el.pips.classList.add('full');
+      }
       return;
     }
     o.dead = true;
-    lives--; flash = FLASH_TIME; shake = 0.35;
+    lives--; flash = FLASH_TIME; shake = 0.35; streak = 0;
     burst(player.x, player.y + player.h / 2, getVar('--enemy'), 24);
     if (navigator.vibrate) navigator.vibrate(120);
-    updateHud();
-    if (lives <= 0) gameOver();
+    if (lives <= 0) gameOver('crash');
   }
 
-  function gameOver() {
+  function levelUp() {
+    levelDist -= levelLength(level) * PX_PER_M;
+    level++;
+    finishSpawned = false;
+    fuel = Math.min(100, fuel + CHECKPOINT_FUEL);
+    const pts = 100 * (level - 1);
+    bonus += pts;
+    spawnDist = Math.max(spawnDist, 260); // short breather after the line
+    showBanner('LEVEL ' + level, '+' + pts + ' pts · +' + CHECKPOINT_FUEL + '% fuel · faster!');
+    for (let i = 0; i < LANES; i++) burst(laneX(i), player.y - 30, [getVar('--accent'), getVar('--coin'), '#f4f4f8'][i], 14);
+  }
+
+  function gameOver(reason) {
     state = 'over';
-    const best = Math.max(readBest(), Math.floor(score));
-    writeBest(best);
-    finalEl.textContent = Math.floor(score);
-    bestEl.textContent = best;
-    overEl.classList.remove('hidden');
+    const s = score();
+    const best = Math.max(readNum('laneDodgerBest'), s);
+    const bestLevel = Math.max(readNum('laneDodgerBestLevel'), level);
+    writeNum('laneDodgerBest', best);
+    writeNum('laneDodgerBestLevel', bestLevel);
+    $('overTitle').textContent = reason === 'fuel' ? 'Out of fuel!' : 'Crashed!';
+    $('finalScore').textContent = s;
+    $('statLevel').textContent = level;
+    $('statDist').textContent = Math.floor(distance / PX_PER_M) + ' m';
+    $('statCoins').textContent = coins;
+    $('best').textContent = best;
+    $('bestLevel').textContent = bestLevel;
+    el.over.classList.remove('hidden');
   }
 
   function showCount(text) {
-    countEl.classList.toggle('go', text === 'GO!');
-    countEl.innerHTML = '';
+    el.count.classList.toggle('go', text === 'GO!');
+    el.count.innerHTML = '';
     const s = document.createElement('span');
     s.textContent = text;
     s.className = 'pop';
-    countEl.appendChild(s);
+    el.count.appendChild(s);
   }
 
-  // Closing the popup or pressing Retry: fresh run, then 3-2-1-GO.
+  // Closing the popup: fresh run, then 3-2-1-GO.
   function beginCountdown() {
     reset();
-    introEl.classList.add('hidden');
-    overEl.classList.add('hidden');
+    el.intro.classList.add('hidden');
+    el.over.classList.add('hidden');
     state = 'countdown';
     countT = COUNTDOWN;
     shownCount = null;
@@ -298,7 +442,7 @@
   // Retry: no countdown, just a quick GO! and straight back in.
   function restart() {
     reset();
-    overEl.classList.add('hidden');
+    el.over.classList.add('hidden');
     state = 'play';
     showCount('GO!');
   }
@@ -314,10 +458,12 @@
   }
 
   function update(dt) {
-    const roadSpeed = state === 'play' ? speed : 120;
-    roadOffset = (roadOffset + roadSpeed * dt) % 80;
+    const moving = state === 'play' || state === 'stall';
+    roadOffset = (roadOffset + (moving ? speed : 120) * dt) % 80;
     particles.forEach(p => { p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt; });
     particles = particles.filter(p => p.life > 0);
+    floats.forEach(f => { f.y -= 50 * dt; f.life -= dt; });
+    floats = floats.filter(f => f.life > 0);
     if (shake > 0) shake -= dt;
 
     if (state === 'countdown') {
@@ -333,15 +479,47 @@
       }
       return;
     }
+
+    if (state === 'stall') {
+      // Out of fuel: coast to a stop, then game over.
+      speed = Math.max(0, speed - 320 * dt);
+      for (const o of objects) o.y += speed * dt;
+      stallT -= dt;
+      if (stallT <= 0) gameOver('fuel');
+      return;
+    }
+
     if (state !== 'play') return;
 
-    speed += 9 * dt;               // gradually faster
-    score += speed * dt * 0.05;
+    // Speed eases up through each level towards the next level's speed.
+    const lenPx = levelLength(level) * PX_PER_M;
+    const target = levelSpeed(level) + (levelSpeed(level + 1) - levelSpeed(level)) * 0.6 * Math.min(1, levelDist / lenPx);
+    speed += (target - speed) * Math.min(1, dt * 1.5);
+
+    const step = speed * dt;
+    distance += step;
+    levelDist += step;
     flash = Math.max(0, flash - dt);
     slidePlayer(dt);
 
-    // Spawn by distance travelled, not time, so rows never bunch up at high speed.
-    spawnDist -= speed * dt;
+    fuel = Math.max(0, fuel - fuelDrain(level) * dt);
+    if (fuel <= 0) {
+      state = 'stall'; stallT = 1.4; streak = 0;
+      showBanner('OUT OF FUEL', 'Grab coins to keep your tank topped up', true);
+      updateHud();
+      return;
+    }
+
+    // Checkered checkpoint line, placed so it crosses the car exactly at the level end.
+    const remaining = lenPx - levelDist;
+    if (!finishSpawned && remaining <= player.y + 40) {
+      objects.push({ type: 'finish', lane: 1, y: player.y - remaining, w: W, h: 20 });
+      finishSpawned = true;
+    }
+    if (remaining <= 0) levelUp();
+
+    // Spawn by distance travelled, so rows never bunch up at high speed.
+    spawnDist -= step;
     if (spawnDist <= 0) {
       spawn();
       spawnDist = MIN_GAP + Math.random() * 140;
@@ -349,13 +527,20 @@
 
     const px = player.x - player.w / 2, py = player.y;
     for (const o of objects) {
-      o.y += speed * dt;
+      o.y += step;
+      if (o.type === 'finish' || o.dead) continue;
       const ox = laneX(o.lane) - o.w / 2;
-      if (!o.dead && ox < px + player.w - 6 && ox + o.w > px + 6 && o.y < py + player.h - 6 && o.y + o.h > py + 6) {
+      if (ox < px + player.w - 6 && ox + o.w > px + 6 && o.y < py + player.h - 6 && o.y + o.h > py + 6) {
         hit(o);
+        if (state !== 'play') break;
       }
     }
-    objects = objects.filter(o => !o.dead && o.y < H + 50);
+    objects = objects.filter(o => {
+      if (o.dead) return false;
+      if (o.y < H + 50) return true;
+      if (o.type === 'coin') streak = 0; // missed a coin: streak broken
+      return false;
+    });
     updateHud();
   }
 
@@ -379,32 +564,25 @@
   // Top-down car, front facing up the road.
   function drawCar(x, y, w, h, color) {
     const l = x - w / 2, r = x + w / 2;
-    // wheels (poke out from under the body)
     ctx.fillStyle = '#0b0d17';
     const ww = 8, wh = h * 0.2;
     for (const wy of [y + h * 0.13, y + h * 0.67]) {
       roundRect(l - 3, wy, ww, wh, 3); ctx.fill();
       roundRect(r - ww + 3, wy, ww, wh, 3); ctx.fill();
     }
-    // body
     ctx.fillStyle = color;
     roundRect(l, y, w, h, Math.min(w * 0.32, 16)); ctx.fill();
-    // side shading for a bit of depth
     ctx.fillStyle = 'rgba(0,0,0,.14)';
     roundRect(l, y + h * 0.18, w * 0.12, h * 0.64, 4); ctx.fill();
     roundRect(r - w * 0.12, y + h * 0.18, w * 0.12, h * 0.64, 4); ctx.fill();
-    // windshield
     ctx.fillStyle = 'rgba(15,18,32,.85)';
     poly([[x - w * 0.30, y + h * 0.24], [x + w * 0.30, y + h * 0.24],
           [x + w * 0.37, y + h * 0.41], [x - w * 0.37, y + h * 0.41]]);
-    // roof
     ctx.fillStyle = 'rgba(255,255,255,.16)';
     roundRect(x - w * 0.33, y + h * 0.43, w * 0.66, h * 0.25, 5); ctx.fill();
-    // rear window
     ctx.fillStyle = 'rgba(15,18,32,.85)';
     poly([[x - w * 0.35, y + h * 0.70], [x + w * 0.35, y + h * 0.70],
           [x + w * 0.29, y + h * 0.81], [x - w * 0.29, y + h * 0.81]]);
-    // headlights + tail lights
     ctx.fillStyle = '#fff6c2';
     roundRect(l + 5, y + 3, w * 0.22, 5, 2); ctx.fill();
     roundRect(r - 5 - w * 0.22, y + 3, w * 0.22, 5, 2); ctx.fill();
@@ -430,10 +608,36 @@
       poly([[x + s, y + boardH], [x + s + 12, y + boardH], [x + s + 12 + boardH, y], [x + s + boardH, y]]);
     }
     ctx.restore();
-    // amber warning lamps on top
     ctx.fillStyle = '#ffb020';
     ctx.beginPath(); ctx.arc(x + 13, y - 2, 4, 0, Math.PI * 2); ctx.fill();
     ctx.beginPath(); ctx.arc(x + w - 13, y - 2, 4, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // Full-width checkered checkpoint line.
+  function drawFinish(y, h) {
+    const sq = h / 2;
+    for (let i = 0; i * sq < W; i++) {
+      for (let j = 0; j < 2; j++) {
+        ctx.fillStyle = (i + j) % 2 ? '#0b0d17' : '#f4f4f8';
+        ctx.fillRect(i * sq, y + j * sq, sq, sq);
+      }
+    }
+    ctx.fillStyle = getVar('--text');
+    ctx.font = '800 13px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('CHECKPOINT · LEVEL ' + (level + 1), W / 2, y - 8);
+  }
+
+  function drawCoin(cx, cy, r) {
+    ctx.fillStyle = getVar('--coin');
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(0,0,0,.22)';
+    ctx.beginPath(); ctx.arc(cx, cy, r * 0.55, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = getVar('--coin');
+    ctx.font = '900 ' + Math.round(r * 0.9) + 'px system-ui, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('$', cx, cy + 1);
+    ctx.textBaseline = 'alphabetic';
   }
 
   function draw() {
@@ -443,26 +647,20 @@
     ctx.fillStyle = getVar('--road');
     ctx.fillRect(-10, -10, W + 20, H + 20);
 
-    // lane dividers
     ctx.fillStyle = getVar('--line');
     for (let i = 1; i < LANES; i++) {
       for (let y = -80 + roadOffset; y < H; y += 80) ctx.fillRect(laneW * i - 3, y, 6, 44);
     }
 
-    // objects
+    for (const o of objects) {
+      if (o.type === 'finish') drawFinish(o.y, o.h);
+    }
     for (const o of objects) {
       const cx = laneX(o.lane);
-      if (o.type === 'enemy') {
-        drawBarrier(cx, o.y, o.w, o.h);
-      } else {
-        ctx.fillStyle = getVar('--coin');
-        ctx.beginPath(); ctx.arc(cx, o.y + o.h / 2, o.w / 2, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = 'rgba(0,0,0,.2)';
-        ctx.beginPath(); ctx.arc(cx, o.y + o.h / 2, o.w / 4, 0, Math.PI * 2); ctx.fill();
-      }
+      if (o.type === 'enemy') drawBarrier(cx, o.y, o.w, o.h);
+      else if (o.type === 'coin') drawCoin(cx, o.y + o.h / 2, o.w / 2);
     }
 
-    // player (blinks while invulnerable)
     if (!(flash > 0 && Math.floor(flash * 16) % 2 === 0)) {
       drawCar(player.x, player.y, player.w, player.h, getVar('--player'));
     }
@@ -471,6 +669,13 @@
       ctx.globalAlpha = Math.max(0, p.life / 0.6);
       ctx.fillStyle = p.color;
       ctx.fillRect(p.x - 3, p.y - 3, 6, 6);
+    }
+    ctx.font = '800 16px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    for (const f of floats) {
+      ctx.globalAlpha = Math.min(1, f.life / 0.4);
+      ctx.fillStyle = f.color;
+      ctx.fillText(f.text, f.x, f.y);
     }
     ctx.globalAlpha = 1;
     ctx.restore();
@@ -511,8 +716,8 @@
   canvas.addEventListener('pointerup', endDrag);
   canvas.addEventListener('pointercancel', endDrag);
 
-  document.getElementById('startBtn').addEventListener('click', beginCountdown);
-  document.getElementById('retryBtn').addEventListener('click', restart);
+  $('startBtn').addEventListener('click', beginCountdown);
+  $('retryBtn').addEventListener('click', restart);
 
   reset();
   requestAnimationFrame(loop);
