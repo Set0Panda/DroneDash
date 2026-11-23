@@ -2440,27 +2440,30 @@ window.LD_RULES = (() => {
       ctx.fillRect(x + w * 0.06, y + 1, w * 0.08, h - 2);
     }
     ctx.fillStyle = 'rgba(15,18,32,.85)';
-    poly([[x - w * 0.30, y + h * 0.24], [x + w * 0.30, y + h * 0.24],
-          [x + w * 0.37, y + h * 0.41], [x - w * 0.37, y + h * 0.41]]);
+    poly([[x - w * 0.30, y + h * 0.28], [x + w * 0.30, y + h * 0.28],
+          [x + w * 0.37, y + h * 0.44], [x - w * 0.37, y + h * 0.44]]);
     ctx.fillStyle = 'rgba(255,255,255,.16)';
-    roundRect(x - w * 0.33, y + h * 0.43, w * 0.66, h * 0.25, 5); ctx.fill();
-    if (has('upNumber')) {                    // racing number roundel on the bonnet
-      const cy = y + h * 0.15, rr = Math.min(w * 0.16, h * 0.075);
+    roundRect(x - w * 0.33, y + h * 0.46, w * 0.66, h * 0.22, 5); ctx.fill();
+    if (has('upNumber')) {                    // racing number: a big roundel filling the bonnet
+      const cy = y + h * 0.165, rr = Math.min(w * 0.27, h * 0.12);
       ctx.fillStyle = '#f4f4f8';
       ctx.beginPath(); ctx.arc(x, cy, rr, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = gold ? '#f6c945' : '#0b0d17'; ctx.lineWidth = 1.5; ctx.stroke();
-      ctx.fillStyle = '#0b0d17';
-      ctx.font = '900 ' + Math.round(rr * (no > 9 ? 1.05 : 1.35)) + 'px system-ui, sans-serif';   // two digits a bit smaller
+      ctx.strokeStyle = gold ? '#f6c945' : '#0b0d17'; ctx.lineWidth = 1.6; ctx.stroke();
+      ctx.save(); ctx.translate(x, cy + 0.6);
+      const label = String(no);
+      ctx.font = '900 ' + Math.round(rr * 1.45) + 'px system-ui, sans-serif';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(String(no), x, cy + 0.5);
-      ctx.textBaseline = 'alphabetic';
+      const tw = ctx.measureText(label).width, fit = (rr * 1.6) / tw;    // squeeze two digits to fit the disc
+      if (fit < 1) ctx.scale(fit, 1);
+      ctx.fillStyle = '#0b0d17'; ctx.fillText(label, 0, 0);
+      ctx.restore();
     }
     ctx.fillStyle = 'rgba(15,18,32,.85)';
     poly([[x - w * 0.35, y + h * 0.70], [x + w * 0.35, y + h * 0.70],
           [x + w * 0.29, y + h * 0.81], [x - w * 0.29, y + h * 0.81]]);
     ctx.fillStyle = '#fff6c2';
-    roundRect(l + 5, y + 3, w * 0.22, 5, 2); ctx.fill();
-    roundRect(r - 5 - w * 0.22, y + 3, w * 0.22, 5, 2); ctx.fill();
+    roundRect(l + 3, y + 3, w * 0.17, 4, 2); ctx.fill();
+    roundRect(r - 3 - w * 0.17, y + 3, w * 0.17, 4, 2); ctx.fill();
     ctx.fillStyle = '#c53030';
     roundRect(l + 5, y + h - 7, w * 0.2, 4, 2); ctx.fill();
     roundRect(r - 5 - w * 0.2, y + h - 7, w * 0.2, 4, 2); ctx.fill();
