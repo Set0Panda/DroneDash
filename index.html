@@ -296,6 +296,11 @@
   }
   .demo .car i::before { left: -2px; }
   .demo .car i::after { right: -2px; }
+  .demo .car s {            /* roof rocket pod */
+    position: absolute; left: 5px; right: 5px; top: 17px; height: 11px; z-index: 1; border-radius: 2px;
+    background: repeating-linear-gradient(90deg, #566079 0 3.5px, #2b303f 3.5px 4.5px);
+    box-shadow: 0 -2px 0 #c53030;
+  }
   .demo .car b {
     position: absolute; inset: 0; border-radius: 9px; background: var(--player);
     box-shadow: inset 3px 0 0 rgba(0,0,0,.14), inset -3px 0 0 rgba(0,0,0,.14);
@@ -631,7 +636,7 @@
     <div class="card" role="dialog" aria-labelledby="introTitle">
       <h1 id="introTitle">Drone Dash</h1>
       <h2 data-i18n="howToPlay">How to play</h2>
-      <div class="demo" aria-hidden="true"><div class="drone"></div><div class="rocket"></div><div class="boom"></div><div class="car"><i></i><b></b></div><div class="tap"></div><div class="tap fire"></div></div>
+      <div class="demo" aria-hidden="true"><div class="drone"></div><div class="rocket"></div><div class="boom"></div><div class="car"><i></i><b></b><s></s></div><div class="tap"></div><div class="tap fire"></div></div>
       <p class="lead"><span data-i18n="lead1">Tap or drag to change lanes.</span></p>
       <ul class="rules">
         <li><span class="ico"><span class="ico flag"></span></span><span data-i18n="rule1" data-rich><b>Checkpoints</b> = next level, faster</span></li>
@@ -1358,6 +1363,7 @@ window.LD_RULES = (() => {
   // A cheap repeatable random number per slice and side, so scenery doesn't flicker.
   const hash = n => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
   let resuming = false;
+  let launcherKick = 0;   // roof launcher recoil after firing, eases back to 0
   let runTime = 0;        // seconds of actual driving this run (not paused, not counting down)   // the 3-2-1 after Resume: road held still until GO, like everything else
   // Shahed drones dive at your lane; spend coins on rockets to shoot them down.
   // Started as a Ukrainian-only easter egg; now in every language. One switch to turn it off.
@@ -1685,7 +1691,10 @@ window.LD_RULES = (() => {
     const tg = target() || barrierAhead();      // drones first, then a barrier blocking your lane
     if (!tg) return false;
     wallet -= ROCKET_COST;
-    rockets.push({ x: player.x, y: player.y, vx: 0, vy: -ROCKET_V, target: tg });
+    const my = player.y + player.h * 0.41 - 6;              // the launcher's muzzle on the roof
+    rockets.push({ x: player.x, y: my, vx: 0, vy: -ROCKET_V, target: tg });
+    launcherKick = 1;
+    burst(player.x, my, '#fefcbf', 8); burst(player.x, my, '#f6ad55', 6);
     sfx.launch();
     return true;
   }
@@ -1918,7 +1927,7 @@ window.LD_RULES = (() => {
     try {
       c2.setTransform(d * scale, 0, 0, d * scale, 0, 0);
       const w = 39, h = R.CAR_H;
-      drawCar(cssW / scale / 2, (cssH / scale - h) / 2 - 4, w, h, paint, lv);
+      drawCar(cssW / scale / 2, (cssH / scale - h) / 2 - 4, w, h, paint, lv, { loaded: 3, kick: 0 });
     } finally { ctx = saved; }
   }
 
@@ -2238,6 +2247,7 @@ window.LD_RULES = (() => {
 
   function update(dt) {
     if (state === 'paused') return;            // frozen: nothing moves, not even the road
+    launcherKick = Math.max(0, launcherKick - dt * 5);
     const moving = state === 'play' || state === 'stall';
     // The road idles along on the home screen and before a run, but holds still while
     // counting back in after a pause, so it doesn't slide under frozen obstacles.
@@ -2356,7 +2366,8 @@ window.LD_RULES = (() => {
   }
 
   // Top-down car, front facing up the road, with the upgrades earned by level `lv` (0 = none).
-  function drawCar(x, y, w, h, paint, lv) {
+  // launcher: { loaded: rockets ready (0-3), kick: recoil 0-1 } — the roof-mounted rocket pod.
+  function drawCar(x, y, w, h, paint, lv, launcher = { loaded: 0, kick: 0 }) {
     const color = paint.body;
     const l = x - w / 2, r = x + w / 2;
     const has = key => lv >= UP_AT[key];
@@ -2406,8 +2417,8 @@ window.LD_RULES = (() => {
           [x + w * 0.37, y + h * 0.41], [x - w * 0.37, y + h * 0.41]]);
     ctx.fillStyle = 'rgba(255,255,255,.16)';
     roundRect(x - w * 0.33, y + h * 0.43, w * 0.66, h * 0.25, 5); ctx.fill();
-    if (has('upNumber')) {                    // racing number roundel on the roof
-      const cy = y + h * 0.555, rr = Math.min(w * 0.21, h * 0.13);
+    if (has('upNumber')) {                    // racing number roundel on the bonnet
+      const cy = y + h * 0.15, rr = Math.min(w * 0.16, h * 0.075);
       ctx.fillStyle = '#f4f4f8';
       ctx.beginPath(); ctx.arc(x, cy, rr, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = gold ? '#f6c945' : '#0b0d17'; ctx.lineWidth = 1.5; ctx.stroke();
@@ -2431,6 +2442,27 @@ window.LD_RULES = (() => {
       ctx.fillRect(x - w * 0.3, y + h - 6, 3, 5);
       ctx.fillRect(x + w * 0.3 - 3, y + h - 6, 3, 5);
       roundRect(l - 4, y + h - 2, w + 8, 6, 2); ctx.fill();
+    }
+    drawLauncher(x, y, w, h, launcher);
+  }
+  // Roof-mounted 3-tube rocket pod, pointing forward. Each loaded tube shows a rocket nose;
+  // firing kicks the pod back a little.
+  function drawLauncher(x, y, w, h, { loaded = 0, kick = 0 } = {}) {
+    const lw = w * 0.62, lh = h * 0.3, lx = x - lw / 2, ly = y + h * 0.41 + kick * 5, tw = lw / 3;
+    ctx.fillStyle = 'rgba(0,0,0,.35)';                       // shadow on the roof
+    roundRect(lx + 1, ly + 2, lw, lh, 3); ctx.fill();
+    ctx.fillStyle = '#2b303f';                               // mount
+    roundRect(lx - 1, ly + lh * 0.55, lw + 2, lh * 0.5, 2); ctx.fill();
+    for (let i = 0; i < 3; i++) {
+      const tx = lx + i * tw;
+      ctx.fillStyle = '#566079'; roundRect(tx + 0.7, ly, tw - 1.4, lh, 2); ctx.fill();         // tube
+      ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(tx + 1.4, ly + 2, 1.2, lh - 4);       // highlight
+      ctx.fillStyle = '#12141c'; ctx.fillRect(tx + 1.5, ly, tw - 3, 3.5);                        // muzzle
+      if (i < loaded) {                                                                         // rocket nose
+        const cx = tx + tw / 2;
+        ctx.fillStyle = '#f4f4f8'; ctx.fillRect(cx - tw * 0.22, ly - 1, tw * 0.44, 3);
+        ctx.fillStyle = '#c53030'; poly([[cx - tw * 0.22, ly - 1], [cx + tw * 0.22, ly - 1], [cx, ly - 6]]);
+      }
     }
   }
 
@@ -2797,7 +2829,8 @@ window.LD_RULES = (() => {
     for (const d of drones) if (d.y < player.y) drawDroneWarning(d);
 
     if (!(flash > 0 && Math.floor(flash * 16) % 2 === 0)) {
-      drawCar(player.x, player.y, player.w, player.h, carPaint(carHue, carShade), level);
+      drawCar(player.x, player.y, player.w, player.h, carPaint(carHue, carShade), level,
+              { loaded: Math.min(MAX_ROCKETS, Math.floor(wallet / ROCKET_COST)), kick: launcherKick });
     }
 
     for (const d of drones) drawShahed(d.x, d.y, d.t, d.ang);
