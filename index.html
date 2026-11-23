@@ -38,8 +38,9 @@
   #wrap {
     position: relative; width: 100%; height: 100%; max-width: 480px; margin: 0 auto;
     box-sizing: border-box; padding-bottom: env(safe-area-inset-bottom, 0px); /* keep the car above the iPhone home bar */
+    display: flex; flex-direction: column;
   }
-  canvas { display: block; width: 100%; height: 100%; }
+  canvas { display: block; width: 100%; flex: 1; min-height: 0; }
 
   /* ---- HUD ---- */
   #hud {
@@ -62,15 +63,35 @@
   }
   #mute:active { transform: scale(.92); box-shadow: none; }
   /* Ukrainian easter egg: rocket counter / fire button */
-  #rocketBtn {
-    pointer-events: auto; margin: 0; padding: 4px 9px; font-size: 15px; line-height: 1; border-radius: 8px;
-    background: rgba(255,255,255,.1); color: var(--text); box-shadow: none; display: flex; align-items: center; gap: 4px;
+  /* Launch bar under the road (Ukrainian only): coin progress on the left, a big fire button on the right */
+  #eggBar {
+    flex: none; display: flex; align-items: center; gap: 12px; padding: 8px 12px;
+    background: linear-gradient(#141831, #0f1220); border-top: 3px solid; border-image: linear-gradient(90deg, #0057B7 50%, #FFD700 50%) 1;
   }
-  #rocketBtn b { color: var(--coin); font-variant-numeric: tabular-nums; }
-  #rocketBtn:disabled { opacity: .45; }
-  #rocketBtn.ready { background: #0057B7; box-shadow: 0 0 0 2px #FFD700, 0 0 16px rgba(255,215,0,.6); animation: rocketPulse .5s ease-in-out infinite alternate; }
-  #rocketBtn:active { transform: scale(.92); }
-  @keyframes rocketPulse { to { transform: scale(1.12); } }
+  #wrap.at-home #eggBar { visibility: hidden; }
+  .eggInfo { flex: 1; min-width: 0; display: grid; gap: 5px; }
+  .eggCoins { display: flex; gap: 5px; }
+  .eggCoins i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--coin); opacity: .4; }
+  .eggCoins i.on { background: var(--coin); opacity: 1; }
+  #eggNext { font-size: 13px; font-weight: 700; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #rocketBtn {
+    flex: none; position: relative; margin: 0; padding: 10px 18px 10px 14px; min-width: 132px; min-height: 54px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-size: 18px; font-weight: 900; letter-spacing: 1px; line-height: 1;
+    color: #0f1220; background: #FFD700; border-radius: 14px; box-shadow: 0 5px 0 #b38f00;
+  }
+  #rocketBtn .rk { font-size: 26px; }
+  #rocketBtn b {
+    position: absolute; top: -9px; right: -9px; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 13px;
+    background: #0057B7; color: #fff; font-size: 15px; line-height: 26px; box-shadow: 0 0 0 2px #0f1220;
+    font-variant-numeric: tabular-nums;
+  }
+  #rocketBtn:disabled { background: #3a4166; color: #8b93b5; box-shadow: 0 5px 0 #262b47; cursor: default; }
+  #rocketBtn:disabled b { background: #262b47; color: #8b93b5; }
+  #rocketBtn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 #b38f00; }
+  #rocketBtn.ready { animation: rocketPulse .45s ease-in-out infinite alternate; }
+  @keyframes rocketPulse { from { box-shadow: 0 5px 0 #b38f00, 0 0 0 0 rgba(255,215,0,.7); } to { box-shadow: 0 5px 0 #b38f00, 0 0 0 8px rgba(255,215,0,0); transform: scale(1.06); } }
+  #eggBar.alert #eggNext { color: var(--enemy); animation: blink .5s steps(1) infinite; }
   .tag { flex: none; min-width: 44px; white-space: nowrap; font-size: 12px; font-weight: 800; letter-spacing: 1px; color: var(--muted); }
   .bar { flex: 1; height: 10px; border-radius: 5px; background: rgba(255,255,255,.1); overflow: hidden; }
   .bar > div { height: 100%; width: 0; border-radius: 5px; transition: background-color .3s; }
@@ -340,9 +361,16 @@
 <body>
 <div id="wrap" class="at-home">
   <canvas id="game"></canvas>
+  <div id="eggBar" hidden>
+    <div class="eggInfo">
+      <span class="eggCoins" id="eggCoins"><i></i><i></i><i></i></span>
+      <span id="eggNext"></span>
+    </div>
+    <button id="rocketBtn" type="button" disabled><span class="rk">🚀</span><span data-i18n="launch">FIRE</span><b id="rocketN">0</b></button>
+  </div>
 
   <div id="hud">
-    <div class="hrow"><span id="score">0</span><span id="streak">×2</span><button id="rocketBtn" type="button" hidden>🚀<b id="rocketN">0</b></button><span id="lives"></span><button id="mute" type="button" aria-label="Mute sound">🔊</button></div>
+    <div class="hrow"><span id="score">0</span><span id="streak">×2</span><span id="lives"></span><button id="mute" type="button" aria-label="Mute sound">🔊</button></div>
     <div class="hrow"><span class="tag" id="level">LV 1</span><div class="bar"><div id="prog"></div></div><span class="small" id="togo">400 m</span></div>
     <div class="hrow" id="fuelRow"><span class="tag" data-i18n="fuel">FUEL</span><div class="bar"><div id="fuel"></div></div><span id="pips" data-i18n-title="pipsTitle" title="Coins until next fuel top-up"><i></i><i></i><i></i><i></i><i></i></span></div>
   </div>
@@ -696,8 +724,11 @@ window.I18N = (() => {
       scoreLabel: 'Рахунок', newBest: 'Новий рекорд!',
       unlocked: "Відкрито: {item}", upStripes: "Гоночні смуги", upSpoiler: "Спойлер", upPaint: "Фіолетова фарба", upFlames: "Полум'я з вихлопу", upGlow: "Неонове підсвічування", upGold: "Золота фарба",
       // Easter egg (Ukrainian only): Shahed drones and rockets bought with coins
-      shahedBanner: 'ШАХЕД!', shahedSub: 'Тисни на нього · 🚀 = {n} монети',
+      shahedBanner: 'ШАХЕД!', shahedSub: 'Тисни ПУСК або на нього · 🚀 = {n} монети',
       shotDown: 'ЗБИТО!', rocketTitle: 'Ракета: {n} монети (пробіл)',
+      launch: 'ПУСК', need1: 'Ще 1 монета до ракети', needN: 'Ще {n} монети до ракети',
+      rocketsReady: 'Ракета готова!', rocketsReadyN: 'Ракет готово: {n}', droneAlert: 'ШАХЕД! Тисни ПУСК',
+      droneNoRocket: 'ШАХЕД! Ухиляйся!',
       language: 'Мова', auto: 'Авто'
     },
     ka: {
@@ -1177,16 +1208,30 @@ window.LD_RULES = (() => {
     el.fuel.style.backgroundColor = fuel > 50 ? '' : fuel > 25 ? getVar('--fuel-mid') : '';
     el.fuelRow.classList.toggle('low', fuel <= 25);
     [...el.pips.children].forEach((p, i) => p.classList.toggle('on', i < coinMeter));
-    const egg = EGG() && state !== 'home';
-    rocketBtn.hidden = !egg;
-    if (egg) {
-      const n = Math.floor(wallet / ROCKET_COST);
-      if (rocketN.textContent !== String(n)) rocketN.textContent = n;
-      rocketBtn.disabled = n === 0;
-      rocketBtn.classList.toggle('ready', n > 0 && !!target());
-    }
+    if (EGG()) paintEggBar();
   }
-  const rocketBtn = $('rocketBtn'), rocketN = $('rocketN');
+  const eggBar = $('eggBar'), rocketBtn = $('rocketBtn'), rocketN = $('rocketN'), eggNext = $('eggNext');
+  const eggPips = [...$('eggCoins').children];
+  // Bottom launch bar: rockets ready, coins towards the next one, and an alert while a Shahed is incoming.
+  function paintEggBar() {
+    const n = Math.floor(wallet / ROCKET_COST), part = wallet % ROCKET_COST;
+    const incoming = drones.some(d => !d.dead && !rockets.some(r => r.target === d)); // not already being shot at
+    const set = (node, v) => { if (node.textContent !== v) node.textContent = v; };
+    set(rocketN, String(n));
+    rocketBtn.disabled = n === 0;
+    rocketBtn.classList.toggle('ready', n > 0 && !!target());
+    eggPips.forEach((p, i) => p.classList.toggle('on', i < part));
+    eggBar.classList.toggle('alert', incoming);
+    const k = ROCKET_COST - part;
+    set(eggNext, incoming ? t(n > 0 ? 'droneAlert' : 'droneNoRocket')
+               : n > 0 ? (n === 1 ? t('rocketsReady') : t('rocketsReadyN', { n }))
+               : k === 1 ? t('need1') : t('needN', { n: k }));
+  }
+  // The bar only exists in Ukrainian; it takes room from the road, so re-measure the canvas.
+  function layoutEgg() {
+    const on = EGG();
+    if (eggBar.hidden === on) { eggBar.hidden = !on; resize(); }
+  }
 
   // ---- Easter egg: Shaheds and rockets ----
   // Nearest live drone that no rocket is already chasing.
@@ -1900,7 +1945,7 @@ window.LD_RULES = (() => {
   $('startBtn').addEventListener('click', closeHelp);
   $('retryBtn').addEventListener('click', restart);
   rocketBtn.addEventListener('click', () => { fire(); rocketBtn.blur(); });
-  I18N.onChange(() => { rocketBtn.title = t('rocketTitle', { n: ROCKET_COST }); rocketBtn.setAttribute('aria-label', rocketBtn.title); });
+  I18N.onChange(() => { rocketBtn.title = t('rocketTitle', { n: ROCKET_COST }); rocketBtn.setAttribute('aria-label', rocketBtn.title); layoutEgg(); });
   $('playBtn').addEventListener('click', startPlay);
   $('helpBtn').addEventListener('click', () => openHelp(true));
   $('exitBtn').addEventListener('click', exitGame);
