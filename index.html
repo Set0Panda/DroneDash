@@ -150,7 +150,7 @@
   .tagline { max-width: 250px; animation: fadeUp .5s .25s both; }
   #homeBest { font-size: 14px; color: var(--coin) !important; font-weight: 700; animation: fadeUp .5s .3s both; }
   @keyframes fadeUp { from { transform: translateY(14px); opacity: 0; } }
-  .menuBtns { display: grid; gap: 14px; width: 220px; margin-top: 18px; animation: fadeUp .5s .35s both; }
+  .menuBtns { display: grid; gap: 14px; width: 250px; margin-top: 18px; animation: fadeUp .5s .35s both; }
   .menuBtns button { width: 100%; margin: 0; }
   button.secondary {
     background: rgba(255,255,255,.1); color: var(--text); box-shadow: 0 6px 0 rgba(0,0,0,.35);
@@ -356,6 +356,46 @@
   #bestLine { font-size: 13px; }
   .overBtns { display: grid; gap: 12px; width: 100%; }
   .overBtns button { width: 100%; margin: 0; }
+
+  /* ---- Home: colour + records row ---- */
+  .menuRow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .menuRow button { font-size: 15px; padding: 12px 6px; display: flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; }
+  .swatch { flex: none; width: 14px; height: 14px; border-radius: 50%; background: var(--player); box-shadow: 0 0 0 2px rgba(255,255,255,.35); }
+
+  /* ---- Garage: colour wheel with the car in the middle ---- */
+  .garageCard { gap: 14px; }
+  .wheel {
+    position: relative; width: 230px; height: 230px; border-radius: 50%; flex: none; cursor: pointer; touch-action: none;
+    display: grid; place-items: center; outline: none;
+  }
+  .wheel::before {
+    content: ""; position: absolute; inset: 0; border-radius: 50%;
+    background: conic-gradient(hsl(0,72%,58%), hsl(60,72%,58%), hsl(120,72%,58%), hsl(180,72%,58%), hsl(240,72%,58%), hsl(300,72%,58%), hsl(360,72%,58%));
+    -webkit-mask: radial-gradient(circle, transparent 64%, #000 65%); mask: radial-gradient(circle, transparent 64%, #000 65%);
+  }
+  .wheel:focus-visible::before { box-shadow: 0 0 0 3px var(--text); }
+  .wheel .disc {
+    width: 140px; height: 140px; border-radius: 50%; background: var(--road); display: grid; place-items: center;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.06);
+  }
+  .knob {
+    position: absolute; left: 50%; top: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%;
+    border: 4px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.6); pointer-events: none;
+  }
+
+  /* ---- Records ---- */
+  .recCard { gap: 12px; }
+  .recList { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; gap: 6px; }
+  .recList li {
+    display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 12px; background: rgba(255,255,255,.05); text-align: left;
+  }
+  .recList li.latest { background: rgba(79,209,197,.16); box-shadow: inset 0 0 0 2px var(--accent); }
+  .recList .rank { flex: none; width: 22px; font-weight: 900; color: var(--muted); text-align: center; }
+  .recList li:first-child .rank { color: var(--coin); }
+  .recList canvas { flex: none; background: var(--road); border-radius: 8px; }
+  .recList .info { min-width: 0; display: grid; gap: 2px; }
+  .recList .info b { font-size: 20px; color: var(--coin); font-variant-numeric: tabular-nums; }
+  .recList .info small { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 </style>
 </head>
 <body>
@@ -385,6 +425,10 @@
     <p id="homeBest" hidden></p>
     <div class="menuBtns">
       <button id="playBtn">▶ <span data-i18n="play">Play</span></button>
+      <div class="menuRow">
+        <button id="garageBtn" class="secondary" type="button"><i class="swatch"></i><span data-i18n="colourBtn">Colour</span></button>
+        <button id="recordsBtn" class="secondary" type="button">🏆 <span data-i18n="records">Records</span></button>
+      </div>
       <button id="exitBtn" class="secondary" data-i18n="exit">Exit</button>
     </div>
     <button id="installBtn" class="ghost" hidden>📲 <span data-i18n="installApp">Install app</span></button>
@@ -400,6 +444,27 @@
     <h1 data-i18n="thanks">Thanks for playing!</h1>
     <p data-i18n="closeNow">You can close this window now.</p>
     <button id="byeBack" class="secondary" data-i18n="backToMenu">Back to menu</button>
+  </div>
+
+  <div id="garage" class="overlay hidden">
+    <div class="card garageCard" role="dialog" aria-labelledby="garageTitle">
+      <h1 id="garageTitle" data-i18n="garageTitle">Your car</h1>
+      <div class="wheel" id="wheel" tabindex="0" role="slider" aria-valuemin="0" aria-valuemax="359" data-i18n-aria="colourBtn">
+        <div class="disc"><canvas id="carPreview"></canvas></div>
+        <span class="knob" id="knob"></span>
+      </div>
+      <p data-i18n="garageHint">Drag around the wheel to pick a colour</p>
+      <button id="garageDone" data-i18n="done">Done</button>
+    </div>
+  </div>
+
+  <div id="records" class="overlay hidden">
+    <div class="card recCard" role="dialog" aria-labelledby="recTitle">
+      <h1 id="recTitle">🏆 <span data-i18n="records">Records</span></h1>
+      <ol id="recList" class="recList"></ol>
+      <p id="recEmpty" data-i18n="noRuns" hidden>No runs yet. Go play!</p>
+      <button id="recBack" class="ghost" data-i18n="home">Home</button>
+    </div>
   </div>
 
   <div id="intro" class="overlay hidden">
@@ -472,7 +537,9 @@ window.I18N = (() => {
       outBanner: 'OUT OF FUEL', outSub: 'Grab coins to keep your tank topped up',
       checkpoint: 'CHECKPOINT · LEVEL {n}', homeBest: '🏆 Best {best} · Level {level}',
       scoreLabel: "Score", newBest: "New best!",
-      unlocked: "Unlocked: {item}", upStripes: "Racing stripes", upSpoiler: "Spoiler", upPaint: "Purple paint", upFlames: "Exhaust flames", upGlow: "Neon glow", upGold: "Gold paint",
+      unlocked: "Unlocked: {item}", upStripes: "Racing stripes", upSpoiler: "Spoiler", upNumber: "Racing number", upFlames: "Exhaust flames", upGlow: "Neon glow", upGold: "Gold trim",
+      garageTitle: "Your car", garageHint: "Drag around the wheel to pick a colour", colourBtn: "Colour",
+      records: "Records", noRuns: "No runs yet. Go play!", done: "Done",
       language: 'Language', auto: 'Auto'
     },
     es: {
@@ -497,7 +564,9 @@ window.I18N = (() => {
       outBanner: 'SIN COMBUSTIBLE', outSub: 'Recoge monedas para mantener el tanque lleno',
       checkpoint: 'CONTROL · NIVEL {n}', homeBest: '🏆 Récord {best} · Nivel {level}',
       scoreLabel: "Puntos", newBest: "¡Nuevo récord!",
-      unlocked: "Desbloqueado: {item}", upStripes: "Franjas de carreras", upSpoiler: "Alerón", upPaint: "Pintura morada", upFlames: "Llamas de escape", upGlow: "Luz de neón", upGold: "Pintura dorada",
+      unlocked: "Desbloqueado: {item}", upStripes: "Franjas de carreras", upSpoiler: "Alerón", upNumber: "Número de carreras", upFlames: "Llamas de escape", upGlow: "Luz de neón", upGold: "Detalles dorados",
+      garageTitle: "Tu coche", garageHint: "Desliza por la rueda para elegir un color", colourBtn: "Color",
+      records: "Récords", noRuns: "Aún no hay partidas. ¡A jugar!", done: "Listo",
       language: 'Idioma', auto: 'Automático'
     },
     fr: {
@@ -522,7 +591,9 @@ window.I18N = (() => {
       outBanner: 'PANNE SÈCHE', outSub: 'Ramasse des pièces pour garder le réservoir plein',
       checkpoint: 'CONTRÔLE · NIVEAU {n}', homeBest: '🏆 Record {best} · Niveau {level}',
       scoreLabel: "Score", newBest: `Nouveau record${NB}!`,
-      unlocked: `Débloqué${NB}: {item}`, upStripes: "Bandes de course", upSpoiler: "Aileron", upPaint: "Peinture violette", upFlames: "Flammes d'échappement", upGlow: "Néons", upGold: "Peinture dorée",
+      unlocked: `Débloqué${NB}: {item}`, upStripes: "Bandes de course", upSpoiler: "Aileron", upNumber: "Numéro de course", upFlames: "Flammes d'échappement", upGlow: "Néons", upGold: "Finitions dorées",
+      garageTitle: "Ta voiture", garageHint: "Fais glisser autour de la roue pour choisir une couleur", colourBtn: "Couleur",
+      records: "Records", noRuns: `Aucune partie pour l'instant. À toi de jouer${NB}!`, done: "OK",
       language: 'Langue', auto: 'Auto'
     },
     de: {
@@ -547,7 +618,9 @@ window.I18N = (() => {
       outBanner: 'TANK LEER', outSub: 'Sammle Münzen, damit der Tank voll bleibt',
       checkpoint: 'CHECKPOINT · LEVEL {n}', homeBest: '🏆 Rekord {best} · Level {level}',
       scoreLabel: "Punkte", newBest: "Neuer Rekord!",
-      unlocked: "Freigeschaltet: {item}", upStripes: "Rennstreifen", upSpoiler: "Heckspoiler", upPaint: "Lila Lack", upFlames: "Auspuffflammen", upGlow: "Neonlicht", upGold: "Goldlack",
+      unlocked: "Freigeschaltet: {item}", upStripes: "Rennstreifen", upSpoiler: "Heckspoiler", upNumber: "Startnummer", upFlames: "Auspuffflammen", upGlow: "Neonlicht", upGold: "Goldene Akzente",
+      garageTitle: "Dein Auto", garageHint: "Am Farbkreis ziehen, um eine Farbe zu wählen", colourBtn: "Farbe",
+      records: "Rekorde", noRuns: "Noch keine Fahrten. Los geht’s!", done: "Fertig",
       language: 'Sprache', auto: 'Automatisch'
     },
     pt: {
@@ -572,7 +645,9 @@ window.I18N = (() => {
       outBanner: 'SEM COMBUSTÍVEL', outSub: 'Pegue moedas para manter o tanque cheio',
       checkpoint: 'CHECKPOINT · NÍVEL {n}', homeBest: '🏆 Recorde {best} · Nível {level}',
       scoreLabel: "Pontos", newBest: "Novo recorde!",
-      unlocked: "Desbloqueado: {item}", upStripes: "Faixas de corrida", upSpoiler: "Aerofólio", upPaint: "Pintura roxa", upFlames: "Chamas no escapamento", upGlow: "Luz neon", upGold: "Pintura dourada",
+      unlocked: "Desbloqueado: {item}", upStripes: "Faixas de corrida", upSpoiler: "Aerofólio", upNumber: "Número de corrida", upFlames: "Chamas no escapamento", upGlow: "Luz neon", upGold: "Detalhes dourados",
+      garageTitle: "Seu carro", garageHint: "Arraste pela roda para escolher uma cor", colourBtn: "Cor",
+      records: "Recordes", noRuns: "Nenhuma partida ainda. Bora jogar!", done: "Pronto",
       language: 'Idioma', auto: 'Automático'
     },
     it: {
@@ -597,7 +672,9 @@ window.I18N = (() => {
       outBanner: 'A SECCO', outSub: 'Prendi monete per tenere pieno il serbatoio',
       checkpoint: 'CHECKPOINT · LIVELLO {n}', homeBest: '🏆 Record {best} · Livello {level}',
       scoreLabel: "Punti", newBest: "Nuovo record!",
-      unlocked: "Sbloccato: {item}", upStripes: "Strisce da corsa", upSpoiler: "Alettone", upPaint: "Vernice viola", upFlames: "Fiamme di scarico", upGlow: "Luci al neon", upGold: "Vernice oro",
+      unlocked: "Sbloccato: {item}", upStripes: "Strisce da corsa", upSpoiler: "Alettone", upNumber: "Numero di gara", upFlames: "Fiamme di scarico", upGlow: "Luci al neon", upGold: "Finiture dorate",
+      garageTitle: "La tua auto", garageHint: "Trascina lungo la ruota per scegliere un colore", colourBtn: "Colore",
+      records: "Record", noRuns: "Ancora nessuna partita. Gioca!", done: "Fatto",
       language: 'Lingua', auto: 'Automatica'
     },
     ja: {
@@ -622,7 +699,9 @@ window.I18N = (() => {
       outBanner: '燃料切れ', outSub: 'コインを集めて燃料を補給しよう',
       checkpoint: 'チェックポイント・レベル {n}', homeBest: '🏆 ベスト {best}・レベル {level}',
       scoreLabel: "スコア", newBest: "ベスト更新！",
-      unlocked: "解放：{item}", upStripes: "レーシングストライプ", upSpoiler: "スポイラー", upPaint: "パープル塗装", upFlames: "マフラーの炎", upGlow: "ネオンライト", upGold: "ゴールド塗装",
+      unlocked: "解放：{item}", upStripes: "レーシングストライプ", upSpoiler: "スポイラー", upNumber: "ゼッケン", upFlames: "マフラーの炎", upGlow: "ネオンライト", upGold: "ゴールドトリム",
+      garageTitle: "あなたの車", garageHint: "ホイールをなぞって色を選ぼう", colourBtn: "カラー",
+      records: "記録", noRuns: "まだ記録がありません。さあ走ろう！", done: "完了",
       language: '言語', auto: '自動'
     },
     zh: {
@@ -647,7 +726,9 @@ window.I18N = (() => {
       outBanner: '燃油耗尽', outSub: '收集金币，保持油箱充足',
       checkpoint: '检查点 · 第 {n} 关', homeBest: '🏆 最高分 {best} · 第 {level} 关',
       scoreLabel: "得分", newBest: "新纪录！",
-      unlocked: "解锁：{item}", upStripes: "赛车条纹", upSpoiler: "尾翼", upPaint: "紫色涂装", upFlames: "排气火焰", upGlow: "霓虹底灯", upGold: "金色涂装",
+      unlocked: "解锁：{item}", upStripes: "赛车条纹", upSpoiler: "尾翼", upNumber: "赛车号码", upFlames: "排气火焰", upGlow: "霓虹底灯", upGold: "金色饰边",
+      garageTitle: "你的赛车", garageHint: "沿色环拖动来选择颜色", colourBtn: "颜色",
+      records: "记录", noRuns: "还没有记录，快去玩吧！", done: "完成",
       language: '语言', auto: '自动'
     },
     ko: {
@@ -672,7 +753,9 @@ window.I18N = (() => {
       outBanner: '연료 고갈', outSub: '코인을 모아 연료를 채우세요',
       checkpoint: '체크포인트 · 레벨 {n}', homeBest: '🏆 최고 {best} · 레벨 {level}',
       scoreLabel: "점수", newBest: "최고 기록!",
-      unlocked: "잠금 해제: {item}", upStripes: "레이싱 스트라이프", upSpoiler: "스포일러", upPaint: "보라색 도색", upFlames: "배기 불꽃", upGlow: "네온 라이트", upGold: "골드 도색",
+      unlocked: "잠금 해제: {item}", upStripes: "레이싱 스트라이프", upSpoiler: "스포일러", upNumber: "레이싱 넘버", upFlames: "배기 불꽃", upGlow: "네온 라이트", upGold: "골드 트림",
+      garageTitle: "내 자동차", garageHint: "휠을 따라 드래그해서 색을 고르세요", colourBtn: "색상",
+      records: "기록", noRuns: "아직 기록이 없어요. 플레이해 보세요!", done: "완료",
       language: '언어', auto: '자동'
     },
     hi: {
@@ -697,7 +780,9 @@ window.I18N = (() => {
       outBanner: 'ईंधन ख़त्म', outSub: 'टंकी भरी रखने के लिए सिक्के उठाएँ',
       checkpoint: 'चेकपॉइंट · लेवल {n}', homeBest: '🏆 सर्वश्रेष्ठ {best} · लेवल {level}',
       scoreLabel: "स्कोर", newBest: "नया रिकॉर्ड!",
-      unlocked: "अनलॉक: {item}", upStripes: "रेसिंग धारियाँ", upSpoiler: "स्पॉइलर", upPaint: "बैंगनी रंग", upFlames: "एग्ज़ॉस्ट की लपटें", upGlow: "नियॉन रोशनी", upGold: "सुनहरा रंग",
+      unlocked: "अनलॉक: {item}", upStripes: "रेसिंग धारियाँ", upSpoiler: "स्पॉइलर", upNumber: "रेसिंग नंबर", upFlames: "एग्ज़ॉस्ट की लपटें", upGlow: "नियॉन रोशनी", upGold: "सुनहरी ट्रिम",
+      garageTitle: "आपकी कार", garageHint: "रंग चुनने के लिए पहिये पर उंगली घुमाएँ", colourBtn: "रंग",
+      records: "रिकॉर्ड", noRuns: "अभी तक कोई रन नहीं। खेलना शुरू करें!", done: "हो गया",
       language: 'भाषा', auto: 'स्वचालित'
     },
     uk: {
@@ -722,7 +807,9 @@ window.I18N = (() => {
       outBanner: 'ПАЛЬНЕ СКІНЧИЛОСЯ', outSub: 'Збирай монети, щоб бак не спорожнів',
       checkpoint: 'ЧЕКПОІНТ · РІВЕНЬ {n}', homeBest: '🏆 Рекорд {best} · Рівень {level}',
       scoreLabel: 'Рахунок', newBest: 'Новий рекорд!',
-      unlocked: "Відкрито: {item}", upStripes: "Гоночні смуги", upSpoiler: "Спойлер", upPaint: "Фіолетова фарба", upFlames: "Полум'я з вихлопу", upGlow: "Неонове підсвічування", upGold: "Золота фарба",
+      unlocked: "Відкрито: {item}", upStripes: "Гоночні смуги", upSpoiler: "Спойлер", upNumber: "Гоночний номер", upFlames: "Полум'я з вихлопу", upGlow: "Неонове підсвічування", upGold: "Золоте оздоблення",
+      garageTitle: "Твоя машина", garageHint: "Веди по колу, щоб вибрати колір", colourBtn: "Колір",
+      records: "Рекорди", noRuns: "Ще немає заїздів. Час грати!", done: "Готово",
       // Easter egg (Ukrainian only): Shahed drones and rockets bought with coins
       shahedBanner: 'ШАХЕД!', shahedSub: 'Тисни ПУСК або на нього · 🚀 = {n} монети',
       shotDown: 'ЗБИТО!', rocketTitle: 'Ракета: {n} монети (пробіл)',
@@ -753,7 +840,9 @@ window.I18N = (() => {
       outBanner: 'საწვავი გათავდა', outSub: 'შეაგროვე მონეტები, რომ ავზი სავსე დარჩეს',
       checkpoint: 'საკონტროლო პუნქტი · დონე {n}', homeBest: '🏆 რეკორდი {best} · დონე {level}',
       scoreLabel: 'ქულა', newBest: 'ახალი რეკორდი!',
-      unlocked: "გაიხსნა: {item}", upStripes: "სარბოლო ზოლები", upSpoiler: "სპოილერი", upPaint: "იისფერი საღებავი", upFlames: "გამონაბოლქვის ალი", upGlow: "ნეონის განათება", upGold: "ოქროსფერი საღებავი",
+      unlocked: "გაიხსნა: {item}", upStripes: "სარბოლო ზოლები", upSpoiler: "სპოილერი", upNumber: "სარბოლო ნომერი", upFlames: "გამონაბოლქვის ალი", upGlow: "ნეონის განათება", upGold: "ოქროსფერი დეტალები",
+      garageTitle: "შენი მანქანა", garageHint: "გადაატარე წრეზე ფერის ასარჩევად", colourBtn: "ფერი",
+      records: "რეკორდები", noRuns: "ჯერ არცერთი თამაში არ გაქვს. წადი ითამაშე!", done: "მზადაა",
       language: 'ენა', auto: 'ავტო'
     }
   };
@@ -1000,7 +1089,7 @@ window.LD_RULES = (() => {
 
   const $ = id => document.getElementById(id);
   const canvas = $('game');
-  const ctx = canvas.getContext('2d');
+  let ctx = canvas.getContext('2d'); // swapped briefly by paintCarOn() for car previews
   const el = {
     score: $('score'), streak: $('streak'), lives: $('lives'), level: $('level'), prog: $('prog'),
     togo: $('togo'), fuel: $('fuel'), pips: $('pips'), fuelRow: $('fuelRow'),
@@ -1352,12 +1441,36 @@ window.LD_RULES = (() => {
 
   // ---- Car upgrades: every few levels the car gets something new for the rest of the run ----
   const UPGRADES = [
-    { level: 2, key: 'upStripes' }, { level: 3, key: 'upSpoiler' }, { level: 4, key: 'upPaint' },
+    { level: 2, key: 'upStripes' }, { level: 3, key: 'upSpoiler' }, { level: 4, key: 'upNumber' },
     { level: 6, key: 'upFlames' },  { level: 8, key: 'upGlow' },    { level: 10, key: 'upGold' }
   ];
   const UP_AT = Object.fromEntries(UPGRADES.map(u => [u.key, u.level]));
-  const has = key => level >= UP_AT[key];
-  const carPaint = () => has('upGold') ? '#f6c945' : has('upPaint') ? '#9f7aea' : getVar('--player');
+
+  // ---- Car colour: picked on the colour wheel, kept between runs ----
+  const hueColor = h => `hsl(${Math.round(h)},72%,58%)`;
+  let carHue = 174;                                           // ≈ the original teal
+  try { const v = localStorage.getItem('laneDodgerHue'); if (v !== null && v !== '' && isFinite(+v)) carHue = +v; } catch {}
+  function setHue(h) {
+    carHue = ((Math.round(h) % 360) + 360) % 360;
+    writeNum('laneDodgerHue', carHue);
+    document.documentElement.style.setProperty('--player', hueColor(carHue)); // how-to-play demo car + swatch
+  }
+  setHue(carHue);
+
+  // Draw a car with a given colour and the upgrades of a given level onto another canvas
+  // (garage preview, records list). drawCar() paints on `ctx`, so swap it for a moment.
+  function paintCarOn(cv, cssW, cssH, hue, lv, scale) {
+    const d = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = Math.round(cssW * d); cv.height = Math.round(cssH * d);
+    cv.style.width = cssW + 'px'; cv.style.height = cssH + 'px';
+    const c2 = cv.getContext('2d'), saved = ctx;
+    ctx = c2;
+    try {
+      c2.setTransform(d * scale, 0, 0, d * scale, 0, 0);
+      const w = 46, h = R.CAR_H;
+      drawCar(cssW / scale / 2, (cssH / scale - h) / 2 - 4, w, h, hueColor(hue), lv);
+    } finally { ctx = saved; }
+  }
 
   function hit(o) {
     const cx = laneX(o.lane);
@@ -1425,6 +1538,10 @@ window.LD_RULES = (() => {
     const bestLevel = Math.max(readNum('laneDodgerBestLevel'), level);
     writeNum('laneDodgerBest', best);
     writeNum('laneDodgerBestLevel', bestLevel);
+    if (s > 0) {
+      const run = { s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, h: carHue, t: Date.now() };
+      if (saveRun(run)) latestRunT = run.t;
+    }
     el.over.classList.toggle('fuel', reason === 'fuel');
     $('overTitle').textContent = t(reason === 'fuel' ? 'outOfFuel' : 'crashed');
     $('newBest').hidden = !(s > prevBest && s > 0);
@@ -1481,9 +1598,73 @@ window.LD_RULES = (() => {
   // ---- Home screen ----
   const wrapEl = $('wrap');
   function show(id) {
-    for (const o of ['home', 'bye', 'intro', 'over']) $(o).classList.toggle('hidden', o !== id);
-    wrapEl.classList.toggle('at-home', id === 'home' || id === 'bye');
+    for (const o of ['home', 'bye', 'intro', 'over', 'garage', 'records']) $(o).classList.toggle('hidden', o !== id);
+    wrapEl.classList.toggle('at-home', ['home', 'bye', 'garage', 'records'].includes(id));
   }
+
+  // ---- Garage: hue wheel around a live preview of the car ----
+  const wheel = $('wheel'), knob = $('knob'), preview = $('carPreview');
+  function paintGarage() {
+    const a = carHue * Math.PI / 180, rad = 94;      // knob rides the middle of the ring
+    knob.style.transform = `translate(${(Math.sin(a) * rad).toFixed(1)}px, ${(-Math.cos(a) * rad).toFixed(1)}px)`;
+    knob.style.background = hueColor(carHue);
+    wheel.setAttribute('aria-valuenow', carHue);
+    paintCarOn(preview, 100, 124, carHue, 0, 1.35);
+  }
+  function pickHue(e) {
+    const r = wheel.getBoundingClientRect();
+    const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+    if (Math.hypot(dx, dy) < 10) return;            // dead centre: no direction to read
+    setHue(Math.atan2(dx, -dy) * 180 / Math.PI);     // 0° at the top, clockwise, like the gradient
+    paintGarage();
+  }
+  let wheelDrag = false;
+  wheel.addEventListener('pointerdown', e => { wheelDrag = true; wheel.setPointerCapture(e.pointerId); pickHue(e); });
+  wheel.addEventListener('pointermove', e => { if (wheelDrag) pickHue(e); });
+  wheel.addEventListener('pointerup', () => { wheelDrag = false; });
+  wheel.addEventListener('pointercancel', () => { wheelDrag = false; });
+  wheel.addEventListener('keydown', e => {
+    const d = { ArrowRight: 6, ArrowUp: 6, ArrowLeft: -6, ArrowDown: -6 }[e.key];
+    if (d) { e.preventDefault(); e.stopPropagation(); setHue(carHue + d); paintGarage(); }
+  });
+  function openGarage() { state = 'garage'; show('garage'); paintGarage(); }
+
+  // ---- Records: your top 10 runs, each with the car you drove (colour + upgrades earned) ----
+  const RUNS_KEY = 'laneDodgerRuns', MAX_RUNS = 10;
+  let latestRunT = 0;
+  function loadRuns() {
+    try { const a = JSON.parse(localStorage.getItem(RUNS_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch { return []; }
+  }
+  function saveRun(run) {
+    const runs = loadRuns();
+    runs.push(run);
+    runs.sort((a, b) => b.s - a.s || a.t - b.t);
+    const top = runs.slice(0, MAX_RUNS);
+    try { localStorage.setItem(RUNS_KEY, JSON.stringify(top)); } catch {}
+    return top.includes(run);
+  }
+  function renderRecords() {
+    const list = $('recList'), runs = loadRuns();
+    list.textContent = '';
+    $('recEmpty').hidden = runs.length > 0;
+    const df = new Intl.DateTimeFormat(I18N.lang, { day: 'numeric', month: 'short' });
+    runs.forEach((r, i) => {
+      const li = document.createElement('li');
+      if (r.t === latestRunT) li.className = 'latest';
+      const rank = document.createElement('span');
+      rank.className = 'rank'; rank.textContent = i + 1;
+      const cv = document.createElement('canvas');
+      const info = document.createElement('div'), b = document.createElement('b'), small = document.createElement('small');
+      info.className = 'info';
+      b.textContent = num(r.s);
+      small.textContent = [t('lv', { n: r.l }), t('meters', { n: r.d }), df.format(r.t)].join(' · ');
+      info.append(b, small);
+      li.append(rank, cv, info);
+      list.appendChild(li);
+      paintCarOn(cv, 50, 70, r.h, r.l, 0.76);
+    });
+  }
+  function openRecords() { state = 'records'; renderRecords(); show('records'); }
   function goHome() {
     reset();
     state = 'home';
@@ -1650,17 +1831,19 @@ window.LD_RULES = (() => {
     ctx.closePath(); ctx.fill();
   }
 
-  // Top-down car, front facing up the road.
-  function drawCar(x, y, w, h, color, upgrades) {
+  // Top-down car, front facing up the road, with the upgrades earned by level `lv` (0 = none).
+  function drawCar(x, y, w, h, color, lv) {
     const l = x - w / 2, r = x + w / 2;
-    if (upgrades && has('upGlow')) {          // neon underglow
+    const has = key => lv >= UP_AT[key];
+    const gold = has('upGold');
+    if (has('upGlow')) {                      // neon underglow in the car's own colour
       ctx.save();
-      ctx.shadowColor = '#b794f4'; ctx.shadowBlur = 24;
-      ctx.fillStyle = 'rgba(183,148,244,.55)';
+      ctx.shadowColor = color; ctx.shadowBlur = 24; ctx.globalAlpha = 0.6;
+      ctx.fillStyle = color;
       roundRect(l - 5, y + 6, w + 10, h - 10, 14); ctx.fill();
       ctx.restore();
     }
-    if (upgrades && has('upFlames')) {        // flickering exhaust flames
+    if (has('upFlames')) {                    // flickering exhaust flames
       for (const fx of [x - w * 0.22, x + w * 0.22]) {
         const len = 10 + Math.random() * 14;
         ctx.fillStyle = '#f6ad55';
@@ -1677,11 +1860,15 @@ window.LD_RULES = (() => {
     }
     ctx.fillStyle = color;
     roundRect(l, y, w, h, Math.min(w * 0.32, 16)); ctx.fill();
+    if (gold) {                               // gold trim: a gold outline round the body
+      ctx.strokeStyle = '#f6c945'; ctx.lineWidth = 2.5;
+      roundRect(l + 1.2, y + 1.2, w - 2.4, h - 2.4, Math.min(w * 0.3, 15)); ctx.stroke();
+    }
     ctx.fillStyle = 'rgba(0,0,0,.14)';
     roundRect(l, y + h * 0.18, w * 0.12, h * 0.64, 4); ctx.fill();
     roundRect(r - w * 0.12, y + h * 0.18, w * 0.12, h * 0.64, 4); ctx.fill();
-    if (upgrades && has('upStripes')) {       // twin racing stripes, nose to tail
-      ctx.fillStyle = 'rgba(255,255,255,.85)';
+    if (has('upStripes')) {                   // twin racing stripes, nose to tail (gold with the trim)
+      ctx.fillStyle = gold ? '#f6c945' : 'rgba(255,255,255,.85)';
       ctx.fillRect(x - w * 0.14, y + 1, w * 0.08, h - 2);
       ctx.fillRect(x + w * 0.06, y + 1, w * 0.08, h - 2);
     }
@@ -1690,6 +1877,17 @@ window.LD_RULES = (() => {
           [x + w * 0.37, y + h * 0.41], [x - w * 0.37, y + h * 0.41]]);
     ctx.fillStyle = 'rgba(255,255,255,.16)';
     roundRect(x - w * 0.33, y + h * 0.43, w * 0.66, h * 0.25, 5); ctx.fill();
+    if (has('upNumber')) {                    // racing number roundel on the roof
+      const cy = y + h * 0.555, rr = Math.min(w * 0.21, h * 0.13);
+      ctx.fillStyle = '#f4f4f8';
+      ctx.beginPath(); ctx.arc(x, cy, rr, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = gold ? '#f6c945' : '#0b0d17'; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.fillStyle = '#0b0d17';
+      ctx.font = '900 ' + Math.round(rr * 1.35) + 'px system-ui, sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('7', x, cy + 0.5);
+      ctx.textBaseline = 'alphabetic';
+    }
     ctx.fillStyle = 'rgba(15,18,32,.85)';
     poly([[x - w * 0.35, y + h * 0.70], [x + w * 0.35, y + h * 0.70],
           [x + w * 0.29, y + h * 0.81], [x - w * 0.29, y + h * 0.81]]);
@@ -1699,7 +1897,7 @@ window.LD_RULES = (() => {
     ctx.fillStyle = '#c53030';
     roundRect(l + 5, y + h - 7, w * 0.2, 4, 2); ctx.fill();
     roundRect(r - 5 - w * 0.2, y + h - 7, w * 0.2, 4, 2); ctx.fill();
-    if (upgrades && has('upSpoiler')) {       // rear wing, a little wider than the car
+    if (has('upSpoiler')) {                   // rear wing, a little wider than the car
       ctx.fillStyle = '#0b0d17';
       ctx.fillRect(x - w * 0.3, y + h - 6, 3, 5);
       ctx.fillRect(x + w * 0.3 - 3, y + h - 6, 3, 5);
@@ -1854,7 +2052,7 @@ window.LD_RULES = (() => {
     }
 
     if (!(flash > 0 && Math.floor(flash * 16) % 2 === 0)) {
-      drawCar(player.x, player.y, player.w, player.h, carPaint(), true);
+      drawCar(player.x, player.y, player.w, player.h, hueColor(carHue), level);
     }
 
     for (const d of drones) drawShahed(d.x, d.y, d.t);
@@ -1902,7 +2100,7 @@ window.LD_RULES = (() => {
     else if ((e.key === 'Enter' || e.key === ' ') && state === 'home' && !e.target.closest('button')) { e.preventDefault(); startPlay(); }
     else if ((e.key === 'Enter' || e.key === ' ') && state === 'menu' && !e.target.closest('button')) { e.preventDefault(); closeHelp(); }
     else if ((e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') && state === 'play' && EGG()) { e.preventDefault(); fire(); }
-    else if (e.key === 'Escape' && (state === 'menu' || state === 'over' || state === 'bye')) goHome();
+    else if (e.key === 'Escape' && ['menu', 'over', 'bye', 'garage', 'records'].includes(state)) goHome();
     else if ((e.key === 'Enter' || e.key === ' ') && state === 'over') { e.preventDefault(); restart(); }
   });
 
@@ -1951,6 +2149,10 @@ window.LD_RULES = (() => {
   $('playBtn').addEventListener('click', startPlay);
   $('helpBtn').addEventListener('click', () => openHelp(true));
   $('exitBtn').addEventListener('click', exitGame);
+  $('garageBtn').addEventListener('click', openGarage);
+  $('recordsBtn').addEventListener('click', openRecords);
+  $('garageDone').addEventListener('click', goHome);
+  $('recBack').addEventListener('click', goHome);
   $('homeBtn').addEventListener('click', goHome);
   $('byeBack').addEventListener('click', () => { sfx.ensure(); goHome(); });
 
