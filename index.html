@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Lane Dodger</title>
-<meta name="description" content="Dodge barriers, grab coins and keep your fuel up.">
+<meta name="description" content="Dodge barriers, grab coins, shoot down drones and keep your fuel up.">
 <meta name="theme-color" content="#0f1220">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -57,11 +57,16 @@
   }
   #streak.on { visibility: visible; }
   #lives { margin-left: auto; letter-spacing: 4px; color: var(--enemy); font-size: 18px; }
-  #mute {
+  #mute, #pauseBtn {
     pointer-events: auto; margin: 0; padding: 5px 7px; font-size: 16px; line-height: 1; border-radius: 8px;
     background: rgba(255,255,255,.1); color: var(--text); box-shadow: none;
   }
-  #mute:active { transform: scale(.92); box-shadow: none; }
+  #mute:active, #pauseBtn:active { transform: scale(.92); box-shadow: none; }
+  #pauseBtn { min-width: 32px; }
+  #pauseBtn:disabled { opacity: .35; }
+  #pause { background: rgba(6, 8, 16, .78); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+  .pauseCard { gap: 18px; max-width: 300px; }
+  .pauseCard h1 { font-size: 36px; }
   /* Shahed drones: rocket counter / fire button */
   /* Launch bar under the road: coin progress on the left, a big fire button on the right */
   #eggBar {
@@ -152,7 +157,7 @@
     text-shadow: 0 6px 24px rgba(0,0,0,.6); animation: fadeUp .5s .15s both;
   }
   .title span { display: block; color: var(--accent); }
-  .tagline { max-width: 250px; animation: fadeUp .5s .25s both; }
+  .tagline { max-width: 300px; text-wrap: balance; animation: fadeUp .5s .25s both; }
   #homeBest { font-size: 14px; color: var(--coin) !important; font-weight: 700; animation: fadeUp .5s .3s both; }
   @keyframes fadeUp { from { transform: translateY(14px); opacity: 0; } }
   .menuBtns { display: grid; gap: 14px; width: 250px; margin-top: 18px; animation: fadeUp .5s .35s both; }
@@ -432,7 +437,7 @@
   </div>
 
   <div id="hud">
-    <div class="hrow"><span id="score">0</span><span id="streak">×2</span><span id="lives"></span><button id="mute" type="button" aria-label="Mute sound">🔊</button></div>
+    <div class="hrow"><span id="score">0</span><span id="streak">×2</span><span id="lives"></span><button id="pauseBtn" type="button" data-i18n-title="pause" data-i18n-aria="pause" aria-label="Pause">⏸</button><button id="mute" type="button" aria-label="Mute sound">🔊</button></div>
     <div class="hrow"><span class="tag" id="level">LV 1</span><div class="bar"><div id="prog"></div></div><span class="small" id="togo">400 m</span></div>
     <div class="hrow" id="fuelRow"><span class="tag" data-i18n="fuel">FUEL</span><div class="bar"><div id="fuel"></div></div><span id="pips" data-i18n-title="pipsTitle" title="Coins until next fuel top-up"><i></i><i></i><i></i><i></i><i></i></span></div>
   </div>
@@ -443,7 +448,7 @@
   <div id="home" class="overlay">
     <img class="logo" src="icons/icon-512.png" alt="" width="132" height="132">
     <h1 class="title">LANE<span>DODGER</span></h1>
-    <p class="tagline" data-i18n="tagline">Dodge the barriers. Grab the coins. Don't run out of fuel.</p>
+    <p class="tagline" data-i18n="tagline">Dodge the barriers. Grab the coins. Shoot down the drones. Don't run out of fuel.</p>
     <p id="homeBest" hidden></p>
     <div class="menuBtns">
       <button id="playBtn">▶ <span data-i18n="play">Play</span></button>
@@ -487,6 +492,17 @@
       <ol id="recList" class="recList"></ol>
       <p id="recEmpty" data-i18n="noRuns" hidden>No runs yet. Go play!</p>
       <button id="recBack" class="ghost" data-i18n="home">Home</button>
+    </div>
+  </div>
+
+  <div id="pause" class="overlay hidden">
+    <div class="card pauseCard" role="dialog" aria-labelledby="pauseTitle">
+      <h1 id="pauseTitle">⏸ <span data-i18n="paused">Paused</span></h1>
+      <div class="overBtns">
+        <button id="resumeBtn">▶ <span data-i18n="resume">Resume</span></button>
+        <button id="pauseRetry" class="secondary" data-i18n="retry">Retry</button>
+        <button id="pauseHome" class="ghost" data-i18n="home">Home</button>
+      </div>
     </div>
   </div>
 
@@ -540,7 +556,7 @@ window.I18N = (() => {
   const NB = ' '; // non-breaking space (French punctuation)
   const STR = {
     en: {
-      tagline: "Dodge the barriers. Grab the coins. Don't run out of fuel.",
+      tagline: "Dodge the barriers. Grab the coins. Shoot down the drones. Don't run out of fuel.",
       play: 'Play', exit: 'Exit', installApp: 'Install app',
       installHintIos: 'Play it like an app: tap Share, then “Add to Home Screen”.',
       thanks: 'Thanks for playing!', closeNow: 'You can close this window now.', backToMenu: 'Back to menu',
@@ -564,6 +580,7 @@ window.I18N = (() => {
       unlocked: "Unlocked: {item}", upStripes: "Racing stripes", upSpoiler: "Spoiler", upNumber: "Racing number", upFlames: "Exhaust flames", upGlow: "Neon glow", upGold: "Gold trim",
       garageTitle: "Your car", garageHint: "Drag around the wheel to pick a colour", colourBtn: "Colour",
       records: "Records", noRuns: "No runs yet. Go play!", done: "Done", shade: "Shade: black to white",
+      paused: "Paused", resume: "Resume", pause: "Pause",
       // Shahed drones and rockets
       shahedBanner: "SHAHED!", shahedSub: "Tap FIRE or the drone · 🚀 = {n} coins", shotDown: "SHOT DOWN!", dodged: "DODGED!", shotDownStat: "Shot down",
       rocketTitle: "Rocket: {n} coins (Space)", launch: "FIRE", need1: "1 more coin for a rocket", needN: "{n} more coins for a rocket",
@@ -571,7 +588,7 @@ window.I18N = (() => {
       language: 'Language', auto: 'Auto'
     },
     es: {
-      tagline: 'Esquiva las barreras. Recoge monedas. No te quedes sin combustible.',
+      tagline: 'Esquiva las barreras. Recoge monedas. Derriba los drones. No te quedes sin combustible.',
       play: 'Jugar', exit: 'Salir', installApp: 'Instalar app',
       installHintIos: 'Juega como una app: toca Compartir y luego «Añadir a pantalla de inicio».',
       thanks: '¡Gracias por jugar!', closeNow: 'Ya puedes cerrar esta ventana.', backToMenu: 'Volver al menú',
@@ -595,6 +612,7 @@ window.I18N = (() => {
       unlocked: "Desbloqueado: {item}", upStripes: "Franjas de carreras", upSpoiler: "Alerón", upNumber: "Número de carreras", upFlames: "Llamas de escape", upGlow: "Luz de neón", upGold: "Detalles dorados",
       garageTitle: "Tu coche", garageHint: "Desliza por la rueda para elegir un color", colourBtn: "Color",
       records: "Récords", noRuns: "Aún no hay partidas. ¡A jugar!", done: "Listo", shade: "Tono: de negro a blanco",
+      paused: "En pausa", resume: "Continuar", pause: "Pausa",
       // Shahed drones and rockets
       shahedBanner: "¡SHAHED!", shahedSub: "Toca DISPARAR o el dron · 🚀 = {n} monedas", shotDown: "¡DERRIBADO!", dodged: "¡ESQUIVADO!", shotDownStat: "Derribados",
       rocketTitle: "Cohete: {n} monedas (Espacio)", launch: "DISPARAR", need1: "Falta 1 moneda para un cohete", needN: "Faltan {n} monedas para un cohete",
@@ -602,7 +620,7 @@ window.I18N = (() => {
       language: 'Idioma', auto: 'Automático'
     },
     fr: {
-      tagline: `Évite les barrières. Ramasse les pièces. Ne tombe pas en panne d'essence.`,
+      tagline: `Évite les barrières. Ramasse les pièces. Abats les drones. Ne tombe pas en panne d'essence.`,
       play: 'Jouer', exit: 'Quitter', installApp: `Installer l'app`,
       installHintIos: `Joue comme avec une app${NB}: touche Partager, puis «${NB}Sur l'écran d'accueil${NB}».`,
       thanks: `Merci d'avoir joué${NB}!`, closeNow: 'Tu peux fermer cette fenêtre.', backToMenu: 'Retour au menu',
@@ -626,6 +644,7 @@ window.I18N = (() => {
       unlocked: `Débloqué${NB}: {item}`, upStripes: "Bandes de course", upSpoiler: "Aileron", upNumber: "Numéro de course", upFlames: "Flammes d'échappement", upGlow: "Néons", upGold: "Finitions dorées",
       garageTitle: "Ta voiture", garageHint: "Fais glisser autour de la roue pour choisir une couleur", colourBtn: "Couleur",
       records: "Records", noRuns: `Aucune partie pour l'instant. À toi de jouer${NB}!`, done: "OK", shade: `Nuance${NB}: du noir au blanc`,
+      paused: "Pause", resume: "Reprendre", pause: "Pause",
       // Shahed drones and rockets
       shahedBanner: `SHAHED${NB}!`, shahedSub: "Touche FEU ou le drone · 🚀 = {n} pièces", shotDown: `ABATTU${NB}!`, dodged: `ÉVITÉ${NB}!`, shotDownStat: "Abattus",
       rocketTitle: `Roquette${NB}: {n} pièces (Espace)`, launch: "FEU", need1: "Encore 1 pièce pour une roquette", needN: "Encore {n} pièces pour une roquette",
@@ -633,7 +652,7 @@ window.I18N = (() => {
       language: 'Langue', auto: 'Auto'
     },
     de: {
-      tagline: 'Weiche Barrieren aus. Sammle Münzen. Lass den Tank nicht leerlaufen.',
+      tagline: 'Weiche Barrieren aus. Sammle Münzen. Schieß Drohnen ab. Lass den Tank nicht leerlaufen.',
       play: 'Spielen', exit: 'Beenden', installApp: 'App installieren',
       installHintIos: 'Als App spielen: Tippe auf Teilen und dann „Zum Home-Bildschirm“.',
       thanks: 'Danke fürs Spielen!', closeNow: 'Du kannst dieses Fenster jetzt schließen.', backToMenu: 'Zurück zum Menü',
@@ -657,6 +676,7 @@ window.I18N = (() => {
       unlocked: "Freigeschaltet: {item}", upStripes: "Rennstreifen", upSpoiler: "Heckspoiler", upNumber: "Startnummer", upFlames: "Auspuffflammen", upGlow: "Neonlicht", upGold: "Goldene Akzente",
       garageTitle: "Dein Auto", garageHint: "Am Farbkreis ziehen, um eine Farbe zu wählen", colourBtn: "Farbe",
       records: "Rekorde", noRuns: "Noch keine Fahrten. Los geht’s!", done: "Fertig", shade: "Helligkeit: Schwarz bis Weiß",
+      paused: "Pausiert", resume: "Weiter", pause: "Pause",
       // Shahed drones and rockets
       shahedBanner: "SHAHED!", shahedSub: "Tippe FEUER oder die Drohne · 🚀 = {n} Münzen", shotDown: "ABGESCHOSSEN!", dodged: "AUSGEWICHEN!", shotDownStat: "Abgeschossen",
       rocketTitle: "Rakete: {n} Münzen (Leertaste)", launch: "FEUER", need1: "Noch 1 Münze bis zur Rakete", needN: "Noch {n} Münzen bis zur Rakete",
@@ -664,7 +684,7 @@ window.I18N = (() => {
       language: 'Sprache', auto: 'Automatisch'
     },
     pt: {
-      tagline: 'Desvie das barreiras. Pegue as moedas. Não fique sem combustível.',
+      tagline: 'Desvie das barreiras. Pegue as moedas. Derrube os drones. Não fique sem combustível.',
       play: 'Jogar', exit: 'Sair', installApp: 'Instalar app',
       installHintIos: 'Jogue como um app: toque em Compartilhar e depois em “Adicionar à Tela de Início”.',
       thanks: 'Obrigado por jogar!', closeNow: 'Você já pode fechar esta janela.', backToMenu: 'Voltar ao menu',
@@ -688,6 +708,7 @@ window.I18N = (() => {
       unlocked: "Desbloqueado: {item}", upStripes: "Faixas de corrida", upSpoiler: "Aerofólio", upNumber: "Número de corrida", upFlames: "Chamas no escapamento", upGlow: "Luz neon", upGold: "Detalhes dourados",
       garageTitle: "Seu carro", garageHint: "Arraste pela roda para escolher uma cor", colourBtn: "Cor",
       records: "Recordes", noRuns: "Nenhuma partida ainda. Bora jogar!", done: "Pronto", shade: "Tom: do preto ao branco",
+      paused: "Pausado", resume: "Continuar", pause: "Pausar",
       // Shahed drones and rockets
       shahedBanner: "SHAHED!", shahedSub: "Toque em DISPARAR ou no drone · 🚀 = {n} moedas", shotDown: "ABATIDO!", dodged: "DESVIOU!", shotDownStat: "Abatidos",
       rocketTitle: "Foguete: {n} moedas (Espaço)", launch: "DISPARAR", need1: "Falta 1 moeda para um foguete", needN: "Faltam {n} moedas para um foguete",
@@ -695,7 +716,7 @@ window.I18N = (() => {
       language: 'Idioma', auto: 'Automático'
     },
     it: {
-      tagline: 'Schiva le barriere. Prendi le monete. Non restare a secco.',
+      tagline: 'Schiva le barriere. Prendi le monete. Abbatti i droni. Non restare a secco.',
       play: 'Gioca', exit: 'Esci', installApp: 'Installa app',
       installHintIos: `Gioca come un'app: tocca Condividi, poi “Aggiungi alla schermata Home”.`,
       thanks: 'Grazie per aver giocato!', closeNow: 'Ora puoi chiudere questa finestra.', backToMenu: 'Torna al menu',
@@ -719,6 +740,7 @@ window.I18N = (() => {
       unlocked: "Sbloccato: {item}", upStripes: "Strisce da corsa", upSpoiler: "Alettone", upNumber: "Numero di gara", upFlames: "Fiamme di scarico", upGlow: "Luci al neon", upGold: "Finiture dorate",
       garageTitle: "La tua auto", garageHint: "Trascina lungo la ruota per scegliere un colore", colourBtn: "Colore",
       records: "Record", noRuns: "Ancora nessuna partita. Gioca!", done: "Fatto", shade: "Tonalità: dal nero al bianco",
+      paused: "In pausa", resume: "Riprendi", pause: "Pausa",
       // Shahed drones and rockets
       shahedBanner: "SHAHED!", shahedSub: "Tocca FUOCO o il drone · 🚀 = {n} monete", shotDown: "ABBATTUTO!", dodged: "SCHIVATO!", shotDownStat: "Abbattuti",
       rocketTitle: "Razzo: {n} monete (Spazio)", launch: "FUOCO", need1: "Ancora 1 moneta per un razzo", needN: "Ancora {n} monete per un razzo",
@@ -726,7 +748,7 @@ window.I18N = (() => {
       language: 'Lingua', auto: 'Automatica'
     },
     ja: {
-      tagline: 'バリアをよけて、コインを集めて、燃料切れに注意！',
+      tagline: 'バリアをよけて、コインを集めて、ドローンを撃ち落とせ。燃料切れに注意！',
       play: 'プレイ', exit: '終了', installApp: 'アプリをインストール',
       installHintIos: 'アプリとして遊ぶには：共有をタップして「ホーム画面に追加」を選択。',
       thanks: '遊んでくれてありがとう！', closeNow: 'このウィンドウは閉じてかまいません。', backToMenu: 'メニューに戻る',
@@ -750,6 +772,7 @@ window.I18N = (() => {
       unlocked: "解放：{item}", upStripes: "レーシングストライプ", upSpoiler: "スポイラー", upNumber: "ゼッケン", upFlames: "マフラーの炎", upGlow: "ネオンライト", upGold: "ゴールドトリム",
       garageTitle: "あなたの車", garageHint: "ホイールをなぞって色を選ぼう", colourBtn: "カラー",
       records: "記録", noRuns: "まだ記録がありません。さあ走ろう！", done: "完了", shade: "明るさ：黒から白",
+      paused: "一時停止中", resume: "再開", pause: "一時停止",
       // Shahed drones and rockets
       shahedBanner: "シャヘド！", shahedSub: "「発射」かドローンをタップ · 🚀 = コイン{n}枚", shotDown: "撃墜！", dodged: "回避！", shotDownStat: "撃墜",
       rocketTitle: "ロケット：コイン{n}枚（スペース）", launch: "発射", need1: "ロケットまであとコイン1枚", needN: "ロケットまであとコイン{n}枚",
@@ -757,7 +780,7 @@ window.I18N = (() => {
       language: '言語', auto: '自動'
     },
     zh: {
-      tagline: '躲开路障，收集金币，别让油耗光！',
+      tagline: '躲开路障，收集金币，击落无人机，别让油耗光！',
       play: '开始', exit: '退出', installApp: '安装应用',
       installHintIos: '像应用一样玩：点按“分享”，然后选择“添加到主屏幕”。',
       thanks: '感谢游玩！', closeNow: '现在可以关闭此窗口了。', backToMenu: '返回菜单',
@@ -781,6 +804,7 @@ window.I18N = (() => {
       unlocked: "解锁：{item}", upStripes: "赛车条纹", upSpoiler: "尾翼", upNumber: "赛车号码", upFlames: "排气火焰", upGlow: "霓虹底灯", upGold: "金色饰边",
       garageTitle: "你的赛车", garageHint: "沿色环拖动来选择颜色", colourBtn: "颜色",
       records: "记录", noRuns: "还没有记录，快去玩吧！", done: "完成", shade: "明暗：从黑到白",
+      paused: "已暂停", resume: "继续", pause: "暂停",
       // Shahed drones and rockets
       shahedBanner: "沙赫德！", shahedSub: "点「发射」或无人机 · 🚀 = {n} 枚金币", shotDown: "击落！", dodged: "躲开了！", shotDownStat: "击落",
       rocketTitle: "火箭：{n} 枚金币（空格键）", launch: "发射", need1: "再收集 1 枚金币换火箭", needN: "再收集 {n} 枚金币换火箭",
@@ -788,7 +812,7 @@ window.I18N = (() => {
       language: '语言', auto: '自动'
     },
     ko: {
-      tagline: '바리케이드를 피하고, 코인을 모으고, 연료가 바닥나지 않게!',
+      tagline: '바리케이드를 피하고, 코인을 모으고, 드론을 격추하고, 연료가 바닥나지 않게!',
       play: '플레이', exit: '종료', installApp: '앱 설치',
       installHintIos: '앱처럼 즐기기: 공유를 탭한 뒤 ‘홈 화면에 추가’를 선택하세요.',
       thanks: '플레이해 주셔서 감사합니다!', closeNow: '이제 이 창을 닫아도 됩니다.', backToMenu: '메뉴로 돌아가기',
@@ -812,6 +836,7 @@ window.I18N = (() => {
       unlocked: "잠금 해제: {item}", upStripes: "레이싱 스트라이프", upSpoiler: "스포일러", upNumber: "레이싱 넘버", upFlames: "배기 불꽃", upGlow: "네온 라이트", upGold: "골드 트림",
       garageTitle: "내 자동차", garageHint: "휠을 따라 드래그해서 색을 고르세요", colourBtn: "색상",
       records: "기록", noRuns: "아직 기록이 없어요. 플레이해 보세요!", done: "완료", shade: "밝기: 검정에서 흰색까지",
+      paused: "일시 정지", resume: "계속하기", pause: "일시 정지",
       // Shahed drones and rockets
       shahedBanner: "샤헤드!", shahedSub: "발사 또는 드론을 탭 · 🚀 = 코인 {n}개", shotDown: "격추!", dodged: "회피!", shotDownStat: "격추",
       rocketTitle: "로켓: 코인 {n}개 (스페이스)", launch: "발사", need1: "로켓까지 코인 1개 더", needN: "로켓까지 코인 {n}개 더",
@@ -819,7 +844,7 @@ window.I18N = (() => {
       language: '언어', auto: '자동'
     },
     hi: {
-      tagline: 'बैरियर से बचो, सिक्के उठाओ, ईंधन ख़त्म मत होने दो!',
+      tagline: 'बैरियर से बचो, सिक्के उठाओ, ड्रोन मार गिराओ, ईंधन ख़त्म मत होने दो!',
       play: 'खेलें', exit: 'बाहर निकलें', installApp: 'ऐप इंस्टॉल करें',
       installHintIos: 'ऐप की तरह खेलें: शेयर पर टैप करें, फिर “होम स्क्रीन पर जोड़ें” चुनें।',
       thanks: 'खेलने के लिए धन्यवाद!', closeNow: 'अब आप यह विंडो बंद कर सकते हैं।', backToMenu: 'मेन्यू पर वापस',
@@ -843,6 +868,7 @@ window.I18N = (() => {
       unlocked: "अनलॉक: {item}", upStripes: "रेसिंग धारियाँ", upSpoiler: "स्पॉइलर", upNumber: "रेसिंग नंबर", upFlames: "एग्ज़ॉस्ट की लपटें", upGlow: "नियॉन रोशनी", upGold: "सुनहरी ट्रिम",
       garageTitle: "आपकी कार", garageHint: "रंग चुनने के लिए पहिये पर उंगली घुमाएँ", colourBtn: "रंग",
       records: "रिकॉर्ड", noRuns: "अभी तक कोई रन नहीं। खेलना शुरू करें!", done: "हो गया", shade: "शेड: काले से सफ़ेद तक",
+      paused: "रुका हुआ", resume: "जारी रखें", pause: "रोकें",
       // Shahed drones and rockets
       shahedBanner: "शाहेद!", shahedSub: "फ़ायर या ड्रोन पर टैप करें · 🚀 = {n} सिक्के", shotDown: "मार गिराया!", dodged: "बच निकले!", shotDownStat: "मार गिराए",
       rocketTitle: "रॉकेट: {n} सिक्के (स्पेस)", launch: "फ़ायर", need1: "रॉकेट के लिए 1 सिक्का और", needN: "रॉकेट के लिए {n} सिक्के और",
@@ -850,7 +876,7 @@ window.I18N = (() => {
       language: 'भाषा', auto: 'स्वचालित'
     },
     uk: {
-      tagline: "Оминай бар'єри. Збирай монети. Не залишися без пального.",
+      tagline: "Оминай бар'єри. Збирай монети. Збивай шахеди. Не залишися без пального.",
       play: 'Грати', exit: 'Вийти', installApp: 'Встановити застосунок',
       installHintIos: 'Грай як у застосунку: натисни «Поділитися», потім «На початковий екран».',
       thanks: 'Дякуємо за гру!', closeNow: 'Тепер можна закрити це вікно.', backToMenu: 'Назад до меню',
@@ -874,6 +900,7 @@ window.I18N = (() => {
       unlocked: "Відкрито: {item}", upStripes: "Гоночні смуги", upSpoiler: "Спойлер", upNumber: "Гоночний номер", upFlames: "Полум'я з вихлопу", upGlow: "Неонове підсвічування", upGold: "Золоте оздоблення",
       garageTitle: "Твоя машина", garageHint: "Веди по колу, щоб вибрати колір", colourBtn: "Колір",
       records: "Рекорди", noRuns: "Ще немає заїздів. Час грати!", done: "Готово", shade: "Відтінок: від чорного до білого",
+      paused: "Пауза", resume: "Продовжити", pause: "Пауза",
       // Shahed drones and rockets bought with coins
       shahedBanner: 'ШАХЕД!', shahedSub: 'Тисни ПУСК або на нього · 🚀 = {n} монети',
       shotDown: 'ЗБИТО!', dodged: 'УХИЛИВСЯ!', shotDownStat: 'Збито', rocketTitle: 'Ракета: {n} монети (пробіл)',
@@ -883,7 +910,7 @@ window.I18N = (() => {
       language: 'Мова', auto: 'Авто'
     },
     ka: {
-      tagline: 'აარიდე ბარიერებს. შეაგროვე მონეტები. არ დარჩე საწვავის გარეშე.',
+      tagline: 'აარიდე ბარიერებს. შეაგროვე მონეტები. ჩამოაგდე დრონები. არ დარჩე საწვავის გარეშე.',
       play: 'თამაში', exit: 'გასვლა', installApp: 'აპის დაყენება',
       installHintIos: 'ითამაშე როგორც აპში: შეეხე „გაზიარებას“, შემდეგ კი „მთავარ ეკრანზე დამატებას“.',
       thanks: 'მადლობა თამაშისთვის!', closeNow: 'ახლა შეგიძლია ეს ფანჯარა დახურო.', backToMenu: 'მენიუში დაბრუნება',
@@ -907,6 +934,7 @@ window.I18N = (() => {
       unlocked: "გაიხსნა: {item}", upStripes: "სარბოლო ზოლები", upSpoiler: "სპოილერი", upNumber: "სარბოლო ნომერი", upFlames: "გამონაბოლქვის ალი", upGlow: "ნეონის განათება", upGold: "ოქროსფერი დეტალები",
       garageTitle: "შენი მანქანა", garageHint: "გადაატარე წრეზე ფერის ასარჩევად", colourBtn: "ფერი",
       records: "რეკორდები", noRuns: "ჯერ არცერთი თამაში არ გაქვს. წადი ითამაშე!", done: "მზადაა", shade: "ტონი: შავიდან თეთრამდე",
+      paused: "პაუზა", resume: "გაგრძელება", pause: "პაუზა",
       // Shahed drones and rockets
       shahedBanner: "შაჰედი!", shahedSub: "შეეხე გასროლას ან დრონს · 🚀 = {n} მონეტა", shotDown: "ჩამოგდებულია!", dodged: "აიცილე!", shotDownStat: "ჩამოგდებული",
       rocketTitle: "რაკეტა: {n} მონეტა (Space)", launch: "გასროლა", need1: "რაკეტამდე კიდევ 1 მონეტა", needN: "რაკეტამდე კიდევ {n} მონეტა",
@@ -1728,7 +1756,7 @@ window.LD_RULES = (() => {
   // ---- Home screen ----
   const wrapEl = $('wrap');
   function show(id) {
-    for (const o of ['home', 'bye', 'intro', 'over', 'garage', 'records']) $(o).classList.toggle('hidden', o !== id);
+    for (const o of ['home', 'bye', 'intro', 'over', 'garage', 'records', 'pause']) $(o).classList.toggle('hidden', o !== id);
     wrapEl.classList.toggle('at-home', ['home', 'bye', 'garage', 'records'].includes(id));
   }
 
@@ -1842,9 +1870,26 @@ window.LD_RULES = (() => {
   // Retry: no countdown, just a quick GO! and straight back in.
   function restart() {
     reset();
-    el.over.classList.add('hidden');
+    show(null); // hides game over or the pause menu
     state = 'play';
     showCount('GO!');
+  }
+
+  // Pause: everything freezes (road, drones, particles, sound). Resuming gives a
+  // 3-2-1 so you can see what's coming before the road moves again.
+  function pauseGame() {
+    if (state !== 'play') return;
+    state = 'paused';
+    el.count.innerHTML = '';
+    show('pause');
+    $('resumeBtn').focus();
+  }
+  function resumeGame() {
+    if (state !== 'paused') return;
+    show(null);
+    state = 'countdown';
+    countT = COUNTDOWN;
+    shownCount = null;
   }
 
   const cssCache = {};
@@ -1858,6 +1903,7 @@ window.LD_RULES = (() => {
   }
 
   function update(dt) {
+    if (state === 'paused') return;            // frozen: nothing moves, not even the road
     const moving = state === 'play' || state === 'stall';
     roadOffset = (roadOffset + (moving ? speed : 120) * dt) % 160;
     particles.forEach(p => { p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt; });
@@ -2307,6 +2353,8 @@ window.LD_RULES = (() => {
     else if ((e.key === 'Enter' || e.key === ' ') && state === 'home' && !e.target.closest('button')) { e.preventDefault(); startPlay(); }
     else if ((e.key === 'Enter' || e.key === ' ') && state === 'menu' && !e.target.closest('button')) { e.preventDefault(); closeHelp(); }
     else if ((e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') && state === 'play' && DRONES()) { e.preventDefault(); fire(); }
+    else if ((e.key === 'p' || e.key === 'P' || e.key === 'Escape') && state === 'play') pauseGame();
+    else if ((e.key === 'p' || e.key === 'P' || e.key === 'Escape') && state === 'paused') resumeGame();
     else if (e.key === 'Escape' && ['menu', 'over', 'bye', 'garage', 'records'].includes(state)) goHome();
     else if ((e.key === 'Enter' || e.key === ' ') && state === 'over') { e.preventDefault(); restart(); }
   });
@@ -2338,7 +2386,10 @@ window.LD_RULES = (() => {
   // Browsers only allow audio after a user gesture, so unlock it on the first touch/key.
   window.addEventListener('pointerdown', sfx.ensure, true);
   window.addEventListener('keydown', sfx.ensure, true);
-  document.addEventListener('visibilitychange', () => { if (document.hidden) sfx.suspend(); else sfx.ensure(); });
+  // Switching app / locking the phone mid-run pauses the game instead of crashing you.
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { pauseGame(); sfx.suspend(); } else sfx.ensure();
+  });
   const muteBtn = $('mute');
   function paintMute() {
     muteBtn.textContent = sfx.muted ? '🔇' : '🔊';
@@ -2351,6 +2402,10 @@ window.LD_RULES = (() => {
 
   $('startBtn').addEventListener('click', closeHelp);
   $('retryBtn').addEventListener('click', restart);
+  $('pauseBtn').addEventListener('click', () => { pauseGame(); $('pauseBtn').blur(); });
+  $('resumeBtn').addEventListener('click', resumeGame);
+  $('pauseRetry').addEventListener('click', restart);
+  $('pauseHome').addEventListener('click', goHome);
   rocketBtn.addEventListener('click', () => { fire(); rocketBtn.blur(); });
   I18N.onChange(() => { rocketBtn.title = t('rocketTitle', { n: ROCKET_COST }); rocketBtn.setAttribute('aria-label', rocketBtn.title); layoutEgg(); });
   $('playBtn').addEventListener('click', startPlay);
