@@ -87,24 +87,20 @@
   #heartProg { margin-top: 2px; font-size: 10px; font-weight: 800; letter-spacing: .5px; color: var(--muted); font-variant-numeric: tabular-nums; }
   #lives.gain { animation: livesGain .6s cubic-bezier(.2,1.6,.4,1); }
   @keyframes livesGain { 30% { transform: scale(1.4); text-shadow: 0 0 12px var(--enemy); } }
-  #mute {
-    pointer-events: auto; margin: 0; padding: 5px 7px; font-size: 16px; line-height: 1; border-radius: 8px;
-    background: rgba(255,255,255,.1); color: var(--text); box-shadow: none;
-  }
-  #mute:active { transform: scale(.92); box-shadow: none; }
-  /* Pause: round button in the bottom bar, between the coin info and FIRE */
+  /* Pause: top-right corner of the HUD, like most mobile games — out of the thumb zones at the
+     bottom, so firing or steering never pauses by accident. (Sound lives in the pause menu's Settings.) */
   #pauseBtn {
-    flex: none; position: relative; width: 56px; height: 56px; margin: 0; padding: 0; border-radius: 50%;
-    font-size: 0; color: transparent;              /* bars are drawn below, not the ⏸ emoji (it sits off-centre) */
-    background: rgba(255,255,255,.12); box-shadow: 0 4px 0 rgba(0,0,0,.35);
+    flex: none; position: relative; width: 42px; height: 42px; margin: 0; padding: 0; border-radius: 12px;
+    pointer-events: auto; font-size: 0; color: transparent;   /* bars are drawn below, not the ⏸ emoji (it sits off-centre) */
+    background: rgba(255,255,255,.14); box-shadow: 0 3px 0 rgba(0,0,0,.35);
   }
   #pauseBtn::before, #pauseBtn::after {
-    content: ""; position: absolute; top: 50%; width: 6px; height: 20px; margin-top: -10px;
+    content: ""; position: absolute; top: 50%; width: 5px; height: 16px; margin-top: -8px;
     border-radius: 2px; background: var(--text);
   }
-  #pauseBtn::before { left: calc(50% - 9px); }
-  #pauseBtn::after  { left: calc(50% + 3px); }
-  #pauseBtn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.35); }
+  #pauseBtn::before { left: calc(50% - 7px); }
+  #pauseBtn::after  { left: calc(50% + 2px); }
+  #pauseBtn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,.35); }
   #pause { background: rgba(6, 8, 16, .78); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
   .pauseCard { gap: 18px; max-width: 300px; }
   .pauseCard h1 { font-size: 36px; }
@@ -119,8 +115,8 @@
   /* Shahed drones: rocket counter / fire button */
   /* Launch bar under the road: coin progress on the left, a big fire button on the right */
   #eggBar {
-    /* three columns, equal sides, so the pause button sits dead centre */
-    flex: none; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 10px; padding: 8px 12px;
+    /* two equal halves: FIRE + auto-fire on one side, coin info on the other */
+    flex: none; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 10px; padding: 8px 12px;
     background: linear-gradient(#141831, #0f1220); border-top: 3px solid; border-image: linear-gradient(90deg, #0057B7 50%, #FFD700 50%) 1;
   }
   #wrap.at-home #eggBar { visibility: hidden; }
@@ -603,7 +599,6 @@
       <div class="eggTop"><span id="coinCount" class="coinChip"><i></i><b>0</b></span><span class="eggKills" id="eggKills">🎯 0</span></div>
       <div class="eggSub"><span class="eggCoins" id="eggCoins"><i></i><i></i><i></i></span><span id="eggNext"></span></div>
     </div>
-    <button id="pauseBtn" type="button" data-i18n-title="pause" data-i18n-aria="pause" aria-label="Pause">⏸</button>
     <!-- right-hand column: the auto-fire switch as a block button, then FIRE -->
     <div class="fireWrap">
       <div id="fireHint" class="fireHint" aria-hidden="true" hidden></div>
@@ -613,7 +608,7 @@
   </div>
 
   <div id="hud">
-    <div class="hrow"><span id="score">0</span><span id="streak">×2</span><span class="livesBox"><span id="lives"></span><span id="heartProg" hidden></span></span><button id="mute" type="button" aria-label="Mute sound">🔊</button></div>
+    <div class="hrow"><span id="score">0</span><span id="streak">×2</span><span class="livesBox"><span id="lives"></span><span id="heartProg" hidden></span></span><button id="pauseBtn" type="button" data-i18n-title="pause" data-i18n-aria="pause" aria-label="Pause">⏸</button></div>
     <div class="hrow"><span class="tag" id="level">LV 1</span><div class="bar"><div id="prog"></div></div><span class="small" id="togo">400 m</span></div>
     <div class="hrow" id="fuelRow"><span class="tag" data-i18n="fuel">FUEL</span><div class="bar"><div id="fuel"></div></div><span id="pips" data-i18n-title="pipsTitle" title="Coins until next fuel top-up"><i></i><i></i><i></i><i></i><i></i></span></div>
   </div>
@@ -3355,17 +3350,13 @@ window.LD_RULES = (() => {
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) { pauseGame(); sfx.suspend(); } else sfx.ensure();
   });
-  const muteBtn = $('mute');
   function paintMute() {
-    muteBtn.textContent = sfx.muted ? '🔇' : '🔊';
-    muteBtn.setAttribute('aria-label', t(sfx.muted ? 'unmute' : 'mute'));
     const sb = $('soundBtn');
     sb.textContent = (sfx.muted ? '🔇 ' : '🔊 ') + t(sfx.muted ? 'soundOff' : 'soundOn');
     sb.setAttribute('aria-pressed', String(!sfx.muted)); sb.classList.toggle('on', !sfx.muted);
   }
   I18N.onChange(paintMute);
-  function toggleMute() { sfx.ensure(); sfx.toggle(); paintMute(); muteBtn.blur(); }
-  muteBtn.addEventListener('click', toggleMute);
+  function toggleMute() { sfx.ensure(); sfx.toggle(); paintMute(); }
   window.addEventListener('keydown', e => { if (e.key === 'm' || e.key === 'M') toggleMute(); });
   paintMute();
 
