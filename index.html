@@ -76,6 +76,8 @@
   }
   #streak.on { visibility: visible; }
   #lives { margin-left: auto; letter-spacing: 4px; color: var(--enemy); font-size: 18px; }
+  #lives.gain { animation: livesGain .6s cubic-bezier(.2,1.6,.4,1); }
+  @keyframes livesGain { 30% { transform: scale(1.4); text-shadow: 0 0 12px var(--enemy); } }
   #mute {
     pointer-events: auto; margin: 0; padding: 5px 7px; font-size: 16px; line-height: 1; border-radius: 8px;
     background: rgba(255,255,255,.1); color: var(--text); box-shadow: none;
@@ -618,9 +620,9 @@
         <li><span class="ico"><span class="ico flag"></span></span><span data-i18n="rule1" data-rich><b>Checkpoints</b> = next level, faster</span></li>
         <li><span class="ico"><span class="ico fuel"></span></span><span data-i18n="rule2" data-rich><b>Fuel</b> drains, don't run out</span></li>
         <li><span class="ico"><span class="ico coin"></span></span><span data-i18n="rule3" data-rich><b>5 coins</b> = +40% fuel</span></li>
-        <li><span class="ico"><span class="ico block"></span></span><span data-i18n="rule4" data-rich><b>3 crashes</b> and you're out</span></li>
+        <li><span class="ico"><span class="ico block"></span></span><span data-i18n="rule4" data-rich><b>3 crashes</b> and you're out · <b>♥</b> = +1 life</span></li>
         <li><span class="ico"><span class="ico hole"></span></span><span data-i18n="rule5" data-rich><b>Potholes</b> cost 8% fuel</span></li>
-        <li><span class="ico"><span class="ico drone"></span></span><span data-i18n="rule6" data-rich><b>Shaheds</b> dive at you: dodge, or <b>FIRE</b> a rocket (3 coins)</span></li>
+        <li><span class="ico"><span class="ico drone"></span></span><span data-i18n="rule6" data-rich><b>Shaheds</b>: dodge, or <b>FIRE</b> a rocket (3 coins). Rockets smash barriers too</span></li>
         <li><span class="ico"><span class="ico pause"></span></span><span data-i18n="rule7" data-rich><b>Pause</b> any time</span></li>
       </ul>
       <p class="keys" data-i18n="keys">Keyboard: ← → or A / D · Space fire · P pause · M mute</p>
@@ -669,9 +671,9 @@ window.I18N = (() => {
       rule1: "**Checkpoints** = next level, faster",
       rule2: "**Fuel** drains, don't run out",
       rule3: "**5 coins** = +40% fuel",
-      rule4: "**3 crashes** and you're out",
+      rule4: "**3 crashes** and you're out · **♥** = +1 life",
       rule5: "**Potholes** cost 8% fuel",
-      rule6: "**Shaheds** dive at you: dodge, or **FIRE** a rocket (3 coins)",
+      rule6: "**Shaheds**: dodge, or **FIRE** a rocket (3 coins). Rockets smash barriers too",
       rule7: "**Pause** any time",
       keys: "Keyboard: ← → or A / D · Space fire · P pause · M mute", gotIt: 'Got it!',
       crashed: 'Crashed!', outOfFuel: 'Out of fuel!', score: 'Score: {n}',
@@ -688,7 +690,7 @@ window.I18N = (() => {
       records: "Records", noRuns: "No runs yet. Go play!", done: "Done", shade: "Shade: black to white",
       paused: "Paused", resume: "Resume", pause: "Pause",
       // Shahed drones and rockets
-      shahedBanner: "SHAHED!", shahedSub: "Tap FIRE or the drone · 🚀 = {n} coins", shotDown: "SHOT DOWN!", dodged: "DODGED!", shotDownStat: "Shot down",
+      shahedBanner: "SHAHED!", shahedSub: "Tap FIRE or the drone · 🚀 = {n} coins", shotDown: "SHOT DOWN!", smashed: "SMASHED!", dodged: "DODGED!", shotDownStat: "Shot down",
       rocketTitle: "Rocket: {n} coins (Space)", launch: "FIRE",       rocketsReady: "Rocket ready!", rocketsReadyN: "{n} rockets ready", droneAlert: "SHAHED! Tap FIRE", droneNoRocket: "SHAHED! Dodge!",
       language: 'Language', auto: 'Auto'
     },
@@ -702,9 +704,9 @@ window.I18N = (() => {
       rule1: "**Puntos de control** = siguiente nivel, más rápido",
       rule2: "**El combustible** se gasta, no te quedes sin él",
       rule3: "**5 monedas** = +40 % de combustible",
-      rule4: "**3 choques** y quedas fuera",
+      rule4: "**3 choques** y fuera · **♥** = +1 vida",
       rule5: "**Los baches** cuestan un 8 % de combustible",
-      rule6: "**Shaheds** en picado: esquívalos o **DISPARA** un cohete (3 monedas)",
+      rule6: "**Shaheds**: esquívalos o **DISPARA** un cohete (3 monedas). También rompe barreras",
       rule7: "**Pausa** cuando quieras",
       keys: "Teclado: ← → o A / D · Espacio dispara · P pausa · M silencio", gotIt: '¡Entendido!',
       crashed: '¡Choque!', outOfFuel: '¡Sin combustible!', score: 'Puntos: {n}',
@@ -721,7 +723,7 @@ window.I18N = (() => {
       records: "Récords", noRuns: "Aún no hay partidas. ¡A jugar!", done: "Listo", shade: "Tono: de negro a blanco",
       paused: "En pausa", resume: "Continuar", pause: "Pausa",
       // Shahed drones and rockets
-      shahedBanner: "¡SHAHED!", shahedSub: "Toca DISPARAR o el dron · 🚀 = {n} monedas", shotDown: "¡DERRIBADO!", dodged: "¡ESQUIVADO!", shotDownStat: "Derribados",
+      shahedBanner: "¡SHAHED!", shahedSub: "Toca DISPARAR o el dron · 🚀 = {n} monedas", shotDown: "¡DERRIBADO!", smashed: "¡DESTROZADA!", dodged: "¡ESQUIVADO!", shotDownStat: "Derribados",
       rocketTitle: "Cohete: {n} monedas (Espacio)", launch: "DISPARAR",       rocketsReady: "¡Cohete listo!", rocketsReadyN: "{n} cohetes listos", droneAlert: "¡SHAHED! Toca DISPARAR", droneNoRocket: "¡SHAHED! ¡Esquívalo!",
       language: 'Idioma', auto: 'Automático'
     },
@@ -735,9 +737,9 @@ window.I18N = (() => {
       rule1: "**Points de contrôle** = niveau suivant, plus rapide",
       rule2: "**L'essence** baisse, évite la panne",
       rule3: `**5 pièces** = +40${NB}% d'essence`,
-      rule4: "**3 accidents** et c'est fini",
+      rule4: "**3 accidents** et c'est fini · **♥** = +1 vie",
       rule5: `**Les nids-de-poule** coûtent 8${NB}% d'essence`,
-      rule6: `**Shaheds** en piqué${NB}: esquive ou **FEU**, une roquette (3 pièces)`,
+      rule6: `**Shaheds**${NB}: esquive ou **FEU** (roquette, 3 pièces). Elle casse aussi les barrières`,
       rule7: "**Pause** à tout moment",
       keys: `Clavier${NB}: ← → ou A / D · Espace tir · P pause · M son`, gotIt: `C'est parti${NB}!`,
       crashed: `Accident${NB}!`, outOfFuel: `Panne d'essence${NB}!`, score: `Score${NB}: {n}`,
@@ -754,7 +756,7 @@ window.I18N = (() => {
       records: "Records", noRuns: `Aucune partie pour l'instant. À toi de jouer${NB}!`, done: "OK", shade: `Nuance${NB}: du noir au blanc`,
       paused: "Pause", resume: "Reprendre", pause: "Pause",
       // Shahed drones and rockets
-      shahedBanner: `SHAHED${NB}!`, shahedSub: "Touche FEU ou le drone · 🚀 = {n} pièces", shotDown: `ABATTU${NB}!`, dodged: `ÉVITÉ${NB}!`, shotDownStat: "Abattus",
+      shahedBanner: `SHAHED${NB}!`, shahedSub: "Touche FEU ou le drone · 🚀 = {n} pièces", shotDown: `ABATTU${NB}!`, smashed: `PULVÉRISÉE${NB}!`, dodged: `ÉVITÉ${NB}!`, shotDownStat: "Abattus",
       rocketTitle: `Roquette${NB}: {n} pièces (Espace)`, launch: "FEU",       rocketsReady: `Roquette prête${NB}!`, rocketsReadyN: "{n} roquettes prêtes", droneAlert: `SHAHED${NB}! Touche FEU`, droneNoRocket: `SHAHED${NB}! Esquive${NB}!`,
       language: 'Langue', auto: 'Auto'
     },
@@ -768,9 +770,9 @@ window.I18N = (() => {
       rule1: "**Checkpoints** = nächstes Level, schneller",
       rule2: "**Sprit** sinkt ständig, nicht leerfahren",
       rule3: "**5 Münzen** = +40 % Sprit",
-      rule4: "**3 Unfälle** und du bist raus",
+      rule4: "**3 Unfälle** und du bist raus · **♥** = +1 Leben",
       rule5: "**Schlaglöcher** kosten 8 % Sprit",
-      rule6: "**Shaheds** stürzen auf dich zu: ausweichen oder **FEUER** (Rakete = 3 Münzen)",
+      rule6: "**Shaheds**: ausweichen oder **FEUER** (Rakete, 3 Münzen). Sprengt auch Barrieren",
       rule7: "**Pause** jederzeit",
       keys: "Tastatur: ← → oder A / D · Leertaste Feuer · P Pause · M Ton aus", gotIt: 'Verstanden!',
       crashed: 'Unfall!', outOfFuel: 'Tank leer!', score: 'Punkte: {n}',
@@ -787,7 +789,7 @@ window.I18N = (() => {
       records: "Rekorde", noRuns: "Noch keine Fahrten. Los geht’s!", done: "Fertig", shade: "Helligkeit: Schwarz bis Weiß",
       paused: "Pausiert", resume: "Weiter", pause: "Pause",
       // Shahed drones and rockets
-      shahedBanner: "SHAHED!", shahedSub: "Tippe FEUER oder die Drohne · 🚀 = {n} Münzen", shotDown: "ABGESCHOSSEN!", dodged: "AUSGEWICHEN!", shotDownStat: "Abgeschossen",
+      shahedBanner: "SHAHED!", shahedSub: "Tippe FEUER oder die Drohne · 🚀 = {n} Münzen", shotDown: "ABGESCHOSSEN!", smashed: "GESPRENGT!", dodged: "AUSGEWICHEN!", shotDownStat: "Abgeschossen",
       rocketTitle: "Rakete: {n} Münzen (Leertaste)", launch: "FEUER",       rocketsReady: "Rakete bereit!", rocketsReadyN: "{n} Raketen bereit", droneAlert: "SHAHED! Tippe FEUER", droneNoRocket: "SHAHED! Ausweichen!",
       language: 'Sprache', auto: 'Automatisch'
     },
@@ -801,9 +803,9 @@ window.I18N = (() => {
       rule1: "**Checkpoints** = próximo nível, mais rápido",
       rule2: "**O combustível** acaba, não fique sem",
       rule3: "**5 moedas** = +40% de combustível",
-      rule4: "**3 batidas** e você está fora",
+      rule4: "**3 batidas** e você está fora · **♥** = +1 vida",
       rule5: "**Buracos** custam 8% de combustível",
-      rule6: "**Shaheds** mergulham em você: desvie ou **DISPARE** um foguete (3 moedas)",
+      rule6: "**Shaheds**: desvie ou **DISPARE** um foguete (3 moedas). Também quebra barreiras",
       rule7: "**Pausa** quando quiser",
       keys: "Teclado: ← → ou A / D · Espaço dispara · P pausa · M som", gotIt: 'Entendi!',
       crashed: 'Bateu!', outOfFuel: 'Sem combustível!', score: 'Pontos: {n}',
@@ -820,7 +822,7 @@ window.I18N = (() => {
       records: "Recordes", noRuns: "Nenhuma partida ainda. Bora jogar!", done: "Pronto", shade: "Tom: do preto ao branco",
       paused: "Pausado", resume: "Continuar", pause: "Pausar",
       // Shahed drones and rockets
-      shahedBanner: "SHAHED!", shahedSub: "Toque em DISPARAR ou no drone · 🚀 = {n} moedas", shotDown: "ABATIDO!", dodged: "DESVIOU!", shotDownStat: "Abatidos",
+      shahedBanner: "SHAHED!", shahedSub: "Toque em DISPARAR ou no drone · 🚀 = {n} moedas", shotDown: "ABATIDO!", smashed: "DESTRUÍDA!", dodged: "DESVIOU!", shotDownStat: "Abatidos",
       rocketTitle: "Foguete: {n} moedas (Espaço)", launch: "DISPARAR",       rocketsReady: "Foguete pronto!", rocketsReadyN: "{n} foguetes prontos", droneAlert: "SHAHED! Toque em DISPARAR", droneNoRocket: "SHAHED! Desvie!",
       language: 'Idioma', auto: 'Automático'
     },
@@ -834,9 +836,9 @@ window.I18N = (() => {
       rule1: "**Checkpoint** = livello successivo, più veloce",
       rule2: "**Il carburante** cala, non restare a secco",
       rule3: "**5 monete** = +40% di carburante",
-      rule4: "**3 incidenti** e sei fuori",
+      rule4: "**3 incidenti** e sei fuori · **♥** = +1 vita",
       rule5: "**Le buche** costano l'8% di carburante",
-      rule6: "**Shahed** in picchiata: schivali o premi **FUOCO** (razzo = 3 monete)",
+      rule6: "**Shahed**: schivali o premi **FUOCO** (razzo, 3 monete). Rompe anche le barriere",
       rule7: "**Pausa** quando vuoi",
       keys: "Tastiera: ← → o A / D · Spazio fuoco · P pausa · M audio", gotIt: 'Ho capito!',
       crashed: 'Incidente!', outOfFuel: 'A secco!', score: 'Punti: {n}',
@@ -853,7 +855,7 @@ window.I18N = (() => {
       records: "Record", noRuns: "Ancora nessuna partita. Gioca!", done: "Fatto", shade: "Tonalità: dal nero al bianco",
       paused: "In pausa", resume: "Riprendi", pause: "Pausa",
       // Shahed drones and rockets
-      shahedBanner: "SHAHED!", shahedSub: "Tocca FUOCO o il drone · 🚀 = {n} monete", shotDown: "ABBATTUTO!", dodged: "SCHIVATO!", shotDownStat: "Abbattuti",
+      shahedBanner: "SHAHED!", shahedSub: "Tocca FUOCO o il drone · 🚀 = {n} monete", shotDown: "ABBATTUTO!", smashed: "DISTRUTTA!", dodged: "SCHIVATO!", shotDownStat: "Abbattuti",
       rocketTitle: "Razzo: {n} monete (Spazio)", launch: "FUOCO",       rocketsReady: "Razzo pronto!", rocketsReadyN: "{n} razzi pronti", droneAlert: "SHAHED! Tocca FUOCO", droneNoRocket: "SHAHED! Schivalo!",
       language: 'Lingua', auto: 'Automatica'
     },
@@ -867,9 +869,9 @@ window.I18N = (() => {
       rule1: "**チェックポイント**でレベルアップ、速くなる",
       rule2: "**燃料**は減り続ける、切らさないで",
       rule3: "**コイン5枚**で燃料+40%",
-      rule4: "**3回クラッシュ**でアウト",
+      rule4: "**3回クラッシュ**で終了・**♥**でライフ+1",
       rule5: "**穴ぼこ**は燃料−8%",
-      rule6: "**シャヘド**が突っ込んでくる：よけるか**発射**（ロケット＝コイン3枚）",
+      rule6: "**シャヘド**：よけるか**発射**（ロケット＝コイン3枚）。バリアも壊せる",
       rule7: "いつでも**一時停止**できる",
       keys: "キーボード：← → または A / D・スペースで発射・P で一時停止・M でミュート", gotIt: 'OK！',
       crashed: 'クラッシュ！', outOfFuel: '燃料切れ！', score: 'スコア：{n}',
@@ -886,7 +888,7 @@ window.I18N = (() => {
       records: "記録", noRuns: "まだ記録がありません。さあ走ろう！", done: "完了", shade: "明るさ：黒から白",
       paused: "一時停止中", resume: "再開", pause: "一時停止",
       // Shahed drones and rockets
-      shahedBanner: "シャヘド！", shahedSub: "「発射」かドローンをタップ · 🚀 = コイン{n}枚", shotDown: "撃墜！", dodged: "回避！", shotDownStat: "撃墜",
+      shahedBanner: "シャヘド！", shahedSub: "「発射」かドローンをタップ · 🚀 = コイン{n}枚", shotDown: "撃墜！", smashed: "粉砕！", dodged: "回避！", shotDownStat: "撃墜",
       rocketTitle: "ロケット：コイン{n}枚（スペース）", launch: "発射",       rocketsReady: "ロケット準備OK！", rocketsReadyN: "ロケット{n}発 準備OK", droneAlert: "シャヘド！「発射」をタップ", droneNoRocket: "シャヘド！よけろ！",
       language: '言語', auto: '自動'
     },
@@ -900,9 +902,9 @@ window.I18N = (() => {
       rule1: "**检查点** = 下一关，更快",
       rule2: "**燃油**不断消耗，别耗光",
       rule3: "**5 枚金币** = 燃油 +40%",
-      rule4: "**撞 3 次**就出局",
+      rule4: "**撞3次**就出局 · **♥** = +1 条命",
       rule5: "**坑洞**扣 8% 燃油",
-      rule6: "**沙赫德**俯冲而来：躲开或按**发射**（火箭 = 3 枚金币）",
+      rule6: "**沙赫德**：躲开或按**发射**（火箭 = 3 枚金币）。也能炸毁路障",
       rule7: "随时可以**暂停**",
       keys: "键盘：← → 或 A / D · 空格 发射 · P 暂停 · M 静音", gotIt: '知道了！',
       crashed: '撞车了！', outOfFuel: '没油了！', score: '得分：{n}',
@@ -919,7 +921,7 @@ window.I18N = (() => {
       records: "记录", noRuns: "还没有记录，快去玩吧！", done: "完成", shade: "明暗：从黑到白",
       paused: "已暂停", resume: "继续", pause: "暂停",
       // Shahed drones and rockets
-      shahedBanner: "沙赫德！", shahedSub: "点「发射」或无人机 · 🚀 = {n} 枚金币", shotDown: "击落！", dodged: "躲开了！", shotDownStat: "击落",
+      shahedBanner: "沙赫德！", shahedSub: "点「发射」或无人机 · 🚀 = {n} 枚金币", shotDown: "击落！", smashed: "炸毁！", dodged: "躲开了！", shotDownStat: "击落",
       rocketTitle: "火箭：{n} 枚金币（空格键）", launch: "发射",       rocketsReady: "火箭就绪！", rocketsReadyN: "{n} 枚火箭就绪", droneAlert: "沙赫德！点「发射」", droneNoRocket: "沙赫德！快躲开！",
       language: '语言', auto: '自动'
     },
@@ -933,9 +935,9 @@ window.I18N = (() => {
       rule1: "**체크포인트** = 다음 레벨, 더 빠르게",
       rule2: "**연료**가 계속 줄어요, 바닥나지 않게",
       rule3: "**코인 5개** = 연료 +40%",
-      rule4: "**3번 충돌**하면 끝",
+      rule4: "**3번 충돌**하면 끝 · **♥** = 생명 +1",
       rule5: "**포트홀**은 연료 −8%",
-      rule6: "**샤헤드**가 돌진: 피하거나 **발사** (로켓 = 코인 3개)",
+      rule6: "**샤헤드**: 피하거나 **발사** (로켓 = 코인 3개). 바리케이드도 부숨",
       rule7: "언제든 **일시 정지**",
       keys: "키보드: ← → 또는 A / D · 스페이스 발사 · P 일시 정지 · M 음소거", gotIt: '알겠어요!',
       crashed: '충돌!', outOfFuel: '연료 고갈!', score: '점수: {n}',
@@ -952,7 +954,7 @@ window.I18N = (() => {
       records: "기록", noRuns: "아직 기록이 없어요. 플레이해 보세요!", done: "완료", shade: "밝기: 검정에서 흰색까지",
       paused: "일시 정지", resume: "계속하기", pause: "일시 정지",
       // Shahed drones and rockets
-      shahedBanner: "샤헤드!", shahedSub: "발사 또는 드론을 탭 · 🚀 = 코인 {n}개", shotDown: "격추!", dodged: "회피!", shotDownStat: "격추",
+      shahedBanner: "샤헤드!", shahedSub: "발사 또는 드론을 탭 · 🚀 = 코인 {n}개", shotDown: "격추!", smashed: "파괴!", dodged: "회피!", shotDownStat: "격추",
       rocketTitle: "로켓: 코인 {n}개 (스페이스)", launch: "발사",       rocketsReady: "로켓 준비 완료!", rocketsReadyN: "로켓 {n}발 준비", droneAlert: "샤헤드! 발사를 탭", droneNoRocket: "샤헤드! 피하세요!",
       language: '언어', auto: '자동'
     },
@@ -966,9 +968,9 @@ window.I18N = (() => {
       rule1: "**चेकपॉइंट** = अगला लेवल, और तेज़",
       rule2: "**ईंधन** घटता रहता है, ख़त्म न होने दें",
       rule3: "**5 सिक्के** = +40% ईंधन",
-      rule4: "**3 टक्कर** और आप बाहर",
+      rule4: "**3 टक्कर** और आप बाहर · **♥** = +1 जान",
       rule5: "**गड्ढे** = −8% ईंधन",
-      rule6: "**शाहेद** झपटते हैं: बचो या **फ़ायर** करो (रॉकेट = 3 सिक्के)",
+      rule6: "**शाहेद**: बचो या **फ़ायर** करो (रॉकेट = 3 सिक्के)। बैरियर भी तोड़ता है",
       rule7: "कभी भी **रोकें**",
       keys: "कीबोर्ड: ← → या A / D · स्पेस फ़ायर · P रोकें · M म्यूट", gotIt: 'समझ गया!',
       crashed: 'टक्कर!', outOfFuel: 'ईंधन ख़त्म!', score: 'स्कोर: {n}',
@@ -985,7 +987,7 @@ window.I18N = (() => {
       records: "रिकॉर्ड", noRuns: "अभी तक कोई रन नहीं। खेलना शुरू करें!", done: "हो गया", shade: "शेड: काले से सफ़ेद तक",
       paused: "रुका हुआ", resume: "जारी रखें", pause: "रोकें",
       // Shahed drones and rockets
-      shahedBanner: "शाहेद!", shahedSub: "फ़ायर या ड्रोन पर टैप करें · 🚀 = {n} सिक्के", shotDown: "मार गिराया!", dodged: "बच निकले!", shotDownStat: "मार गिराए",
+      shahedBanner: "शाहेद!", shahedSub: "फ़ायर या ड्रोन पर टैप करें · 🚀 = {n} सिक्के", shotDown: "मार गिराया!", smashed: "तोड़ दिया!", dodged: "बच निकले!", shotDownStat: "मार गिराए",
       rocketTitle: "रॉकेट: {n} सिक्के (स्पेस)", launch: "फ़ायर",       rocketsReady: "रॉकेट तैयार!", rocketsReadyN: "{n} रॉकेट तैयार", droneAlert: "शाहेद! फ़ायर दबाएँ", droneNoRocket: "शाहेद! बचो!",
       language: 'भाषा', auto: 'स्वचालित'
     },
@@ -999,9 +1001,9 @@ window.I18N = (() => {
       rule1: '**Чекпоінти** = наступний рівень, швидше',
       rule2: '**Пальне** витрачається, не залишися без нього',
       rule3: '**5 монет** = +40% пального',
-      rule4: '**3 аварії** — і ти вибуваєш',
+      rule4: "**3 аварії** — і ти вибуваєш · **♥** = +1 життя",
       rule5: '**Ями** забирають 8% пального',
-      rule6: "**Шахеди** пікірують: ухиляйся або тисни **ПУСК** (ракета = 3 монети)",
+      rule6: "**Шахеди**: ухиляйся або тисни **ПУСК** (ракета = 3 монети). Ламає й бар'єри",
       rule7: "**Пауза** будь-коли",
       keys: "Клавіатура: ← → або A / D · Пробіл — пуск · P — пауза · M — звук", gotIt: 'Зрозуміло!',
       crashed: 'Аварія!', outOfFuel: 'Пальне скінчилося!', score: 'Рахунок: {n}',
@@ -1019,7 +1021,7 @@ window.I18N = (() => {
       paused: "Пауза", resume: "Продовжити", pause: "Пауза",
       // Shahed drones and rockets bought with coins
       shahedBanner: 'ШАХЕД!', shahedSub: 'Тисни ПУСК або на нього · 🚀 = {n} монети',
-      shotDown: 'ЗБИТО!', dodged: 'УХИЛИВСЯ!', shotDownStat: 'Збито', rocketTitle: 'Ракета: {n} монети (пробіл)',
+      shotDown: 'ЗБИТО!', smashed: "РОЗБИТО!", dodged: 'УХИЛИВСЯ!', shotDownStat: 'Збито', rocketTitle: 'Ракета: {n} монети (пробіл)',
       launch: 'ПУСК',       rocketsReady: 'Ракета готова!', rocketsReadyN: 'Ракет готово: {n}', droneAlert: 'ШАХЕД! Тисни ПУСК',
       droneNoRocket: 'ШАХЕД! Ухиляйся!',
       language: 'Мова', auto: 'Авто'
@@ -1034,9 +1036,9 @@ window.I18N = (() => {
       rule1: '**საკონტროლო პუნქტი** = შემდეგი დონე, უფრო სწრაფად',
       rule2: '**საწვავი** იხარჯება, არ გაგითავდეს',
       rule3: '**5 მონეტა** = +40% საწვავი',
-      rule4: '**3 ავარია** და თამაში დასრულდა',
+      rule4: "**3 ავარია** და თამაში დასრულდა · **♥** = +1 სიცოცხლე",
       rule5: '**ორმოები** 8% საწვავს გართმევს',
-      rule6: "**შაჰედები** გეტევიან: აიცილე ან **გასროლა** (რაკეტა = 3 მონეტა)",
+      rule6: "**შაჰედები**: აიცილე ან **გასროლა** (რაკეტა = 3 მონეტა). ბარიერებსაც ამსხვრევს",
       rule7: "**პაუზა** ნებისმიერ დროს",
       keys: "კლავიატურა: ← → ან A / D · Space გასროლა · P პაუზა · M ხმა", gotIt: 'გასაგებია!',
       crashed: 'ავარია!', outOfFuel: 'საწვავი გათავდა!', score: 'ქულა: {n}',
@@ -1053,7 +1055,7 @@ window.I18N = (() => {
       records: "რეკორდები", noRuns: "ჯერ არცერთი თამაში არ გაქვს. წადი ითამაშე!", done: "მზადაა", shade: "ტონი: შავიდან თეთრამდე",
       paused: "პაუზა", resume: "გაგრძელება", pause: "პაუზა",
       // Shahed drones and rockets
-      shahedBanner: "შაჰედი!", shahedSub: "შეეხე გასროლას ან დრონს · 🚀 = {n} მონეტა", shotDown: "ჩამოგდებულია!", dodged: "აიცილე!", shotDownStat: "ჩამოგდებული",
+      shahedBanner: "შაჰედი!", shahedSub: "შეეხე გასროლას ან დრონს · 🚀 = {n} მონეტა", shotDown: "ჩამოგდებულია!", smashed: "დაიმსხვრა!", dodged: "აიცილე!", shotDownStat: "ჩამოგდებული",
       rocketTitle: "რაკეტა: {n} მონეტა (Space)", launch: "გასროლა",       rocketsReady: "რაკეტა მზადაა!", rocketsReadyN: "{n} რაკეტა მზადაა", droneAlert: "შაჰედი! შეეხე გასროლას", droneNoRocket: "შაჰედი! აიცილე!",
       language: 'ენა', auto: 'ავტო'
     }
@@ -1350,6 +1352,10 @@ window.LD_RULES = (() => {
   // Shahed score: kills this run, and a combo of kills in a row (reset when one hits you).
   let kills = 0, killCombo = 0;
   const KILL_PTS = 150, DODGE_PTS = 50, MAX_COMBO = 5;
+  const SMASH_PTS = 25;                          // a rocket blowing up a barrier, x level
+  // Heart pickups: from this level on, while you are missing a life, a row with a coin
+  // sometimes also carries a heart in its safe lane. Grab it for a life back.
+  const LIFE_FROM_LEVEL = 3, LIFE_CHANCE = 0.035;
 
   function readNum(k) { try { return +localStorage.getItem(k) || 0; } catch { return 0; } }
   function writeNum(k, v) { try { localStorage.setItem(k, v); } catch {} }
@@ -1601,9 +1607,21 @@ window.LD_RULES = (() => {
     for (const d of drones) if (!d.dead && !rockets.some(r => r.target === d) && (!best || d.y > best.y)) best = d;
     return best;
   }
+  // No drone to shoot? The next barrier ahead in your lane (one no rocket is already chasing).
+  function barrierAhead() {
+    let best = null;
+    for (const o of objects) {
+      if (o.type !== 'enemy' || o.dead || o.lane !== player.lane) continue;
+      if (o.y + o.h > player.y - 10 || o.y < -o.h || rockets.some(r => r.target === o)) continue;
+      if (!best || o.y > best.y) best = o;
+    }
+    return best;
+  }
+  // Where a rocket should aim: a drone's position, or the middle of a barrier.
+  const aimAt = tg => tg.type === 'enemy' ? { x: laneX(tg.lane), y: tg.y + tg.h / 2 } : { x: tg.x, y: tg.y };
   function fire() {
     if (state !== 'play' || !DRONES() || wallet < ROCKET_COST) return false;
-    const tg = target();
+    const tg = target() || barrierAhead();      // drones first, then a barrier blocking your lane
     if (!tg) return false;
     wallet -= ROCKET_COST;
     rockets.push({ x: player.x, y: player.y, vx: 0, vy: -ROCKET_V, target: tg });
@@ -1696,7 +1714,18 @@ window.LD_RULES = (() => {
     for (const r of rockets) {
       const tg = r.target;
       if (tg && !tg.dead) {
-        const dx = tg.x - r.x, dy = tg.y - r.y, dist = Math.hypot(dx, dy);
+        const at = aimAt(tg);
+        const dx = at.x - r.x, dy = at.y - r.y, dist = Math.hypot(dx, dy);
+        if (dist < 24 && tg.type === 'enemy') {
+          // Barrier smashed: the lane is clear. A few points, no effect on the drone combo.
+          tg.dead = r.dead = true;
+          explode(at.x, at.y);
+          burst(at.x, at.y, '#f4f4f8', 10); burst(at.x, at.y, getVar('--enemy'), 10);
+          const pts = SMASH_PTS * level;
+          bonus += pts;
+          floatText(at.x, at.y - 10, t('smashed') + ' +' + num(pts), '#FFD700');
+          continue;
+        }
         if (dist < 24) {
           tg.dead = r.dead = true;
           explode(tg.x, tg.y);
@@ -1738,6 +1767,11 @@ window.LD_RULES = (() => {
     for (const l of r.barriers) objects.push({ type: 'enemy', lane: l, y: -h, w: laneW * 0.8, h });
     for (const l of r.potholes) objects.push(pothole(l, -h + (h - POTHOLE_H) / 2));
     if (r.coin) objects.push({ type: 'coin', lane: r.clear, y: -h - R.COIN_AHEAD, w: 28, h: 28 });
+    // A heart now and then, in the same safe lane just above the coin (never two on screen).
+    if (r.coin && level >= LIFE_FROM_LEVEL && lives < MAX_LIVES && Math.random() < LIFE_CHANCE &&
+        !objects.some(o => o.type === 'life')) {
+      objects.push({ type: 'life', lane: r.clear, y: -h - R.COIN_AHEAD - 70, w: 30, h: 28 });
+    }
     if (r.gapLane >= 0) objects.push(pothole(r.gapLane, -h - r.gapAt));
     return r.gap;
   }
@@ -1840,6 +1874,15 @@ window.LD_RULES = (() => {
         burst(player.x, player.y, getVar('--fuel'), 20);
         el.pips.classList.remove('full'); void el.pips.offsetWidth; el.pips.classList.add('full');
       }
+      return;
+    }
+    if (o.type === 'life') {
+      o.dead = true;
+      lives = Math.min(MAX_LIVES, lives + 1);
+      sfx.levelUp();
+      burst(cx, o.y + o.h / 2, getVar('--enemy'), 16); burst(cx, o.y + o.h / 2, '#fff', 8);
+      floatText(cx, o.y, '+1 ♥', getVar('--enemy'));
+      el.lives.classList.remove('gain'); void el.lives.offsetWidth; el.lives.classList.add('gain');
       return;
     }
     if (o.type === 'hole') {
@@ -2474,6 +2517,24 @@ window.LD_RULES = (() => {
     ctx.restore();
   }
 
+  // Heart pickup: a red heart with a soft pulsing glow and a highlight.
+  function drawHeart(cx, cy, r) {
+    const s = r * (1 + 0.08 * Math.sin(performance.now() / 160));
+    const heart = () => {
+      ctx.beginPath();
+      ctx.moveTo(cx, cy + s * 0.9);
+      ctx.bezierCurveTo(cx - s * 1.3, cy + s * 0.1, cx - s * 0.9, cy - s * 1.0, cx, cy - s * 0.35);
+      ctx.bezierCurveTo(cx + s * 0.9, cy - s * 1.0, cx + s * 1.3, cy + s * 0.1, cx, cy + s * 0.9);
+      ctx.closePath();
+    };
+    ctx.save();
+    ctx.shadowColor = '#f56565'; ctx.shadowBlur = 14;
+    ctx.fillStyle = '#f56565'; heart(); ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = 'rgba(255,255,255,.55)';
+    ctx.beginPath(); ctx.ellipse(cx - s * 0.42, cy - s * 0.42, s * 0.2, s * 0.13, -0.6, 0, Math.PI * 2); ctx.fill();
+  }
+
   function drawCoin(cx, cy, r) {
     ctx.fillStyle = getVar('--coin');
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
@@ -2503,6 +2564,7 @@ window.LD_RULES = (() => {
       const cx = laneX(o.lane);
       if (o.type === 'enemy') drawBarrier(cx, o.y, o.w, o.h);
       else if (o.type === 'coin') drawCoin(cx, o.y + o.h / 2, o.w / 2);
+      else if (o.type === 'life') drawHeart(cx, o.y + o.h / 2, 14);
       else if (o.type === 'hole') drawPothole(cx, o.y + o.h / 2, o.w / 2, o.h / 2, o.seed);
     }
     for (const o of objects) if (o.type === 'finish') drawFinishLabel(o.y);
