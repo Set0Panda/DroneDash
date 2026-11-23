@@ -1330,7 +1330,7 @@ window.LD_RULES = (() => {
   const SMASH_PTS = 25;                          // a rocket blowing up a barrier, x level
   // Heart pickups: from this level on, while you are missing a life, a row with a coin
   // sometimes also carries a heart in its safe lane. Grab it for a life back.
-  const LIFE_FROM_LEVEL = 3, LIFE_CHANCE = 0.035;
+  const LIFE_FROM_LEVEL = 3, LIFE_CHANCE = 0.06;
 
   function readNum(k) { try { return +localStorage.getItem(k) || 0; } catch { return 0; } }
   function writeNum(k, v) { try { localStorage.setItem(k, v); } catch {} }
@@ -1745,7 +1745,7 @@ window.LD_RULES = (() => {
     // A heart now and then, in the same safe lane just above the coin (never two on screen).
     if (r.coin && level >= LIFE_FROM_LEVEL && lives < MAX_LIVES && Math.random() < LIFE_CHANCE &&
         !objects.some(o => o.type === 'life')) {
-      objects.push({ type: 'life', lane: r.clear, y: -h - R.COIN_AHEAD - 70, w: 30, h: 28 });
+      objects.push({ type: 'life', lane: r.clear, y: -h - R.COIN_AHEAD - 80, w: 40, h: 38 });
     }
     if (r.gapLane >= 0) objects.push(pothole(r.gapLane, -h - r.gapAt));
     return r.gap;
@@ -1857,6 +1857,7 @@ window.LD_RULES = (() => {
       sfx.levelUp();
       burst(cx, o.y + o.h / 2, getVar('--enemy'), 16); burst(cx, o.y + o.h / 2, '#fff', 8);
       floatText(cx, o.y, '+1 ♥', getVar('--enemy'));
+      showBanner('♥ +1', '', true);                 // red title, same banner as level-ups
       el.lives.classList.remove('gain'); void el.lives.offsetWidth; el.lives.classList.add('gain');
       return;
     }
@@ -2507,10 +2508,15 @@ window.LD_RULES = (() => {
       ctx.bezierCurveTo(cx + s * 0.9, cy - s * 1.0, cx + s * 1.3, cy + s * 0.1, cx, cy + s * 0.9);
       ctx.closePath();
     };
+    // expanding ring, repeating, so a heart on the road catches the eye
+    const k = (performance.now() % 900) / 900;
+    ctx.strokeStyle = `rgba(245,101,101,${(0.7 * (1 - k)).toFixed(3)})`; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(cx, cy, r * (1.1 + k * 1.1), 0, Math.PI * 2); ctx.stroke();
     ctx.save();
-    ctx.shadowColor = '#f56565'; ctx.shadowBlur = 14;
+    ctx.shadowColor = '#f56565'; ctx.shadowBlur = 18;
     ctx.fillStyle = '#f56565'; heart(); ctx.fill();
     ctx.restore();
+    ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 2; heart(); ctx.stroke();
     ctx.fillStyle = 'rgba(255,255,255,.55)';
     ctx.beginPath(); ctx.ellipse(cx - s * 0.42, cy - s * 0.42, s * 0.2, s * 0.13, -0.6, 0, Math.PI * 2); ctx.fill();
   }
@@ -2544,7 +2550,7 @@ window.LD_RULES = (() => {
       const cx = laneX(o.lane);
       if (o.type === 'enemy') drawBarrier(cx, o.y, o.w, o.h);
       else if (o.type === 'coin') drawCoin(cx, o.y + o.h / 2, o.w / 2);
-      else if (o.type === 'life') drawHeart(cx, o.y + o.h / 2, 14);
+      else if (o.type === 'life') drawHeart(cx, o.y + o.h / 2, 19);
       else if (o.type === 'hole') drawPothole(cx, o.y + o.h / 2, o.w / 2, o.h / 2, o.seed);
     }
     for (const o of objects) if (o.type === 'finish') drawFinishLabel(o.y);
