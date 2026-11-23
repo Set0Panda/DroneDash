@@ -129,7 +129,12 @@
   .eggCoins i { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--coin); opacity: .4; }
   .eggCoins i.on { background: var(--coin); opacity: 1; }
   .eggSub { display: flex; align-items: center; gap: 6px; min-height: 16px; }
-  #eggBar.alert .eggCoins { display: none; }          /* the alert takes the whole line */
+  #eggBar.alert .eggCoins, #eggBar.alert .autoChip { display: none; }   /* the alert takes the whole line */
+  /* auto-fire chip: tap to switch; shows auto-fire's current accuracy (better with a coin streak) */
+  .autoChip { margin: 0; padding: 2px 7px; font-size: 11px; font-weight: 800; line-height: 1.3; border-radius: 8px;
+    color: var(--muted); background: transparent; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.25); white-space: nowrap; }
+  .autoChip.on { color: #0a1c3d; background: var(--ua-yellow); box-shadow: none; }
+  .autoChip:active { transform: scale(.94); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.25); }
   #eggNext { font-size: 12px; line-height: 1.25; font-weight: 800; color: var(--muted); overflow-wrap: anywhere; }
   #rocketBtn {
     justify-self: end; position: relative; margin: 0; padding: 10px 14px 10px 12px; min-width: 0; max-width: 100%; min-height: 54px;
@@ -556,7 +561,7 @@
       <!-- line 1: coins collected and Shaheds shot down; line 2: progress to the next rocket,
            replaced by the red alert while a Shahed is incoming -->
       <div class="eggTop"><span id="coinCount" class="coinChip"><i></i><b>0</b></span><span class="eggKills" id="eggKills">🎯 0</span></div>
-      <div class="eggSub"><span class="eggCoins" id="eggCoins"><i></i><i></i><i></i></span><span id="eggNext"></span></div>
+      <div class="eggSub"><span class="eggCoins" id="eggCoins"><i></i><i></i><i></i></span><span id="eggNext"></span><button id="autoChip" class="autoChip" type="button"></button></div>
     </div>
     <button id="pauseBtn" type="button" data-i18n-title="pause" data-i18n-aria="pause" aria-label="Pause">⏸</button>
     <button id="rocketBtn" type="button" disabled><span class="rk">🚀</span><span data-i18n="launch">FIRE</span><b id="rocketN">0</b></button>
@@ -715,7 +720,7 @@ window.I18N = (() => {
       area0: "Wheat fields", area1: "Sunflower fields", area2: "City lights", area3: "Pine forest", area4: "Snowy mountains",
       paused: "Paused", resume: "Resume", pause: "Pause",
       // Shahed drones and rockets
-      shahedBanner: "SHAHED!", shahedSub: "Tap FIRE or the drone · 🚀 = {n} coins", shotDown: "SHOT DOWN!", smashed: "SMASHED!", close: "CLOSE!", autoFireOn: "Auto-fire at Shaheds: On", autoFireOff: "Auto-fire at Shaheds: Off", dodged: "DODGED!", shotDownStat: "Shot down",
+      shahedBanner: "SHAHED!", shahedSub: "Tap FIRE or the drone · 🚀 = {n} coins", shotDown: "SHOT DOWN!", smashed: "SMASHED!", close: "CLOSE!", missed: "MISS!", autoFireOn: "Auto-fire at Shaheds: On", autoFireOff: "Auto-fire at Shaheds: Off", dodged: "DODGED!", shotDownStat: "Shot down",
       rocketTitle: "Rocket: {n} coins (Space)", launch: "FIRE", droneAlert: "SHAHED! Tap FIRE", droneNoRocket: "SHAHED! Dodge!",
       language: 'Language', auto: 'Auto'
     },
@@ -749,7 +754,7 @@ window.I18N = (() => {
       area0: "Campos de trigo", area1: "Campos de girasoles", area2: "Luces de la ciudad", area3: "Bosque de pinos", area4: "Montañas nevadas",
       paused: "En pausa", resume: "Continuar", pause: "Pausa",
       // Shahed drones and rockets
-      shahedBanner: "¡SHAHED!", shahedSub: "Toca DISPARAR o el dron · 🚀 = {n} monedas", shotDown: "¡DERRIBADO!", smashed: "¡DESTROZADA!", close: "¡CASI!", autoFireOn: "Disparo automático a Shaheds: Sí", autoFireOff: "Disparo automático a Shaheds: No", dodged: "¡ESQUIVADO!", shotDownStat: "Derribados",
+      shahedBanner: "¡SHAHED!", shahedSub: "Toca DISPARAR o el dron · 🚀 = {n} monedas", shotDown: "¡DERRIBADO!", smashed: "¡DESTROZADA!", close: "¡CASI!", missed: "¡FALLÓ!", autoFireOn: "Disparo automático a Shaheds: Sí", autoFireOff: "Disparo automático a Shaheds: No", dodged: "¡ESQUIVADO!", shotDownStat: "Derribados",
       rocketTitle: "Cohete: {n} monedas (Espacio)", launch: "DISPARAR", droneAlert: "¡SHAHED! Toca DISPARAR", droneNoRocket: "¡SHAHED! ¡Esquívalo!",
       language: 'Idioma', auto: 'Automático'
     },
@@ -783,7 +788,7 @@ window.I18N = (() => {
       area0: "Champs de blé", area1: "Champs de tournesols", area2: "Lumières de la ville", area3: "Forêt de pins", area4: "Montagnes enneigées",
       paused: "Pause", resume: "Reprendre", pause: "Pause",
       // Shahed drones and rockets
-      shahedBanner: `SHAHED${NB}!`, shahedSub: "Touche FEU ou le drone · 🚀 = {n} pièces", shotDown: `ABATTU${NB}!`, smashed: `PULVÉRISÉE${NB}!`, close: `JUSTE${NB}!`, autoFireOn: `Tir auto sur les Shaheds${NB}: oui`, autoFireOff: `Tir auto sur les Shaheds${NB}: non`, dodged: `ÉVITÉ${NB}!`, shotDownStat: "Abattus",
+      shahedBanner: `SHAHED${NB}!`, shahedSub: "Touche FEU ou le drone · 🚀 = {n} pièces", shotDown: `ABATTU${NB}!`, smashed: `PULVÉRISÉE${NB}!`, close: `JUSTE${NB}!`, missed: `RATÉ${NB}!`, autoFireOn: `Tir auto sur les Shaheds${NB}: oui`, autoFireOff: `Tir auto sur les Shaheds${NB}: non`, dodged: `ÉVITÉ${NB}!`, shotDownStat: "Abattus",
       rocketTitle: `Roquette${NB}: {n} pièces (Espace)`, launch: "FEU", droneAlert: `SHAHED${NB}! Touche FEU`, droneNoRocket: `SHAHED${NB}! Esquive${NB}!`,
       language: 'Langue', auto: 'Auto'
     },
@@ -817,7 +822,7 @@ window.I18N = (() => {
       area0: "Weizenfelder", area1: "Sonnenblumenfelder", area2: "Lichter der Stadt", area3: "Kiefernwald", area4: "Verschneite Berge",
       paused: "Pausiert", resume: "Weiter", pause: "Pause",
       // Shahed drones and rockets
-      shahedBanner: "SHAHED!", shahedSub: "Tippe FEUER oder die Drohne · 🚀 = {n} Münzen", shotDown: "ABGESCHOSSEN!", smashed: "GESPRENGT!", close: "KNAPP!", autoFireOn: "Auto-Feuer auf Shaheds: An", autoFireOff: "Auto-Feuer auf Shaheds: Aus", dodged: "AUSGEWICHEN!", shotDownStat: "Abgeschossen",
+      shahedBanner: "SHAHED!", shahedSub: "Tippe FEUER oder die Drohne · 🚀 = {n} Münzen", shotDown: "ABGESCHOSSEN!", smashed: "GESPRENGT!", close: "KNAPP!", missed: "DANEBEN!", autoFireOn: "Auto-Feuer auf Shaheds: An", autoFireOff: "Auto-Feuer auf Shaheds: Aus", dodged: "AUSGEWICHEN!", shotDownStat: "Abgeschossen",
       rocketTitle: "Rakete: {n} Münzen (Leertaste)", launch: "FEUER", droneAlert: "SHAHED! Tippe FEUER", droneNoRocket: "SHAHED! Ausweichen!",
       language: 'Sprache', auto: 'Automatisch'
     },
@@ -851,7 +856,7 @@ window.I18N = (() => {
       area0: "Campos de trigo", area1: "Campos de girassóis", area2: "Luzes da cidade", area3: "Floresta de pinheiros", area4: "Montanhas nevadas",
       paused: "Pausado", resume: "Continuar", pause: "Pausar",
       // Shahed drones and rockets
-      shahedBanner: "SHAHED!", shahedSub: "Toque em DISPARAR ou no drone · 🚀 = {n} moedas", shotDown: "ABATIDO!", smashed: "DESTRUÍDA!", close: "POR POUCO!", autoFireOn: "Disparo automático nos Shaheds: Ligado", autoFireOff: "Disparo automático nos Shaheds: Desligado", dodged: "DESVIOU!", shotDownStat: "Abatidos",
+      shahedBanner: "SHAHED!", shahedSub: "Toque em DISPARAR ou no drone · 🚀 = {n} moedas", shotDown: "ABATIDO!", smashed: "DESTRUÍDA!", close: "POR POUCO!", missed: "ERROU!", autoFireOn: "Disparo automático nos Shaheds: Ligado", autoFireOff: "Disparo automático nos Shaheds: Desligado", dodged: "DESVIOU!", shotDownStat: "Abatidos",
       rocketTitle: "Foguete: {n} moedas (Espaço)", launch: "DISPARAR", droneAlert: "SHAHED! Toque em DISPARAR", droneNoRocket: "SHAHED! Desvie!",
       language: 'Idioma', auto: 'Automático'
     },
@@ -885,7 +890,7 @@ window.I18N = (() => {
       area0: "Campi di grano", area1: "Campi di girasoli", area2: "Luci della città", area3: "Pineta", area4: "Montagne innevate",
       paused: "In pausa", resume: "Riprendi", pause: "Pausa",
       // Shahed drones and rockets
-      shahedBanner: "SHAHED!", shahedSub: "Tocca FUOCO o il drone · 🚀 = {n} monete", shotDown: "ABBATTUTO!", smashed: "DISTRUTTA!", close: "PER UN PELO!", autoFireOn: "Fuoco automatico sugli Shahed: Sì", autoFireOff: "Fuoco automatico sugli Shahed: No", dodged: "SCHIVATO!", shotDownStat: "Abbattuti",
+      shahedBanner: "SHAHED!", shahedSub: "Tocca FUOCO o il drone · 🚀 = {n} monete", shotDown: "ABBATTUTO!", smashed: "DISTRUTTA!", close: "PER UN PELO!", missed: "MANCATO!", autoFireOn: "Fuoco automatico sugli Shahed: Sì", autoFireOff: "Fuoco automatico sugli Shahed: No", dodged: "SCHIVATO!", shotDownStat: "Abbattuti",
       rocketTitle: "Razzo: {n} monete (Spazio)", launch: "FUOCO", droneAlert: "SHAHED! Tocca FUOCO", droneNoRocket: "SHAHED! Schivalo!",
       language: 'Lingua', auto: 'Automatica'
     },
@@ -919,7 +924,7 @@ window.I18N = (() => {
       area0: "小麦畑", area1: "ひまわり畑", area2: "街の灯り", area3: "松の森", area4: "雪山",
       paused: "一時停止中", resume: "再開", pause: "一時停止",
       // Shahed drones and rockets
-      shahedBanner: "シャヘド！", shahedSub: "「発射」かドローンをタップ · 🚀 = コイン{n}枚", shotDown: "撃墜！", smashed: "粉砕！", close: "ギリギリ！", autoFireOn: "シャヘド自動発射：オン", autoFireOff: "シャヘド自動発射：オフ", dodged: "回避！", shotDownStat: "撃墜",
+      shahedBanner: "シャヘド！", shahedSub: "「発射」かドローンをタップ · 🚀 = コイン{n}枚", shotDown: "撃墜！", smashed: "粉砕！", close: "ギリギリ！", missed: "ミス！", autoFireOn: "シャヘド自動発射：オン", autoFireOff: "シャヘド自動発射：オフ", dodged: "回避！", shotDownStat: "撃墜",
       rocketTitle: "ロケット：コイン{n}枚（スペース）", launch: "発射", droneAlert: "シャヘド！「発射」をタップ", droneNoRocket: "シャヘド！よけろ！",
       language: '言語', auto: '自動'
     },
@@ -953,7 +958,7 @@ window.I18N = (() => {
       area0: "麦田", area1: "向日葵田", area2: "城市灯火", area3: "松林", area4: "雪山",
       paused: "已暂停", resume: "继续", pause: "暂停",
       // Shahed drones and rockets
-      shahedBanner: "沙赫德！", shahedSub: "点「发射」或无人机 · 🚀 = {n} 枚金币", shotDown: "击落！", smashed: "炸毁！", close: "好险！", autoFireOn: "自动射击沙赫德：开", autoFireOff: "自动射击沙赫德：关", dodged: "躲开了！", shotDownStat: "击落",
+      shahedBanner: "沙赫德！", shahedSub: "点「发射」或无人机 · 🚀 = {n} 枚金币", shotDown: "击落！", smashed: "炸毁！", close: "好险！", missed: "没打中！", autoFireOn: "自动射击沙赫德：开", autoFireOff: "自动射击沙赫德：关", dodged: "躲开了！", shotDownStat: "击落",
       rocketTitle: "火箭：{n} 枚金币（空格键）", launch: "发射", droneAlert: "沙赫德！点「发射」", droneNoRocket: "沙赫德！快躲开！",
       language: '语言', auto: '自动'
     },
@@ -987,7 +992,7 @@ window.I18N = (() => {
       area0: "밀밭", area1: "해바라기 밭", area2: "도시의 불빛", area3: "소나무 숲", area4: "설산",
       paused: "일시 정지", resume: "계속하기", pause: "일시 정지",
       // Shahed drones and rockets
-      shahedBanner: "샤헤드!", shahedSub: "발사 또는 드론을 탭 · 🚀 = 코인 {n}개", shotDown: "격추!", smashed: "파괴!", close: "아슬아슬!", autoFireOn: "샤헤드 자동 발사: 켜짐", autoFireOff: "샤헤드 자동 발사: 꺼짐", dodged: "회피!", shotDownStat: "격추",
+      shahedBanner: "샤헤드!", shahedSub: "발사 또는 드론을 탭 · 🚀 = 코인 {n}개", shotDown: "격추!", smashed: "파괴!", close: "아슬아슬!", missed: "빗나감!", autoFireOn: "샤헤드 자동 발사: 켜짐", autoFireOff: "샤헤드 자동 발사: 꺼짐", dodged: "회피!", shotDownStat: "격추",
       rocketTitle: "로켓: 코인 {n}개 (스페이스)", launch: "발사", droneAlert: "샤헤드! 발사를 탭", droneNoRocket: "샤헤드! 피하세요!",
       language: '언어', auto: '자동'
     },
@@ -1021,7 +1026,7 @@ window.I18N = (() => {
       area0: "गेहूँ के खेत", area1: "सूरजमुखी के खेत", area2: "शहर की रोशनी", area3: "चीड़ का जंगल", area4: "बर्फ़ीले पहाड़",
       paused: "रुका हुआ", resume: "जारी रखें", pause: "रोकें",
       // Shahed drones and rockets
-      shahedBanner: "शाहेद!", shahedSub: "फ़ायर या ड्रोन पर टैप करें · 🚀 = {n} सिक्के", shotDown: "मार गिराया!", smashed: "तोड़ दिया!", close: "बाल-बाल!", autoFireOn: "शाहेद पर ऑटो-फ़ायर: चालू", autoFireOff: "शाहेद पर ऑटो-फ़ायर: बंद", dodged: "बच निकले!", shotDownStat: "मार गिराए",
+      shahedBanner: "शाहेद!", shahedSub: "फ़ायर या ड्रोन पर टैप करें · 🚀 = {n} सिक्के", shotDown: "मार गिराया!", smashed: "तोड़ दिया!", close: "बाल-बाल!", missed: "चूक गया!", autoFireOn: "शाहेद पर ऑटो-फ़ायर: चालू", autoFireOff: "शाहेद पर ऑटो-फ़ायर: बंद", dodged: "बच निकले!", shotDownStat: "मार गिराए",
       rocketTitle: "रॉकेट: {n} सिक्के (स्पेस)", launch: "फ़ायर", droneAlert: "शाहेद! फ़ायर दबाएँ", droneNoRocket: "शाहेद! बचो!",
       language: 'भाषा', auto: 'स्वचालित'
     },
@@ -1056,7 +1061,7 @@ window.I18N = (() => {
       paused: "Пауза", resume: "Продовжити", pause: "Пауза",
       // Shahed drones and rockets bought with coins
       shahedBanner: 'ШАХЕД!', shahedSub: 'Тисни ПУСК або на нього · 🚀 = {n} монети',
-      shotDown: 'ЗБИТО!', smashed: "РОЗБИТО!", close: "НА ВОЛОСИНІ!", autoFireOn: "Автопуск по шахедах: Увімк.", autoFireOff: "Автопуск по шахедах: Вимк.", dodged: 'УХИЛИВСЯ!', shotDownStat: 'Збито', rocketTitle: 'Ракета: {n} монети (пробіл)',
+      shotDown: 'ЗБИТО!', smashed: "РОЗБИТО!", close: "НА ВОЛОСИНІ!", missed: "ПРОМАХ!", autoFireOn: "Автопуск по шахедах: Увімк.", autoFireOff: "Автопуск по шахедах: Вимк.", dodged: 'УХИЛИВСЯ!', shotDownStat: 'Збито', rocketTitle: 'Ракета: {n} монети (пробіл)',
       launch: 'ПУСК', droneAlert: 'ШАХЕД! Тисни ПУСК',
       droneNoRocket: 'ШАХЕД! Ухиляйся!',
       language: 'Мова', auto: 'Авто'
@@ -1091,7 +1096,7 @@ window.I18N = (() => {
       area0: "ხორბლის ველები", area1: "მზესუმზირის ველები", area2: "ქალაქის შუქები", area3: "ფიჭვნარი", area4: "თოვლიანი მთები",
       paused: "პაუზა", resume: "გაგრძელება", pause: "პაუზა",
       // Shahed drones and rockets
-      shahedBanner: "შაჰედი!", shahedSub: "შეეხე გასროლას ან დრონს · 🚀 = {n} მონეტა", shotDown: "ჩამოგდებულია!", smashed: "დაიმსხვრა!", close: "ძლივს!", autoFireOn: "შაჰედებზე ავტოგასროლა: ჩართ.", autoFireOff: "შაჰედებზე ავტოგასროლა: გამორთ.", dodged: "აიცილე!", shotDownStat: "ჩამოგდებული",
+      shahedBanner: "შაჰედი!", shahedSub: "შეეხე გასროლას ან დრონს · 🚀 = {n} მონეტა", shotDown: "ჩამოგდებულია!", smashed: "დაიმსხვრა!", close: "ძლივს!", missed: "აცდა!", autoFireOn: "შაჰედებზე ავტოგასროლა: ჩართ.", autoFireOff: "შაჰედებზე ავტოგასროლა: გამორთ.", dodged: "აიცილე!", shotDownStat: "ჩამოგდებული",
       rocketTitle: "რაკეტა: {n} მონეტა (Space)", launch: "გასროლა", droneAlert: "შაჰედი! შეეხე გასროლას", droneNoRocket: "შაჰედი! აიცილე!",
       language: 'ენა', auto: 'ავტო'
     }
@@ -1386,6 +1391,9 @@ window.LD_RULES = (() => {
     return !!(window.matchMedia && matchMedia('(pointer: coarse)').matches); })();
   let autoFireCool = 0;
   const AUTO_RELOAD = 1.2;  // seconds between automatic shots
+  // Chance an automatic shot misses: 45% with no coin streak, 7% less per streak step, 10% at x5.
+  // Shots you fire yourself never miss.
+  const autoMiss = () => Math.max(0.1, 0.45 - streak * 0.07);
   let carNo = 7;          // racing number on the bonnet, picked at random for each run   // roof launcher recoil after firing, eases back to 0
   let runTime = 0;        // seconds of actual driving this run (not paused, not counting down)   // the 3-2-1 after Resume: road held still until GO, like everything else
   // Shahed drones dive at your lane; spend coins on rockets to shoot them down.
@@ -1673,6 +1681,7 @@ window.LD_RULES = (() => {
     [...el.pips.children].forEach((p, i) => p.classList.toggle('on', i < coinMeter));
     if (DRONES()) paintEggBar();
   }
+  const autoChip = $('autoChip');
   const eggBar = $('eggBar'), rocketBtn = $('rocketBtn'), rocketN = $('rocketN'), eggNext = $('eggNext');
   const eggPips = [...$('eggCoins').children];
   // Bottom launch bar: rockets ready, coins towards the next one, and an alert while a Shahed is incoming.
@@ -1689,7 +1698,9 @@ window.LD_RULES = (() => {
     eggBar.classList.toggle('alert', incoming);
     // The dots already show progress to the next rocket and the FIRE badge shows how many
     // are ready, so the text is only for the Shahed alert, or MAX when no more can be banked.
-    set(eggNext, incoming ? (n > 0 && autoFire ? t('shahedBanner') : t(n > 0 ? 'droneAlert' : 'droneNoRocket')) : full ? 'MAX' : '');
+    set(eggNext, incoming ? (n > 0 && autoFire ? t('shahedBanner') : t(n > 0 ? 'droneAlert' : 'droneNoRocket')) : '');
+    set(autoChip, autoFire ? '🤖 ' + Math.round((1 - autoMiss()) * 100) + '%' : '🤖 ✕');
+    autoChip.classList.toggle('on', autoFire);
   }
   // The bar only exists in Ukrainian; it takes room from the road, so re-measure the canvas.
   function layoutEgg() {
@@ -1723,7 +1734,8 @@ window.LD_RULES = (() => {
     if (!tg) return false;
     wallet -= ROCKET_COST;
     const my = player.y + player.h * 0.41 - 6;              // the launcher's muzzle on the roof
-    rockets.push({ x: player.x, y: my, vx: 0, vy: -ROCKET_V, target: tg, auto });
+    const miss = auto && Math.random() < autoMiss();
+    rockets.push({ x: player.x, y: my, vx: 0, vy: -ROCKET_V, target: tg, auto, miss, side: Math.random() < 0.5 ? -1 : 1 });
     launcherKick = 1;
     burst(player.x, my, '#fefcbf', 8); burst(player.x, my, '#f6ad55', 6);
     sfx.launch();
@@ -1829,10 +1841,18 @@ window.LD_RULES = (() => {
     }
     for (const r of rockets) {
       const tg = r.target;
-      if (tg && !tg.dead) {
+      if (tg && !tg.dead && r.miss) {
+        // Missing: swerve past the drone's wing, then fly on; the drone is free to be targeted again.
+        const ax = tg.x + r.side * 42, dx = ax - r.x, dy = tg.y - r.y, dist = Math.hypot(dx, dy) || 1;
+        if (r.y < tg.y + 10) {
+          r.target = null;
+          floatText(tg.x, tg.y - 14, t('missed'), '#cfd6ea');
+        } else { r.vx = dx / dist * ROCKET_V; r.vy = dy / dist * ROCKET_V; }
+      } else if (tg && !tg.dead) {
         const at = aimAt(tg);
         const dx = at.x - r.x, dy = at.y - r.y, dist = Math.hypot(dx, dy);
-        if (dist < 24 && tg.type === 'enemy') {
+        const reach = 24 + ROCKET_V * dt * 1.6;          // rocket + target can close >40 px a frame: don't skip past
+        if (dist < reach && tg.type === 'enemy') {
           // Barrier smashed: the lane is clear. A few points, no effect on the drone combo.
           tg.dead = r.dead = true;
           explode(at.x, at.y);
@@ -1842,7 +1862,7 @@ window.LD_RULES = (() => {
           floatText(at.x, at.y - 10, t('smashed') + ' +' + num(pts), '#FFD700');
           continue;
         }
-        if (dist < 24) {
+        if (dist < reach) {
           tg.dead = r.dead = true;
           explode(tg.x, tg.y);
           kills++;
@@ -3273,12 +3293,15 @@ window.LD_RULES = (() => {
     autoFireBtn.textContent = '🚀 ' + t(autoFire ? 'autoFireOn' : 'autoFireOff');
     autoFireBtn.setAttribute('aria-pressed', String(autoFire));
     autoFireBtn.classList.toggle('on', autoFire);
+    autoChip.title = autoFireBtn.textContent; autoChip.setAttribute('aria-label', autoFireBtn.textContent);
   }
-  autoFireBtn.addEventListener('click', () => {
+  function toggleAutoFire() {
     autoFire = !autoFire;
     try { localStorage.setItem('laneDodgerAutoFire', autoFire ? '1' : '0'); } catch {}
-    paintAutoFire();
-  });
+    paintAutoFire(); updateHud();
+  }
+  autoFireBtn.addEventListener('click', toggleAutoFire);
+  autoChip.addEventListener('click', () => { toggleAutoFire(); autoChip.blur(); });
   I18N.onChange(paintAutoFire);
   paintAutoFire();
   $('exitBtn').addEventListener('click', exitGame);
