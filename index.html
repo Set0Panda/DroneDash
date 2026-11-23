@@ -288,9 +288,38 @@
   }
 
   /* ---- Game over ---- */
-  .stats { display: grid; grid-template-columns: repeat(3, auto); gap: 4px 22px; margin: 4px 0; }
-  .stats b { display: block; font-size: 22px; color: var(--text); }
-  .stats span { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  #over { background: rgba(6, 8, 16, .86); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+  .overCard { gap: 16px; padding: 26px 20px 20px; border: 1px solid rgba(255,255,255,.07); }
+  #overTitle {
+    font-size: 38px; line-height: 1.05; color: var(--enemy);
+    text-shadow: 0 0 28px rgba(245, 101, 101, .45);
+  }
+  #over.fuel #overTitle { color: var(--fuel-mid); text-shadow: 0 0 28px rgba(237, 137, 54, .45); }
+  .scoreBox { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .scoreBox .label {
+    font-size: 12px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--muted);
+  }
+  #finalScore {
+    font-size: 58px; font-weight: 900; line-height: 1; color: var(--coin);
+    font-variant-numeric: tabular-nums; text-shadow: 0 4px 24px rgba(246, 224, 94, .35);
+  }
+  .newBest {
+    margin-top: 6px; padding: 5px 14px; border-radius: 999px; background: var(--coin); color: #0f1220;
+    font-size: 13px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;
+    animation: bestPop .55s cubic-bezier(.2, 1.6, .4, 1) .9s both, bestGlow 1.6s ease-in-out 1.5s infinite;
+  }
+  @keyframes bestPop { from { transform: scale(0) rotate(-8deg); opacity: 0; } }
+  @keyframes bestGlow { 50% { box-shadow: 0 0 22px rgba(246, 224, 94, .7); } }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; }
+  .stats > div { background: rgba(255,255,255,.06); border-radius: 12px; padding: 10px 4px 8px; min-width: 0; }
+  .stats b { display: block; font-size: 21px; color: var(--text); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .stats span {
+    display: block; margin-top: 2px; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  #bestLine { font-size: 13px; }
+  .overBtns { display: grid; gap: 12px; width: 100%; }
+  .overBtns button { width: 100%; margin: 0; }
 </style>
 </head>
 <body>
@@ -349,16 +378,24 @@
   </div>
 
   <div id="over" class="overlay hidden">
-    <h1 id="overTitle">Crashed!</h1>
-    <p class="big" id="finalScore">Score: 0</p>
-    <div class="stats">
-      <div><b id="statLevel">1</b><span data-i18n="level">Level</span></div>
-      <div><b id="statDist">0 m</b><span data-i18n="distance">Distance</span></div>
-      <div><b id="statCoins">0</b><span data-i18n="coins">Coins</span></div>
+    <div class="card overCard" role="dialog" aria-labelledby="overTitle">
+      <h1 id="overTitle">Crashed!</h1>
+      <div class="scoreBox">
+        <span class="label" data-i18n="scoreLabel">Score</span>
+        <b id="finalScore">0</b>
+        <span id="newBest" class="newBest" data-i18n="newBest" hidden>New best!</span>
+      </div>
+      <div class="stats">
+        <div><b id="statLevel">1</b><span data-i18n="level">Level</span></div>
+        <div><b id="statDist">0 m</b><span data-i18n="distance">Distance</span></div>
+        <div><b id="statCoins">0</b><span data-i18n="coins">Coins</span></div>
+      </div>
+      <p id="bestLine"></p>
+      <div class="overBtns">
+        <button id="retryBtn" data-i18n="retry">Retry</button>
+        <button id="homeBtn" class="ghost" data-i18n="home">Home</button>
+      </div>
     </div>
-    <p id="bestLine"></p>
-    <button id="retryBtn" data-i18n="retry">Retry</button>
-    <button id="homeBtn" class="ghost" data-i18n="home">Home</button>
   </div>
 </div>
 
@@ -391,6 +428,7 @@ window.I18N = (() => {
       levelBanner: 'LEVEL {n}', levelSub: '+{pts} pts · +{fuel}% fuel · faster!',
       outBanner: 'OUT OF FUEL', outSub: 'Grab coins to keep your tank topped up',
       checkpoint: 'CHECKPOINT · LEVEL {n}', homeBest: '🏆 Best {best} · Level {level}',
+      scoreLabel: "Score", newBest: "New best!",
       language: 'Language', auto: 'Auto'
     },
     es: {
@@ -414,6 +452,7 @@ window.I18N = (() => {
       levelBanner: 'NIVEL {n}', levelSub: '+{pts} pts · +{fuel} % comb. · ¡más rápido!',
       outBanner: 'SIN COMBUSTIBLE', outSub: 'Recoge monedas para mantener el tanque lleno',
       checkpoint: 'CONTROL · NIVEL {n}', homeBest: '🏆 Récord {best} · Nivel {level}',
+      scoreLabel: "Puntos", newBest: "¡Nuevo récord!",
       language: 'Idioma', auto: 'Automático'
     },
     fr: {
@@ -437,6 +476,7 @@ window.I18N = (() => {
       levelBanner: 'NIVEAU {n}', levelSub: `+{pts} pts · +{fuel}${NB}% d'essence · plus vite${NB}!`,
       outBanner: 'PANNE SÈCHE', outSub: 'Ramasse des pièces pour garder le réservoir plein',
       checkpoint: 'CONTRÔLE · NIVEAU {n}', homeBest: '🏆 Record {best} · Niveau {level}',
+      scoreLabel: "Score", newBest: `Nouveau record${NB}!`,
       language: 'Langue', auto: 'Auto'
     },
     de: {
@@ -460,6 +500,7 @@ window.I18N = (() => {
       levelBanner: 'LEVEL {n}', levelSub: '+{pts} Pkt. · +{fuel} % Sprit · schneller!',
       outBanner: 'TANK LEER', outSub: 'Sammle Münzen, damit der Tank voll bleibt',
       checkpoint: 'CHECKPOINT · LEVEL {n}', homeBest: '🏆 Rekord {best} · Level {level}',
+      scoreLabel: "Punkte", newBest: "Neuer Rekord!",
       language: 'Sprache', auto: 'Automatisch'
     },
     pt: {
@@ -483,6 +524,7 @@ window.I18N = (() => {
       levelBanner: 'NÍVEL {n}', levelSub: '+{pts} pts · +{fuel}% comb. · mais rápido!',
       outBanner: 'SEM COMBUSTÍVEL', outSub: 'Pegue moedas para manter o tanque cheio',
       checkpoint: 'CHECKPOINT · NÍVEL {n}', homeBest: '🏆 Recorde {best} · Nível {level}',
+      scoreLabel: "Pontos", newBest: "Novo recorde!",
       language: 'Idioma', auto: 'Automático'
     },
     it: {
@@ -506,6 +548,7 @@ window.I18N = (() => {
       levelBanner: 'LIVELLO {n}', levelSub: '+{pts} pt · +{fuel}% benzina · più veloce!',
       outBanner: 'A SECCO', outSub: 'Prendi monete per tenere pieno il serbatoio',
       checkpoint: 'CHECKPOINT · LIVELLO {n}', homeBest: '🏆 Record {best} · Livello {level}',
+      scoreLabel: "Punti", newBest: "Nuovo record!",
       language: 'Lingua', auto: 'Automatica'
     },
     ja: {
@@ -529,6 +572,7 @@ window.I18N = (() => {
       levelBanner: 'レベル {n}', levelSub: '+{pts}点・燃料+{fuel}%・スピードアップ！',
       outBanner: '燃料切れ', outSub: 'コインを集めて燃料を補給しよう',
       checkpoint: 'チェックポイント・レベル {n}', homeBest: '🏆 ベスト {best}・レベル {level}',
+      scoreLabel: "スコア", newBest: "ベスト更新！",
       language: '言語', auto: '自動'
     },
     zh: {
@@ -552,6 +596,7 @@ window.I18N = (() => {
       levelBanner: '第 {n} 关', levelSub: '+{pts} 分 · 燃油 +{fuel}% · 加速！',
       outBanner: '燃油耗尽', outSub: '收集金币，保持油箱充足',
       checkpoint: '检查点 · 第 {n} 关', homeBest: '🏆 最高分 {best} · 第 {level} 关',
+      scoreLabel: "得分", newBest: "新纪录！",
       language: '语言', auto: '自动'
     },
     ko: {
@@ -575,6 +620,7 @@ window.I18N = (() => {
       levelBanner: '레벨 {n}', levelSub: '+{pts}점 · 연료 +{fuel}% · 더 빠르게!',
       outBanner: '연료 고갈', outSub: '코인을 모아 연료를 채우세요',
       checkpoint: '체크포인트 · 레벨 {n}', homeBest: '🏆 최고 {best} · 레벨 {level}',
+      scoreLabel: "점수", newBest: "최고 기록!",
       language: '언어', auto: '자동'
     },
     hi: {
@@ -598,6 +644,7 @@ window.I18N = (() => {
       levelBanner: 'लेवल {n}', levelSub: '+{pts} अंक · +{fuel}% ईंधन · और तेज़!',
       outBanner: 'ईंधन ख़त्म', outSub: 'टंकी भरी रखने के लिए सिक्के उठाएँ',
       checkpoint: 'चेकपॉइंट · लेवल {n}', homeBest: '🏆 सर्वश्रेष्ठ {best} · लेवल {level}',
+      scoreLabel: "स्कोर", newBest: "नया रिकॉर्ड!",
       language: 'भाषा', auto: 'स्वचालित'
     }
   };
@@ -1120,17 +1167,43 @@ window.LD_RULES = (() => {
     state = 'over';
     sfx.gameOver();
     const s = score();
-    const best = Math.max(readNum('laneDodgerBest'), s);
+    const prevBest = readNum('laneDodgerBest');
+    const best = Math.max(prevBest, s);
     const bestLevel = Math.max(readNum('laneDodgerBestLevel'), level);
     writeNum('laneDodgerBest', best);
     writeNum('laneDodgerBestLevel', bestLevel);
+    el.over.classList.toggle('fuel', reason === 'fuel');
     $('overTitle').textContent = t(reason === 'fuel' ? 'outOfFuel' : 'crashed');
-    $('finalScore').textContent = t('score', { n: s });
+    $('newBest').hidden = !(s > prevBest && s > 0);
+    countUp($('finalScore'), s);
     $('statLevel').textContent = num(level);
     $('statDist').textContent = t('meters', { n: Math.floor(distance / PX_PER_M) });
     $('statCoins').textContent = num(coins);
     $('bestLine').textContent = t('bestLine', { best, level: bestLevel });
     el.over.classList.remove('hidden');
+    // Long runs ("123.456 m") shrink to fit their tile instead of spilling out.
+    for (const b of el.over.querySelectorAll('.stats b')) {
+      b.style.fontSize = '';
+      let size = 21;
+      while (b.scrollWidth > b.clientWidth && size > 12) b.style.fontSize = --size + 'px';
+    }
+  }
+
+  // Roll the final score up from 0 (skipped for players who prefer reduced motion).
+  let countUpId = 0;
+  function countUp(node, target) {
+    const id = ++countUpId;
+    const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || target <= 0) { node.textContent = num(target); return; }
+    const t0 = performance.now(), dur = 900;
+    const tick = now => {
+      if (id !== countUpId) return; // a newer game over took over
+      const k = Math.min(1, (now - t0) / dur);
+      node.textContent = num(Math.round(target * (1 - Math.pow(1 - k, 3))));
+      if (k < 1) requestAnimationFrame(tick);
+    };
+    node.textContent = num(0);
+    requestAnimationFrame(tick);
   }
 
   function showCount(text) {

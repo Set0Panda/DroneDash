@@ -1,6 +1,6 @@
 // Offline support: cache the game shell, serve it cache-first, refresh in the background.
 // Bump VERSION whenever you want installed copies to drop the old cache.
-const VERSION = 'lane-dodger-v7';
+const VERSION = 'lane-dodger-v8';
 const ASSETS = [
   './',
   './index.html',
