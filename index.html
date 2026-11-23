@@ -61,7 +61,7 @@
     background: rgba(255,255,255,.1); color: var(--text); box-shadow: none;
   }
   #mute:active { transform: scale(.92); box-shadow: none; }
-  .tag { flex: none; width: 44px; font-size: 12px; font-weight: 800; letter-spacing: 1px; color: var(--muted); }
+  .tag { flex: none; min-width: 44px; white-space: nowrap; font-size: 12px; font-weight: 800; letter-spacing: 1px; color: var(--muted); }
   .bar { flex: 1; height: 10px; border-radius: 5px; background: rgba(255,255,255,.1); overflow: hidden; }
   .bar > div { height: 100%; width: 0; border-radius: 5px; transition: background-color .3s; }
   #prog { background: var(--accent); }
@@ -126,6 +126,15 @@
   }
   button.secondary:active { box-shadow: 0 2px 0 rgba(0,0,0,.35); }
   #wrap.at-home #hud { visibility: hidden; }
+  .langPick {
+    position: absolute; top: calc(12px + env(safe-area-inset-top, 0px)); right: 12px;
+    display: flex; align-items: center; gap: 4px; font-size: 16px;
+  }
+  .langPick select {
+    font: inherit; font-size: 14px; color: var(--text); background: rgba(255,255,255,.1);
+    border: 0; border-radius: 8px; padding: 6px 8px; max-width: 170px; cursor: pointer;
+  }
+  .langPick option { color: #0f1220; background: #fff; }
 
   /* ---- How-to-play popup ---- */
   #intro { background: rgba(10, 12, 24, .7); }
@@ -233,7 +242,8 @@
     position: absolute; left: 0; right: 0; top: 30%; text-align: center; pointer-events: none;
     text-shadow: 0 4px 18px rgba(0,0,0,.7);
   }
-  #banner .t { font-size: 44px; font-weight: 900; color: var(--accent); }
+  #banner { padding: 0 16px; }
+  #banner .t { font-size: clamp(30px, 10vw, 44px); line-height: 1.1; font-weight: 900; color: var(--accent); }
   #banner .s { font-size: 16px; font-weight: 700; color: var(--text); margin-top: 4px; }
   #banner.warn .t { color: var(--enemy); }
   #banner .show { animation: bannerPop 1.9s ease-out forwards; }
@@ -257,7 +267,7 @@
   <div id="hud">
     <div class="hrow"><span id="score">0</span><span id="streak">×2</span><span id="lives"></span><button id="mute" type="button" aria-label="Mute sound">🔊</button></div>
     <div class="hrow"><span class="tag" id="level">LV 1</span><div class="bar"><div id="prog"></div></div><span class="small" id="togo">400 m</span></div>
-    <div class="hrow" id="fuelRow"><span class="tag">FUEL</span><div class="bar"><div id="fuel"></div></div><span id="pips" title="Coins until next fuel top-up"><i></i><i></i><i></i><i></i><i></i></span></div>
+    <div class="hrow" id="fuelRow"><span class="tag" data-i18n="fuel">FUEL</span><div class="bar"><div id="fuel"></div></div><span id="pips" data-i18n-title="pipsTitle" title="Coins until next fuel top-up"><i></i><i></i><i></i><i></i><i></i></span></div>
   </div>
 
   <div id="count"></div>
@@ -266,58 +276,347 @@
   <div id="home" class="overlay">
     <img class="logo" src="icons/icon-512.png" alt="" width="132" height="132">
     <h1 class="title">LANE<span>DODGER</span></h1>
-    <p class="tagline">Dodge the barriers. Grab the coins. Don't run out of fuel.</p>
+    <p class="tagline" data-i18n="tagline">Dodge the barriers. Grab the coins. Don't run out of fuel.</p>
     <p id="homeBest" hidden></p>
     <div class="menuBtns">
-      <button id="playBtn">▶ Play</button>
-      <button id="exitBtn" class="secondary">Exit</button>
+      <button id="playBtn">▶ <span data-i18n="play">Play</span></button>
+      <button id="exitBtn" class="secondary" data-i18n="exit">Exit</button>
     </div>
-    <button id="installBtn" class="ghost" hidden>📲 Install app</button>
+    <button id="installBtn" class="ghost" hidden>📲 <span data-i18n="installApp">Install app</span></button>
     <p id="installHint" hidden></p>
+    <label class="langPick">🌐 <select id="langSel"></select></label>
   </div>
 
   <div id="bye" class="overlay hidden">
-    <h1>Thanks for playing!</h1>
-    <p>You can close this window now.</p>
-    <button id="byeBack" class="secondary">Back to menu</button>
+    <h1 data-i18n="thanks">Thanks for playing!</h1>
+    <p data-i18n="closeNow">You can close this window now.</p>
+    <button id="byeBack" class="secondary" data-i18n="backToMenu">Back to menu</button>
   </div>
 
   <div id="intro" class="overlay hidden">
     <div class="card" role="dialog" aria-labelledby="introTitle">
       <h1 id="introTitle">Lane Dodger</h1>
-      <h2>How to play</h2>
+      <h2 data-i18n="howToPlay">How to play</h2>
       <div class="demo" aria-hidden="true"><div class="car"><i></i><b></b></div><div class="tap"></div></div>
-      <p class="lead">Tap any lane to jump straight there.<br>Hold and drag to slide across.</p>
+      <p class="lead"><span data-i18n="lead1">Tap any lane to jump straight there.</span><br><span data-i18n="lead2">Hold and drag to slide across.</span></p>
       <ul class="rules">
-        <li><span class="ico"><span class="ico flag"></span></span>Reach each checkpoint to level up. Every level is longer and faster.</li>
-        <li><span class="ico"><span class="ico fuel"></span></span>Fuel keeps draining. Run out and it's over.</li>
-        <li><span class="ico"><span class="ico coin"></span></span>Every 5 coins refills 40% fuel. Chain coins for up to ×5 points.</li>
-        <li><span class="ico"><span class="ico block"></span></span>Dodge the barriers. 3 crashes and you're out.</li>
+        <li><span class="ico"><span class="ico flag"></span></span><span data-i18n="rule1">Reach each checkpoint to level up. Every level is longer and faster.</span></li>
+        <li><span class="ico"><span class="ico fuel"></span></span><span data-i18n="rule2">Fuel keeps draining. Run out and it's over.</span></li>
+        <li><span class="ico"><span class="ico coin"></span></span><span data-i18n="rule3">Every 5 coins refills 40% fuel. Chain coins for up to ×5 points.</span></li>
+        <li><span class="ico"><span class="ico block"></span></span><span data-i18n="rule4">Dodge the barriers. 3 crashes and you're out.</span></li>
       </ul>
-      <p class="keys">Keyboard: ← → or A / D · M to mute</p>
-      <button id="startBtn">Got it!</button>
+      <p class="keys" data-i18n="keys">Keyboard: ← → or A / D · M to mute</p>
+      <button id="startBtn" data-i18n="gotIt">Got it!</button>
     </div>
   </div>
 
   <div id="over" class="overlay hidden">
     <h1 id="overTitle">Crashed!</h1>
-    <p class="big">Score: <span id="finalScore">0</span></p>
+    <p class="big" id="finalScore">Score: 0</p>
     <div class="stats">
-      <div><b id="statLevel">1</b><span>Level</span></div>
-      <div><b id="statDist">0 m</b><span>Distance</span></div>
-      <div><b id="statCoins">0</b><span>Coins</span></div>
+      <div><b id="statLevel">1</b><span data-i18n="level">Level</span></div>
+      <div><b id="statDist">0 m</b><span data-i18n="distance">Distance</span></div>
+      <div><b id="statCoins">0</b><span data-i18n="coins">Coins</span></div>
     </div>
-    <p>Best: <span id="best">0</span> · Highest level: <span id="bestLevel">1</span></p>
-    <button id="retryBtn">Retry</button>
-    <button id="homeBtn" class="ghost">Home</button>
+    <p id="bestLine"></p>
+    <button id="retryBtn" data-i18n="retry">Retry</button>
+    <button id="homeBtn" class="ghost" data-i18n="home">Home</button>
   </div>
 </div>
 
+<script>
+// ---------- Localisation ----------
+// Picks the first supported language from the device settings (navigator.languages),
+// falls back to English per string, and lets the player override it on the home screen.
+// To add a language: copy the `en` block, translate it, and add its name to NAMES.
+window.I18N = (() => {
+  const NB = ' '; // non-breaking space (French punctuation)
+  const STR = {
+    en: {
+      tagline: "Dodge the barriers. Grab the coins. Don't run out of fuel.",
+      play: 'Play', exit: 'Exit', installApp: 'Install app',
+      installHintIos: 'Play it like an app: tap Share, then “Add to Home Screen”.',
+      thanks: 'Thanks for playing!', closeNow: 'You can close this window now.', backToMenu: 'Back to menu',
+      howToPlay: 'How to play',
+      lead1: 'Tap any lane to jump straight there.', lead2: 'Hold and drag to slide across.',
+      rule1: 'Reach each checkpoint to level up. Every level is longer and faster.',
+      rule2: "Fuel keeps draining. Run out and it's over.",
+      rule3: 'Every 5 coins refills 40% fuel. Chain coins for up to ×5 points.',
+      rule4: "Dodge the barriers. 3 crashes and you're out.",
+      keys: 'Keyboard: ← → or A / D · M to mute', gotIt: 'Got it!',
+      crashed: 'Crashed!', outOfFuel: 'Out of fuel!', score: 'Score: {n}',
+      level: 'Level', distance: 'Distance', coins: 'Coins',
+      bestLine: 'Best: {best} · Highest level: {level}', retry: 'Retry', home: 'Home',
+      lv: 'LV {n}', fuel: 'FUEL', pipsTitle: 'Coins until next fuel top-up',
+      mute: 'Mute sound', unmute: 'Unmute sound', meters: '{n} m', fuelFloat: '+{n}% FUEL',
+      levelBanner: 'LEVEL {n}', levelSub: '+{pts} pts · +{fuel}% fuel · faster!',
+      outBanner: 'OUT OF FUEL', outSub: 'Grab coins to keep your tank topped up',
+      checkpoint: 'CHECKPOINT · LEVEL {n}', homeBest: '🏆 Best {best} · Level {level}',
+      language: 'Language', auto: 'Auto'
+    },
+    es: {
+      tagline: 'Esquiva las barreras. Recoge monedas. No te quedes sin combustible.',
+      play: 'Jugar', exit: 'Salir', installApp: 'Instalar app',
+      installHintIos: 'Juega como una app: toca Compartir y luego «Añadir a pantalla de inicio».',
+      thanks: '¡Gracias por jugar!', closeNow: 'Ya puedes cerrar esta ventana.', backToMenu: 'Volver al menú',
+      howToPlay: 'Cómo jugar',
+      lead1: 'Toca un carril para saltar directo a él.', lead2: 'Mantén y arrastra para deslizarte.',
+      rule1: 'Llega a cada punto de control para subir de nivel. Cada nivel es más largo y más rápido.',
+      rule2: 'El combustible se agota. Si te quedas sin él, se acabó.',
+      rule3: 'Cada 5 monedas recargan un 40 % de combustible. Encadena monedas para multiplicar hasta ×5.',
+      rule4: 'Esquiva las barreras. 3 choques y quedas fuera.',
+      keys: 'Teclado: ← → o A / D · M para silenciar', gotIt: '¡Entendido!',
+      crashed: '¡Choque!', outOfFuel: '¡Sin combustible!', score: 'Puntos: {n}',
+      level: 'Nivel', distance: 'Distancia', coins: 'Monedas',
+      bestLine: 'Récord: {best} · Nivel máximo: {level}', retry: 'Reintentar', home: 'Inicio',
+      lv: 'NV {n}', fuel: 'COMB.', pipsTitle: 'Monedas para la próxima recarga',
+      mute: 'Silenciar', unmute: 'Activar sonido', meters: '{n} m', fuelFloat: '+{n} % COMB.',
+      levelBanner: 'NIVEL {n}', levelSub: '+{pts} pts · +{fuel} % comb. · ¡más rápido!',
+      outBanner: 'SIN COMBUSTIBLE', outSub: 'Recoge monedas para mantener el tanque lleno',
+      checkpoint: 'CONTROL · NIVEL {n}', homeBest: '🏆 Récord {best} · Nivel {level}',
+      language: 'Idioma', auto: 'Automático'
+    },
+    fr: {
+      tagline: `Évite les barrières. Ramasse les pièces. Ne tombe pas en panne d'essence.`,
+      play: 'Jouer', exit: 'Quitter', installApp: `Installer l'app`,
+      installHintIos: `Joue comme avec une app${NB}: touche Partager, puis «${NB}Sur l'écran d'accueil${NB}».`,
+      thanks: `Merci d'avoir joué${NB}!`, closeNow: 'Tu peux fermer cette fenêtre.', backToMenu: 'Retour au menu',
+      howToPlay: 'Comment jouer',
+      lead1: 'Touche une voie pour y aller directement.', lead2: 'Maintiens et glisse pour changer de voie.',
+      rule1: 'Atteins chaque point de contrôle pour monter de niveau. Chaque niveau est plus long et plus rapide.',
+      rule2: `L'essence s'épuise. Panne sèche${NB}= partie terminée.`,
+      rule3: `Toutes les 5 pièces, +40${NB}% d'essence. Enchaîne les pièces pour jusqu'à ×5 points.`,
+      rule4: `Évite les barrières. 3 accidents et c'est fini.`,
+      keys: `Clavier${NB}: ← → ou A / D · M pour couper le son`, gotIt: `C'est parti${NB}!`,
+      crashed: `Accident${NB}!`, outOfFuel: `Panne d'essence${NB}!`, score: `Score${NB}: {n}`,
+      level: 'Niveau', distance: 'Distance', coins: 'Pièces',
+      bestLine: `Record${NB}: {best} · Niveau max${NB}: {level}`, retry: 'Rejouer', home: 'Accueil',
+      lv: 'NIV {n}', fuel: 'ESSENCE', pipsTitle: 'Pièces avant le prochain plein',
+      mute: 'Couper le son', unmute: 'Activer le son', meters: `{n}${NB}m`, fuelFloat: `+{n}${NB}% ESSENCE`,
+      levelBanner: 'NIVEAU {n}', levelSub: `+{pts} pts · +{fuel}${NB}% d'essence · plus vite${NB}!`,
+      outBanner: 'PANNE SÈCHE', outSub: 'Ramasse des pièces pour garder le réservoir plein',
+      checkpoint: 'CONTRÔLE · NIVEAU {n}', homeBest: '🏆 Record {best} · Niveau {level}',
+      language: 'Langue', auto: 'Auto'
+    },
+    de: {
+      tagline: 'Weiche Barrieren aus. Sammle Münzen. Lass den Tank nicht leerlaufen.',
+      play: 'Spielen', exit: 'Beenden', installApp: 'App installieren',
+      installHintIos: 'Als App spielen: Tippe auf Teilen und dann „Zum Home-Bildschirm“.',
+      thanks: 'Danke fürs Spielen!', closeNow: 'Du kannst dieses Fenster jetzt schließen.', backToMenu: 'Zurück zum Menü',
+      howToPlay: 'So wird gespielt',
+      lead1: 'Tippe auf eine Spur, um direkt dorthin zu springen.', lead2: 'Halten und ziehen, um hinüberzugleiten.',
+      rule1: 'Erreiche jeden Checkpoint für das nächste Level. Jedes Level ist länger und schneller.',
+      rule2: 'Der Sprit wird ständig weniger. Ist der Tank leer, ist Schluss.',
+      rule3: 'Alle 5 Münzen gibt es 40 % Sprit. Sammle Münzen am Stück für bis zu ×5 Punkte.',
+      rule4: 'Weiche den Barrieren aus. Nach 3 Unfällen ist Schluss.',
+      keys: 'Tastatur: ← → oder A / D · M für Ton aus', gotIt: 'Verstanden!',
+      crashed: 'Unfall!', outOfFuel: 'Tank leer!', score: 'Punkte: {n}',
+      level: 'Level', distance: 'Strecke', coins: 'Münzen',
+      bestLine: 'Rekord: {best} · Höchstes Level: {level}', retry: 'Nochmal', home: 'Start',
+      lv: 'LV {n}', fuel: 'TANK', pipsTitle: 'Münzen bis zum nächsten Nachtanken',
+      mute: 'Ton aus', unmute: 'Ton an', meters: '{n} m', fuelFloat: '+{n} % TANK',
+      levelBanner: 'LEVEL {n}', levelSub: '+{pts} Pkt. · +{fuel} % Sprit · schneller!',
+      outBanner: 'TANK LEER', outSub: 'Sammle Münzen, damit der Tank voll bleibt',
+      checkpoint: 'CHECKPOINT · LEVEL {n}', homeBest: '🏆 Rekord {best} · Level {level}',
+      language: 'Sprache', auto: 'Automatisch'
+    },
+    pt: {
+      tagline: 'Desvie das barreiras. Pegue as moedas. Não fique sem combustível.',
+      play: 'Jogar', exit: 'Sair', installApp: 'Instalar app',
+      installHintIos: 'Jogue como um app: toque em Compartilhar e depois em “Adicionar à Tela de Início”.',
+      thanks: 'Obrigado por jogar!', closeNow: 'Você já pode fechar esta janela.', backToMenu: 'Voltar ao menu',
+      howToPlay: 'Como jogar',
+      lead1: 'Toque em uma faixa para ir direto para ela.', lead2: 'Segure e arraste para deslizar.',
+      rule1: 'Alcance cada checkpoint para subir de nível. Cada nível é mais longo e mais rápido.',
+      rule2: 'O combustível não para de baixar. Se acabar, fim de jogo.',
+      rule3: 'A cada 5 moedas, +40% de combustível. Pegue moedas em sequência para até ×5 pontos.',
+      rule4: 'Desvie das barreiras. 3 batidas e você está fora.',
+      keys: 'Teclado: ← → ou A / D · M para silenciar', gotIt: 'Entendi!',
+      crashed: 'Bateu!', outOfFuel: 'Sem combustível!', score: 'Pontos: {n}',
+      level: 'Nível', distance: 'Distância', coins: 'Moedas',
+      bestLine: 'Recorde: {best} · Nível máximo: {level}', retry: 'Tentar de novo', home: 'Início',
+      lv: 'NV {n}', fuel: 'COMB.', pipsTitle: 'Moedas até o próximo reabastecimento',
+      mute: 'Silenciar', unmute: 'Ativar som', meters: '{n} m', fuelFloat: '+{n}% COMB.',
+      levelBanner: 'NÍVEL {n}', levelSub: '+{pts} pts · +{fuel}% comb. · mais rápido!',
+      outBanner: 'SEM COMBUSTÍVEL', outSub: 'Pegue moedas para manter o tanque cheio',
+      checkpoint: 'CHECKPOINT · NÍVEL {n}', homeBest: '🏆 Recorde {best} · Nível {level}',
+      language: 'Idioma', auto: 'Automático'
+    },
+    it: {
+      tagline: 'Schiva le barriere. Prendi le monete. Non restare a secco.',
+      play: 'Gioca', exit: 'Esci', installApp: 'Installa app',
+      installHintIos: `Gioca come un'app: tocca Condividi, poi “Aggiungi alla schermata Home”.`,
+      thanks: 'Grazie per aver giocato!', closeNow: 'Ora puoi chiudere questa finestra.', backToMenu: 'Torna al menu',
+      howToPlay: 'Come si gioca',
+      lead1: 'Tocca una corsia per spostarti subito lì.', lead2: 'Tieni premuto e trascina per scivolare.',
+      rule1: 'Raggiungi ogni checkpoint per salire di livello. Ogni livello è più lungo e più veloce.',
+      rule2: 'Il carburante cala di continuo. Se finisce, è game over.',
+      rule3: 'Ogni 5 monete ricarichi il 40% di carburante. Concatena le monete per punti fino a ×5.',
+      rule4: 'Schiva le barriere. 3 incidenti e sei fuori.',
+      keys: `Tastiera: ← → o A / D · M per l'audio`, gotIt: 'Ho capito!',
+      crashed: 'Incidente!', outOfFuel: 'A secco!', score: 'Punti: {n}',
+      level: 'Livello', distance: 'Distanza', coins: 'Monete',
+      bestLine: 'Record: {best} · Livello max: {level}', retry: 'Riprova', home: 'Home',
+      lv: 'LV {n}', fuel: 'BENZINA', pipsTitle: 'Monete al prossimo rifornimento',
+      mute: 'Disattiva audio', unmute: 'Attiva audio', meters: '{n} m', fuelFloat: '+{n}% BENZINA',
+      levelBanner: 'LIVELLO {n}', levelSub: '+{pts} pt · +{fuel}% benzina · più veloce!',
+      outBanner: 'A SECCO', outSub: 'Prendi monete per tenere pieno il serbatoio',
+      checkpoint: 'CHECKPOINT · LIVELLO {n}', homeBest: '🏆 Record {best} · Livello {level}',
+      language: 'Lingua', auto: 'Automatica'
+    },
+    ja: {
+      tagline: 'バリアをよけて、コインを集めて、燃料切れに注意！',
+      play: 'プレイ', exit: '終了', installApp: 'アプリをインストール',
+      installHintIos: 'アプリとして遊ぶには：共有をタップして「ホーム画面に追加」を選択。',
+      thanks: '遊んでくれてありがとう！', closeNow: 'このウィンドウは閉じてかまいません。', backToMenu: 'メニューに戻る',
+      howToPlay: '遊び方',
+      lead1: 'レーンをタップすると、そこへ一瞬で移動。', lead2: '押したままドラッグでスライド。',
+      rule1: 'チェックポイントに着くとレベルアップ。レベルごとに長く、速くなる。',
+      rule2: '燃料はどんどん減る。ゼロになったら終了。',
+      rule3: 'コイン5枚ごとに燃料40%回復。連続で取ると最大×5ポイント。',
+      rule4: 'バリアをよけよう。3回ぶつかるとアウト。',
+      keys: 'キーボード：← → または A / D・M でミュート', gotIt: 'OK！',
+      crashed: 'クラッシュ！', outOfFuel: '燃料切れ！', score: 'スコア：{n}',
+      level: 'レベル', distance: '距離', coins: 'コイン',
+      bestLine: 'ベスト：{best}・最高レベル：{level}', retry: 'リトライ', home: 'ホーム',
+      lv: 'LV {n}', fuel: '燃料', pipsTitle: '次の給油までのコイン',
+      mute: 'ミュート', unmute: 'ミュート解除', meters: '{n} m', fuelFloat: '+{n}% 燃料',
+      levelBanner: 'レベル {n}', levelSub: '+{pts}点・燃料+{fuel}%・スピードアップ！',
+      outBanner: '燃料切れ', outSub: 'コインを集めて燃料を補給しよう',
+      checkpoint: 'チェックポイント・レベル {n}', homeBest: '🏆 ベスト {best}・レベル {level}',
+      language: '言語', auto: '自動'
+    },
+    zh: {
+      tagline: '躲开路障，收集金币，别让油耗光！',
+      play: '开始', exit: '退出', installApp: '安装应用',
+      installHintIos: '像应用一样玩：点按“分享”，然后选择“添加到主屏幕”。',
+      thanks: '感谢游玩！', closeNow: '现在可以关闭此窗口了。', backToMenu: '返回菜单',
+      howToPlay: '玩法',
+      lead1: '点按任意车道，直接跳过去。', lead2: '按住拖动，滑动换道。',
+      rule1: '到达检查点即可升级。每一关都更长、更快。',
+      rule2: '燃油会不断消耗，耗尽即游戏结束。',
+      rule3: '每收集 5 枚金币补充 40% 燃油。连续收集最多 ×5 分。',
+      rule4: '躲开路障。撞 3 次就出局。',
+      keys: '键盘：← → 或 A / D · M 静音', gotIt: '知道了！',
+      crashed: '撞车了！', outOfFuel: '没油了！', score: '得分：{n}',
+      level: '关卡', distance: '距离', coins: '金币',
+      bestLine: '最高分：{best} · 最高关卡：{level}', retry: '重试', home: '主页',
+      lv: '第{n}关', fuel: '燃油', pipsTitle: '距离下次加油还需的金币',
+      mute: '静音', unmute: '取消静音', meters: '{n} 米', fuelFloat: '+{n}% 燃油',
+      levelBanner: '第 {n} 关', levelSub: '+{pts} 分 · 燃油 +{fuel}% · 加速！',
+      outBanner: '燃油耗尽', outSub: '收集金币，保持油箱充足',
+      checkpoint: '检查点 · 第 {n} 关', homeBest: '🏆 最高分 {best} · 第 {level} 关',
+      language: '语言', auto: '自动'
+    },
+    ko: {
+      tagline: '바리케이드를 피하고, 코인을 모으고, 연료가 바닥나지 않게!',
+      play: '플레이', exit: '종료', installApp: '앱 설치',
+      installHintIos: '앱처럼 즐기기: 공유를 탭한 뒤 ‘홈 화면에 추가’를 선택하세요.',
+      thanks: '플레이해 주셔서 감사합니다!', closeNow: '이제 이 창을 닫아도 됩니다.', backToMenu: '메뉴로 돌아가기',
+      howToPlay: '게임 방법',
+      lead1: '차선을 탭하면 바로 그 차선으로 이동해요.', lead2: '누른 채로 드래그하면 미끄러지듯 이동해요.',
+      rule1: '체크포인트에 도착하면 레벨 업! 레벨마다 더 길고 빨라져요.',
+      rule2: '연료는 계속 줄어요. 다 떨어지면 게임 오버.',
+      rule3: '코인 5개마다 연료 40% 충전. 연속으로 모으면 최대 ×5 점수.',
+      rule4: '바리케이드를 피하세요. 3번 부딪히면 끝.',
+      keys: '키보드: ← → 또는 A / D · M 음소거', gotIt: '알겠어요!',
+      crashed: '충돌!', outOfFuel: '연료 고갈!', score: '점수: {n}',
+      level: '레벨', distance: '거리', coins: '코인',
+      bestLine: '최고 점수: {best} · 최고 레벨: {level}', retry: '다시 하기', home: '홈',
+      lv: 'LV {n}', fuel: '연료', pipsTitle: '다음 충전까지 필요한 코인',
+      mute: '음소거', unmute: '음소거 해제', meters: '{n} m', fuelFloat: '+{n}% 연료',
+      levelBanner: '레벨 {n}', levelSub: '+{pts}점 · 연료 +{fuel}% · 더 빠르게!',
+      outBanner: '연료 고갈', outSub: '코인을 모아 연료를 채우세요',
+      checkpoint: '체크포인트 · 레벨 {n}', homeBest: '🏆 최고 {best} · 레벨 {level}',
+      language: '언어', auto: '자동'
+    },
+    hi: {
+      tagline: 'बैरियर से बचो, सिक्के उठाओ, ईंधन ख़त्म मत होने दो!',
+      play: 'खेलें', exit: 'बाहर निकलें', installApp: 'ऐप इंस्टॉल करें',
+      installHintIos: 'ऐप की तरह खेलें: शेयर पर टैप करें, फिर “होम स्क्रीन पर जोड़ें” चुनें।',
+      thanks: 'खेलने के लिए धन्यवाद!', closeNow: 'अब आप यह विंडो बंद कर सकते हैं।', backToMenu: 'मेन्यू पर वापस',
+      howToPlay: 'कैसे खेलें',
+      lead1: 'किसी भी लेन पर टैप करें और सीधे वहाँ पहुँचें।', lead2: 'दबाकर खींचें और लेन बदलें।',
+      rule1: 'हर चेकपॉइंट पर पहुँचकर लेवल बढ़ाएँ। हर लेवल लंबा और तेज़ होता है।',
+      rule2: 'ईंधन लगातार घटता है। ख़त्म हुआ तो खेल ख़त्म।',
+      rule3: 'हर 5 सिक्कों पर 40% ईंधन मिलता है। लगातार सिक्के उठाकर ×5 तक अंक पाएँ।',
+      rule4: 'बैरियर से बचें। 3 टक्कर और आप बाहर।',
+      keys: 'कीबोर्ड: ← → या A / D · M से म्यूट', gotIt: 'समझ गया!',
+      crashed: 'टक्कर!', outOfFuel: 'ईंधन ख़त्म!', score: 'स्कोर: {n}',
+      level: 'लेवल', distance: 'दूरी', coins: 'सिक्के',
+      bestLine: 'सर्वश्रेष्ठ: {best} · सबसे ऊँचा लेवल: {level}', retry: 'फिर से खेलें', home: 'होम',
+      lv: 'LV {n}', fuel: 'ईंधन', pipsTitle: 'अगली ईंधन भराई तक सिक्के',
+      mute: 'आवाज़ बंद करें', unmute: 'आवाज़ चालू करें', meters: '{n} मी', fuelFloat: '+{n}% ईंधन',
+      levelBanner: 'लेवल {n}', levelSub: '+{pts} अंक · +{fuel}% ईंधन · और तेज़!',
+      outBanner: 'ईंधन ख़त्म', outSub: 'टंकी भरी रखने के लिए सिक्के उठाएँ',
+      checkpoint: 'चेकपॉइंट · लेवल {n}', homeBest: '🏆 सर्वश्रेष्ठ {best} · लेवल {level}',
+      language: 'भाषा', auto: 'स्वचालित'
+    }
+  };
+  const NAMES = {
+    en: 'English', es: 'Español', fr: 'Français', de: 'Deutsch', pt: 'Português',
+    it: 'Italiano', ja: '日本語', zh: '中文（简体）', ko: '한국어', hi: 'हिन्दी'
+  };
+  const KEY = 'laneDodgerLang';
+
+  function detect() {
+    const prefs = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || 'en'];
+    for (const l of prefs) {
+      const base = String(l).toLowerCase().split('-')[0];
+      if (STR[base]) return base;
+    }
+    return 'en';
+  }
+
+  let pref = 'auto';
+  try { pref = localStorage.getItem(KEY) || 'auto'; } catch (e) {}
+  if (pref !== 'auto' && !STR[pref]) pref = 'auto';
+  let lang = pref === 'auto' ? detect() : pref;
+  let nf = new Intl.NumberFormat(lang);
+  const subs = [];
+
+  // t('score', {n: 1840}) → "Score: 1,840" (numbers are formatted for the language).
+  function t(key, vars) {
+    let s = (STR[lang] && STR[lang][key]) || STR.en[key] || key;
+    if (vars) s = s.replace(/\{(\w+)\}/g, (m, k) => k in vars ? (typeof vars[k] === 'number' ? nf.format(vars[k]) : vars[k]) : m);
+    return s;
+  }
+  function apply() {
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(e => { e.textContent = t(e.dataset.i18n); });
+    document.querySelectorAll('[data-i18n-title]').forEach(e => { e.title = t(e.dataset.i18nTitle); });
+    subs.forEach(f => f());
+  }
+  function set(p) {
+    pref = STR[p] ? p : 'auto';
+    try { localStorage.setItem(KEY, pref); } catch (e) {}
+    lang = pref === 'auto' ? detect() : pref;
+    nf = new Intl.NumberFormat(lang);
+    apply();
+  }
+
+  // Language picker on the home screen.
+  const sel = document.getElementById('langSel');
+  function fillPicker() {
+    sel.innerHTML = '';
+    const auto = new Option(t('auto') + ' (' + NAMES[detect()] + ')', 'auto');
+    sel.add(auto);
+    for (const code of Object.keys(STR)) sel.add(new Option(NAMES[code], code));
+    sel.value = pref;
+    sel.setAttribute('aria-label', t('language'));
+  }
+  subs.push(fillPicker);
+  sel.addEventListener('change', () => { set(sel.value); sel.blur(); });
+
+  return { t, num: n => nf.format(n), apply, set, onChange: f => subs.push(f), get lang() { return lang; } };
+})();
+</script>
 <script>
 (() => {
   // ---------- Tuning ----------
   const LANES = 3;
   const MAX_LIVES = 3;
+  const t = I18N.t, num = I18N.num;
   const FLASH_TIME = 0.5;   // car blinks after a hit (visual only – every hit counts)
   const MIN_GAP = 340;      // min px between obstacle rows
   const BARRIER_H = 38;
@@ -505,14 +804,14 @@
   }
 
   function updateHud() {
-    el.score.textContent = score();
+    el.score.textContent = num(score());
     el.streak.textContent = '×' + streak;
     el.streak.classList.toggle('on', streak > 1);
     el.lives.textContent = '♥'.repeat(lives) + '♡'.repeat(MAX_LIVES - lives);
-    el.level.textContent = 'LV ' + level;
+    el.level.textContent = t('lv', { n: level });
     const lenPx = levelLength(level) * PX_PER_M;
     el.prog.style.width = Math.min(100, levelDist / lenPx * 100) + '%';
-    el.togo.textContent = Math.max(0, Math.ceil((lenPx - levelDist) / PX_PER_M)) + ' m';
+    el.togo.textContent = t('meters', { n: Math.max(0, Math.ceil((lenPx - levelDist) / PX_PER_M)) });
     el.fuel.style.width = fuel + '%';
     el.fuel.style.backgroundColor = fuel > 50 ? '' : fuel > 25 ? getVar('--fuel-mid') : '';
     el.fuelRow.classList.toggle('low', fuel <= 25);
@@ -578,14 +877,14 @@
       const pts = coinValue(level, streak);
       bonus += pts;
       burst(cx, o.y + o.h / 2, getVar('--coin'), 12);
-      floatText(cx, o.y, '+' + pts + (streak > 1 ? '  ×' + streak : ''), getVar('--coin'));
+      floatText(cx, o.y, '+' + num(pts) + (streak > 1 ? '  ×' + streak : ''), getVar('--coin'));
       coinMeter++;
       sfx.coin(streak);
       if (coinMeter >= COINS_PER_REFUEL) {
         coinMeter = 0;
         sfx.refuel();
         fuel = Math.min(100, fuel + REFUEL);
-        floatText(player.x, player.y - 30, '+' + REFUEL + '% FUEL', getVar('--fuel'));
+        floatText(player.x, player.y - 30, t('fuelFloat', { n: REFUEL }), getVar('--fuel'));
         burst(player.x, player.y, getVar('--fuel'), 20);
         el.pips.classList.remove('full'); void el.pips.offsetWidth; el.pips.classList.add('full');
       }
@@ -608,7 +907,7 @@
     bonus += pts;
     spawnDist = Math.max(spawnDist, 260); // short breather after the line
     sfx.levelUp();
-    showBanner('LEVEL ' + level, '+' + pts + ' pts · +' + CHECKPOINT_FUEL + '% fuel · faster!');
+    showBanner(t('levelBanner', { n: level }), t('levelSub', { pts, fuel: CHECKPOINT_FUEL }));
     for (let i = 0; i < LANES; i++) burst(laneX(i), player.y - 30, [getVar('--accent'), getVar('--coin'), '#f4f4f8'][i], 14);
   }
 
@@ -620,13 +919,12 @@
     const bestLevel = Math.max(readNum('laneDodgerBestLevel'), level);
     writeNum('laneDodgerBest', best);
     writeNum('laneDodgerBestLevel', bestLevel);
-    $('overTitle').textContent = reason === 'fuel' ? 'Out of fuel!' : 'Crashed!';
-    $('finalScore').textContent = s;
-    $('statLevel').textContent = level;
-    $('statDist').textContent = Math.floor(distance / PX_PER_M) + ' m';
-    $('statCoins').textContent = coins;
-    $('best').textContent = best;
-    $('bestLevel').textContent = bestLevel;
+    $('overTitle').textContent = t(reason === 'fuel' ? 'outOfFuel' : 'crashed');
+    $('finalScore').textContent = t('score', { n: s });
+    $('statLevel').textContent = num(level);
+    $('statDist').textContent = t('meters', { n: Math.floor(distance / PX_PER_M) });
+    $('statCoins').textContent = num(coins);
+    $('bestLine').textContent = t('bestLine', { best, level: bestLevel });
     el.over.classList.remove('hidden');
   }
 
@@ -660,11 +958,14 @@
     reset();
     state = 'home';
     el.count.innerHTML = '';
+    paintHomeBest();
+    show('home');
+  }
+  function paintHomeBest() {
     const best = readNum('laneDodgerBest');
     const hb = $('homeBest');
     hb.hidden = !best;
-    hb.textContent = '🏆 Best ' + best + ' · Level ' + Math.max(1, readNum('laneDodgerBestLevel'));
-    show('home');
+    hb.textContent = t('homeBest', { best, level: Math.max(1, readNum('laneDodgerBestLevel')) });
   }
   // Play → how-to-play popup → 3-2-1-GO.
   function openHelp() {
@@ -753,7 +1054,7 @@
     if (fuel <= 0) {
       state = 'stall'; stallT = 1.4; streak = 0;
       sfx.outOfFuel();
-      showBanner('OUT OF FUEL', 'Grab coins to keep your tank topped up', true);
+      showBanner(t('outBanner'), t('outSub'), true);
       updateHud();
       return;
     }
@@ -873,7 +1174,7 @@
     ctx.fillStyle = getVar('--text');
     ctx.font = '800 13px system-ui, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('CHECKPOINT · LEVEL ' + (level + 1), W / 2, y - 8);
+    ctx.fillText(t('checkpoint', { n: level + 1 }), W / 2, y - 8, W - 16);
   }
 
   function drawCoin(cx, cy, r) {
@@ -974,7 +1275,7 @@
   const muteBtn = $('mute');
   function paintMute() {
     muteBtn.textContent = sfx.muted ? '🔇' : '🔊';
-    muteBtn.setAttribute('aria-label', sfx.muted ? 'Unmute sound' : 'Mute sound');
+    muteBtn.setAttribute('aria-label', t(sfx.muted ? 'unmute' : 'mute'));
   }
   function toggleMute() { sfx.ensure(); sfx.toggle(); paintMute(); muteBtn.blur(); }
   muteBtn.addEventListener('click', toggleMute);
@@ -987,6 +1288,10 @@
   $('exitBtn').addEventListener('click', exitGame);
   $('homeBtn').addEventListener('click', goHome);
   $('byeBack').addEventListener('click', () => { sfx.ensure(); goHome(); });
+
+  // Re-render dynamic text when the language changes (picker on the home screen).
+  I18N.onChange(() => { paintMute(); updateHud(); paintHomeBest(); });
+  I18N.apply();
 
   goHome();
   requestAnimationFrame(loop);
@@ -1029,7 +1334,9 @@
   const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
               (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   if (ios) {
-    hint.textContent = 'Play it like an app: tap Share, then “Add to Home Screen”.';
+    const paintHint = () => { hint.textContent = I18N.t('installHintIos'); };
+    paintHint();
+    I18N.onChange(paintHint);
     hint.hidden = false;
   }
 })();
