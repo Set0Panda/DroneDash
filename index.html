@@ -1385,6 +1385,7 @@ window.LD_RULES = (() => {
   let autoFire = (() => { try { const v = localStorage.getItem('laneDodgerAutoFire'); if (v === '1' || v === '0') return v === '1'; } catch {}
     return !!(window.matchMedia && matchMedia('(pointer: coarse)').matches); })();
   let autoFireCool = 0;
+  const AUTO_RELOAD = 1.2;  // seconds between automatic shots
   let carNo = 7;          // racing number on the bonnet, picked at random for each run   // roof launcher recoil after firing, eases back to 0
   let runTime = 0;        // seconds of actual driving this run (not paused, not counting down)   // the 3-2-1 after Resume: road held still until GO, like everything else
   // Shahed drones dive at your lane; spend coins on rockets to shoot them down.
@@ -1715,13 +1716,14 @@ window.LD_RULES = (() => {
   }
   // Where a rocket should aim: a drone's position, or the middle of a barrier.
   const aimAt = tg => tg.type === 'enemy' ? { x: laneX(tg.lane), y: tg.y + tg.h / 2 } : { x: tg.x, y: tg.y };
-  function fire() {
+  // fire(): FIRE button / Space / tapping a drone. fire(drone, true): auto-fire at that drone.
+  function fire(at, auto = false) {
     if (state !== 'play' || !DRONES() || wallet < ROCKET_COST) return false;
-    const tg = target() || barrierAhead();      // drones first, then a barrier blocking your lane
+    const tg = at || target() || barrierAhead();  // drones first, then a barrier blocking your lane
     if (!tg) return false;
     wallet -= ROCKET_COST;
     const my = player.y + player.h * 0.41 - 6;              // the launcher's muzzle on the roof
-    rockets.push({ x: player.x, y: my, vx: 0, vy: -ROCKET_V, target: tg });
+    rockets.push({ x: player.x, y: my, vx: 0, vy: -ROCKET_V, target: tg, auto });
     launcherKick = 1;
     burst(player.x, my, '#fefcbf', 8); burst(player.x, my, '#f6ad55', 6);
     sfx.launch();
@@ -1755,9 +1757,14 @@ window.LD_RULES = (() => {
     }
     for (const q of droneQueue) if ((q.at -= dt) <= 0) launchDrone(q.lane, q.path, q.hunter);
     autoFireCool = Math.max(0, autoFireCool - dt);
+    // Auto-fire is a safety net, not a free kill: it only shoots a Shahed that is coming down your
+    // lane, only once it has locked on (red strip solid), and needs AUTO_RELOAD s between shots,
+    // so drones aimed at other lanes and fast salvos are still yours to handle.
     if (autoFire && autoFireCool === 0 && wallet >= ROCKET_COST) {
-      const d = target();
-      if (d && d.y > 20 && fire()) autoFireCool = 0.35;       // once it's on screen; one rocket per drone
+      const iy = player.y + player.h / 2, lockP = DRONE.lock(level);
+      const d = drones.find(q => !q.dead && q.lane === player.lane && !rockets.some(r => r.target === q) &&
+                                 (q.y - q.y0) / (iy - q.y0) >= lockP);
+      if (d && fire(d, true)) autoFireCool = AUTO_RELOAD;
     }
     droneQueue = droneQueue.filter(q => q.at > 0);
     // Faster than the road, so against the ground it really flies nose-first towards you
@@ -1838,8 +1845,10 @@ window.LD_RULES = (() => {
         if (dist < 24) {
           tg.dead = r.dead = true;
           explode(tg.x, tg.y);
-          kills++; killCombo++;
-          const mult = Math.min(killCombo, MAX_COMBO), pts = KILL_PTS * level * mult;
+          kills++;
+          if (!r.auto) killCombo++;                         // automatic kills don't build the combo...
+          const mult = r.auto ? 1 : Math.min(killCombo, MAX_COMBO);
+          const pts = Math.round(KILL_PTS * level * mult * (r.auto ? 0.5 : 1));   // ...and score half
           bonus += pts;
           floatText(tg.x, tg.y - 10, t('shotDown') + (mult > 1 ? ' ×' + mult : '') + ' +' + num(pts), '#FFD700');
           el.eggKills.classList.remove('bump'); void el.eggKills.offsetWidth; el.eggKills.classList.add('bump');
