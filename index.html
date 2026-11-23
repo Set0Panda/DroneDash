@@ -231,6 +231,10 @@
     background: repeating-linear-gradient(-45deg, var(--enemy) 0 5px, #f4f4f8 5px 10px);
   }
   .ico.coin { background: var(--coin); border-radius: 50%; width: 20px; height: 20px; }
+  .ico.hole {
+    width: 24px; height: 13px; border-radius: 50% 45% 55% 50%; background: #05060c;
+    box-shadow: 0 0 0 3px #4a5072, inset 0 -4px 0 rgba(139,147,181,.18);
+  }
   .ico.fuel {
     width: 26px; height: 10px; border-radius: 5px; background: rgba(255,255,255,.15);
     box-shadow: inset 17px 0 0 var(--fuel);
@@ -326,6 +330,7 @@
         <li><span class="ico"><span class="ico fuel"></span></span><span data-i18n="rule2">Fuel keeps draining. Run out and it's over.</span></li>
         <li><span class="ico"><span class="ico coin"></span></span><span data-i18n="rule3">Every 5 coins refills 40% fuel. Chain coins for up to ×5 points.</span></li>
         <li><span class="ico"><span class="ico block"></span></span><span data-i18n="rule4">Dodge the barriers. 3 crashes and you're out.</span></li>
+        <li><span class="ico"><span class="ico hole"></span></span><span data-i18n="rule5">Potholes won't crash you, but they cost 8% fuel and slow you down.</span></li>
       </ul>
       <p class="keys" data-i18n="keys">Keyboard: ← → or A / D · M to mute</p>
       <button id="startBtn" data-i18n="gotIt">Got it!</button>
@@ -365,12 +370,13 @@ window.I18N = (() => {
       rule2: "Fuel keeps draining. Run out and it's over.",
       rule3: 'Every 5 coins refills 40% fuel. Chain coins for up to ×5 points.',
       rule4: "Dodge the barriers. 3 crashes and you're out.",
+      rule5: "Potholes won't crash you, but they cost 8% fuel and slow you down.",
       keys: 'Keyboard: ← → or A / D · M to mute', gotIt: 'Got it!',
       crashed: 'Crashed!', outOfFuel: 'Out of fuel!', score: 'Score: {n}',
       level: 'Level', distance: 'Distance', coins: 'Coins',
       bestLine: 'Best: {best} · Highest level: {level}', retry: 'Retry', home: 'Home',
       lv: 'LV {n}', fuel: 'FUEL', pipsTitle: 'Coins until next fuel top-up',
-      mute: 'Mute sound', unmute: 'Unmute sound', meters: '{n} m', fuelFloat: '+{n}% FUEL',
+      mute: 'Mute sound', unmute: 'Unmute sound', meters: '{n} m', fuelFloat: '{n}% FUEL',
       levelBanner: 'LEVEL {n}', levelSub: '+{pts} pts · +{fuel}% fuel · faster!',
       outBanner: 'OUT OF FUEL', outSub: 'Grab coins to keep your tank topped up',
       checkpoint: 'CHECKPOINT · LEVEL {n}', homeBest: '🏆 Best {best} · Level {level}',
@@ -387,12 +393,13 @@ window.I18N = (() => {
       rule2: 'El combustible se agota. Si te quedas sin él, se acabó.',
       rule3: 'Cada 5 monedas recargan un 40 % de combustible. Encadena monedas para multiplicar hasta ×5.',
       rule4: 'Esquiva las barreras. 3 choques y quedas fuera.',
+      rule5: 'Los baches no te hacen chocar, pero cuestan un 8 % de combustible y te frenan.',
       keys: 'Teclado: ← → o A / D · M para silenciar', gotIt: '¡Entendido!',
       crashed: '¡Choque!', outOfFuel: '¡Sin combustible!', score: 'Puntos: {n}',
       level: 'Nivel', distance: 'Distancia', coins: 'Monedas',
       bestLine: 'Récord: {best} · Nivel máximo: {level}', retry: 'Reintentar', home: 'Inicio',
       lv: 'NV {n}', fuel: 'COMB.', pipsTitle: 'Monedas para la próxima recarga',
-      mute: 'Silenciar', unmute: 'Activar sonido', meters: '{n} m', fuelFloat: '+{n} % COMB.',
+      mute: 'Silenciar', unmute: 'Activar sonido', meters: '{n} m', fuelFloat: '{n} % COMB.',
       levelBanner: 'NIVEL {n}', levelSub: '+{pts} pts · +{fuel} % comb. · ¡más rápido!',
       outBanner: 'SIN COMBUSTIBLE', outSub: 'Recoge monedas para mantener el tanque lleno',
       checkpoint: 'CONTROL · NIVEL {n}', homeBest: '🏆 Récord {best} · Nivel {level}',
@@ -409,12 +416,13 @@ window.I18N = (() => {
       rule2: `L'essence s'épuise. Panne sèche${NB}= partie terminée.`,
       rule3: `Toutes les 5 pièces, +40${NB}% d'essence. Enchaîne les pièces pour jusqu'à ×5 points.`,
       rule4: `Évite les barrières. 3 accidents et c'est fini.`,
+      rule5: `Les nids-de-poule ne t'éliminent pas, mais coûtent 8${NB}% d'essence et te ralentissent.`,
       keys: `Clavier${NB}: ← → ou A / D · M pour couper le son`, gotIt: `C'est parti${NB}!`,
       crashed: `Accident${NB}!`, outOfFuel: `Panne d'essence${NB}!`, score: `Score${NB}: {n}`,
       level: 'Niveau', distance: 'Distance', coins: 'Pièces',
       bestLine: `Record${NB}: {best} · Niveau max${NB}: {level}`, retry: 'Rejouer', home: 'Accueil',
       lv: 'NIV {n}', fuel: 'ESSENCE', pipsTitle: 'Pièces avant le prochain plein',
-      mute: 'Couper le son', unmute: 'Activer le son', meters: `{n}${NB}m`, fuelFloat: `+{n}${NB}% ESSENCE`,
+      mute: 'Couper le son', unmute: 'Activer le son', meters: `{n}${NB}m`, fuelFloat: `{n}${NB}% ESSENCE`,
       levelBanner: 'NIVEAU {n}', levelSub: `+{pts} pts · +{fuel}${NB}% d'essence · plus vite${NB}!`,
       outBanner: 'PANNE SÈCHE', outSub: 'Ramasse des pièces pour garder le réservoir plein',
       checkpoint: 'CONTRÔLE · NIVEAU {n}', homeBest: '🏆 Record {best} · Niveau {level}',
@@ -431,12 +439,13 @@ window.I18N = (() => {
       rule2: 'Der Sprit wird ständig weniger. Ist der Tank leer, ist Schluss.',
       rule3: 'Alle 5 Münzen gibt es 40 % Sprit. Sammle Münzen am Stück für bis zu ×5 Punkte.',
       rule4: 'Weiche den Barrieren aus. Nach 3 Unfällen ist Schluss.',
+      rule5: 'Schlaglöcher kosten kein Leben, aber 8 % Sprit und bremsen dich aus.',
       keys: 'Tastatur: ← → oder A / D · M für Ton aus', gotIt: 'Verstanden!',
       crashed: 'Unfall!', outOfFuel: 'Tank leer!', score: 'Punkte: {n}',
       level: 'Level', distance: 'Strecke', coins: 'Münzen',
       bestLine: 'Rekord: {best} · Höchstes Level: {level}', retry: 'Nochmal', home: 'Start',
       lv: 'LV {n}', fuel: 'TANK', pipsTitle: 'Münzen bis zum nächsten Nachtanken',
-      mute: 'Ton aus', unmute: 'Ton an', meters: '{n} m', fuelFloat: '+{n} % TANK',
+      mute: 'Ton aus', unmute: 'Ton an', meters: '{n} m', fuelFloat: '{n} % TANK',
       levelBanner: 'LEVEL {n}', levelSub: '+{pts} Pkt. · +{fuel} % Sprit · schneller!',
       outBanner: 'TANK LEER', outSub: 'Sammle Münzen, damit der Tank voll bleibt',
       checkpoint: 'CHECKPOINT · LEVEL {n}', homeBest: '🏆 Rekord {best} · Level {level}',
@@ -453,12 +462,13 @@ window.I18N = (() => {
       rule2: 'O combustível não para de baixar. Se acabar, fim de jogo.',
       rule3: 'A cada 5 moedas, +40% de combustível. Pegue moedas em sequência para até ×5 pontos.',
       rule4: 'Desvie das barreiras. 3 batidas e você está fora.',
+      rule5: 'Buracos não tiram vida, mas custam 8% de combustível e deixam você mais lento.',
       keys: 'Teclado: ← → ou A / D · M para silenciar', gotIt: 'Entendi!',
       crashed: 'Bateu!', outOfFuel: 'Sem combustível!', score: 'Pontos: {n}',
       level: 'Nível', distance: 'Distância', coins: 'Moedas',
       bestLine: 'Recorde: {best} · Nível máximo: {level}', retry: 'Tentar de novo', home: 'Início',
       lv: 'NV {n}', fuel: 'COMB.', pipsTitle: 'Moedas até o próximo reabastecimento',
-      mute: 'Silenciar', unmute: 'Ativar som', meters: '{n} m', fuelFloat: '+{n}% COMB.',
+      mute: 'Silenciar', unmute: 'Ativar som', meters: '{n} m', fuelFloat: '{n}% COMB.',
       levelBanner: 'NÍVEL {n}', levelSub: '+{pts} pts · +{fuel}% comb. · mais rápido!',
       outBanner: 'SEM COMBUSTÍVEL', outSub: 'Pegue moedas para manter o tanque cheio',
       checkpoint: 'CHECKPOINT · NÍVEL {n}', homeBest: '🏆 Recorde {best} · Nível {level}',
@@ -475,12 +485,13 @@ window.I18N = (() => {
       rule2: 'Il carburante cala di continuo. Se finisce, è game over.',
       rule3: 'Ogni 5 monete ricarichi il 40% di carburante. Concatena le monete per punti fino a ×5.',
       rule4: 'Schiva le barriere. 3 incidenti e sei fuori.',
+      rule5: "Le buche non ti fanno schiantare, ma costano l'8% di carburante e ti rallentano.",
       keys: `Tastiera: ← → o A / D · M per l'audio`, gotIt: 'Ho capito!',
       crashed: 'Incidente!', outOfFuel: 'A secco!', score: 'Punti: {n}',
       level: 'Livello', distance: 'Distanza', coins: 'Monete',
       bestLine: 'Record: {best} · Livello max: {level}', retry: 'Riprova', home: 'Home',
       lv: 'LV {n}', fuel: 'BENZINA', pipsTitle: 'Monete al prossimo rifornimento',
-      mute: 'Disattiva audio', unmute: 'Attiva audio', meters: '{n} m', fuelFloat: '+{n}% BENZINA',
+      mute: 'Disattiva audio', unmute: 'Attiva audio', meters: '{n} m', fuelFloat: '{n}% BENZINA',
       levelBanner: 'LIVELLO {n}', levelSub: '+{pts} pt · +{fuel}% benzina · più veloce!',
       outBanner: 'A SECCO', outSub: 'Prendi monete per tenere pieno il serbatoio',
       checkpoint: 'CHECKPOINT · LIVELLO {n}', homeBest: '🏆 Record {best} · Livello {level}',
@@ -497,12 +508,13 @@ window.I18N = (() => {
       rule2: '燃料はどんどん減る。ゼロになったら終了。',
       rule3: 'コイン5枚ごとに燃料40%回復。連続で取ると最大×5ポイント。',
       rule4: 'バリアをよけよう。3回ぶつかるとアウト。',
+      rule5: '穴ぼこはクラッシュにはならないけど、燃料が8%減ってスピードも落ちる。',
       keys: 'キーボード：← → または A / D・M でミュート', gotIt: 'OK！',
       crashed: 'クラッシュ！', outOfFuel: '燃料切れ！', score: 'スコア：{n}',
       level: 'レベル', distance: '距離', coins: 'コイン',
       bestLine: 'ベスト：{best}・最高レベル：{level}', retry: 'リトライ', home: 'ホーム',
       lv: 'LV {n}', fuel: '燃料', pipsTitle: '次の給油までのコイン',
-      mute: 'ミュート', unmute: 'ミュート解除', meters: '{n} m', fuelFloat: '+{n}% 燃料',
+      mute: 'ミュート', unmute: 'ミュート解除', meters: '{n} m', fuelFloat: '{n}% 燃料',
       levelBanner: 'レベル {n}', levelSub: '+{pts}点・燃料+{fuel}%・スピードアップ！',
       outBanner: '燃料切れ', outSub: 'コインを集めて燃料を補給しよう',
       checkpoint: 'チェックポイント・レベル {n}', homeBest: '🏆 ベスト {best}・レベル {level}',
@@ -519,12 +531,13 @@ window.I18N = (() => {
       rule2: '燃油会不断消耗，耗尽即游戏结束。',
       rule3: '每收集 5 枚金币补充 40% 燃油。连续收集最多 ×5 分。',
       rule4: '躲开路障。撞 3 次就出局。',
+      rule5: '坑洞不会让你撞车，但会扣 8% 燃油并让你减速。',
       keys: '键盘：← → 或 A / D · M 静音', gotIt: '知道了！',
       crashed: '撞车了！', outOfFuel: '没油了！', score: '得分：{n}',
       level: '关卡', distance: '距离', coins: '金币',
       bestLine: '最高分：{best} · 最高关卡：{level}', retry: '重试', home: '主页',
       lv: '第{n}关', fuel: '燃油', pipsTitle: '距离下次加油还需的金币',
-      mute: '静音', unmute: '取消静音', meters: '{n} 米', fuelFloat: '+{n}% 燃油',
+      mute: '静音', unmute: '取消静音', meters: '{n} 米', fuelFloat: '{n}% 燃油',
       levelBanner: '第 {n} 关', levelSub: '+{pts} 分 · 燃油 +{fuel}% · 加速！',
       outBanner: '燃油耗尽', outSub: '收集金币，保持油箱充足',
       checkpoint: '检查点 · 第 {n} 关', homeBest: '🏆 最高分 {best} · 第 {level} 关',
@@ -541,12 +554,13 @@ window.I18N = (() => {
       rule2: '연료는 계속 줄어요. 다 떨어지면 게임 오버.',
       rule3: '코인 5개마다 연료 40% 충전. 연속으로 모으면 최대 ×5 점수.',
       rule4: '바리케이드를 피하세요. 3번 부딪히면 끝.',
+      rule5: '포트홀은 충돌로 치지 않지만, 연료가 8% 줄고 속도가 느려져요.',
       keys: '키보드: ← → 또는 A / D · M 음소거', gotIt: '알겠어요!',
       crashed: '충돌!', outOfFuel: '연료 고갈!', score: '점수: {n}',
       level: '레벨', distance: '거리', coins: '코인',
       bestLine: '최고 점수: {best} · 최고 레벨: {level}', retry: '다시 하기', home: '홈',
       lv: 'LV {n}', fuel: '연료', pipsTitle: '다음 충전까지 필요한 코인',
-      mute: '음소거', unmute: '음소거 해제', meters: '{n} m', fuelFloat: '+{n}% 연료',
+      mute: '음소거', unmute: '음소거 해제', meters: '{n} m', fuelFloat: '{n}% 연료',
       levelBanner: '레벨 {n}', levelSub: '+{pts}점 · 연료 +{fuel}% · 더 빠르게!',
       outBanner: '연료 고갈', outSub: '코인을 모아 연료를 채우세요',
       checkpoint: '체크포인트 · 레벨 {n}', homeBest: '🏆 최고 {best} · 레벨 {level}',
@@ -563,12 +577,13 @@ window.I18N = (() => {
       rule2: 'ईंधन लगातार घटता है। ख़त्म हुआ तो खेल ख़त्म।',
       rule3: 'हर 5 सिक्कों पर 40% ईंधन मिलता है। लगातार सिक्के उठाकर ×5 तक अंक पाएँ।',
       rule4: 'बैरियर से बचें। 3 टक्कर और आप बाहर।',
+      rule5: 'गड्ढों से टक्कर नहीं होती, पर 8% ईंधन घटता है और रफ़्तार धीमी हो जाती है।',
       keys: 'कीबोर्ड: ← → या A / D · M से म्यूट', gotIt: 'समझ गया!',
       crashed: 'टक्कर!', outOfFuel: 'ईंधन ख़त्म!', score: 'स्कोर: {n}',
       level: 'लेवल', distance: 'दूरी', coins: 'सिक्के',
       bestLine: 'सर्वश्रेष्ठ: {best} · सबसे ऊँचा लेवल: {level}', retry: 'फिर से खेलें', home: 'होम',
       lv: 'LV {n}', fuel: 'ईंधन', pipsTitle: 'अगली ईंधन भराई तक सिक्के',
-      mute: 'आवाज़ बंद करें', unmute: 'आवाज़ चालू करें', meters: '{n} मी', fuelFloat: '+{n}% ईंधन',
+      mute: 'आवाज़ बंद करें', unmute: 'आवाज़ चालू करें', meters: '{n} मी', fuelFloat: '{n}% ईंधन',
       levelBanner: 'लेवल {n}', levelSub: '+{pts} अंक · +{fuel}% ईंधन · और तेज़!',
       outBanner: 'ईंधन ख़त्म', outSub: 'टंकी भरी रखने के लिए सिक्के उठाएँ',
       checkpoint: 'चेकपॉइंट · लेवल {n}', homeBest: '🏆 सर्वश्रेष्ठ {best} · लेवल {level}',
@@ -703,33 +718,92 @@ window.I18N = (() => {
   return { t, num: n => nf.format(n), apply, set, onChange: f => subs.push(f), get lang() { return lang; } };
 })();
 </script>
+<script id="rules">
+// ---------- Game rules (pure: no DOM, no drawing) ----------
+// Shared by the game and the balance/fairness simulator, so what gets tested is
+// exactly what gets played.
+window.LD_RULES = (() => {
+  const R = {
+    LANES: 3,
+    MIN_GAP: 340, GAP_RANDOM: 140,  // px between obstacle rows
+    BARRIER_H: 38, POTHOLE_H: 30,
+    COIN_AHEAD: 150,                // coin sits this far past its row, in the row's clear lane
+    PX_PER_M: 10,                   // 10 px of road = 1 metre
+    COINS_PER_REFUEL: 5,            // fill the coin meter to earn a top-up
+    REFUEL: 40,                     // % fuel per full coin meter
+    CHECKPOINT_FUEL: 15,
+    POTHOLE_FUEL: 8,                // % fuel lost hitting a pothole
+    POTHOLE_SLOW: 0.7,              // speed multiplier on hitting a pothole
+    // Coins stay just as common on every level: coin income already grows with speed
+    // (more rows per second), which is what keeps a perfect run fuelled.
+    COIN_CHANCE: 0.45,
+    MAX_DRY_ROWS: 2,                // never more than 2 rows in a row without a coin
+
+    // Difficulty curve per level
+    levelLength:  L => 400 + 100 * (L - 1),                        // metres to next checkpoint
+    levelSpeed:   L => Math.min(280 + 40 * (L - 1), 720),          // px/s at level start
+    fuelDrain:    L => Math.min(3.2 + 0.35 * (L - 1), 7.0),        // % per second
+    doubleChance: L => Math.min(0.12 + 0.07 * (L - 1), 0.6),       // rows with 2 barriers
+    rowPothole:   L => L < 2 ? 0 : Math.min(0.2 + 0.08 * (L - 2), 0.6),   // pothole in a row's spare lane
+    gapPothole:   L => L < 3 ? 0 : Math.min(0.15 + 0.07 * (L - 3), 0.55)  // pothole between two rows
+  };
+
+  // The planner decides each row's clear lane one row ahead, so a pothole in the gap
+  // can be kept off the path between this row's clear lane and the next one's.
+  R.newPlanner = rand => ({ next: Math.floor(rand() * R.LANES), dry: 0 });
+
+  // Plan one obstacle row. Guarantees:
+  //  - `clear` has no barrier and no pothole, and holds the coin (if any);
+  //  - a gap pothole is never in any lane from `clear` to `nextClear` inclusive,
+  //    so the straight route row → coin → next row is always free.
+  R.planRow = (p, level, fuel, rand) => {
+    const clear = p.next;
+    const nextClear = Math.floor(rand() * R.LANES);
+    p.next = nextClear;
+    const others = [];
+    for (let l = 0; l < R.LANES; l++) if (l !== clear) others.push(l);
+    if (rand() < 0.5) others.reverse();
+
+    const barriers = [others[0]], potholes = [];
+    if (rand() < R.doubleChance(level)) barriers.push(others[1]);
+    else if (rand() < R.rowPothole(level)) potholes.push(others[1]);
+
+    // A little mercy: coins are more common when fuel is low, and there are no long
+    // empty stretches: after MAX_DRY_ROWS rows without one, the next row always has a coin.
+    // Running low? Then a coin at least every other row.
+    const maxDry = fuel < 25 ? 1 : R.MAX_DRY_ROWS;
+    const coin = p.dry >= maxDry || rand() < R.COIN_CHANCE + (fuel < 30 ? 0.25 : 0);
+    p.dry = coin ? 0 : p.dry + 1;
+
+    const gap = R.MIN_GAP + rand() * R.GAP_RANDOM;
+    let gapLane = -1, gapAt = 0;
+    if (rand() < R.gapPothole(level)) {
+      const lo = Math.min(clear, nextClear), hi = Math.max(clear, nextClear);
+      const allowed = [];
+      for (let l = 0; l < R.LANES; l++) if (l < lo || l > hi) allowed.push(l);
+      if (allowed.length) {
+        gapLane = allowed[Math.floor(rand() * allowed.length)];
+        // between the coin and the next row
+        gapAt = R.COIN_AHEAD + 50 + rand() * (gap - R.COIN_AHEAD - 50 - R.POTHOLE_H - 60);
+      }
+    }
+    return { clear, nextClear, barriers, potholes, coin, gap, gapLane, gapAt };
+  };
+  return R;
+})();
+</script>
 <script>
 (() => {
   // ---------- Tuning ----------
-  const LANES = 3;
+  const R = LD_RULES;
+  const { LANES, MIN_GAP, BARRIER_H, POTHOLE_H, PX_PER_M, COINS_PER_REFUEL, REFUEL, CHECKPOINT_FUEL,
+          POTHOLE_FUEL, POTHOLE_SLOW, levelLength, levelSpeed, fuelDrain } = R;
   const MAX_LIVES = 3;
   const t = I18N.t, num = I18N.num;
   const FLASH_TIME = 0.5;   // car blinks after a hit (visual only – every hit counts)
-  const MIN_GAP = 340;      // min px between obstacle rows
-  const BARRIER_H = 38;
   const COUNTDOWN = 3;
-  const PX_PER_M = 10;      // 10 px of road = 1 metre
-  const COINS_PER_REFUEL = 5; // fill the coin meter to earn a top-up
-  const REFUEL = 40;          // % fuel per full coin meter
-  const CHECKPOINT_FUEL = 15;
   const MAX_STREAK = 5;
-
-  // Difficulty curve per level
-  const levelLength  = L => 400 + 100 * (L - 1);                       // metres to next checkpoint
-  const levelSpeed   = L => Math.min(280 + 40 * (L - 1), 720);         // px/s at level start
-  const fuelDrain    = L => Math.min(3.2 + 0.35 * (L - 1), 7.5);       // % per second
-  const doubleChance = L => Math.min(0.12 + 0.07 * (L - 1), 0.6);      // rows with 2 barriers
-  // Coins stay just as common on every level: coin income already grows with speed
-  // (more rows per second), which is what keeps a perfect run fuelled.
-  // Simulated: grab every coin → fuel never runs out; 90% → ~L21; 80% → ~L14; 70% → ~L8.
-  const COIN_CHANCE = 0.45;
-  const MAX_DRY_ROWS = 2;   // never more than 2 rows in a row without a coin
-  const coinValue    = (L, streak) => 10 * L * streak;
+  const coinValue = (L, streak) => 10 * L * streak;
 
   const $ = id => document.getElementById(id);
   const canvas = $('game');
@@ -743,7 +817,7 @@ window.I18N = (() => {
   let W = 0, H = 0, dpr = 1, laneW = 0;
   let state = 'home'; // home | menu (how-to-play) | countdown | play | stall | over | bye
   let player, objects, particles, floats, lives, speed, spawnDist, flash, roadOffset, shake, last;
-  let dryRows = 0; // rows since the last coin
+  let planner; // row planner state (see LD_RULES.planRow)
   let level, levelDist, distance, bonus, fuel, coins, coinMeter, streak, finishSpawned, stallT, lowFuelT = 0;
   let countT = 0, shownCount = null;
 
@@ -818,6 +892,7 @@ window.I18N = (() => {
       coin(s)     { const b = 880 * Math.pow(1.122, s - 1); tone(b, 0.07, { type: 'square', vol: 0.09 }); tone(b * 1.5, 0.18, { type: 'square', vol: 0.09, delay: 0.06 }); },
       refuel()    { arp([523, 659, 784, 1047], 0.07, { type: 'triangle', vol: 0.2, dur: 0.2 }); noise(0.35, { vol: 0.08, from: 600, to: 3000 }); },
       crash()     { noise(0.5, { vol: 0.55, from: 2500, to: 120 }); tone(130, 0.45, { type: 'sawtooth', vol: 0.25, slide: 0.35 }); },
+      pothole()   { tone(75, 0.22, { vol: 0.5, slide: 0.5 }); noise(0.16, { vol: 0.35, from: 700, to: 90 }); tone(190, 0.07, { type: 'square', vol: 0.07, delay: 0.06 }); },
       levelUp()   { arp([523, 659, 784, 1047, 1319], 0.08, { type: 'square', vol: 0.09, dur: 0.22 }); tone(1568, 0.6, { type: 'triangle', vol: 0.14, delay: 0.42 }); },
       lowFuel()   { tone(660, 0.09, { type: 'square', vol: 0.07 }); tone(660, 0.09, { type: 'square', vol: 0.07, delay: 0.14 }); },
       outOfFuel() { for (let i = 0; i < 5; i++) { tone(95 - i * 10, 0.12, { type: 'sawtooth', vol: 0.16, delay: i * 0.18 }); noise(0.08, { vol: 0.12, from: 900, to: 200, delay: i * 0.18 }); } },
@@ -894,7 +969,7 @@ window.I18N = (() => {
     player = { lane: 1, x: laneX(1), y: H - 110, w: Math.min(laneW * 0.55, 70), h: 80 };
     objects = []; particles = []; floats = [];
     lives = MAX_LIVES; level = 1; speed = levelSpeed(1);
-    spawnDist = 200; flash = 0; roadOffset = 0; shake = 0; dryRows = 0;
+    spawnDist = 200; flash = 0; roadOffset = 0; shake = 0; planner = R.newPlanner(Math.random);
     levelDist = 0; distance = 0; bonus = 0; fuel = 100; coins = 0; coinMeter = 0; streak = 0; lowFuelT = 0; finishSpawned = false;
     el.banner.innerHTML = '';
     updateHud();
@@ -928,21 +1003,18 @@ window.I18N = (() => {
     setLane(player.lane + dir);
   }
 
+  // Spawn one planned row just above the screen; returns the distance to the next row.
   function spawn() {
-    // Block 1–2 lanes, always leave at least one free
-    const blocks = Math.random() < doubleChance(level) ? 2 : 1;
-    const lanes = [0, 1, 2].sort(() => Math.random() - 0.5);
+    const r = R.planRow(planner, level, fuel, Math.random);
     const h = BARRIER_H;
-    for (let i = 0; i < blocks; i++) {
-      objects.push({ type: 'enemy', lane: lanes[i], y: -h, w: laneW * 0.8, h });
-    }
-    // A little mercy: coins are more common when fuel is low, and there are no long
-    // empty stretches: after MAX_DRY_ROWS rows without one, the next row always has a coin.
-    const chance = COIN_CHANCE + (fuel < 30 ? 0.25 : 0);
-    if (dryRows >= MAX_DRY_ROWS || Math.random() < chance) {
-      objects.push({ type: 'coin', lane: lanes[LANES - 1], y: -h - 150, w: 28, h: 28 });
-      dryRows = 0;
-    } else dryRows++;
+    for (const l of r.barriers) objects.push({ type: 'enemy', lane: l, y: -h, w: laneW * 0.8, h });
+    for (const l of r.potholes) objects.push(pothole(l, -h + (h - POTHOLE_H) / 2));
+    if (r.coin) objects.push({ type: 'coin', lane: r.clear, y: -h - R.COIN_AHEAD, w: 28, h: 28 });
+    if (r.gapLane >= 0) objects.push(pothole(r.gapLane, -h - r.gapAt));
+    return r.gap;
+  }
+  function pothole(lane, y) {
+    return { type: 'hole', lane, y, w: Math.min(laneW * 0.5, 64), h: POTHOLE_H, seed: Math.random() * 100 };
   }
 
   function burst(x, y, color, n) {
@@ -983,10 +1055,22 @@ window.I18N = (() => {
         coinMeter = 0;
         sfx.refuel();
         fuel = Math.min(100, fuel + REFUEL);
-        floatText(player.x, player.y - 30, t('fuelFloat', { n: REFUEL }), getVar('--fuel'));
+        floatText(player.x, player.y - 30, t('fuelFloat', { n: '+' + REFUEL }), getVar('--fuel'));
         burst(player.x, player.y, getVar('--fuel'), 20);
         el.pips.classList.remove('full'); void el.pips.offsetWidth; el.pips.classList.add('full');
       }
+      return;
+    }
+    if (o.type === 'hole') {
+      // Not a crash: a jolt that costs fuel, speed and your coin streak.
+      o.used = true;
+      fuel = Math.max(0, fuel - POTHOLE_FUEL);
+      speed *= POTHOLE_SLOW;
+      shake = 0.22; streak = 0;
+      sfx.pothole();
+      burst(player.x, player.y + 8, '#8b93b5', 10);
+      floatText(player.x, player.y - 24, t('fuelFloat', { n: '−' + POTHOLE_FUEL }), getVar('--enemy'));
+      if (navigator.vibrate) navigator.vibrate(50);
       return;
     }
     o.dead = true;
@@ -1168,17 +1252,15 @@ window.I18N = (() => {
 
     // Spawn by distance travelled, so rows never bunch up at high speed.
     spawnDist -= step;
-    if (spawnDist <= 0) {
-      spawn();
-      spawnDist = MIN_GAP + Math.random() * 140;
-    }
+    if (spawnDist <= 0) spawnDist = spawn();
 
     const px = player.x - player.w / 2, py = player.y;
     for (const o of objects) {
       o.y += step;
-      if (o.type === 'finish' || o.dead) continue;
+      if (o.type === 'finish' || o.dead || o.used) continue;
       const ox = laneX(o.lane) - o.w / 2;
-      if (ox < px + player.w - 6 && ox + o.w > px + 6 && o.y < py + player.h - 6 && o.y + o.h > py + 6) {
+      const ins = o.type === 'hole' ? 10 : 6; // potholes are round: a slightly kinder hitbox
+      if (ox < px + player.w - ins && ox + o.w > px + ins && o.y < py + player.h - ins && o.y + o.h > py + ins) {
         hit(o);
         if (state !== 'play') break;
       }
@@ -1237,6 +1319,32 @@ window.I18N = (() => {
     ctx.fillStyle = '#c53030';
     roundRect(l + 5, y + h - 7, w * 0.2, 4, 2); ctx.fill();
     roundRect(r - 5 - w * 0.2, y + h - 7, w * 0.2, 4, 2); ctx.fill();
+  }
+
+  // Pothole: a ragged dark hole with a lighter broken-asphalt rim and a few cracks.
+  function blob(cx, cy, rx, ry, seed, grow) {
+    ctx.beginPath();
+    for (let i = 0; i <= 12; i++) {
+      const a = i / 12 * Math.PI * 2;
+      const k = 1 + 0.13 * Math.sin(i * 2.7 + seed) + 0.07 * Math.sin(i * 5.3 + seed * 1.7);
+      const x = cx + Math.cos(a) * (rx + grow) * k, y = cy + Math.sin(a) * (ry + grow) * k;
+      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    ctx.closePath(); ctx.fill();
+  }
+  function drawPothole(cx, cy, rx, ry, seed) {
+    ctx.strokeStyle = '#3a4166'; ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let i = 0; i < 3; i++) {
+      const a = seed + i * 2.1;
+      ctx.moveTo(cx + Math.cos(a) * rx * 0.9, cy + Math.sin(a) * ry * 0.9);
+      ctx.lineTo(cx + Math.cos(a + 0.25) * rx * 1.55, cy + Math.sin(a + 0.25) * ry * 1.6);
+    }
+    ctx.stroke();
+    ctx.fillStyle = '#4a5072'; blob(cx, cy, rx, ry, seed, 4);   // broken rim
+    ctx.fillStyle = '#05060c'; blob(cx, cy, rx, ry, seed, 0);   // the hole
+    ctx.fillStyle = 'rgba(139,147,181,.18)';                      // far wall catching the light
+    blob(cx, cy + ry * 0.35, rx * 0.7, ry * 0.4, seed + 3, 0);
   }
 
   // Red-and-white striped road barrier on two legs.
@@ -1307,6 +1415,7 @@ window.I18N = (() => {
       const cx = laneX(o.lane);
       if (o.type === 'enemy') drawBarrier(cx, o.y, o.w, o.h);
       else if (o.type === 'coin') drawCoin(cx, o.y + o.h / 2, o.w / 2);
+      else if (o.type === 'hole') drawPothole(cx, o.y + o.h / 2, o.w / 2, o.h / 2, o.seed);
     }
 
     if (!(flash > 0 && Math.floor(flash * 16) % 2 === 0)) {
