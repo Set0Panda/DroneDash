@@ -2541,20 +2541,44 @@ window.LD_RULES = (() => {
   const HOLE_SKINS = ['hole', 'hole', 'manhole', 'puddle', 'frost'];
   const DEBRIS = {
     barrier: ['#f4f4f8', '#f56565'], snowbarrier: ['#f4f4f8', '#f56565', '#ffffff'],
-    hay: ['#e2bf55', '#b08a2a'], fence: ['#9a6533', '#6b4220'], crates: ['#b8813f', '#7a5224'],
+    hay: ['#a8843a', '#5a4214'], fence: ['#9a6533', '#6b4220'], crates: ['#8a5a2b', '#4f3216'],
     cones: ['#ff7a1a', '#f4f4f8'], jersey: ['#a3a9b8', '#f6c945'], log: ['#8a5a2b', '#5e3b1a'],
     rocks: ['#8f97a8', '#5c6373'], drift: ['#ffffff', '#cfe0f5'], ice: ['#bfe6ff', '#ffffff'],
   };
+  // Blinking amber warning lamps at both ends: the same cue on every obstacle, whatever it's made of.
+  function warningLamps(x, y, w, seed) {
+    const on = Math.floor(performance.now() / 350 + seed) % 2 === 0;
+    for (const lx of [x + 7, x + w - 7]) {
+      if (on) {
+        const g = ctx.createRadialGradient(lx, y, 0, lx, y, 11);
+        g.addColorStop(0, 'rgba(255,176,32,.7)'); g.addColorStop(1, 'rgba(255,176,32,0)');
+        ctx.fillStyle = g; ctx.fillRect(lx - 11, y - 11, 22, 22);
+      }
+      ctx.fillStyle = '#2b2f3d'; ctx.beginPath(); ctx.arc(lx, y, 5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = on ? '#ffb020' : '#7a5410'; ctx.beginPath(); ctx.arc(lx, y, 3.5, 0, Math.PI * 2); ctx.fill();
+    }
+  }
   function drawObstacle(o, cx) {
     const { w, h } = o, x = cx - w / 2, y = o.y;
+    if (o.skin && o.skin !== 'barrier' && o.skin !== 'snowbarrier') {
+      drawObstacleBody(o, cx, x, y, w, h);
+      warningLamps(x, y + 2, w, o.seed || 0);
+      return;
+    }
+    drawObstacleBody(o, cx, x, y, w, h);
+  }
+  function drawObstacleBody(o, cx, x, y, w, h) {
     switch (o.skin) {
-      case 'hay': {                         // two round hay bales seen from above
-        for (const i of [-1, 1]) {
-          const bx = cx + i * w * 0.25, by = y + h / 2, r = Math.min(w * 0.23, h * 0.56);
-          ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.arc(bx + 3, by + 3, r, 0, 6.29); ctx.fill();
-          ctx.fillStyle = '#e2bf55'; ctx.beginPath(); ctx.arc(bx, by, r, 0, 6.29); ctx.fill();
-          ctx.strokeStyle = '#b08a2a'; ctx.lineWidth = 1.5;
-          for (const k of [0.75, 0.5, 0.25]) { ctx.beginPath(); ctx.arc(bx, by, r * k, 0.4, 5.6); ctx.stroke(); }
+      case 'hay': {                         // two square hay bales with twine
+        const bw = w * 0.47, by = y + h * 0.1, bh = h * 0.8;
+        for (const bx of [x, x + w - bw]) {
+          ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(bx + 3, by + 3, bw, bh);
+          ctx.fillStyle = '#a8843a'; ctx.fillRect(bx, by, bw, bh);
+          ctx.fillStyle = 'rgba(80,55,10,.35)';                       // straw texture
+          for (let k = 1; k < 5; k++) ctx.fillRect(bx + 2, by + k * bh / 5, bw - 4, 1.2);
+          ctx.fillStyle = '#4a3410';                                  // twine
+          ctx.fillRect(bx + bw * 0.28, by, 2, bh); ctx.fillRect(bx + bw * 0.68, by, 2, bh);
+          ctx.strokeStyle = '#5a4214'; ctx.lineWidth = 1.5; ctx.strokeRect(bx + 0.75, by + 0.75, bw - 1.5, bh - 1.5);
         }
         break;
       }
@@ -2572,8 +2596,8 @@ window.LD_RULES = (() => {
         const cw = w * 0.46;
         for (const bx of [x, x + w - cw]) {
           ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(bx + 3, y + 3, cw, h);
-          ctx.fillStyle = '#b8813f'; ctx.fillRect(bx, y, cw, h);
-          ctx.strokeStyle = '#7a5224'; ctx.lineWidth = 2.5; ctx.strokeRect(bx + 1.5, y + 1.5, cw - 3, h - 3);
+          ctx.fillStyle = '#8a5a2b'; ctx.fillRect(bx, y, cw, h);
+          ctx.strokeStyle = '#4f3216'; ctx.lineWidth = 2.5; ctx.strokeRect(bx + 1.5, y + 1.5, cw - 3, h - 3);
           ctx.beginPath(); ctx.moveTo(bx + 3, y + 3); ctx.lineTo(bx + cw - 3, y + h - 3); ctx.moveTo(bx + cw - 3, y + 3); ctx.lineTo(bx + 3, y + h - 3); ctx.stroke();
         }
         break;
@@ -2984,16 +3008,30 @@ window.LD_RULES = (() => {
     ctx.fillStyle = g; ctx.fillRect(cx - 26, cy - 26, 52, 52);
   }
 
+  // Coins spin (the face narrows and widens like a flipping coin), glow and glint, so they
+  // read as pickups at a glance and never as part of the scenery or an obstacle.
   function drawCoin(cx, cy, r) {
+    const t = performance.now() / 1000 + cy * 0.004;
+    const sx = Math.max(0.28, Math.abs(Math.cos(t * 4)));          // spin
+    const g = ctx.createRadialGradient(cx, cy, r * 0.6, cx, cy, r * 2);
+    g.addColorStop(0, 'rgba(255,224,94,.45)'); g.addColorStop(1, 'rgba(255,224,94,0)');
+    ctx.fillStyle = g; ctx.fillRect(cx - r * 2, cy - r * 2, r * 4, r * 4);
+    ctx.fillStyle = '#b8860b';                                       // coin edge, shows as it turns
+    ctx.beginPath(); ctx.ellipse(cx + (1 - sx) * 2, cy, r * sx + 1.5, r, 0, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = getVar('--coin');
-    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = 'rgba(0,0,0,.22)';
-    ctx.beginPath(); ctx.arc(cx, cy, r * 0.55, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = getVar('--coin');
-    ctx.font = '900 ' + Math.round(r * 0.9) + 'px system-ui, sans-serif';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('$', cx, cy + 1);
-    ctx.textBaseline = 'alphabetic';
+    ctx.beginPath(); ctx.ellipse(cx, cy, r * sx, r, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(0,0,0,.2)';
+    ctx.beginPath(); ctx.ellipse(cx, cy, r * 0.55 * sx, r * 0.55, 0, 0, Math.PI * 2); ctx.fill();
+    if (sx > 0.55) {
+      ctx.save(); ctx.translate(cx, cy); ctx.scale(sx, 1);
+      ctx.fillStyle = getVar('--coin');
+      ctx.font = '900 ' + Math.round(r * 0.9) + 'px system-ui, sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('$', 0, 1);
+      ctx.restore(); ctx.textBaseline = 'alphabetic';
+    }
+    ctx.fillStyle = 'rgba(255,255,255,.75)';                         // glint
+    ctx.beginPath(); ctx.ellipse(cx - r * 0.35 * sx, cy - r * 0.4, r * 0.18 * sx, r * 0.12, -0.6, 0, Math.PI * 2); ctx.fill();
   }
 
   function draw() {
