@@ -130,22 +130,29 @@
   .eggCoins i.on { background: var(--coin); opacity: 1; }
   .eggSub { display: flex; align-items: center; gap: 6px; min-height: 16px; }
   #eggBar.alert .eggCoins { display: none; }          /* the alert takes the whole line */
-  .fireWrap { justify-self: end; position: relative; max-width: 100%; display: flex; }
-  .fireWrap .autoChip { position: absolute; left: -6px; top: -11px; z-index: 2; box-shadow: 0 0 0 2px var(--bg), inset 0 0 0 1.5px rgba(255,255,255,.25); background: #1b2548; }
-  .fireWrap .autoChip.on { box-shadow: 0 0 0 2px var(--bg); background: var(--ua-yellow); }
-  /* auto-fire chip: tap to switch; shows auto-fire's current accuracy (better with a coin streak) */
-  .autoChip { margin: 0; padding: 2px 7px; font-size: 11px; font-weight: 800; line-height: 1.3; border-radius: 8px;
-    color: var(--muted); background: transparent; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.25); white-space: nowrap; }
-  .autoChip.on { color: #0a1c3d; background: var(--ua-yellow); box-shadow: none; }
-  .autoChip:active { transform: scale(.94); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.25); }
+  .fireWrap { justify-self: end; display: flex; align-items: stretch; gap: 6px; min-width: 0; max-width: 100%; }
+  /* auto-fire switch: a block button left of FIRE, same height; shows auto-fire's current accuracy
+     (better with a coin streak), or ✕ when off */
+  .autoBlock {
+    flex: none; width: 46px; min-height: 54px; margin: 0; padding: 4px 2px; border-radius: 14px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    font-size: 19px; line-height: 1; color: var(--muted);
+    background: #262d4a; box-shadow: 0 5px 0 rgba(0,0,0,.4);
+  }
+  .autoBlock small { font-size: 11px; font-weight: 900; letter-spacing: .3px; }
+  .autoBlock.on { background: var(--ua-blue); color: var(--ua-yellow); box-shadow: 0 5px 0 #003a7a, inset 0 0 0 2px var(--ua-yellow); }
+  .autoBlock:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,.4); }
+  /* FIRE slims down to sit beside it: smaller icon; long labels drop the icon or shrink (fitFire) */
+  #rocketBtn .fireLabel { white-space: nowrap; }
+  #rocketBtn.compact .rk { display: none; }
   #eggNext { font-size: 12px; line-height: 1.25; font-weight: 800; color: var(--muted); overflow-wrap: anywhere; }
   #rocketBtn {
-    justify-self: end; position: relative; margin: 0; padding: 10px 14px 10px 12px; min-width: 0; max-width: 100%; min-height: 54px;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    font-size: 18px; font-weight: 900; letter-spacing: 1px; line-height: 1;
+    position: relative; margin: 0; padding: 10px 10px; min-width: 0; flex: 1 1 auto; min-height: 54px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    font-size: 16px; font-weight: 900; letter-spacing: 1px; line-height: 1;
     color: #0f1220; background: #FFD700; border-radius: 14px; box-shadow: 0 5px 0 #b38f00;
   }
-  #rocketBtn .rk { font-size: 26px; }
+  #rocketBtn .rk { font-size: 20px; }
   #rocketBtn b {
     position: absolute; top: -9px; right: -9px; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 13px;
     background: #0057B7; color: #fff; font-size: 15px; line-height: 26px; box-shadow: 0 0 0 2px #0f1220;
@@ -567,10 +574,10 @@
       <div class="eggSub"><span class="eggCoins" id="eggCoins"><i></i><i></i><i></i></span><span id="eggNext"></span></div>
     </div>
     <button id="pauseBtn" type="button" data-i18n-title="pause" data-i18n-aria="pause" aria-label="Pause">⏸</button>
-    <!-- FIRE, with the auto-fire chip as a tab on its top-left corner (rocket count badge is top-right) -->
+    <!-- right-hand column: the auto-fire switch as a block button, then FIRE -->
     <div class="fireWrap">
-      <button id="rocketBtn" type="button" disabled><span class="rk">🚀</span><span data-i18n="launch">FIRE</span><b id="rocketN">0</b></button>
-      <button id="autoChip" class="autoChip" type="button"></button>
+      <button id="autoChip" class="autoBlock" type="button"><span>🤖</span><small id="autoPct"></small></button>
+      <button id="rocketBtn" type="button" disabled><span class="rk">🚀</span><span class="fireLabel" data-i18n="launch">FIRE</span><b id="rocketN">0</b></button>
     </div>
   </div>
 
@@ -1688,7 +1695,22 @@ window.LD_RULES = (() => {
     [...el.pips.children].forEach((p, i) => p.classList.toggle('on', i < coinMeter));
     if (DRONES()) paintEggBar();
   }
-  const autoChip = $('autoChip');
+  const autoChip = $('autoChip'), autoPct = $('autoPct');
+  // FIRE shares its column with the auto block: if the label doesn't fit, drop the 🚀 icon, then
+  // shrink the text (long labels like DISPARAR on narrow phones).
+  function fitFire() {
+    const b = $('rocketBtn'), lab = b.querySelector('.fireLabel'), rk = b.querySelector('.rk');
+    b.classList.remove('compact'); lab.style.fontSize = '';
+    // measure the contents, not the button (the rocket-count badge sticks out of it on purpose)
+    const over = () => {
+      const cs = getComputedStyle(b), avail = b.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      const need = lab.scrollWidth + (b.classList.contains('compact') ? 0 : rk.offsetWidth + 6);
+      return need > avail + 0.5;
+    };
+    if (!over()) return;
+    b.classList.add('compact');
+    for (let px = 16; over() && px > 11; px--) lab.style.fontSize = (px - 1) + 'px';
+  }
   const eggBar = $('eggBar'), rocketBtn = $('rocketBtn'), rocketN = $('rocketN'), eggNext = $('eggNext');
   const eggPips = [...$('eggCoins').children];
   // Bottom launch bar: rockets ready, coins towards the next one, and an alert while a Shahed is incoming.
@@ -1706,7 +1728,7 @@ window.LD_RULES = (() => {
     // The dots already show progress to the next rocket and the FIRE badge shows how many
     // are ready, so the text is only for the Shahed alert, or MAX when no more can be banked.
     set(eggNext, incoming ? (n > 0 && autoFire ? t('shahedBanner') : t(n > 0 ? 'droneAlert' : 'droneNoRocket')) : '');
-    set(autoChip, autoFire ? '🤖 ' + Math.round((1 - autoMiss()) * 100) + '%' : '🤖 ✕');
+    set(autoPct, autoFire ? Math.round((1 - autoMiss()) * 100) + '%' : '✕');
     autoChip.classList.toggle('on', autoFire);
   }
   // The bar only exists in Ukrainian; it takes room from the road, so re-measure the canvas.
@@ -3291,7 +3313,8 @@ window.LD_RULES = (() => {
   $('pauseRetry').addEventListener('click', restart);
   $('pauseHome').addEventListener('click', goHome);
   rocketBtn.addEventListener('click', () => { fire(); rocketBtn.blur(); });
-  I18N.onChange(() => { rocketBtn.title = t('rocketTitle', { n: ROCKET_COST }); rocketBtn.setAttribute('aria-label', rocketBtn.title); layoutEgg(); });
+  I18N.onChange(() => { rocketBtn.title = t('rocketTitle', { n: ROCKET_COST }); rocketBtn.setAttribute('aria-label', rocketBtn.title); layoutEgg(); fitFire(); });
+  window.addEventListener('resize', fitFire);
   $('playBtn').addEventListener('click', startPlay);
   $('helpBtn').addEventListener('click', () => openHelp('home'));
   $('pauseHelp').addEventListener('click', () => openHelp('pause'));
