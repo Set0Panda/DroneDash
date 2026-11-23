@@ -281,6 +281,14 @@
     shownCount = null;
   }
 
+  // Retry: no countdown, just a quick GO! and straight back in.
+  function restart() {
+    reset();
+    overEl.classList.add('hidden');
+    state = 'play';
+    showCount('GO!');
+  }
+
   const cssCache = {};
   function getVar(n) {
     return cssCache[n] || (cssCache[n] = getComputedStyle(document.documentElement).getPropertyValue(n).trim());
@@ -409,9 +417,8 @@
   window.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') move(-1);
     else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') move(1);
-    else if ((e.key === 'Enter' || e.key === ' ') && (state === 'menu' || state === 'over')) {
-      e.preventDefault(); beginCountdown();
-    }
+    else if ((e.key === 'Enter' || e.key === ' ') && state === 'menu') { e.preventDefault(); beginCountdown(); }
+    else if ((e.key === 'Enter' || e.key === ' ') && state === 'over') { e.preventDefault(); restart(); }
   });
 
   // Touch / mouse: the car goes straight to the lane under your finger,
@@ -434,7 +441,7 @@
   canvas.addEventListener('pointercancel', endDrag);
 
   document.getElementById('startBtn').addEventListener('click', beginCountdown);
-  document.getElementById('retryBtn').addEventListener('click', beginCountdown);
+  document.getElementById('retryBtn').addEventListener('click', restart);
 
   reset();
   requestAnimationFrame(loop);
