@@ -1842,8 +1842,10 @@ window.LD_RULES = (() => {
     booms = booms.filter(b => b.life > 0);
   }
 
-  // Lane changes work during the countdown too, so you can line up before GO.
-  const canSteer = () => state === 'play' || state === 'countdown';
+  // Lane changes work during the countdown at the start of a run, so you can line up before
+  // GO. Not during the 3-2-1 after Resume: the road is frozen then, so moving would let you
+  // pause and dodge for free.
+  const canSteer = () => state === 'play' || (state === 'countdown' && !resuming);
 
   function setLane(l) {
     l = Math.max(0, Math.min(LANES - 1, l));
@@ -2283,7 +2285,8 @@ window.LD_RULES = (() => {
   }
 
   function update(dt) {
-    if (state === 'paused') return;            // frozen: nothing moves, not even the road
+    // Frozen while paused, and while How to play is open from the pause menu.
+    if (state === 'paused' || (state === 'menu' && helpFrom === 'pause')) return;
     launcherKick = Math.max(0, launcherKick - dt * 5);
     const moving = state === 'play' || state === 'stall';
     // The road idles along on the home screen and before a run, but holds still while
