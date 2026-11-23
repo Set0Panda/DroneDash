@@ -11,6 +11,13 @@
   "background_color": "#0b1226",
   "theme_color": "#0b1226",
   "categories": ["games"],
+  "screenshots": [
+    { "src": "screenshots/home.png", "sizes": "824x1830", "type": "image/png", "form_factor": "narrow", "label": "Drone Dash home screen" },
+    { "src": "screenshots/play-wheat.png", "sizes": "824x1830", "type": "image/png", "form_factor": "narrow", "label": "Lock on to a drone over the wheat fields" },
+    { "src": "screenshots/play-city.png", "sizes": "824x1830", "type": "image/png", "form_factor": "narrow", "label": "Dodge obstacles through the city at night" },
+    { "src": "screenshots/play-snow.png", "sizes": "824x1830", "type": "image/png", "form_factor": "narrow", "label": "Reach the snowy mountains with an upgraded car" },
+    { "src": "screenshots/wide.png", "sizes": "1280x720", "type": "image/png", "form_factor": "wide", "label": "Drone Dash on a computer" }
+  ],
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },

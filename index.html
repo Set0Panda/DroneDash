@@ -198,6 +198,7 @@
     background: transparent; box-shadow: inset 0 0 0 2px var(--ua-blue-lt);
   }
   #installHint { font-size: 13px; }
+  #updateBtn { color: var(--ua-yellow, #FFD500); box-shadow: inset 0 0 0 2px var(--ua-yellow, #FFD500); }
   [hidden] { display: none !important; }
   .overlay.hidden { display: none; }
   .overlay h1 { margin: 0; font-size: 40px; letter-spacing: 1px; }
@@ -620,6 +621,7 @@
       </div>
       <button id="exitBtn" class="secondary" data-i18n="exit">Exit</button>
     </div>
+    <button id="updateBtn" class="ghost" type="button" hidden>🔄 <span data-i18n="updateReady">New version ready · tap to update</span></button>
     <button id="installBtn" class="ghost" hidden>📲 <span data-i18n="installApp">Install app</span></button>
     <p id="installHint" hidden></p>
     <button id="helpBtn" type="button" data-i18n-title="howToPlay" data-i18n-aria="howToPlay" title="How to play" aria-label="How to play">?</button>
@@ -722,7 +724,7 @@ window.I18N = (() => {
   const STR = {
     en: {
       tagline: "Dodge obstacles. Shoot down drones.",
-      play: 'Play', exit: 'Exit', installApp: 'Install app',
+      play: 'Play', exit: 'Exit', installApp: 'Install app', updateReady: "New version ready · tap to update",
       installHintIos: 'Play it like an app: tap Share, then “Add to Home Screen”.',
       thanks: 'Thanks for playing!', closeNow: 'You can close this window now.', backToMenu: 'Back to menu',
       howToPlay: 'How to Play',
@@ -757,7 +759,7 @@ window.I18N = (() => {
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
-      play: 'Jugar', exit: 'Salir', installApp: 'Instalar app',
+      play: 'Jugar', exit: 'Salir', installApp: 'Instalar app', updateReady: "Nueva versión lista · toca para actualizar",
       installHintIos: 'Juega como una app: toca Compartir y luego «Añadir a pantalla de inicio».',
       thanks: '¡Gracias por jugar!', closeNow: 'Ya puedes cerrar esta ventana.', backToMenu: 'Volver al menú',
       howToPlay: 'Cómo jugar',
@@ -792,7 +794,7 @@ window.I18N = (() => {
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
-      play: 'Jouer', exit: 'Quitter', installApp: `Installer l'app`,
+      play: 'Jouer', exit: 'Quitter', installApp: `Installer l'app`, updateReady: "Nouvelle version prête · touche pour mettre à jour",
       installHintIos: `Joue comme avec une app${NB}: touche Partager, puis «${NB}Sur l'écran d'accueil${NB}».`,
       thanks: `Merci d'avoir joué${NB}!`, closeNow: 'Tu peux fermer cette fenêtre.', backToMenu: 'Retour au menu',
       howToPlay: 'Comment jouer',
@@ -827,7 +829,7 @@ window.I18N = (() => {
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
-      play: 'Spielen', exit: 'Beenden', installApp: 'App installieren',
+      play: 'Spielen', exit: 'Beenden', installApp: 'App installieren', updateReady: "Neue Version bereit · tippen zum Aktualisieren",
       installHintIos: 'Als App spielen: Tippe auf Teilen und dann „Zum Home-Bildschirm“.',
       thanks: 'Danke fürs Spielen!', closeNow: 'Du kannst dieses Fenster jetzt schließen.', backToMenu: 'Zurück zum Menü',
       howToPlay: 'So wird gespielt',
@@ -862,7 +864,7 @@ window.I18N = (() => {
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
-      play: 'Jogar', exit: 'Sair', installApp: 'Instalar app',
+      play: 'Jogar', exit: 'Sair', installApp: 'Instalar app', updateReady: "Nova versão pronta · toque para atualizar",
       installHintIos: 'Jogue como um app: toque em Compartilhar e depois em “Adicionar à Tela de Início”.',
       thanks: 'Obrigado por jogar!', closeNow: 'Você já pode fechar esta janela.', backToMenu: 'Voltar ao menu',
       howToPlay: 'Como jogar',
@@ -897,7 +899,7 @@ window.I18N = (() => {
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
-      play: 'Gioca', exit: 'Esci', installApp: 'Installa app',
+      play: 'Gioca', exit: 'Esci', installApp: 'Installa app', updateReady: "Nuova versione pronta · tocca per aggiornare",
       installHintIos: `Gioca come un'app: tocca Condividi, poi “Aggiungi alla schermata Home”.`,
       thanks: 'Grazie per aver giocato!', closeNow: 'Ora puoi chiudere questa finestra.', backToMenu: 'Torna al menu',
       howToPlay: 'Come si gioca',
@@ -932,7 +934,7 @@ window.I18N = (() => {
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
-      play: 'プレイ', exit: '終了', installApp: 'アプリをインストール',
+      play: 'プレイ', exit: '終了', installApp: 'アプリをインストール', updateReady: "新しいバージョンがあります · タップして更新",
       installHintIos: 'アプリとして遊ぶには：共有をタップして「ホーム画面に追加」を選択。',
       thanks: '遊んでくれてありがとう！', closeNow: 'このウィンドウは閉じてかまいません。', backToMenu: 'メニューに戻る',
       howToPlay: '遊び方',
@@ -967,7 +969,7 @@ window.I18N = (() => {
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
-      play: '开始', exit: '退出', installApp: '安装应用',
+      play: '开始', exit: '退出', installApp: '安装应用', updateReady: "新版本已就绪 · 点击更新",
       installHintIos: '像应用一样玩：点按“分享”，然后选择“添加到主屏幕”。',
       thanks: '感谢游玩！', closeNow: '现在可以关闭此窗口了。', backToMenu: '返回菜单',
       howToPlay: '玩法',
@@ -1002,7 +1004,7 @@ window.I18N = (() => {
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
-      play: '플레이', exit: '종료', installApp: '앱 설치',
+      play: '플레이', exit: '종료', installApp: '앱 설치', updateReady: "새 버전 준비됨 · 탭하여 업데이트",
       installHintIos: '앱처럼 즐기기: 공유를 탭한 뒤 ‘홈 화면에 추가’를 선택하세요.',
       thanks: '플레이해 주셔서 감사합니다!', closeNow: '이제 이 창을 닫아도 됩니다.', backToMenu: '메뉴로 돌아가기',
       howToPlay: '게임 방법',
@@ -1037,7 +1039,7 @@ window.I18N = (() => {
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
-      play: 'खेलें', exit: 'बाहर निकलें', installApp: 'ऐप इंस्टॉल करें',
+      play: 'खेलें', exit: 'बाहर निकलें', installApp: 'ऐप इंस्टॉल करें', updateReady: "नया संस्करण तैयार · अपडेट के लिए टैप करें",
       installHintIos: 'ऐप की तरह खेलें: शेयर पर टैप करें, फिर “होम स्क्रीन पर जोड़ें” चुनें।',
       thanks: 'खेलने के लिए धन्यवाद!', closeNow: 'अब आप यह विंडो बंद कर सकते हैं।', backToMenu: 'मेन्यू पर वापस',
       howToPlay: 'कैसे खेलें',
@@ -1072,7 +1074,7 @@ window.I18N = (() => {
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
-      play: 'Грати', exit: 'Вийти', installApp: 'Встановити застосунок',
+      play: 'Грати', exit: 'Вийти', installApp: 'Встановити застосунок', updateReady: "Нова версія готова · торкніться, щоб оновити",
       installHintIos: 'Грай як у застосунку: натисни «Поділитися», потім «На початковий екран».',
       thanks: 'Дякуємо за гру!', closeNow: 'Тепер можна закрити це вікно.', backToMenu: 'Назад до меню',
       howToPlay: 'Як грати',
@@ -1109,7 +1111,7 @@ window.I18N = (() => {
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
-      play: 'თამაში', exit: 'გასვლა', installApp: 'აპის დაყენება',
+      play: 'თამაში', exit: 'გასვლა', installApp: 'აპის დაყენება', updateReady: "ახალი ვერსია მზადაა · შეეხეთ განახლებისთვის",
       installHintIos: 'ითამაშე როგორც აპში: შეეხე „გაზიარებას“, შემდეგ კი „მთავარ ეკრანზე დამატებას“.',
       thanks: 'მადლობა თამაშისთვის!', closeNow: 'ახლა შეგიძლია ეს ფანჯარა დახურო.', backToMenu: 'მენიუში დაბრუნება',
       howToPlay: 'როგორ ვითამაშოთ',
@@ -3392,7 +3394,16 @@ window.LD_RULES = (() => {
 (() => {
   // Offline support. Service workers need http(s); skip when opened as a local file.
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').then(reg => {
+      // An installed app can stay open for days: look for a new version whenever it comes back to the front.
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update().catch(() => {}); });
+    }).catch(() => {}));
+    // A new version has taken over (sw.js doesn't wait). Offer the reload on the home screen only,
+    // so a run in progress is never interrupted.
+    const upd = document.getElementById('updateBtn');
+    const hadController = !!navigator.serviceWorker.controller;   // false on the very first visit
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController) upd.hidden = false; });
+    upd.addEventListener('click', () => location.reload());
   }
 
   const btn = document.getElementById('installBtn');

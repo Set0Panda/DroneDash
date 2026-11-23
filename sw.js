@@ -1,6 +1,6 @@
 // Offline support: cache the game shell, serve it cache-first, refresh in the background.
 // Bump VERSION whenever you want installed copies to drop the old cache.
-const VERSION = 'drone-dash-v65';
+const VERSION = 'drone-dash-v66';
 const ASSETS = [
   './',
   './index.html',
@@ -13,7 +13,8 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(VERSION).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+  // cache: 'reload' skips the browser's HTTP cache, so an update really downloads the new files
+  e.waitUntil(caches.open(VERSION).then((c) => c.addAll(ASSETS.map((u) => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (e) => {
