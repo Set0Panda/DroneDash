@@ -70,6 +70,11 @@
   }
   #wrap.at-home #eggBar { visibility: hidden; }
   .eggInfo { flex: 1; min-width: 0; display: grid; gap: 5px; }
+  .eggTop { display: flex; align-items: center; gap: 12px; }
+  .eggKills { font-size: 15px; font-weight: 900; color: #FFD700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .eggKills.bump { animation: killBump .5s cubic-bezier(.2,1.6,.4,1); }
+  @keyframes killBump { 30% { transform: scale(1.5); } }
+  .stats.four { grid-template-columns: repeat(4, 1fr); gap: 6px; }
   .eggCoins { display: flex; gap: 5px; }
   .eggCoins i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--coin); opacity: .4; }
   .eggCoins i.on { background: var(--coin); opacity: 1; }
@@ -420,7 +425,7 @@
   <canvas id="game"></canvas>
   <div id="eggBar" hidden>
     <div class="eggInfo">
-      <span class="eggCoins" id="eggCoins"><i></i><i></i><i></i></span>
+      <div class="eggTop"><span class="eggCoins" id="eggCoins"><i></i><i></i><i></i></span><span class="eggKills" id="eggKills">🎯 0</span></div>
       <span id="eggNext"></span>
     </div>
     <button id="rocketBtn" type="button" disabled><span class="rk">🚀</span><span data-i18n="launch">FIRE</span><b id="rocketN">0</b></button>
@@ -515,6 +520,7 @@
         <div><b id="statLevel">1</b><span data-i18n="level">Level</span></div>
         <div><b id="statDist">0 m</b><span data-i18n="distance">Distance</span></div>
         <div><b id="statCoins">0</b><span data-i18n="coins">Coins</span></div>
+        <div id="statKillsTile" hidden><b id="statKills">0</b><span data-i18n="shotDownStat">Shot down</span></div>
       </div>
       <p id="bestLine"></p>
       <div class="overBtns">
@@ -830,7 +836,7 @@ window.I18N = (() => {
       records: "Рекорди", noRuns: "Ще немає заїздів. Час грати!", done: "Готово", shade: "Відтінок: від чорного до білого",
       // Easter egg (Ukrainian only): Shahed drones and rockets bought with coins
       shahedBanner: 'ШАХЕД!', shahedSub: 'Тисни ПУСК або на нього · 🚀 = {n} монети',
-      shotDown: 'ЗБИТО!', rocketTitle: 'Ракета: {n} монети (пробіл)',
+      shotDown: 'ЗБИТО!', dodged: 'УХИЛИВСЯ!', shotDownStat: 'Збито', rocketTitle: 'Ракета: {n} монети (пробіл)',
       launch: 'ПУСК', need1: 'Ще 1 монета до ракети', needN: 'Ще {n} монети до ракети',
       rocketsReady: 'Ракета готова!', rocketsReadyN: 'Ракет готово: {n}', droneAlert: 'ШАХЕД! Тисни ПУСК',
       droneNoRocket: 'ШАХЕД! Ухиляйся!',
@@ -1111,7 +1117,7 @@ window.LD_RULES = (() => {
   const el = {
     score: $('score'), streak: $('streak'), lives: $('lives'), level: $('level'), prog: $('prog'),
     togo: $('togo'), fuel: $('fuel'), pips: $('pips'), fuelRow: $('fuelRow'),
-    intro: $('intro'), over: $('over'), count: $('count'), banner: $('banner'),
+    intro: $('intro'), over: $('over'), count: $('count'), banner: $('banner'), eggKills: $('eggKills'),
   };
 
   let W = 0, H = 0, dpr = 1, laneW = 0;
@@ -1124,6 +1130,9 @@ window.LD_RULES = (() => {
   const EGG = () => I18N.lang === 'uk';
   const ROCKET_COST = 3, DRONE_FUEL = 15, ROCKET_V = 1100;
   let drones = [], rockets = [], booms = [], wallet = 0, droneT = 0, droneSeen = false;
+  // Shahed score: kills this run, and a combo of kills in a row (reset when one hits you).
+  let kills = 0, killCombo = 0;
+  const KILL_PTS = 150, DODGE_PTS = 50, MAX_COMBO = 5;
 
   function readNum(k) { try { return +localStorage.getItem(k) || 0; } catch { return 0; } }
   function writeNum(k, v) { try { localStorage.setItem(k, v); } catch {} }
@@ -1322,7 +1331,7 @@ window.LD_RULES = (() => {
     lives = MAX_LIVES; level = 1; speed = levelSpeed(1);
     spawnDist = 200; flash = 0; roadOffset = 0; shake = 0; planner = R.newPlanner(Math.random);
     levelDist = 0; distance = 0; bonus = 0; fuel = 100; coins = 0; coinMeter = 0; streak = 0; lowFuelT = 0; finishSpawned = false;
-    drones = []; rockets = []; booms = []; wallet = 0; droneT = 7; droneSeen = false;
+    drones = []; rockets = []; booms = []; wallet = 0; droneT = 7; droneSeen = false; kills = 0; killCombo = 0;
     el.banner.innerHTML = '';
     updateHud();
   }
@@ -1350,6 +1359,7 @@ window.LD_RULES = (() => {
     const incoming = drones.some(d => !d.dead && !rockets.some(r => r.target === d)); // not already being shot at
     const set = (node, v) => { if (node.textContent !== v) node.textContent = v; };
     set(rocketN, String(n));
+    set(el.eggKills, '🎯 ' + num(kills) + (killCombo > 1 ? '  ×' + Math.min(killCombo, MAX_COMBO) : ''));
     rocketBtn.disabled = n === 0;
     rocketBtn.classList.toggle('ready', n > 0 && !!target());
     eggPips.forEach((p, i) => p.classList.toggle('on', i < part));
@@ -1404,9 +1414,15 @@ window.LD_RULES = (() => {
         d.dead = true;
         explode(player.x, player.y + 10);
         fuel = Math.max(0, fuel - DRONE_FUEL);
-        speed *= POTHOLE_SLOW; shake = 0.45; streak = 0;
+        speed *= POTHOLE_SLOW; shake = 0.45; streak = 0; killCombo = 0;
         floatText(player.x, player.y - 24, t('fuelFloat', { n: '−' + DRONE_FUEL }), getVar('--enemy'));
         if (navigator.vibrate) navigator.vibrate(150);
+      } else if (!d.dead && !d.passed && d.y - 22 > player.y + player.h) {
+        // Dodged: it flew past without hitting you.
+        d.passed = true;
+        const pts = DODGE_PTS * level;
+        bonus += pts;
+        floatText(d.x, player.y - 20, t('dodged') + ' +' + num(pts), '#4fd1c5');
       }
     }
     for (const r of rockets) {
@@ -1416,9 +1432,11 @@ window.LD_RULES = (() => {
         if (dist < 24) {
           tg.dead = r.dead = true;
           explode(tg.x, tg.y);
-          const pts = 150 * level;
+          kills++; killCombo++;
+          const mult = Math.min(killCombo, MAX_COMBO), pts = KILL_PTS * level * mult;
           bonus += pts;
-          floatText(tg.x, tg.y - 10, t('shotDown') + ' +' + num(pts), '#FFD700');
+          floatText(tg.x, tg.y - 10, t('shotDown') + (mult > 1 ? ' ×' + mult : '') + ' +' + num(pts), '#FFD700');
+          el.eggKills.classList.remove('bump'); void el.eggKills.offsetWidth; el.eggKills.classList.add('bump');
           continue;
         }
         r.vx = dx / dist * ROCKET_V; r.vy = dy / dist * ROCKET_V;
@@ -1601,7 +1619,7 @@ window.LD_RULES = (() => {
     writeNum('laneDodgerBest', best);
     writeNum('laneDodgerBestLevel', bestLevel);
     if (s > 0) {
-      const run = { s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, h: carHue, v: carShade, t: Date.now() };
+      const run = { s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, h: carHue, v: carShade, k: kills, t: Date.now() };
       if (saveRun(run)) latestRunT = run.t;
     }
     el.over.classList.toggle('fuel', reason === 'fuel');
@@ -1611,6 +1629,10 @@ window.LD_RULES = (() => {
     $('statLevel').textContent = num(level);
     $('statDist').textContent = t('meters', { n: Math.floor(distance / PX_PER_M) });
     $('statCoins').textContent = num(coins);
+    const egg = EGG();                                         // Ukrainian: 4th tile with Shaheds shot down
+    $('statKillsTile').hidden = !egg;
+    $('statKills').textContent = num(kills);
+    el.over.querySelector('.stats').classList.toggle('four', egg);
     $('bestLine').textContent = t('bestLine', { best, level: bestLevel });
     el.over.classList.remove('hidden');
     // Long runs ("123.456 m") shrink to fit their tile instead of spilling out.
@@ -1723,7 +1745,8 @@ window.LD_RULES = (() => {
       const info = document.createElement('div'), b = document.createElement('b'), small = document.createElement('small');
       info.className = 'info';
       b.textContent = num(r.s);
-      small.textContent = [t('lv', { n: r.l }), t('meters', { n: r.d }), df.format(r.t)].join(' · ');
+      small.textContent = [t('lv', { n: r.l }), t('meters', { n: r.d }), r.k > 0 ? '🎯 ' + num(r.k) : '', df.format(r.t)]
+        .filter(Boolean).join(' · ');
       info.append(b, small);
       li.append(rank, cv, info);
       list.appendChild(li);
@@ -2093,13 +2116,50 @@ window.LD_RULES = (() => {
     ctx.beginPath(); ctx.ellipse(0, -24, 2 + Math.abs(Math.cos(t * 47)) * 11, 2, 0, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
   }
-  function drawReticle(x, y) {
-    ctx.strokeStyle = '#f56565'; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.arc(x, y, 30, 0, Math.PI * 2); ctx.stroke();
+  function drawReticle(x, y, s) {
+    ctx.beginPath(); ctx.arc(x, y, 30 * s, 0, Math.PI * 2); ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(x - 42, y); ctx.lineTo(x - 20, y); ctx.moveTo(x + 20, y); ctx.lineTo(x + 42, y);
-    ctx.moveTo(x, y - 42); ctx.lineTo(x, y - 20); ctx.moveTo(x, y + 20); ctx.lineTo(x, y + 42);
+    ctx.moveTo(x - 42 * s, y); ctx.lineTo(x - 20 * s, y); ctx.moveTo(x + 20 * s, y); ctx.lineTo(x + 42 * s, y);
+    ctx.moveTo(x, y - 42 * s); ctx.lineTo(x, y - 20 * s); ctx.moveTo(x, y + 20 * s); ctx.lineTo(x, y + 42 * s);
     ctx.stroke();
+  }
+  const chased = d => rockets.some(r => r.target === d);
+  // Danger lane + impact target, drawn on the road before the car.
+  function drawDroneWarning(d) {
+    const pulse = 0.5 + 0.5 * Math.sin(d.t * 10);
+    const top = Math.max(0, d.y), bottom = player.y + player.h;
+    const g = ctx.createLinearGradient(0, top, 0, bottom);
+    g.addColorStop(0, 'rgba(245,101,101,0)');
+    g.addColorStop(1, `rgba(245,101,101,${(0.10 + 0.12 * pulse).toFixed(3)})`);
+    ctx.fillStyle = g;
+    ctx.fillRect(d.x - laneW / 2 + 4, top, laneW - 8, bottom - top);
+    if (d.y < player.y - 70) {
+      ctx.strokeStyle = `rgba(245,101,101,${(0.65 + 0.35 * pulse).toFixed(3)})`; ctx.lineWidth = 3;
+      drawReticle(d.x, player.y + player.h / 2, 0.92 + 0.12 * pulse);
+    }
+  }
+  // Lock-on brackets round the drone: yellow = you can fire, green = a rocket is on it,
+  // red = no rockets. With a shot ready, a dashed aim line runs from your car to it.
+  function drawLockOn(d) {
+    const ready = wallet >= ROCKET_COST, locked = chased(d);
+    const color = locked ? '#68d391' : ready ? '#FFD700' : '#f56565';
+    if (ready && !locked) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255,215,0,.55)'; ctx.lineWidth = 2; ctx.setLineDash([6, 8]);
+      ctx.lineDashOffset = -d.t * 60;                          // dashes run towards the drone
+      ctx.beginPath(); ctx.moveTo(player.x, player.y); ctx.lineTo(d.x, d.y + 28); ctx.stroke();
+      ctx.restore();
+    }
+    const s = locked ? 30 : 40 + Math.sin(d.t * 8) * 4, arm = 12;
+    ctx.save();
+    ctx.translate(d.x, d.y);
+    if (!locked) ctx.rotate(d.t * 1.2);
+    ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.lineCap = 'round';
+    for (let i = 0; i < 4; i++) {
+      ctx.rotate(Math.PI / 2);
+      ctx.beginPath(); ctx.moveTo(-s, -s + arm); ctx.lineTo(-s, -s); ctx.lineTo(-s + arm, -s); ctx.stroke();
+    }
+    ctx.restore();
   }
   function drawRocket(r) {
     ctx.save();
@@ -2147,16 +2207,15 @@ window.LD_RULES = (() => {
     }
     for (const o of objects) if (o.type === 'finish') drawFinishLabel(o.y);
 
-    // Shahed warning: a blinking red target on your lane while one is incoming.
-    for (const d of drones) {
-      if (d.y < player.y - 70 && Math.floor(d.t * 6) % 2 === 0) drawReticle(d.x, player.y + player.h / 2);
-    }
+    // Shahed warning, under the car: a pulsing red strip down its lane and a target where it will hit.
+    for (const d of drones) if (d.y < player.y) drawDroneWarning(d);
 
     if (!(flash > 0 && Math.floor(flash * 16) % 2 === 0)) {
       drawCar(player.x, player.y, player.w, player.h, carPaint(carHue, carShade), level);
     }
 
     for (const d of drones) drawShahed(d.x, d.y, d.t);
+    for (const d of drones) if (d.y < player.y) drawLockOn(d);
     for (const r of rockets) drawRocket(r);
     for (const b of booms) {
       const k = 1 - b.life / 0.4;
