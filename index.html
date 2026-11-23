@@ -2272,8 +2272,12 @@ window.LD_RULES = (() => {
 
   // Pause: everything freezes (road, drones, particles, sound). Resuming gives a
   // 3-2-1 so you can see what's coming before the road moves again.
+  // Pausing works while driving and during any 3-2-1. Paused mid-countdown, Resume restarts the
+  // count as it was (at the start of a run you can still line up; after a Resume you can't).
+  let pausedInCountdown = false;
   function pauseGame() {
-    if (state !== 'play') return;
+    if (state !== 'play' && state !== 'countdown') return;
+    pausedInCountdown = state === 'countdown';
     state = 'paused';
     el.count.innerHTML = '';
     show('pause');
@@ -2285,7 +2289,7 @@ window.LD_RULES = (() => {
     state = 'countdown';
     countT = COUNTDOWN;
     shownCount = null;
-    resuming = true;
+    if (!pausedInCountdown) resuming = true;   // paused mid-countdown: keep that countdown's rules
   }
 
   const cssCache = {};
@@ -3195,7 +3199,7 @@ window.LD_RULES = (() => {
     else if ((e.key === 'Enter' || e.key === ' ') && state === 'home' && !e.target.closest('button')) { e.preventDefault(); startPlay(); }
     else if ((e.key === 'Enter' || e.key === ' ') && state === 'menu' && !e.target.closest('button')) { e.preventDefault(); closeHelp(); }
     else if ((e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') && state === 'play' && DRONES()) { e.preventDefault(); fire(); }
-    else if ((e.key === 'p' || e.key === 'P' || e.key === 'Escape') && state === 'play') pauseGame();
+    else if ((e.key === 'p' || e.key === 'P' || e.key === 'Escape') && (state === 'play' || state === 'countdown')) pauseGame();
     else if ((e.key === 'p' || e.key === 'P' || e.key === 'Escape') && state === 'paused') resumeGame();
     else if (e.key === 'Escape' && state === 'menu' && helpFrom === 'pause') closeHelp();   // back to the pause menu
     else if (e.key === 'Escape' && ['menu', 'over', 'bye', 'garage', 'records'].includes(state)) goHome();
