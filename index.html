@@ -81,8 +81,10 @@
   .coinChip.bump { animation: coinBump .35s ease-out; }
   @keyframes coinBump { 40% { transform: scale(1.25); } }
   /* progress to the next heart, shown only while a life is missing */
-  #heartProg { font-size: 12px; font-weight: 800; color: var(--muted); font-variant-numeric: tabular-nums; margin-left: -4px; }
-  #lives { margin-left: auto; letter-spacing: 4px; color: var(--enemy); font-size: 18px; }
+  /* hearts on the right, with the progress to the next heart in small type underneath */
+  .livesBox { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; line-height: 1; }
+  #lives { letter-spacing: 4px; color: var(--enemy); font-size: 18px; line-height: 1.1; }
+  #heartProg { margin-top: 2px; font-size: 10px; font-weight: 800; letter-spacing: .5px; color: var(--muted); font-variant-numeric: tabular-nums; }
   #lives.gain { animation: livesGain .6s cubic-bezier(.2,1.6,.4,1); }
   @keyframes livesGain { 30% { transform: scale(1.4); text-shadow: 0 0 12px var(--enemy); } }
   #mute {
@@ -115,14 +117,18 @@
   }
   #wrap.at-home #eggBar { visibility: hidden; }
   .eggInfo { flex: 1; min-width: 0; display: grid; gap: 5px; }
-  .eggTop { display: flex; align-items: center; gap: 12px; }
+  .eggTop { display: flex; align-items: center; gap: 9px; }
   .eggKills { font-size: 15px; font-weight: 900; color: #FFD700; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .eggKills.bump { animation: killBump .5s cubic-bezier(.2,1.6,.4,1); }
   @keyframes killBump { 30% { transform: scale(1.5); } }
-  .eggCoins { display: flex; gap: 5px; }
-  .eggCoins i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--coin); opacity: .4; }
+  /* coins towards the next rocket: a small rocket in front so they don't read as more coins */
+  .eggCoins { display: flex; align-items: center; gap: 4px; }
+  .eggCoins::before { content: '🚀'; font-size: 12px; margin-right: 1px; }
+  .eggCoins i { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--coin); opacity: .4; }
   .eggCoins i.on { background: var(--coin); opacity: 1; }
-  #eggNext { font-size: 12px; line-height: 1.25; font-weight: 700; color: var(--muted); overflow-wrap: anywhere; }
+  .eggSub { display: flex; align-items: center; gap: 6px; min-height: 16px; }
+  #eggBar.alert .eggCoins { display: none; }          /* the alert takes the whole line */
+  #eggNext { font-size: 12px; line-height: 1.25; font-weight: 800; color: var(--muted); overflow-wrap: anywhere; }
   #rocketBtn {
     justify-self: end; position: relative; margin: 0; padding: 10px 14px 10px 12px; min-width: 0; max-width: 100%; min-height: 54px;
     display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -538,15 +544,17 @@
   <canvas id="game"></canvas>
   <div id="eggBar" hidden>
     <div class="eggInfo">
-      <div class="eggTop"><span class="eggCoins" id="eggCoins"><i></i><i></i><i></i></span><span class="eggKills" id="eggKills">🎯 0</span></div>
-      <span id="eggNext"></span>
+      <!-- line 1: coins collected and Shaheds shot down; line 2: progress to the next rocket,
+           replaced by the red alert while a Shahed is incoming -->
+      <div class="eggTop"><span id="coinCount" class="coinChip"><i></i><b>0</b></span><span class="eggKills" id="eggKills">🎯 0</span></div>
+      <div class="eggSub"><span class="eggCoins" id="eggCoins"><i></i><i></i><i></i></span><span id="eggNext"></span></div>
     </div>
     <button id="pauseBtn" type="button" data-i18n-title="pause" data-i18n-aria="pause" aria-label="Pause">⏸</button>
     <button id="rocketBtn" type="button" disabled><span class="rk">🚀</span><span data-i18n="launch">FIRE</span><b id="rocketN">0</b></button>
   </div>
 
   <div id="hud">
-    <div class="hrow"><span id="score">0</span><span id="streak">×2</span><span id="coinCount" class="coinChip"><i></i><b>0</b></span><span id="lives"></span><span id="heartProg" hidden></span><button id="mute" type="button" aria-label="Mute sound">🔊</button></div>
+    <div class="hrow"><span id="score">0</span><span id="streak">×2</span><span class="livesBox"><span id="lives"></span><span id="heartProg" hidden></span></span><button id="mute" type="button" aria-label="Mute sound">🔊</button></div>
     <div class="hrow"><span class="tag" id="level">LV 1</span><div class="bar"><div id="prog"></div></div><span class="small" id="togo">400 m</span></div>
     <div class="hrow" id="fuelRow"><span class="tag" data-i18n="fuel">FUEL</span><div class="bar"><div id="fuel"></div></div><span id="pips" data-i18n-title="pipsTitle" title="Coins until next fuel top-up"><i></i><i></i><i></i><i></i><i></i></span></div>
   </div>
@@ -694,7 +702,7 @@ window.I18N = (() => {
       paused: "Paused", resume: "Resume", pause: "Pause",
       // Shahed drones and rockets
       shahedBanner: "SHAHED!", shahedSub: "Tap FIRE or the drone · 🚀 = {n} coins", shotDown: "SHOT DOWN!", smashed: "SMASHED!", dodged: "DODGED!", shotDownStat: "Shot down",
-      rocketTitle: "Rocket: {n} coins (Space)", launch: "FIRE",       rocketsReady: "Rocket ready!", rocketsReadyN: "{n} rockets ready", droneAlert: "SHAHED! Tap FIRE", droneNoRocket: "SHAHED! Dodge!",
+      rocketTitle: "Rocket: {n} coins (Space)", launch: "FIRE", droneAlert: "SHAHED! Tap FIRE", droneNoRocket: "SHAHED! Dodge!",
       language: 'Language', auto: 'Auto'
     },
     es: {
@@ -725,7 +733,7 @@ window.I18N = (() => {
       paused: "En pausa", resume: "Continuar", pause: "Pausa",
       // Shahed drones and rockets
       shahedBanner: "¡SHAHED!", shahedSub: "Toca DISPARAR o el dron · 🚀 = {n} monedas", shotDown: "¡DERRIBADO!", smashed: "¡DESTROZADA!", dodged: "¡ESQUIVADO!", shotDownStat: "Derribados",
-      rocketTitle: "Cohete: {n} monedas (Espacio)", launch: "DISPARAR",       rocketsReady: "¡Cohete listo!", rocketsReadyN: "{n} cohetes listos", droneAlert: "¡SHAHED! Toca DISPARAR", droneNoRocket: "¡SHAHED! ¡Esquívalo!",
+      rocketTitle: "Cohete: {n} monedas (Espacio)", launch: "DISPARAR", droneAlert: "¡SHAHED! Toca DISPARAR", droneNoRocket: "¡SHAHED! ¡Esquívalo!",
       language: 'Idioma', auto: 'Automático'
     },
     fr: {
@@ -756,7 +764,7 @@ window.I18N = (() => {
       paused: "Pause", resume: "Reprendre", pause: "Pause",
       // Shahed drones and rockets
       shahedBanner: `SHAHED${NB}!`, shahedSub: "Touche FEU ou le drone · 🚀 = {n} pièces", shotDown: `ABATTU${NB}!`, smashed: `PULVÉRISÉE${NB}!`, dodged: `ÉVITÉ${NB}!`, shotDownStat: "Abattus",
-      rocketTitle: `Roquette${NB}: {n} pièces (Espace)`, launch: "FEU",       rocketsReady: `Roquette prête${NB}!`, rocketsReadyN: "{n} roquettes prêtes", droneAlert: `SHAHED${NB}! Touche FEU`, droneNoRocket: `SHAHED${NB}! Esquive${NB}!`,
+      rocketTitle: `Roquette${NB}: {n} pièces (Espace)`, launch: "FEU", droneAlert: `SHAHED${NB}! Touche FEU`, droneNoRocket: `SHAHED${NB}! Esquive${NB}!`,
       language: 'Langue', auto: 'Auto'
     },
     de: {
@@ -787,7 +795,7 @@ window.I18N = (() => {
       paused: "Pausiert", resume: "Weiter", pause: "Pause",
       // Shahed drones and rockets
       shahedBanner: "SHAHED!", shahedSub: "Tippe FEUER oder die Drohne · 🚀 = {n} Münzen", shotDown: "ABGESCHOSSEN!", smashed: "GESPRENGT!", dodged: "AUSGEWICHEN!", shotDownStat: "Abgeschossen",
-      rocketTitle: "Rakete: {n} Münzen (Leertaste)", launch: "FEUER",       rocketsReady: "Rakete bereit!", rocketsReadyN: "{n} Raketen bereit", droneAlert: "SHAHED! Tippe FEUER", droneNoRocket: "SHAHED! Ausweichen!",
+      rocketTitle: "Rakete: {n} Münzen (Leertaste)", launch: "FEUER", droneAlert: "SHAHED! Tippe FEUER", droneNoRocket: "SHAHED! Ausweichen!",
       language: 'Sprache', auto: 'Automatisch'
     },
     pt: {
@@ -818,7 +826,7 @@ window.I18N = (() => {
       paused: "Pausado", resume: "Continuar", pause: "Pausar",
       // Shahed drones and rockets
       shahedBanner: "SHAHED!", shahedSub: "Toque em DISPARAR ou no drone · 🚀 = {n} moedas", shotDown: "ABATIDO!", smashed: "DESTRUÍDA!", dodged: "DESVIOU!", shotDownStat: "Abatidos",
-      rocketTitle: "Foguete: {n} moedas (Espaço)", launch: "DISPARAR",       rocketsReady: "Foguete pronto!", rocketsReadyN: "{n} foguetes prontos", droneAlert: "SHAHED! Toque em DISPARAR", droneNoRocket: "SHAHED! Desvie!",
+      rocketTitle: "Foguete: {n} moedas (Espaço)", launch: "DISPARAR", droneAlert: "SHAHED! Toque em DISPARAR", droneNoRocket: "SHAHED! Desvie!",
       language: 'Idioma', auto: 'Automático'
     },
     it: {
@@ -849,7 +857,7 @@ window.I18N = (() => {
       paused: "In pausa", resume: "Riprendi", pause: "Pausa",
       // Shahed drones and rockets
       shahedBanner: "SHAHED!", shahedSub: "Tocca FUOCO o il drone · 🚀 = {n} monete", shotDown: "ABBATTUTO!", smashed: "DISTRUTTA!", dodged: "SCHIVATO!", shotDownStat: "Abbattuti",
-      rocketTitle: "Razzo: {n} monete (Spazio)", launch: "FUOCO",       rocketsReady: "Razzo pronto!", rocketsReadyN: "{n} razzi pronti", droneAlert: "SHAHED! Tocca FUOCO", droneNoRocket: "SHAHED! Schivalo!",
+      rocketTitle: "Razzo: {n} monete (Spazio)", launch: "FUOCO", droneAlert: "SHAHED! Tocca FUOCO", droneNoRocket: "SHAHED! Schivalo!",
       language: 'Lingua', auto: 'Automatica'
     },
     ja: {
@@ -880,7 +888,7 @@ window.I18N = (() => {
       paused: "一時停止中", resume: "再開", pause: "一時停止",
       // Shahed drones and rockets
       shahedBanner: "シャヘド！", shahedSub: "「発射」かドローンをタップ · 🚀 = コイン{n}枚", shotDown: "撃墜！", smashed: "粉砕！", dodged: "回避！", shotDownStat: "撃墜",
-      rocketTitle: "ロケット：コイン{n}枚（スペース）", launch: "発射",       rocketsReady: "ロケット準備OK！", rocketsReadyN: "ロケット{n}発 準備OK", droneAlert: "シャヘド！「発射」をタップ", droneNoRocket: "シャヘド！よけろ！",
+      rocketTitle: "ロケット：コイン{n}枚（スペース）", launch: "発射", droneAlert: "シャヘド！「発射」をタップ", droneNoRocket: "シャヘド！よけろ！",
       language: '言語', auto: '自動'
     },
     zh: {
@@ -911,7 +919,7 @@ window.I18N = (() => {
       paused: "已暂停", resume: "继续", pause: "暂停",
       // Shahed drones and rockets
       shahedBanner: "沙赫德！", shahedSub: "点「发射」或无人机 · 🚀 = {n} 枚金币", shotDown: "击落！", smashed: "炸毁！", dodged: "躲开了！", shotDownStat: "击落",
-      rocketTitle: "火箭：{n} 枚金币（空格键）", launch: "发射",       rocketsReady: "火箭就绪！", rocketsReadyN: "{n} 枚火箭就绪", droneAlert: "沙赫德！点「发射」", droneNoRocket: "沙赫德！快躲开！",
+      rocketTitle: "火箭：{n} 枚金币（空格键）", launch: "发射", droneAlert: "沙赫德！点「发射」", droneNoRocket: "沙赫德！快躲开！",
       language: '语言', auto: '自动'
     },
     ko: {
@@ -942,7 +950,7 @@ window.I18N = (() => {
       paused: "일시 정지", resume: "계속하기", pause: "일시 정지",
       // Shahed drones and rockets
       shahedBanner: "샤헤드!", shahedSub: "발사 또는 드론을 탭 · 🚀 = 코인 {n}개", shotDown: "격추!", smashed: "파괴!", dodged: "회피!", shotDownStat: "격추",
-      rocketTitle: "로켓: 코인 {n}개 (스페이스)", launch: "발사",       rocketsReady: "로켓 준비 완료!", rocketsReadyN: "로켓 {n}발 준비", droneAlert: "샤헤드! 발사를 탭", droneNoRocket: "샤헤드! 피하세요!",
+      rocketTitle: "로켓: 코인 {n}개 (스페이스)", launch: "발사", droneAlert: "샤헤드! 발사를 탭", droneNoRocket: "샤헤드! 피하세요!",
       language: '언어', auto: '자동'
     },
     hi: {
@@ -973,7 +981,7 @@ window.I18N = (() => {
       paused: "रुका हुआ", resume: "जारी रखें", pause: "रोकें",
       // Shahed drones and rockets
       shahedBanner: "शाहेद!", shahedSub: "फ़ायर या ड्रोन पर टैप करें · 🚀 = {n} सिक्के", shotDown: "मार गिराया!", smashed: "तोड़ दिया!", dodged: "बच निकले!", shotDownStat: "मार गिराए",
-      rocketTitle: "रॉकेट: {n} सिक्के (स्पेस)", launch: "फ़ायर",       rocketsReady: "रॉकेट तैयार!", rocketsReadyN: "{n} रॉकेट तैयार", droneAlert: "शाहेद! फ़ायर दबाएँ", droneNoRocket: "शाहेद! बचो!",
+      rocketTitle: "रॉकेट: {n} सिक्के (स्पेस)", launch: "फ़ायर", droneAlert: "शाहेद! फ़ायर दबाएँ", droneNoRocket: "शाहेद! बचो!",
       language: 'भाषा', auto: 'स्वचालित'
     },
     uk: {
@@ -1005,7 +1013,7 @@ window.I18N = (() => {
       // Shahed drones and rockets bought with coins
       shahedBanner: 'ШАХЕД!', shahedSub: 'Тисни ПУСК або на нього · 🚀 = {n} монети',
       shotDown: 'ЗБИТО!', smashed: "РОЗБИТО!", dodged: 'УХИЛИВСЯ!', shotDownStat: 'Збито', rocketTitle: 'Ракета: {n} монети (пробіл)',
-      launch: 'ПУСК',       rocketsReady: 'Ракета готова!', rocketsReadyN: 'Ракет готово: {n}', droneAlert: 'ШАХЕД! Тисни ПУСК',
+      launch: 'ПУСК', droneAlert: 'ШАХЕД! Тисни ПУСК',
       droneNoRocket: 'ШАХЕД! Ухиляйся!',
       language: 'Мова', auto: 'Авто'
     },
@@ -1037,7 +1045,7 @@ window.I18N = (() => {
       paused: "პაუზა", resume: "გაგრძელება", pause: "პაუზა",
       // Shahed drones and rockets
       shahedBanner: "შაჰედი!", shahedSub: "შეეხე გასროლას ან დრონს · 🚀 = {n} მონეტა", shotDown: "ჩამოგდებულია!", smashed: "დაიმსხვრა!", dodged: "აიცილე!", shotDownStat: "ჩამოგდებული",
-      rocketTitle: "რაკეტა: {n} მონეტა (Space)", launch: "გასროლა",       rocketsReady: "რაკეტა მზადაა!", rocketsReadyN: "{n} რაკეტა მზადაა", droneAlert: "შაჰედი! შეეხე გასროლას", droneNoRocket: "შაჰედი! აიცილე!",
+      rocketTitle: "რაკეტა: {n} მონეტა (Space)", launch: "გასროლა", droneAlert: "შაჰედი! შეეხე გასროლას", droneNoRocket: "შაჰედი! აიცილე!",
       language: 'ენა', auto: 'ავტო'
     }
   };
@@ -1554,7 +1562,7 @@ window.LD_RULES = (() => {
     const showProg = lives < MAX_LIVES;
     el.heartProg.hidden = !showProg;
     if (showProg) {
-      const v = heartsEarned > 0 ? '♥ ✓' : heartProgress + '/' + HEART_COINS;
+      const v = heartsEarned > 0 ? '♥ ✓' : '+♥ ' + heartProgress + '/' + HEART_COINS;
       if (el.heartProg.textContent !== v) el.heartProg.textContent = v;
     }
     el.level.textContent = t('lv', { n: level });
@@ -1581,11 +1589,9 @@ window.LD_RULES = (() => {
     rocketBtn.classList.toggle('ready', n > 0 && !!target());
     eggPips.forEach((p, i) => p.classList.toggle('on', i < part));
     eggBar.classList.toggle('alert', incoming);
-    const k = ROCKET_COST - part;
-    set(eggNext, incoming ? t(n > 0 ? 'droneAlert' : 'droneNoRocket')
-               : full ? '🚀 ×' + MAX_ROCKETS + ' MAX'
-               : n > 0 ? (n === 1 ? t('rocketsReady') : t('rocketsReadyN', { n }))
-               : '+' + num(k) + ' 🪙 → 🚀');                    // coins still needed for a rocket
+    // The dots already show progress to the next rocket and the FIRE badge shows how many
+    // are ready, so the text is only for the Shahed alert, or MAX when no more can be banked.
+    set(eggNext, incoming ? t(n > 0 ? 'droneAlert' : 'droneNoRocket') : full ? 'MAX' : '');
   }
   // The bar only exists in Ukrainian; it takes room from the road, so re-measure the canvas.
   function layoutEgg() {
