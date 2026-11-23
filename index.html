@@ -126,6 +126,13 @@
   }
   button.secondary:active { box-shadow: 0 2px 0 rgba(0,0,0,.35); }
   #wrap.at-home #hud { visibility: hidden; }
+  #helpBtn {
+    position: absolute; top: calc(12px + env(safe-area-inset-top, 0px)); left: 12px; z-index: 2;
+    width: 40px; height: 40px; padding: 0; margin: 0; border-radius: 50%;
+    font-size: 20px; font-weight: 800; line-height: 1; color: var(--text);
+    background: rgba(255,255,255,.1); box-shadow: none;
+  }
+  #helpBtn:active { transform: scale(.92); box-shadow: none; }
   .langPick {
     position: absolute; top: calc(12px + env(safe-area-inset-top, 0px)); right: 12px;
     z-index: 2;
@@ -224,7 +231,10 @@
   }
   .lead { color: var(--text) !important; font-weight: 600; font-size: 16px; }
   .rules { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; gap: 9px; text-align: left; }
-  .rules li { display: flex; align-items: center; gap: 12px; font-size: 14px; line-height: 1.3; }
+  .rules li { display: flex; align-items: center; gap: 12px; font-size: 15px; line-height: 1.3; }
+  .rules b { color: var(--text); }
+  /* Keyboard hint only where there is a mouse/trackpad (i.e. probably a keyboard) */
+  @media (hover: none), (pointer: coarse) { .keys { display: none; } }
   .rules .ico { flex: none; width: 26px; height: 26px; display: grid; place-items: center; }
   .ico.block {
     width: 26px; height: 12px; border-radius: 3px;
@@ -307,6 +317,7 @@
     </div>
     <button id="installBtn" class="ghost" hidden>📲 <span data-i18n="installApp">Install app</span></button>
     <p id="installHint" hidden></p>
+    <button id="helpBtn" type="button" data-i18n-title="howToPlay" data-i18n-aria="howToPlay" title="How to play" aria-label="How to play">?</button>
     <div class="langPick">
       <button id="langBtn" type="button" aria-haspopup="true" aria-expanded="false"></button>
       <div id="langMenu" role="menu" hidden></div>
@@ -326,11 +337,11 @@
       <div class="demo" aria-hidden="true"><div class="car"><i></i><b></b></div><div class="tap"></div></div>
       <p class="lead"><span data-i18n="lead1">Tap any lane to jump straight there.</span><br><span data-i18n="lead2">Hold and drag to slide across.</span></p>
       <ul class="rules">
-        <li><span class="ico"><span class="ico flag"></span></span><span data-i18n="rule1">Reach each checkpoint to level up. Every level is longer and faster.</span></li>
-        <li><span class="ico"><span class="ico fuel"></span></span><span data-i18n="rule2">Fuel keeps draining. Run out and it's over.</span></li>
-        <li><span class="ico"><span class="ico coin"></span></span><span data-i18n="rule3">Every 5 coins refills 40% fuel. Chain coins for up to ×5 points.</span></li>
-        <li><span class="ico"><span class="ico block"></span></span><span data-i18n="rule4">Dodge the barriers. 3 crashes and you're out.</span></li>
-        <li><span class="ico"><span class="ico hole"></span></span><span data-i18n="rule5">Potholes won't crash you, but they cost 8% fuel and slow you down.</span></li>
+        <li><span class="ico"><span class="ico flag"></span></span><span data-i18n="rule1" data-rich><b>Checkpoints</b> = next level, faster</span></li>
+        <li><span class="ico"><span class="ico fuel"></span></span><span data-i18n="rule2" data-rich><b>Fuel</b> drains, don't run out</span></li>
+        <li><span class="ico"><span class="ico coin"></span></span><span data-i18n="rule3" data-rich><b>5 coins</b> = +40% fuel</span></li>
+        <li><span class="ico"><span class="ico block"></span></span><span data-i18n="rule4" data-rich><b>3 crashes</b> and you're out</span></li>
+        <li><span class="ico"><span class="ico hole"></span></span><span data-i18n="rule5" data-rich><b>Potholes</b> cost 8% fuel</span></li>
       </ul>
       <p class="keys" data-i18n="keys">Keyboard: ← → or A / D · M to mute</p>
       <button id="startBtn" data-i18n="gotIt">Got it!</button>
@@ -366,11 +377,11 @@ window.I18N = (() => {
       thanks: 'Thanks for playing!', closeNow: 'You can close this window now.', backToMenu: 'Back to menu',
       howToPlay: 'How to play',
       lead1: 'Tap any lane to jump straight there.', lead2: 'Hold and drag to slide across.',
-      rule1: 'Reach each checkpoint to level up. Every level is longer and faster.',
-      rule2: "Fuel keeps draining. Run out and it's over.",
-      rule3: 'Every 5 coins refills 40% fuel. Chain coins for up to ×5 points.',
-      rule4: "Dodge the barriers. 3 crashes and you're out.",
-      rule5: "Potholes won't crash you, but they cost 8% fuel and slow you down.",
+      rule1: "**Checkpoints** = next level, faster",
+      rule2: "**Fuel** drains, don't run out",
+      rule3: "**5 coins** = +40% fuel",
+      rule4: "**3 crashes** and you're out",
+      rule5: "**Potholes** cost 8% fuel",
       keys: 'Keyboard: ← → or A / D · M to mute', gotIt: 'Got it!',
       crashed: 'Crashed!', outOfFuel: 'Out of fuel!', score: 'Score: {n}',
       level: 'Level', distance: 'Distance', coins: 'Coins',
@@ -389,11 +400,11 @@ window.I18N = (() => {
       thanks: '¡Gracias por jugar!', closeNow: 'Ya puedes cerrar esta ventana.', backToMenu: 'Volver al menú',
       howToPlay: 'Cómo jugar',
       lead1: 'Toca un carril para saltar directo a él.', lead2: 'Mantén y arrastra para deslizarte.',
-      rule1: 'Llega a cada punto de control para subir de nivel. Cada nivel es más largo y más rápido.',
-      rule2: 'El combustible se agota. Si te quedas sin él, se acabó.',
-      rule3: 'Cada 5 monedas recargan un 40 % de combustible. Encadena monedas para multiplicar hasta ×5.',
-      rule4: 'Esquiva las barreras. 3 choques y quedas fuera.',
-      rule5: 'Los baches no te hacen chocar, pero cuestan un 8 % de combustible y te frenan.',
+      rule1: "**Puntos de control** = siguiente nivel, más rápido",
+      rule2: "**El combustible** se gasta, no te quedes sin él",
+      rule3: "**5 monedas** = +40 % de combustible",
+      rule4: "**3 choques** y quedas fuera",
+      rule5: "**Los baches** cuestan un 8 % de combustible",
       keys: 'Teclado: ← → o A / D · M para silenciar', gotIt: '¡Entendido!',
       crashed: '¡Choque!', outOfFuel: '¡Sin combustible!', score: 'Puntos: {n}',
       level: 'Nivel', distance: 'Distancia', coins: 'Monedas',
@@ -412,11 +423,11 @@ window.I18N = (() => {
       thanks: `Merci d'avoir joué${NB}!`, closeNow: 'Tu peux fermer cette fenêtre.', backToMenu: 'Retour au menu',
       howToPlay: 'Comment jouer',
       lead1: 'Touche une voie pour y aller directement.', lead2: 'Maintiens et glisse pour changer de voie.',
-      rule1: 'Atteins chaque point de contrôle pour monter de niveau. Chaque niveau est plus long et plus rapide.',
-      rule2: `L'essence s'épuise. Panne sèche${NB}= partie terminée.`,
-      rule3: `Toutes les 5 pièces, +40${NB}% d'essence. Enchaîne les pièces pour jusqu'à ×5 points.`,
-      rule4: `Évite les barrières. 3 accidents et c'est fini.`,
-      rule5: `Les nids-de-poule ne t'éliminent pas, mais coûtent 8${NB}% d'essence et te ralentissent.`,
+      rule1: "**Points de contrôle** = niveau suivant, plus rapide",
+      rule2: "**L'essence** baisse, évite la panne",
+      rule3: `**5 pièces** = +40${NB}% d'essence`,
+      rule4: "**3 accidents** et c'est fini",
+      rule5: `**Les nids-de-poule** coûtent 8${NB}% d'essence`,
       keys: `Clavier${NB}: ← → ou A / D · M pour couper le son`, gotIt: `C'est parti${NB}!`,
       crashed: `Accident${NB}!`, outOfFuel: `Panne d'essence${NB}!`, score: `Score${NB}: {n}`,
       level: 'Niveau', distance: 'Distance', coins: 'Pièces',
@@ -435,11 +446,11 @@ window.I18N = (() => {
       thanks: 'Danke fürs Spielen!', closeNow: 'Du kannst dieses Fenster jetzt schließen.', backToMenu: 'Zurück zum Menü',
       howToPlay: 'So wird gespielt',
       lead1: 'Tippe auf eine Spur, um direkt dorthin zu springen.', lead2: 'Halten und ziehen, um hinüberzugleiten.',
-      rule1: 'Erreiche jeden Checkpoint für das nächste Level. Jedes Level ist länger und schneller.',
-      rule2: 'Der Sprit wird ständig weniger. Ist der Tank leer, ist Schluss.',
-      rule3: 'Alle 5 Münzen gibt es 40 % Sprit. Sammle Münzen am Stück für bis zu ×5 Punkte.',
-      rule4: 'Weiche den Barrieren aus. Nach 3 Unfällen ist Schluss.',
-      rule5: 'Schlaglöcher kosten kein Leben, aber 8 % Sprit und bremsen dich aus.',
+      rule1: "**Checkpoints** = nächstes Level, schneller",
+      rule2: "**Sprit** sinkt ständig, nicht leerfahren",
+      rule3: "**5 Münzen** = +40 % Sprit",
+      rule4: "**3 Unfälle** und du bist raus",
+      rule5: "**Schlaglöcher** kosten 8 % Sprit",
       keys: 'Tastatur: ← → oder A / D · M für Ton aus', gotIt: 'Verstanden!',
       crashed: 'Unfall!', outOfFuel: 'Tank leer!', score: 'Punkte: {n}',
       level: 'Level', distance: 'Strecke', coins: 'Münzen',
@@ -458,11 +469,11 @@ window.I18N = (() => {
       thanks: 'Obrigado por jogar!', closeNow: 'Você já pode fechar esta janela.', backToMenu: 'Voltar ao menu',
       howToPlay: 'Como jogar',
       lead1: 'Toque em uma faixa para ir direto para ela.', lead2: 'Segure e arraste para deslizar.',
-      rule1: 'Alcance cada checkpoint para subir de nível. Cada nível é mais longo e mais rápido.',
-      rule2: 'O combustível não para de baixar. Se acabar, fim de jogo.',
-      rule3: 'A cada 5 moedas, +40% de combustível. Pegue moedas em sequência para até ×5 pontos.',
-      rule4: 'Desvie das barreiras. 3 batidas e você está fora.',
-      rule5: 'Buracos não tiram vida, mas custam 8% de combustível e deixam você mais lento.',
+      rule1: "**Checkpoints** = próximo nível, mais rápido",
+      rule2: "**O combustível** acaba, não fique sem",
+      rule3: "**5 moedas** = +40% de combustível",
+      rule4: "**3 batidas** e você está fora",
+      rule5: "**Buracos** custam 8% de combustível",
       keys: 'Teclado: ← → ou A / D · M para silenciar', gotIt: 'Entendi!',
       crashed: 'Bateu!', outOfFuel: 'Sem combustível!', score: 'Pontos: {n}',
       level: 'Nível', distance: 'Distância', coins: 'Moedas',
@@ -481,11 +492,11 @@ window.I18N = (() => {
       thanks: 'Grazie per aver giocato!', closeNow: 'Ora puoi chiudere questa finestra.', backToMenu: 'Torna al menu',
       howToPlay: 'Come si gioca',
       lead1: 'Tocca una corsia per spostarti subito lì.', lead2: 'Tieni premuto e trascina per scivolare.',
-      rule1: 'Raggiungi ogni checkpoint per salire di livello. Ogni livello è più lungo e più veloce.',
-      rule2: 'Il carburante cala di continuo. Se finisce, è game over.',
-      rule3: 'Ogni 5 monete ricarichi il 40% di carburante. Concatena le monete per punti fino a ×5.',
-      rule4: 'Schiva le barriere. 3 incidenti e sei fuori.',
-      rule5: "Le buche non ti fanno schiantare, ma costano l'8% di carburante e ti rallentano.",
+      rule1: "**Checkpoint** = livello successivo, più veloce",
+      rule2: "**Il carburante** cala, non restare a secco",
+      rule3: "**5 monete** = +40% di carburante",
+      rule4: "**3 incidenti** e sei fuori",
+      rule5: "**Le buche** costano l'8% di carburante",
       keys: `Tastiera: ← → o A / D · M per l'audio`, gotIt: 'Ho capito!',
       crashed: 'Incidente!', outOfFuel: 'A secco!', score: 'Punti: {n}',
       level: 'Livello', distance: 'Distanza', coins: 'Monete',
@@ -504,11 +515,11 @@ window.I18N = (() => {
       thanks: '遊んでくれてありがとう！', closeNow: 'このウィンドウは閉じてかまいません。', backToMenu: 'メニューに戻る',
       howToPlay: '遊び方',
       lead1: 'レーンをタップすると、そこへ一瞬で移動。', lead2: '押したままドラッグでスライド。',
-      rule1: 'チェックポイントに着くとレベルアップ。レベルごとに長く、速くなる。',
-      rule2: '燃料はどんどん減る。ゼロになったら終了。',
-      rule3: 'コイン5枚ごとに燃料40%回復。連続で取ると最大×5ポイント。',
-      rule4: 'バリアをよけよう。3回ぶつかるとアウト。',
-      rule5: '穴ぼこはクラッシュにはならないけど、燃料が8%減ってスピードも落ちる。',
+      rule1: "**チェックポイント**でレベルアップ、速くなる",
+      rule2: "**燃料**は減り続ける、切らさないで",
+      rule3: "**コイン5枚**で燃料+40%",
+      rule4: "**3回クラッシュ**でアウト",
+      rule5: "**穴ぼこ**は燃料−8%",
       keys: 'キーボード：← → または A / D・M でミュート', gotIt: 'OK！',
       crashed: 'クラッシュ！', outOfFuel: '燃料切れ！', score: 'スコア：{n}',
       level: 'レベル', distance: '距離', coins: 'コイン',
@@ -527,11 +538,11 @@ window.I18N = (() => {
       thanks: '感谢游玩！', closeNow: '现在可以关闭此窗口了。', backToMenu: '返回菜单',
       howToPlay: '玩法',
       lead1: '点按任意车道，直接跳过去。', lead2: '按住拖动，滑动换道。',
-      rule1: '到达检查点即可升级。每一关都更长、更快。',
-      rule2: '燃油会不断消耗，耗尽即游戏结束。',
-      rule3: '每收集 5 枚金币补充 40% 燃油。连续收集最多 ×5 分。',
-      rule4: '躲开路障。撞 3 次就出局。',
-      rule5: '坑洞不会让你撞车，但会扣 8% 燃油并让你减速。',
+      rule1: "**检查点** = 下一关，更快",
+      rule2: "**燃油**不断消耗，别耗光",
+      rule3: "**5 枚金币** = 燃油 +40%",
+      rule4: "**撞 3 次**就出局",
+      rule5: "**坑洞**扣 8% 燃油",
       keys: '键盘：← → 或 A / D · M 静音', gotIt: '知道了！',
       crashed: '撞车了！', outOfFuel: '没油了！', score: '得分：{n}',
       level: '关卡', distance: '距离', coins: '金币',
@@ -550,11 +561,11 @@ window.I18N = (() => {
       thanks: '플레이해 주셔서 감사합니다!', closeNow: '이제 이 창을 닫아도 됩니다.', backToMenu: '메뉴로 돌아가기',
       howToPlay: '게임 방법',
       lead1: '차선을 탭하면 바로 그 차선으로 이동해요.', lead2: '누른 채로 드래그하면 미끄러지듯 이동해요.',
-      rule1: '체크포인트에 도착하면 레벨 업! 레벨마다 더 길고 빨라져요.',
-      rule2: '연료는 계속 줄어요. 다 떨어지면 게임 오버.',
-      rule3: '코인 5개마다 연료 40% 충전. 연속으로 모으면 최대 ×5 점수.',
-      rule4: '바리케이드를 피하세요. 3번 부딪히면 끝.',
-      rule5: '포트홀은 충돌로 치지 않지만, 연료가 8% 줄고 속도가 느려져요.',
+      rule1: "**체크포인트** = 다음 레벨, 더 빠르게",
+      rule2: "**연료**가 계속 줄어요, 바닥나지 않게",
+      rule3: "**코인 5개** = 연료 +40%",
+      rule4: "**3번 충돌**하면 끝",
+      rule5: "**포트홀**은 연료 −8%",
       keys: '키보드: ← → 또는 A / D · M 음소거', gotIt: '알겠어요!',
       crashed: '충돌!', outOfFuel: '연료 고갈!', score: '점수: {n}',
       level: '레벨', distance: '거리', coins: '코인',
@@ -573,11 +584,11 @@ window.I18N = (() => {
       thanks: 'खेलने के लिए धन्यवाद!', closeNow: 'अब आप यह विंडो बंद कर सकते हैं।', backToMenu: 'मेन्यू पर वापस',
       howToPlay: 'कैसे खेलें',
       lead1: 'किसी भी लेन पर टैप करें और सीधे वहाँ पहुँचें।', lead2: 'दबाकर खींचें और लेन बदलें।',
-      rule1: 'हर चेकपॉइंट पर पहुँचकर लेवल बढ़ाएँ। हर लेवल लंबा और तेज़ होता है।',
-      rule2: 'ईंधन लगातार घटता है। ख़त्म हुआ तो खेल ख़त्म।',
-      rule3: 'हर 5 सिक्कों पर 40% ईंधन मिलता है। लगातार सिक्के उठाकर ×5 तक अंक पाएँ।',
-      rule4: 'बैरियर से बचें। 3 टक्कर और आप बाहर।',
-      rule5: 'गड्ढों से टक्कर नहीं होती, पर 8% ईंधन घटता है और रफ़्तार धीमी हो जाती है।',
+      rule1: "**चेकपॉइंट** = अगला लेवल, और तेज़",
+      rule2: "**ईंधन** घटता रहता है, ख़त्म न होने दें",
+      rule3: "**5 सिक्के** = +40% ईंधन",
+      rule4: "**3 टक्कर** और आप बाहर",
+      rule5: "**गड्ढे** = −8% ईंधन",
       keys: 'कीबोर्ड: ← → या A / D · M से म्यूट', gotIt: 'समझ गया!',
       crashed: 'टक्कर!', outOfFuel: 'ईंधन ख़त्म!', score: 'स्कोर: {n}',
       level: 'लेवल', distance: 'दूरी', coins: 'सिक्के',
@@ -620,8 +631,19 @@ window.I18N = (() => {
   }
   function apply() {
     document.documentElement.lang = lang;
-    document.querySelectorAll('[data-i18n]').forEach(e => { e.textContent = t(e.dataset.i18n); });
+    document.querySelectorAll('[data-i18n]').forEach(e => {
+      const s = t(e.dataset.i18n);
+      if (!e.hasAttribute('data-rich')) { e.textContent = s; return; }
+      // "**word** rest" → <b>word</b> rest (built as nodes, never as HTML)
+      e.textContent = '';
+      s.split('**').forEach((part, i) => {
+        if (!part) return;
+        if (i % 2) { const b = document.createElement('b'); b.textContent = part; e.appendChild(b); }
+        else e.appendChild(document.createTextNode(part));
+      });
+    });
     document.querySelectorAll('[data-i18n-title]').forEach(e => { e.title = t(e.dataset.i18nTitle); });
+    document.querySelectorAll('[data-i18n-aria]').forEach(e => { e.setAttribute('aria-label', t(e.dataset.i18nAria)); });
     subs.forEach(f => f());
   }
   function set(p) {
@@ -1124,8 +1146,7 @@ window.LD_RULES = (() => {
   // Closing the popup: fresh run, then 3-2-1-GO.
   function beginCountdown() {
     reset();
-    el.intro.classList.add('hidden');
-    el.over.classList.add('hidden');
+    show(null); // hide every overlay (home, popup, game over)
     state = 'countdown';
     countT = COUNTDOWN;
     shownCount = null;
@@ -1150,10 +1171,21 @@ window.LD_RULES = (() => {
     hb.hidden = !best;
     hb.textContent = t('homeBest', { best, level: Math.max(1, readNum('laneDodgerBestLevel')) });
   }
-  // Play → how-to-play popup → 3-2-1-GO.
-  function openHelp() {
+  // Play: the how-to-play popup the first time, straight to 3-2-1-GO after that.
+  // The ? button on the home screen reopens the popup and returns home when closed.
+  let helpFromHome = false;
+  function startPlay() {
+    if (readNum('laneDodgerSeenHelp')) beginCountdown();
+    else openHelp(false);
+  }
+  function openHelp(fromHome) {
+    helpFromHome = !!fromHome;
     state = 'menu';
     show('intro');
+  }
+  function closeHelp() {
+    writeNum('laneDodgerSeenHelp', 1);
+    if (helpFromHome) goHome(); else beginCountdown();
   }
   // Exit: close the app where the platform allows it (installed app windows, native
   // wrappers). iOS and normal browser tabs refuse, so fall back to a goodbye screen.
@@ -1451,8 +1483,8 @@ window.LD_RULES = (() => {
   window.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') move(-1);
     else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') move(1);
-    else if ((e.key === 'Enter' || e.key === ' ') && state === 'home') { e.preventDefault(); openHelp(); }
-    else if ((e.key === 'Enter' || e.key === ' ') && state === 'menu') { e.preventDefault(); beginCountdown(); }
+    else if ((e.key === 'Enter' || e.key === ' ') && state === 'home' && !e.target.closest('button')) { e.preventDefault(); startPlay(); }
+    else if ((e.key === 'Enter' || e.key === ' ') && state === 'menu' && !e.target.closest('button')) { e.preventDefault(); closeHelp(); }
     else if (e.key === 'Escape' && (state === 'menu' || state === 'over' || state === 'bye')) goHome();
     else if ((e.key === 'Enter' || e.key === ' ') && state === 'over') { e.preventDefault(); restart(); }
   });
@@ -1490,9 +1522,10 @@ window.LD_RULES = (() => {
   window.addEventListener('keydown', e => { if (e.key === 'm' || e.key === 'M') toggleMute(); });
   paintMute();
 
-  $('startBtn').addEventListener('click', beginCountdown);
+  $('startBtn').addEventListener('click', closeHelp);
   $('retryBtn').addEventListener('click', restart);
-  $('playBtn').addEventListener('click', openHelp);
+  $('playBtn').addEventListener('click', startPlay);
+  $('helpBtn').addEventListener('click', () => openHelp(true));
   $('exitBtn').addEventListener('click', exitGame);
   $('homeBtn').addEventListener('click', goHome);
   $('byeBack').addEventListener('click', () => { sfx.ensure(); goHome(); });
