@@ -1240,7 +1240,7 @@ window.LD_RULES = (() => {
   const DRONES = () => DRONES_ON;
   const ROCKET_COST = 3, MAX_ROCKETS = 3, DRONE_FUEL = 15, ROCKET_V = 1100;
   // Shahed difficulty by level. Whatever path a drone flies, the lane it will hit is
-  // shown (red strip + target) from the moment it appears, so it can always be read.
+  // shown (red strip down that lane) from the moment it appears, so it can always be read.
   const DRONE = {
     gap:   L => Math.max(4.5, 13 - 0.9 * (L - 1)) + Math.random() * 4,  // seconds between waves
     extra: L => Math.min(120 + 15 * (L - 1), 260),                      // px/s faster than the road
@@ -2300,15 +2300,8 @@ window.LD_RULES = (() => {
     ctx.beginPath(); ctx.ellipse(0, -24, 2 + Math.abs(Math.cos(t * 47)) * 11, 2, 0, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
   }
-  function drawReticle(x, y, s) {
-    ctx.beginPath(); ctx.arc(x, y, 30 * s, 0, Math.PI * 2); ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(x - 42 * s, y); ctx.lineTo(x - 20 * s, y); ctx.moveTo(x + 20 * s, y); ctx.lineTo(x + 42 * s, y);
-    ctx.moveTo(x, y - 42 * s); ctx.lineTo(x, y - 20 * s); ctx.moveTo(x, y + 20 * s); ctx.lineTo(x, y + 42 * s);
-    ctx.stroke();
-  }
   const chased = d => rockets.some(r => r.target === d);
-  // Danger lane + impact target, drawn on the road before the car.
+  // Danger lane: a pulsing red strip down the lane it will hit, drawn on the road before the car.
   function drawDroneWarning(d) {
     const pulse = 0.5 + 0.5 * Math.sin(d.t * 10);
     const lx = laneX(d.lane);                                  // the lane it WILL hit, whatever its path
@@ -2318,10 +2311,6 @@ window.LD_RULES = (() => {
     g.addColorStop(1, `rgba(245,101,101,${(0.10 + 0.12 * pulse).toFixed(3)})`);
     ctx.fillStyle = g;
     ctx.fillRect(lx - laneW / 2 + 4, top, laneW - 8, bottom - top);
-    if (d.y < player.y - 70) {
-      ctx.strokeStyle = `rgba(245,101,101,${(0.65 + 0.35 * pulse).toFixed(3)})`; ctx.lineWidth = 3;
-      drawReticle(lx, player.y + player.h / 2, 0.92 + 0.12 * pulse);
-    }
   }
   // Lock-on brackets round the drone: yellow = you can fire, green = a rocket is on it,
   // red = no rockets. With a shot ready, a dashed aim line runs from your car to it.
