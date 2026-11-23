@@ -160,7 +160,10 @@
   }
   #langMenu button[aria-checked="true"] { box-shadow: inset 0 0 0 2px var(--accent); background: rgba(79,209,197,.15); }
   #langMenu button:focus-visible { outline: 2px solid var(--text); outline-offset: 1px; }
-  #langMenu small { font-size: 9px; line-height: 1; color: var(--muted); font-weight: 700; }
+  #langMenu button[data-code="auto"] {
+    grid-column: 1 / -1; width: auto; height: 40px; flex-direction: row; gap: 10px; padding: 0 12px;
+  }
+  #langMenu small { font-size: 13px; line-height: 1; color: var(--text); font-weight: 700; }
 
   /* ---- How-to-play popup ---- */
   #intro { background: rgba(10, 12, 24, .7); }
@@ -646,11 +649,60 @@ window.I18N = (() => {
       checkpoint: 'चेकपॉइंट · लेवल {n}', homeBest: '🏆 सर्वश्रेष्ठ {best} · लेवल {level}',
       scoreLabel: "स्कोर", newBest: "नया रिकॉर्ड!",
       language: 'भाषा', auto: 'स्वचालित'
+    },
+    uk: {
+      tagline: "Оминай бар'єри. Збирай монети. Не залишися без пального.",
+      play: 'Грати', exit: 'Вийти', installApp: 'Встановити застосунок',
+      installHintIos: 'Грай як у застосунку: натисни «Поділитися», потім «На початковий екран».',
+      thanks: 'Дякуємо за гру!', closeNow: 'Тепер можна закрити це вікно.', backToMenu: 'Назад до меню',
+      howToPlay: 'Як грати',
+      lead1: 'Торкнися смуги, щоб одразу туди перескочити.', lead2: 'Утримуй і тягни, щоб ковзати.',
+      rule1: '**Чекпоінти** = наступний рівень, швидше',
+      rule2: '**Пальне** витрачається, не залишися без нього',
+      rule3: '**5 монет** = +40% пального',
+      rule4: '**3 аварії** — і ти вибуваєш',
+      rule5: '**Ями** забирають 8% пального',
+      keys: 'Клавіатура: ← → або A / D · M — вимкнути звук', gotIt: 'Зрозуміло!',
+      crashed: 'Аварія!', outOfFuel: 'Пальне скінчилося!', score: 'Рахунок: {n}',
+      level: 'Рівень', distance: 'Відстань', coins: 'Монети',
+      bestLine: 'Рекорд: {best} · Найвищий рівень: {level}', retry: 'Ще раз', home: 'Меню',
+      lv: 'РІВ {n}', fuel: 'ПАЛЬНЕ', pipsTitle: 'Монет до наступної заправки',
+      mute: 'Вимкнути звук', unmute: 'Увімкнути звук', meters: '{n} м', fuelFloat: '{n}% ПАЛЬНЕ',
+      levelBanner: 'РІВЕНЬ {n}', levelSub: '+{pts} очок · +{fuel}% пального · швидше!',
+      outBanner: 'ПАЛЬНЕ СКІНЧИЛОСЯ', outSub: 'Збирай монети, щоб бак не спорожнів',
+      checkpoint: 'ЧЕКПОІНТ · РІВЕНЬ {n}', homeBest: '🏆 Рекорд {best} · Рівень {level}',
+      scoreLabel: 'Рахунок', newBest: 'Новий рекорд!',
+      language: 'Мова', auto: 'Авто'
+    },
+    ka: {
+      tagline: 'აარიდე ბარიერებს. შეაგროვე მონეტები. არ დარჩე საწვავის გარეშე.',
+      play: 'თამაში', exit: 'გასვლა', installApp: 'აპის დაყენება',
+      installHintIos: 'ითამაშე როგორც აპში: შეეხე „გაზიარებას“, შემდეგ კი „მთავარ ეკრანზე დამატებას“.',
+      thanks: 'მადლობა თამაშისთვის!', closeNow: 'ახლა შეგიძლია ეს ფანჯარა დახურო.', backToMenu: 'მენიუში დაბრუნება',
+      howToPlay: 'როგორ ვითამაშოთ',
+      lead1: 'შეეხე ზოლს და მაშინვე იქ გადახვალ.', lead2: 'დააჭირე და გაასრიალე ზოლის შესაცვლელად.',
+      rule1: '**საკონტროლო პუნქტი** = შემდეგი დონე, უფრო სწრაფად',
+      rule2: '**საწვავი** იხარჯება, არ გაგითავდეს',
+      rule3: '**5 მონეტა** = +40% საწვავი',
+      rule4: '**3 ავარია** და თამაში დასრულდა',
+      rule5: '**ორმოები** 8% საწვავს გართმევს',
+      keys: 'კლავიატურა: ← → ან A / D · M ხმის გამორთვა', gotIt: 'გასაგებია!',
+      crashed: 'ავარია!', outOfFuel: 'საწვავი გათავდა!', score: 'ქულა: {n}',
+      level: 'დონე', distance: 'მანძილი', coins: 'მონეტები',
+      bestLine: 'რეკორდი: {best} · უმაღლესი დონე: {level}', retry: 'თავიდან', home: 'მენიუ',
+      lv: 'დონე {n}', fuel: 'საწვავი', pipsTitle: 'მონეტები შემდეგ შევსებამდე',
+      mute: 'ხმის გამორთვა', unmute: 'ხმის ჩართვა', meters: '{n} მ', fuelFloat: '{n}% საწვავი',
+      levelBanner: 'დონე {n}', levelSub: '+{pts} ქულა · +{fuel}% საწვავი · უფრო სწრაფად!',
+      outBanner: 'საწვავი გათავდა', outSub: 'შეაგროვე მონეტები, რომ ავზი სავსე დარჩეს',
+      checkpoint: 'საკონტროლო პუნქტი · დონე {n}', homeBest: '🏆 რეკორდი {best} · დონე {level}',
+      scoreLabel: 'ქულა', newBest: 'ახალი რეკორდი!',
+      language: 'ენა', auto: 'ავტო'
     }
   };
   const NAMES = {
     en: 'English', es: 'Español', fr: 'Français', de: 'Deutsch', pt: 'Português',
-    it: 'Italiano', ja: '日本語', zh: '中文（简体）', ko: '한국어', hi: 'हिन्दी'
+    it: 'Italiano', ja: '日本語', zh: '中文（简体）', ko: '한국어', hi: 'हिन्दी',
+    uk: 'Українська', ka: 'ქართული'
   };
   const KEY = 'laneDodgerLang';
 
@@ -745,6 +797,11 @@ window.I18N = (() => {
          <path d="M10,10 A5,5 0 0 1 20,10 A2.5,2.5 0 0 1 15,10 A2.5,2.5 0 0 0 10,10Z" fill="#CD2E3A" transform="rotate(33.7 15 10)"/>
          ${trigram(6, 4.5, -56.3, [0, 0, 0])}${trigram(24, 15.5, -56.3, [1, 1, 1])}${trigram(24, 4.5, 56.3, [1, 0, 1])}${trigram(6, 15.5, 56.3, [0, 1, 0])}`,
     hi: `${hbar('#FF9933', '#fff', '#138808')}<circle cx="15" cy="10" r="2.6" fill="none" stroke="#000080" stroke-width="0.6"/><circle cx="15" cy="10" r="0.6" fill="#000080"/>`,
+    uk: `<rect width="30" height="10" fill="#0057B7"/><rect y="10" width="30" height="10" fill="#FFD700"/>`,
+    ka: `<rect width="30" height="20" fill="#fff"/>
+         <g fill="#FF0000"><rect x="13" width="4" height="20"/><rect y="8" width="30" height="4"/>
+         ${[[6.5, 4], [23.5, 4], [6.5, 16], [23.5, 16]].map(([x, y]) =>
+           `<rect x="${x - 0.7}" y="${y - 2}" width="1.4" height="4"/><rect x="${x - 2}" y="${y - 0.7}" width="4" height="1.4"/>`).join('')}</g>`,
     auto: `<rect width="30" height="20" fill="#2b3156"/>
            <g fill="none" stroke="#4fd1c5" stroke-width="1.1"><circle cx="15" cy="10" r="7"/><ellipse cx="15" cy="10" rx="3" ry="7"/>
            <path d="M8,10 H22 M9,6.5 H21 M9,13.5 H21"/></g>`
@@ -774,7 +831,13 @@ window.I18N = (() => {
       const name = code === 'auto' ? t('auto') + ' (' + NAMES[detect()] + ')' : NAMES[code];
       b.title = name;
       b.setAttribute('aria-label', name);
-      b.innerHTML = flagSvg(code) + (code === 'auto' ? `<small>${t('auto')}</small>` : '');
+      b.dataset.code = code;
+      b.innerHTML = flagSvg(code);
+      if (code === 'auto') {
+        const s = document.createElement('small');
+        s.textContent = t('auto') + ' · ' + NAMES[detect()];
+        b.appendChild(s);
+      }
       b.addEventListener('click', () => { openMenu(false); set(code); btn.focus(); });
       menu.appendChild(b);
     }
