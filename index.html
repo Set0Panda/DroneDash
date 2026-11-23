@@ -722,9 +722,13 @@ window.I18N = (() => {
   // Difficulty curve per level
   const levelLength  = L => 400 + 100 * (L - 1);                       // metres to next checkpoint
   const levelSpeed   = L => Math.min(280 + 40 * (L - 1), 720);         // px/s at level start
-  const fuelDrain    = L => 3.2 + 0.4 * (L - 1);                       // % per second
+  const fuelDrain    = L => Math.min(3.2 + 0.35 * (L - 1), 7.5);       // % per second
   const doubleChance = L => Math.min(0.12 + 0.07 * (L - 1), 0.6);      // rows with 2 barriers
-  const coinChance   = L => Math.max(0.28, 0.55 - 0.04 * (L - 1));
+  // Coins stay just as common on every level: coin income already grows with speed
+  // (more rows per second), which is what keeps a perfect run fuelled.
+  // Simulated: grab every coin → fuel never runs out; 90% → ~L21; 80% → ~L14; 70% → ~L8.
+  const COIN_CHANCE = 0.45;
+  const MAX_DRY_ROWS = 2;   // never more than 2 rows in a row without a coin
   const coinValue    = (L, streak) => 10 * L * streak;
 
   const $ = id => document.getElementById(id);
@@ -739,6 +743,7 @@ window.I18N = (() => {
   let W = 0, H = 0, dpr = 1, laneW = 0;
   let state = 'home'; // home | menu (how-to-play) | countdown | play | stall | over | bye
   let player, objects, particles, floats, lives, speed, spawnDist, flash, roadOffset, shake, last;
+  let dryRows = 0; // rows since the last coin
   let level, levelDist, distance, bonus, fuel, coins, coinMeter, streak, finishSpawned, stallT, lowFuelT = 0;
   let countT = 0, shownCount = null;
 
@@ -889,7 +894,7 @@ window.I18N = (() => {
     player = { lane: 1, x: laneX(1), y: H - 110, w: Math.min(laneW * 0.55, 70), h: 80 };
     objects = []; particles = []; floats = [];
     lives = MAX_LIVES; level = 1; speed = levelSpeed(1);
-    spawnDist = 200; flash = 0; roadOffset = 0; shake = 0;
+    spawnDist = 200; flash = 0; roadOffset = 0; shake = 0; dryRows = 0;
     levelDist = 0; distance = 0; bonus = 0; fuel = 100; coins = 0; coinMeter = 0; streak = 0; lowFuelT = 0; finishSpawned = false;
     el.banner.innerHTML = '';
     updateHud();
@@ -931,11 +936,13 @@ window.I18N = (() => {
     for (let i = 0; i < blocks; i++) {
       objects.push({ type: 'enemy', lane: lanes[i], y: -h, w: laneW * 0.8, h });
     }
-    // A little mercy: coins are more common when fuel is low.
-    const chance = coinChance(level) + (fuel < 30 ? 0.25 : 0);
-    if (Math.random() < chance) {
+    // A little mercy: coins are more common when fuel is low, and there are no long
+    // empty stretches: after MAX_DRY_ROWS rows without one, the next row always has a coin.
+    const chance = COIN_CHANCE + (fuel < 30 ? 0.25 : 0);
+    if (dryRows >= MAX_DRY_ROWS || Math.random() < chance) {
       objects.push({ type: 'coin', lane: lanes[LANES - 1], y: -h - 150, w: 28, h: 28 });
-    }
+      dryRows = 0;
+    } else dryRows++;
   }
 
   function burst(x, y, color, n) {
