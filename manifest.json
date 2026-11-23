@@ -1,7 +1,7 @@
 {
   "name": "Drone Dash",
   "short_name": "Drone Dash",
-  "description": "Dodge barriers, grab coins, shoot down drones and keep your fuel up.",
+  "description": "Dodge obstacles, grab coins, shoot down drones and keep your fuel up.",
   "id": "./",
   "start_url": "./",
   "scope": "./",

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Drone Dash</title>
-<meta name="description" content="Dodge barriers, grab coins, shoot down drones and keep your fuel up.">
+<meta name="description" content="Dodge obstacles, grab coins, shoot down drones and keep your fuel up.">
 <meta name="theme-color" content="#0b1226">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -209,11 +209,12 @@
   }
   .langPick button:active { transform: scale(.94); box-shadow: none; }
   .langPick svg { display: block; border-radius: 3px; box-shadow: 0 0 0 1px rgba(255,255,255,.18); }
-  #langBtn { position: relative; display: flex; align-items: center; gap: 6px; padding: 7px 9px; }
-  #langBtn .caret { line-height: 1; color: var(--muted); }
+  #langBtn { position: relative; display: flex; align-items: center; justify-content: center; padding: 8px 10px; }
+  /* "A" = following the device language: a small badge on the button's corner, clear of the flag */
   #langBtn .autoBadge {
-    position: absolute; left: 3px; bottom: 2px; width: 13px; height: 13px; border-radius: 50%;
-    background: var(--accent); color: #0f1220; font-size: 9px; line-height: 13px; text-align: center;
+    position: absolute; right: -5px; top: -5px; width: 16px; height: 16px; border-radius: 50%;
+    background: var(--accent); color: #0a1c3d; font-size: 10px; line-height: 16px; text-align: center;
+    box-shadow: 0 0 0 2px var(--bg);
   }
   #langMenu {
     position: absolute; top: calc(100% + 8px); right: 0; display: grid; grid-template-columns: repeat(4, auto);
@@ -534,7 +535,7 @@
     <img class="logo" src="icons/icon-512.png" alt="" width="132" height="132">
     <h1 class="title">DRONE<span>DASH</span></h1>
     <div class="uaStripe" aria-hidden="true"></div>
-    <p class="tagline" data-i18n="tagline">Dodge barriers. Shoot down drones.</p>
+    <p class="tagline" data-i18n="tagline">Dodge obstacles. Shoot down drones.</p>
     <p id="homeBest" hidden></p>
     <div class="menuBtns">
       <button id="playBtn">▶ <span data-i18n="play">Play</span></button>
@@ -644,7 +645,7 @@ window.I18N = (() => {
   const NB = ' '; // non-breaking space (French punctuation)
   const STR = {
     en: {
-      tagline: "Dodge barriers. Shoot down drones.",
+      tagline: "Dodge obstacles. Shoot down drones.",
       play: 'Play', exit: 'Exit', installApp: 'Install app',
       installHintIos: 'Play it like an app: tap Share, then “Add to Home Screen”.',
       thanks: 'Thanks for playing!', closeNow: 'You can close this window now.', backToMenu: 'Back to menu',
@@ -677,7 +678,7 @@ window.I18N = (() => {
       language: 'Language', auto: 'Auto'
     },
     es: {
-      tagline: "Esquiva barreras. Derriba drones.",
+      tagline: "Esquiva obstáculos. Derriba drones.",
       play: 'Jugar', exit: 'Salir', installApp: 'Instalar app',
       installHintIos: 'Juega como una app: toca Compartir y luego «Añadir a pantalla de inicio».',
       thanks: '¡Gracias por jugar!', closeNow: 'Ya puedes cerrar esta ventana.', backToMenu: 'Volver al menú',
@@ -710,7 +711,7 @@ window.I18N = (() => {
       language: 'Idioma', auto: 'Automático'
     },
     fr: {
-      tagline: "Évite les barrières. Abats les drones.",
+      tagline: "Évite les obstacles. Abats les drones.",
       play: 'Jouer', exit: 'Quitter', installApp: `Installer l'app`,
       installHintIos: `Joue comme avec une app${NB}: touche Partager, puis «${NB}Sur l'écran d'accueil${NB}».`,
       thanks: `Merci d'avoir joué${NB}!`, closeNow: 'Tu peux fermer cette fenêtre.', backToMenu: 'Retour au menu',
@@ -776,7 +777,7 @@ window.I18N = (() => {
       language: 'Sprache', auto: 'Automatisch'
     },
     pt: {
-      tagline: "Desvie das barreiras. Derrube drones.",
+      tagline: "Desvie dos obstáculos. Derrube drones.",
       play: 'Jogar', exit: 'Sair', installApp: 'Instalar app',
       installHintIos: 'Jogue como um app: toque em Compartilhar e depois em “Adicionar à Tela de Início”.',
       thanks: 'Obrigado por jogar!', closeNow: 'Você já pode fechar esta janela.', backToMenu: 'Voltar ao menu',
@@ -809,7 +810,7 @@ window.I18N = (() => {
       language: 'Idioma', auto: 'Automático'
     },
     it: {
-      tagline: "Schiva le barriere. Abbatti i droni.",
+      tagline: "Schiva gli ostacoli. Abbatti i droni.",
       play: 'Gioca', exit: 'Esci', installApp: 'Installa app',
       installHintIos: `Gioca come un'app: tocca Condividi, poi “Aggiungi alla schermata Home”.`,
       thanks: 'Grazie per aver giocato!', closeNow: 'Ora puoi chiudere questa finestra.', backToMenu: 'Torna al menu',
@@ -842,7 +843,7 @@ window.I18N = (() => {
       language: 'Lingua', auto: 'Automatica'
     },
     ja: {
-      tagline: "バリアをよけ、ドローンを撃墜！",
+      tagline: "障害物をよけ、ドローンを撃墜！",
       play: 'プレイ', exit: '終了', installApp: 'アプリをインストール',
       installHintIos: 'アプリとして遊ぶには：共有をタップして「ホーム画面に追加」を選択。',
       thanks: '遊んでくれてありがとう！', closeNow: 'このウィンドウは閉じてかまいません。', backToMenu: 'メニューに戻る',
@@ -875,7 +876,7 @@ window.I18N = (() => {
       language: '言語', auto: '自動'
     },
     zh: {
-      tagline: "躲开路障，击落无人机！",
+      tagline: "躲开障碍，击落无人机！",
       play: '开始', exit: '退出', installApp: '安装应用',
       installHintIos: '像应用一样玩：点按“分享”，然后选择“添加到主屏幕”。',
       thanks: '感谢游玩！', closeNow: '现在可以关闭此窗口了。', backToMenu: '返回菜单',
@@ -908,7 +909,7 @@ window.I18N = (() => {
       language: '语言', auto: '自动'
     },
     ko: {
-      tagline: "바리케이드를 피하고 드론을 격추하라!",
+      tagline: "장애물을 피하고 드론을 격추하라!",
       play: '플레이', exit: '종료', installApp: '앱 설치',
       installHintIos: '앱처럼 즐기기: 공유를 탭한 뒤 ‘홈 화면에 추가’를 선택하세요.',
       thanks: '플레이해 주셔서 감사합니다!', closeNow: '이제 이 창을 닫아도 됩니다.', backToMenu: '메뉴로 돌아가기',
@@ -941,7 +942,7 @@ window.I18N = (() => {
       language: '언어', auto: '자동'
     },
     hi: {
-      tagline: "बैरियर से बचो, ड्रोन मार गिराओ!",
+      tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
       play: 'खेलें', exit: 'बाहर निकलें', installApp: 'ऐप इंस्टॉल करें',
       installHintIos: 'ऐप की तरह खेलें: शेयर पर टैप करें, फिर “होम स्क्रीन पर जोड़ें” चुनें।',
       thanks: 'खेलने के लिए धन्यवाद!', closeNow: 'अब आप यह विंडो बंद कर सकते हैं।', backToMenu: 'मेन्यू पर वापस',
@@ -974,7 +975,7 @@ window.I18N = (() => {
       language: 'भाषा', auto: 'स्वचालित'
     },
     uk: {
-      tagline: "Оминай бар'єри. Збивай шахеди.",
+      tagline: "Оминай перешкоди. Збивай шахеди.",
       play: 'Грати', exit: 'Вийти', installApp: 'Встановити застосунок',
       installHintIos: 'Грай як у застосунку: натисни «Поділитися», потім «На початковий екран».',
       thanks: 'Дякуємо за гру!', closeNow: 'Тепер можна закрити це вікно.', backToMenu: 'Назад до меню',
@@ -1009,7 +1010,7 @@ window.I18N = (() => {
       language: 'Мова', auto: 'Авто'
     },
     ka: {
-      tagline: "აარიდე ბარიერებს. ჩამოაგდე დრონები.",
+      tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
       play: 'თამაში', exit: 'გასვლა', installApp: 'აპის დაყენება',
       installHintIos: 'ითამაშე როგორც აპში: შეეხე „გაზიარებას“, შემდეგ კი „მთავარ ეკრანზე დამატებას“.',
       thanks: 'მადლობა თამაშისთვის!', closeNow: 'ახლა შეგიძლია ეს ფანჯარა დახურო.', backToMenu: 'მენიუში დაბრუნება',
@@ -1161,7 +1162,7 @@ window.I18N = (() => {
     if (open) (menu.querySelector('[aria-checked="true"]') || menu.firstChild).focus();
   };
   function fillPicker() {
-    btn.innerHTML = flagSvg(lang) + (pref === 'auto' ? '<b class="autoBadge">A</b>' : '') + '<span class="caret">▾</span>';
+    btn.innerHTML = flagSvg(lang) + (pref === 'auto' ? '<b class="autoBadge">A</b>' : '');
     btn.title = t('language') + ': ' + (pref === 'auto' ? t('auto') + ' · ' : '') + NAMES[lang];
     btn.setAttribute('aria-label', btn.title);
     menu.setAttribute('aria-label', t('language'));
