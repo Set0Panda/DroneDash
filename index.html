@@ -1802,7 +1802,7 @@ window.LD_RULES = (() => {
           // Barrier smashed: the lane is clear. A few points, no effect on the drone combo.
           tg.dead = r.dead = true;
           explode(at.x, at.y);
-          burst(at.x, at.y, '#f4f4f8', 10); burst(at.x, at.y, getVar('--enemy'), 10);
+          for (const c of DEBRIS[tg.skin] || DEBRIS.barrier) burst(at.x, at.y, c, 10);
           const pts = SMASH_PTS * level;
           bonus += pts;
           floatText(at.x, at.y - 10, t('smashed') + ' +' + num(pts), '#FFD700');
@@ -1846,7 +1846,9 @@ window.LD_RULES = (() => {
   function spawn() {
     const r = R.planRow(planner, level, fuel, Math.random);
     const h = BARRIER_H;
-    for (const l of r.barriers) objects.push({ type: 'enemy', lane: l, y: -h, w: laneW * 0.8, h });
+    const rowArea = areaAtK(kAtY(-h)), skins = OBSTACLE_SKINS[rowArea];
+    const skin = skins[Math.floor(Math.random() * skins.length)];   // one look per row, so a row reads as one thing
+    for (const l of r.barriers) objects.push({ type: 'enemy', lane: l, y: -h, w: laneW * 0.8, h, skin, seed: Math.random() * 100 });
     for (const l of r.potholes) objects.push(pothole(l, -h + (h - POTHOLE_H) / 2));
     const rush = rushRows > 0;
     if (rush) { rushRows--; r.coin = true; }                  // Coin Rush: a coin on every row
@@ -1860,7 +1862,8 @@ window.LD_RULES = (() => {
     return r.gap;
   }
   function pothole(lane, y) {
-    return { type: 'hole', lane, y, w: Math.min(laneW * 0.5, 64), h: POTHOLE_H, seed: Math.random() * 100 };
+    return { type: 'hole', lane, y, w: Math.min(laneW * 0.5, 64), h: POTHOLE_H, seed: Math.random() * 100,
+             skin: HOLE_SKINS[areaAtK(kAtY(y))] };
   }
 
   function burst(x, y, color, n) {
@@ -1990,7 +1993,7 @@ window.LD_RULES = (() => {
     o.dead = true;
     lives--; flash = FLASH_TIME; shake = 0.35; streak = 0; closeChain = 0;
     sfx.crash();
-    burst(player.x, player.y + player.h / 2, getVar('--enemy'), 24);
+    for (const c of DEBRIS[o.skin] || DEBRIS.barrier) burst(player.x, player.y + player.h / 2, c, 12);
     if (navigator.vibrate) navigator.vibrate(120);
     if (lives <= 0) gameOver('crash');
   }
@@ -2526,6 +2529,149 @@ window.LD_RULES = (() => {
     }
   }
 
+  // ---- Obstacle looks: each area has its own set; every look keeps the same footprint and
+  // hitbox as the original barrier (w x h), so the game plays exactly the same. ----
+  const OBSTACLE_SKINS = [
+    ['barrier', 'hay', 'fence'],        // wheat fields
+    ['fence', 'hay', 'crates'],         // sunflower fields
+    ['cones', 'jersey', 'barrier'],     // city
+    ['log', 'rocks', 'barrier'],        // pine forest
+    ['drift', 'ice', 'snowbarrier'],    // snowy mountains
+  ];
+  const HOLE_SKINS = ['hole', 'hole', 'manhole', 'puddle', 'frost'];
+  const DEBRIS = {
+    barrier: ['#f4f4f8', '#f56565'], snowbarrier: ['#f4f4f8', '#f56565', '#ffffff'],
+    hay: ['#e2bf55', '#b08a2a'], fence: ['#9a6533', '#6b4220'], crates: ['#b8813f', '#7a5224'],
+    cones: ['#ff7a1a', '#f4f4f8'], jersey: ['#a3a9b8', '#f6c945'], log: ['#8a5a2b', '#5e3b1a'],
+    rocks: ['#8f97a8', '#5c6373'], drift: ['#ffffff', '#cfe0f5'], ice: ['#bfe6ff', '#ffffff'],
+  };
+  function drawObstacle(o, cx) {
+    const { w, h } = o, x = cx - w / 2, y = o.y;
+    switch (o.skin) {
+      case 'hay': {                         // two round hay bales seen from above
+        for (const i of [-1, 1]) {
+          const bx = cx + i * w * 0.25, by = y + h / 2, r = Math.min(w * 0.23, h * 0.56);
+          ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.arc(bx + 3, by + 3, r, 0, 6.29); ctx.fill();
+          ctx.fillStyle = '#e2bf55'; ctx.beginPath(); ctx.arc(bx, by, r, 0, 6.29); ctx.fill();
+          ctx.strokeStyle = '#b08a2a'; ctx.lineWidth = 1.5;
+          for (const k of [0.75, 0.5, 0.25]) { ctx.beginPath(); ctx.arc(bx, by, r * k, 0.4, 5.6); ctx.stroke(); }
+        }
+        break;
+      }
+      case 'fence': {                       // wooden fence: two planks between posts
+        ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(x + 3, y + h * 0.3, w, h * 0.55);
+        ctx.fillStyle = '#9a6533';
+        ctx.fillRect(x, y + h * 0.2, w, h * 0.2); ctx.fillRect(x, y + h * 0.58, w, h * 0.2);
+        ctx.fillStyle = 'rgba(0,0,0,.18)';
+        ctx.fillRect(x, y + h * 0.36, w, 2); ctx.fillRect(x, y + h * 0.74, w, 2);
+        ctx.fillStyle = '#6b4220';
+        for (const px of [x + 2, cx - 3, x + w - 8]) ctx.fillRect(px, y + h * 0.08, 6, h * 0.84);
+        break;
+      }
+      case 'crates': {                      // two wooden crates
+        const cw = w * 0.46;
+        for (const bx of [x, x + w - cw]) {
+          ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(bx + 3, y + 3, cw, h);
+          ctx.fillStyle = '#b8813f'; ctx.fillRect(bx, y, cw, h);
+          ctx.strokeStyle = '#7a5224'; ctx.lineWidth = 2.5; ctx.strokeRect(bx + 1.5, y + 1.5, cw - 3, h - 3);
+          ctx.beginPath(); ctx.moveTo(bx + 3, y + 3); ctx.lineTo(bx + cw - 3, y + h - 3); ctx.moveTo(bx + cw - 3, y + 3); ctx.lineTo(bx + 3, y + h - 3); ctx.stroke();
+        }
+        break;
+      }
+      case 'cones': {                       // three traffic cones from above
+        for (const i of [-1, 0, 1]) {
+          const ccx = cx + i * w * 0.33, ccy = y + h / 2, r = Math.min(w * 0.15, h * 0.42);
+          ctx.fillStyle = '#2b2f3d'; ctx.fillRect(ccx - r, ccy - r, r * 2, r * 2);          // square base
+          ctx.fillStyle = '#ff7a1a'; ctx.beginPath(); ctx.arc(ccx, ccy, r * 0.85, 0, 6.29); ctx.fill();
+          ctx.fillStyle = '#f4f4f8'; ctx.beginPath(); ctx.arc(ccx, ccy, r * 0.55, 0, 6.29); ctx.fill();
+          ctx.fillStyle = '#ff7a1a'; ctx.beginPath(); ctx.arc(ccx, ccy, r * 0.3, 0, 6.29); ctx.fill();
+        }
+        break;
+      }
+      case 'jersey': {                      // concrete jersey barrier with hazard ends
+        ctx.fillStyle = 'rgba(0,0,0,.3)'; roundRect(x + 3, y + h * 0.2 + 3, w, h * 0.62, 5); ctx.fill();
+        ctx.fillStyle = '#a3a9b8'; roundRect(x, y + h * 0.2, w, h * 0.62, 5); ctx.fill();
+        ctx.fillStyle = '#c4c9d4'; ctx.fillRect(x + 4, y + h * 0.3, w - 8, h * 0.14);
+        ctx.save(); roundRect(x, y + h * 0.2, w, h * 0.62, 5); ctx.clip();
+        for (const ex of [x, x + w - 14]) for (let k = -2; k < 4; k++) {
+          ctx.fillStyle = k % 2 ? '#1b1d24' : '#f6c945';
+          poly([[ex + k * 6, y + h], [ex + k * 6 + 6, y + h], [ex + k * 6 + 6 + h, y], [ex + k * 6 + h, y]]);
+        }
+        ctx.restore();
+        break;
+      }
+      case 'log': {                         // fallen log across the lane
+        const ly = y + h * 0.18, lh = h * 0.64;
+        ctx.fillStyle = 'rgba(0,0,0,.3)'; roundRect(x + 3, ly + 3, w, lh, lh / 2); ctx.fill();
+        ctx.fillStyle = '#7a4d24'; roundRect(x, ly, w, lh, lh / 2); ctx.fill();
+        ctx.strokeStyle = '#5e3b1a'; ctx.lineWidth = 1.5;
+        for (let k = 1; k < 4; k++) { ctx.beginPath(); ctx.moveTo(x + lh / 2, ly + k * lh / 4); ctx.lineTo(x + w - lh / 2, ly + k * lh / 4 + (k % 2 ? 1 : -1)); ctx.stroke(); }
+        ctx.fillStyle = '#d9a86c'; ctx.beginPath(); ctx.ellipse(x + w - lh / 2, ly + lh / 2, lh * 0.32, lh * 0.45, 0, 0, 6.29); ctx.fill();
+        ctx.strokeStyle = '#a8763f'; ctx.beginPath(); ctx.ellipse(x + w - lh / 2, ly + lh / 2, lh * 0.16, lh * 0.24, 0, 0, 6.29); ctx.stroke();
+        break;
+      }
+      case 'rocks': {                       // a pile of rocks
+        const rs = [[-0.28, 0.05, 0.22], [0.02, -0.08, 0.26], [0.3, 0.06, 0.2]];
+        for (const [dx, dy, rr] of rs) {
+          const rx = cx + dx * w, ry = y + h / 2 + dy * h, r = rr * w;
+          ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(rx + 3, ry + 3, r, r * 0.8, 0, 0, 6.29); ctx.fill();
+          ctx.fillStyle = '#7d8596'; ctx.beginPath(); ctx.ellipse(rx, ry, r, r * 0.8, 0.3, 0, 6.29); ctx.fill();
+          ctx.fillStyle = 'rgba(255,255,255,.22)'; ctx.beginPath(); ctx.ellipse(rx - r * 0.3, ry - r * 0.3, r * 0.35, r * 0.22, -0.5, 0, 6.29); ctx.fill();
+        }
+        break;
+      }
+      case 'drift': {                       // snowdrift mound
+        ctx.fillStyle = 'rgba(80,110,160,.35)'; ctx.beginPath(); ctx.ellipse(cx + 3, y + h * 0.62, w * 0.52, h * 0.42, 0, 0, 6.29); ctx.fill();
+        ctx.fillStyle = '#f2f6fc';
+        for (const [dx, dy, rx, ry] of [[-0.22, 0.55, 0.3, 0.42], [0.18, 0.5, 0.34, 0.48], [0, 0.4, 0.26, 0.36]]) {
+          ctx.beginPath(); ctx.ellipse(cx + dx * w, y + dy * h, rx * w, ry * h, 0, 0, 6.29); ctx.fill();
+        }
+        ctx.fillStyle = 'rgba(160,190,230,.45)'; ctx.beginPath(); ctx.ellipse(cx, y + h * 0.78, w * 0.4, h * 0.12, 0, 0, 6.29); ctx.fill();
+        break;
+      }
+      case 'ice': {                         // block of ice
+        ctx.fillStyle = 'rgba(0,0,0,.25)'; roundRect(x + 3, y + 3, w, h, 4); ctx.fill();
+        ctx.fillStyle = '#9fd4f5'; roundRect(x, y, w, h, 4); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.fillRect(x + 4, y + 4, w * 0.4, 3); ctx.fillRect(x + 4, y + 4, 3, h * 0.5);
+        ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 1.2; ctx.beginPath();
+        ctx.moveTo(x + w * 0.55, y + 3); ctx.lineTo(x + w * 0.62, y + h * 0.45); ctx.lineTo(x + w * 0.5, y + h - 4);
+        ctx.moveTo(x + w * 0.62, y + h * 0.45); ctx.lineTo(x + w * 0.85, y + h * 0.6); ctx.stroke();
+        break;
+      }
+      case 'snowbarrier': {                 // the usual barrier with snow piled on top
+        drawBarrier(cx, y, w, h);
+        ctx.fillStyle = '#ffffff';
+        roundRect(x + 2, y - 4, w - 4, 7, 3.5); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(x + w * 0.3, y - 3, w * 0.14, 4, 0, 0, 6.29); ctx.fill();
+        break;
+      }
+      default: drawBarrier(cx, y, w, h);
+    }
+  }
+  // Pothole looks: open manhole in the city, puddle in the rain, frosted hole in the snow.
+  function drawHole(o, cx) {
+    const cy = o.y + o.h / 2, rx = o.w / 2, ry = o.h / 2;
+    if (o.skin === 'manhole') {
+      ctx.fillStyle = '#6b7385'; ctx.beginPath(); ctx.ellipse(cx, cy, rx + 3, ry + 3, 0, 0, 6.29); ctx.fill();
+      ctx.fillStyle = '#05060c'; ctx.beginPath(); ctx.ellipse(cx, cy, rx - 1, ry - 1, 0, 0, 6.29); ctx.fill();
+      ctx.strokeStyle = '#9aa2b4'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(cx, cy, rx + 1, ry + 1, 0, 0, 6.29); ctx.stroke();
+      ctx.fillStyle = '#4d5466'; ctx.fillRect(cx + rx * 0.2, cy - ry - 6, rx * 0.9, 5);       // the lifted cover beside it
+    } else if (o.skin === 'puddle') {
+      ctx.fillStyle = 'rgba(40,60,90,.9)'; blob(cx, cy, rx * 1.15, ry, o.seed, 2);
+      ctx.fillStyle = 'rgba(150,180,220,.35)'; blob(cx - rx * 0.2, cy - ry * 0.2, rx * 0.6, ry * 0.35, o.seed + 2, 0);
+      const k = (performance.now() / 700 + o.seed) % 1;                                   // a ripple from the rain
+      ctx.strokeStyle = `rgba(200,220,245,${(0.6 * (1 - k)).toFixed(2)})`; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.ellipse(cx + rx * 0.2, cy, 2 + k * rx * 0.7, 1 + k * ry * 0.6, 0, 0, 6.29); ctx.stroke();
+    } else if (o.skin === 'frost') {
+      drawPothole(cx, cy, rx, ry, o.seed);
+      ctx.strokeStyle = 'rgba(235,245,255,.85)'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.ellipse(cx, cy, rx + 4, ry + 4, 0, 0, 6.29); ctx.stroke();
+      ctx.fillStyle = 'rgba(235,245,255,.8)';
+      for (let i = 0; i < 4; i++) { const a = o.seed + i * 1.6; ctx.fillRect(cx + Math.cos(a) * (rx + 4) - 2, cy + Math.sin(a) * (ry + 4) - 2, 4, 4); }
+    } else {
+      drawPothole(cx, cy, rx, ry, o.seed);
+    }
+  }
+
   // Red-and-white striped road barrier on two legs.
   function drawBarrier(cx, y, w, h) {
     const x = cx - w / 2, boardH = h * 0.62;
@@ -2865,10 +3011,10 @@ window.LD_RULES = (() => {
     }
     for (const o of objects) {
       const cx = laneX(o.lane);
-      if (o.type === 'enemy') drawBarrier(cx, o.y, o.w, o.h);
+      if (o.type === 'enemy') drawObstacle(o, cx);
       else if (o.type === 'coin') { if (o.rush) drawRushGlow(cx, o.y + o.h / 2); drawCoin(cx, o.y + o.h / 2, o.w / 2); }
       else if (o.type === 'life') drawHeart(cx, o.y + o.h / 2, 19);
-      else if (o.type === 'hole') drawPothole(cx, o.y + o.h / 2, o.w / 2, o.h / 2, o.seed);
+      else if (o.type === 'hole') drawHole(o, cx);
     }
     for (const o of objects) if (o.type === 'finish') drawFinishLabel(o.y);
 
