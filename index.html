@@ -130,7 +130,15 @@
   .eggCoins i.on { background: var(--coin); opacity: 1; }
   .eggSub { display: flex; align-items: center; gap: 6px; min-height: 16px; }
   #eggBar.alert .eggCoins { display: none; }          /* the alert takes the whole line */
-  .fireWrap { justify-self: end; display: flex; align-items: stretch; gap: 6px; min-width: 0; max-width: 100%; }
+  .fireWrap { justify-self: end; position: relative; display: flex; align-items: stretch; gap: 6px; min-width: 0; max-width: 100%; }
+  /* first Shahed ever: a bouncing tag pointing down at FIRE, so new players find the button */
+  .fireHint {
+    position: absolute; right: 4px; bottom: calc(100% + 10px); padding: 6px 12px; border-radius: 10px; white-space: nowrap;
+    font-size: 15px; font-weight: 900; letter-spacing: .5px; color: #0a1c3d; background: var(--ua-yellow);
+    box-shadow: 0 4px 14px rgba(0,0,0,.5); animation: hintBounce .6s ease-in-out infinite alternate; pointer-events: none;
+  }
+  .fireHint::after { content: ''; position: absolute; right: 26px; top: 100%; border: 7px solid transparent; border-top-color: var(--ua-yellow); }
+  @keyframes hintBounce { to { transform: translateY(-7px); } }
   /* auto-fire switch: a block button left of FIRE, same height; shows auto-fire's current accuracy
      (better with a coin streak), or ✕ when off */
   .autoBlock {
@@ -393,7 +401,13 @@
     57%     { opacity: 1; transform: scale(.7); }
     66%, 100% { opacity: 0; transform: scale(1.3); }
   }
-  .lead { color: var(--text) !important; font-weight: 600; font-size: 16px; }
+  .lead { color: var(--text) !important; font-weight: 600; font-size: 15px; }
+  /* How to Play: one heading, the demo, one line on steering, then the rules in a quiet panel */
+  .introCard { gap: 14px; }
+  .introCard h1 { font-size: 26px; letter-spacing: .5px; }
+  .introCard .rules { background: rgba(255,255,255,.045); border-radius: 14px; padding: 12px 14px; gap: 10px; }
+  .introCard .rules li { font-size: 14px; color: var(--muted); }
+  .introCard .rules b { color: var(--text); }
   .rules { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; gap: 9px; text-align: left; }
   .rules li { display: flex; align-items: center; gap: 12px; font-size: 15px; line-height: 1.3; }
   .rules b { color: var(--text); }
@@ -428,7 +442,7 @@
     width: 26px; height: 14px; border-radius: 2px;
     background: repeating-conic-gradient(#f4f4f8 0 25%, #0b0d17 0 50%) 0 0 / 7px 7px;
   }
-  .keys { font-size: 13px; text-wrap: balance; }
+  .keys { font-size: 12px; text-wrap: balance; }
 
   /* ---- Countdown / GO ---- */
   #count {
@@ -577,6 +591,7 @@
     <button id="pauseBtn" type="button" data-i18n-title="pause" data-i18n-aria="pause" aria-label="Pause">⏸</button>
     <!-- right-hand column: the auto-fire switch as a block button, then FIRE -->
     <div class="fireWrap">
+      <div id="fireHint" class="fireHint" aria-hidden="true" hidden></div>
       <button id="autoChip" class="autoBlock" type="button"><span>🤖</span><small id="autoPct"></small></button>
       <button id="rocketBtn" type="button" disabled><span class="rk">🚀</span><span class="fireLabel" data-i18n="launch">FIRE</span><b id="rocketN">0</b></button>
     </div>
@@ -656,9 +671,8 @@
   </div>
 
   <div id="intro" class="overlay hidden">
-    <div class="card" role="dialog" aria-labelledby="introTitle">
-      <h1 id="introTitle">Drone Dash</h1>
-      <h2 data-i18n="howToPlay">How to play</h2>
+    <div class="card introCard" role="dialog" aria-labelledby="introTitle">
+      <h1 id="introTitle" data-i18n="howToPlay">How to Play</h1>
       <div class="demo" aria-hidden="true"><div class="drone"></div><div class="rocket"></div><div class="boom"></div><div class="car"><i></i><b></b><s></s></div><div class="tap"></div><div class="tap fire"></div></div>
       <p class="lead"><span data-i18n="lead1">Tap or drag to change lanes.</span></p>
       <ul class="rules">
@@ -1304,8 +1318,8 @@ window.LD_RULES = (() => {
     // Difficulty curve per level
     // Quick-session pacing: fast from the first second, short levels, hazards early.
     levelLength:  L => 300 + 60 * (L - 1),                         // metres to next checkpoint
-    levelSpeed:   L => Math.min(400 + 45 * (L - 1), 860),          // px/s at level start
-    fuelDrain:    L => Math.min(4.0 + 0.40 * (L - 1), 9.0),        // % per second
+    levelSpeed:   L => Math.min(320 + 55 * (L - 1), 860),          // px/s at level start: gentler start, same top speed by L11
+    fuelDrain:    L => Math.min(3.4 + 0.45 * (L - 1), 9.0),        // % per second (re-balanced with the slower start, simulated)
     doubleChance: L => Math.min(0.25 + 0.06 * (L - 1), 0.6),       // rows with 2 barriers
     rowPothole:   L => Math.min(0.2 + 0.08 * (L - 1), 0.6),        // pothole in a row's spare lane
     gapPothole:   L => L < 2 ? 0 : Math.min(0.15 + 0.07 * (L - 2), 0.55), // pothole between two rows
@@ -1792,6 +1806,12 @@ window.LD_RULES = (() => {
   // lane = the lane it will hit. 'diag' starts over another lane or past the road edge
   // and comes in at an angle; 'swerve' dives down the next lane, then cuts across late.
   // hunter: the wave's first drone, which keeps re-aiming at your lane until it locks on.
+  function showFireHint() {
+    const h = $('fireHint');
+    h.textContent = t('launch') + ' ▼';
+    h.hidden = false;
+    setTimeout(() => { h.hidden = true; }, 5000);
+  }
   function launchDrone(lane, path, hunter) {
     const x1 = laneX(lane);
     const side = lane === 0 ? 1 : lane === LANES - 1 ? -1 : (Math.random() < 0.5 ? -1 : 1);
@@ -1808,7 +1828,10 @@ window.LD_RULES = (() => {
       const lanes = [player.lane, ...[0, 1, 2].filter(l => l !== player.lane).sort(() => Math.random() - 0.5)];
       const n = DRONE.size(level);
       for (let i = 0; i < n; i++) droneQueue.push({ at: i * DRONE.stagger, lane: lanes[i], path: DRONE.path(level), hunter: i === 0 });
-      if (!droneSeen) { droneSeen = true; showBanner(t('shahedBanner'), t('shahedSub', { n: ROCKET_COST }), true); }
+      if (!droneSeen) {
+        droneSeen = true; showBanner(t('shahedBanner'), t('shahedSub', { n: ROCKET_COST }), true);
+        if (!readNum('laneDodgerFireHint')) { writeNum('laneDodgerFireHint', 1); showFireHint(); }   // once per player
+      }
     }
     for (const q of droneQueue) if ((q.at -= dt) <= 0) launchDrone(q.lane, q.path, q.hunter);
     autoFireCool = Math.max(0, autoFireCool - dt);

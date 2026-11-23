@@ -1,6 +1,6 @@
 // Offline support: cache the game shell, serve it cache-first, refresh in the background.
 // Bump VERSION whenever you want installed copies to drop the old cache.
-const VERSION = 'drone-dash-v64';
+const VERSION = 'drone-dash-v65';
 const ASSETS = [
   './',
   './index.html',
