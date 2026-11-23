@@ -587,6 +587,7 @@
       <h1 id="pauseTitle">⏸ <span data-i18n="paused">Paused</span></h1>
       <div class="overBtns">
         <button id="resumeBtn">▶ <span data-i18n="resume">Resume</span></button>
+        <button id="pauseHelp" class="secondary">? <span data-i18n="howToPlay">How to play</span></button>
         <button id="pauseRetry" class="secondary" data-i18n="retry">Retry</button>
         <button id="pauseHome" class="ghost" data-i18n="home">Home</button>
       </div>
@@ -2003,20 +2004,23 @@ window.LD_RULES = (() => {
     hb.textContent = t('homeBest', { best, level: Math.max(1, readNum('laneDodgerBestLevel')) });
   }
   // Play: the how-to-play popup the first time, straight to 3-2-1-GO after that.
-  // The ? button on the home screen reopens the popup and returns home when closed.
-  let helpFromHome = false;
+  // The popup can also be opened from the home screen's ? button or the pause menu;
+  // closing it goes back to wherever it was opened from.
+  let helpFrom = 'start';   // 'start' (first Play) | 'home' | 'pause'
   function startPlay() {
     if (readNum('laneDodgerSeenHelp')) beginCountdown();
-    else openHelp(false);
+    else openHelp('start');
   }
-  function openHelp(fromHome) {
-    helpFromHome = !!fromHome;
+  function openHelp(from) {
+    helpFrom = from;
     state = 'menu';
     show('intro');
   }
   function closeHelp() {
     writeNum('laneDodgerSeenHelp', 1);
-    if (helpFromHome) goHome(); else beginCountdown();
+    if (helpFrom === 'home') goHome();
+    else if (helpFrom === 'pause') { state = 'paused'; show('pause'); $('resumeBtn').focus(); }  // run untouched
+    else beginCountdown();
   }
   // Exit: close the app where the platform allows it (installed app windows, native
   // wrappers). iOS and normal browser tabs refuse, so fall back to a goodbye screen.
@@ -2519,6 +2523,7 @@ window.LD_RULES = (() => {
     else if ((e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') && state === 'play' && DRONES()) { e.preventDefault(); fire(); }
     else if ((e.key === 'p' || e.key === 'P' || e.key === 'Escape') && state === 'play') pauseGame();
     else if ((e.key === 'p' || e.key === 'P' || e.key === 'Escape') && state === 'paused') resumeGame();
+    else if (e.key === 'Escape' && state === 'menu' && helpFrom === 'pause') closeHelp();   // back to the pause menu
     else if (e.key === 'Escape' && ['menu', 'over', 'bye', 'garage', 'records'].includes(state)) goHome();
     else if ((e.key === 'Enter' || e.key === ' ') && state === 'over') { e.preventDefault(); restart(); }
   });
@@ -2573,7 +2578,8 @@ window.LD_RULES = (() => {
   rocketBtn.addEventListener('click', () => { fire(); rocketBtn.blur(); });
   I18N.onChange(() => { rocketBtn.title = t('rocketTitle', { n: ROCKET_COST }); rocketBtn.setAttribute('aria-label', rocketBtn.title); layoutEgg(); });
   $('playBtn').addEventListener('click', startPlay);
-  $('helpBtn').addEventListener('click', () => openHelp(true));
+  $('helpBtn').addEventListener('click', () => openHelp('home'));
+  $('pauseHelp').addEventListener('click', () => openHelp('pause'));
   $('exitBtn').addEventListener('click', exitGame);
   $('garageBtn').addEventListener('click', openGarage);
   $('recordsBtn').addEventListener('click', openRecords);
