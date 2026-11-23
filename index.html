@@ -128,13 +128,32 @@
   #wrap.at-home #hud { visibility: hidden; }
   .langPick {
     position: absolute; top: calc(12px + env(safe-area-inset-top, 0px)); right: 12px;
-    display: flex; align-items: center; gap: 4px; font-size: 16px;
+    z-index: 2;
   }
-  .langPick select {
-    font: inherit; font-size: 14px; color: var(--text); background: rgba(255,255,255,.1);
-    border: 0; border-radius: 8px; padding: 6px 8px; max-width: 170px; cursor: pointer;
+  .langPick button {
+    margin: 0; box-shadow: none; font-size: 12px; color: var(--text);
+    background: rgba(255,255,255,.1); border-radius: 10px; line-height: 0;
   }
-  .langPick option { color: #0f1220; background: #fff; }
+  .langPick button:active { transform: scale(.94); box-shadow: none; }
+  .langPick svg { display: block; border-radius: 3px; box-shadow: 0 0 0 1px rgba(255,255,255,.18); }
+  #langBtn { position: relative; display: flex; align-items: center; gap: 6px; padding: 7px 9px; }
+  #langBtn .caret { line-height: 1; color: var(--muted); }
+  #langBtn .autoBadge {
+    position: absolute; left: 3px; bottom: 2px; width: 13px; height: 13px; border-radius: 50%;
+    background: var(--accent); color: #0f1220; font-size: 9px; line-height: 13px; text-align: center;
+  }
+  #langMenu {
+    position: absolute; top: calc(100% + 8px); right: 0; display: grid; grid-template-columns: repeat(4, auto);
+    gap: 8px; padding: 10px; background: var(--card); border-radius: 14px;
+    box-shadow: 0 14px 36px rgba(0,0,0,.55); animation: cardIn .2s ease-out;
+  }
+  #langMenu button {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    width: 52px; height: 42px; padding: 0; background: rgba(255,255,255,.06);
+  }
+  #langMenu button[aria-checked="true"] { box-shadow: inset 0 0 0 2px var(--accent); background: rgba(79,209,197,.15); }
+  #langMenu button:focus-visible { outline: 2px solid var(--text); outline-offset: 1px; }
+  #langMenu small { font-size: 9px; line-height: 1; color: var(--muted); font-weight: 700; }
 
   /* ---- How-to-play popup ---- */
   #intro { background: rgba(10, 12, 24, .7); }
@@ -284,7 +303,10 @@
     </div>
     <button id="installBtn" class="ghost" hidden>📲 <span data-i18n="installApp">Install app</span></button>
     <p id="installHint" hidden></p>
-    <label class="langPick">🌐 <select id="langSel"></select></label>
+    <div class="langPick">
+      <button id="langBtn" type="button" aria-haspopup="true" aria-expanded="false"></button>
+      <div id="langMenu" role="menu" hidden></div>
+    </div>
   </div>
 
   <div id="bye" class="overlay hidden">
@@ -595,18 +617,88 @@ window.I18N = (() => {
     apply();
   }
 
-  // Language picker on the home screen.
-  const sel = document.getElementById('langSel');
+  // ---- Flags (inline SVG, 30×20) ----
+  // Drawn here rather than using flag emoji, which Windows shows as plain letters.
+  const star = (cx, cy, r, rot = 0) => {
+    const p = [];
+    for (let i = 0; i < 10; i++) {
+      const a = rot + Math.PI / 5 * i - Math.PI / 2, rr = i % 2 ? r * 0.4 : r;
+      p.push((cx + rr * Math.cos(a)).toFixed(2) + ',' + (cy + rr * Math.sin(a)).toFixed(2));
+    }
+    return `<polygon points="${p.join(' ')}" fill="#FFDE00"/>`;
+  };
+  const vbar = (a, b, c) => `<rect width="10" height="20" fill="${a}"/><rect x="10" width="10" height="20" fill="${b}"/><rect x="20" width="10" height="20" fill="${c}"/>`;
+  const hbar = (a, b, c, mid = 20 / 3) => {
+    const top = (20 - mid) / 2;
+    return `<rect width="30" height="20" fill="${b}"/><rect width="30" height="${top}" fill="${a}"/><rect y="${top + mid}" width="30" height="${top}" fill="${c}"/>`;
+  };
+  const trigram = (x, y, rot, broken) => {
+    let s = `<g transform="translate(${x} ${y}) rotate(${rot})" fill="#000">`;
+    for (let i = 0; i < 3; i++) {
+      const yy = (i - 1) * 1.25 - 0.4;
+      s += broken[i] ? `<rect x="-2.4" y="${yy}" width="2" height="0.8"/><rect x="0.4" y="${yy}" width="2" height="0.8"/>`
+                     : `<rect x="-2.4" y="${yy}" width="4.8" height="0.8"/>`;
+    }
+    return s + '</g>';
+  };
+  const FLAGS = {
+    en: `<rect width="30" height="20" fill="#012169"/>
+         <path d="M0,0 30,20 M30,0 0,20" stroke="#fff" stroke-width="4"/>
+         <path d="M0,0 30,20 M30,0 0,20" stroke="#C8102E" stroke-width="1.4"/>
+         <path d="M15,0 V20 M0,10 H30" stroke="#fff" stroke-width="6"/>
+         <path d="M15,0 V20 M0,10 H30" stroke="#C8102E" stroke-width="3.4"/>`,
+    es: hbar('#AA151B', '#F1BF00', '#AA151B', 10),
+    fr: vbar('#002395', '#fff', '#ED2939'),
+    de: hbar('#000', '#DD0000', '#FFCE00'),
+    pt: `<rect width="30" height="20" fill="#009C3B"/><polygon points="15,2.2 27.5,10 15,17.8 2.5,10" fill="#FFDF00"/>
+         <circle cx="15" cy="10" r="4.6" fill="#002776"/>
+         <path d="M10.6,9 Q15,7.6 19.5,10.6" stroke="#fff" stroke-width="0.8" fill="none"/>`,
+    it: vbar('#009246', '#fff', '#CE2B37'),
+    ja: `<rect width="30" height="20" fill="#fff"/><circle cx="15" cy="10" r="6" fill="#BC002D"/>`,
+    zh: `<rect width="30" height="20" fill="#EE1C25"/>${star(5, 5, 3)}${star(10, 2, 1, 0.4)}${star(12, 4, 1, 0.9)}${star(12, 7, 1, 0)}${star(10, 9, 1, 0.4)}`,
+    ko: `<rect width="30" height="20" fill="#fff"/>
+         <circle cx="15" cy="10" r="5" fill="#0047A0"/>
+         <path d="M10,10 A5,5 0 0 1 20,10 A2.5,2.5 0 0 1 15,10 A2.5,2.5 0 0 0 10,10Z" fill="#CD2E3A" transform="rotate(33.7 15 10)"/>
+         ${trigram(6, 4.5, -56.3, [0, 0, 0])}${trigram(24, 15.5, -56.3, [1, 1, 1])}${trigram(24, 4.5, 56.3, [1, 0, 1])}${trigram(6, 15.5, 56.3, [0, 1, 0])}`,
+    hi: `${hbar('#FF9933', '#fff', '#138808')}<circle cx="15" cy="10" r="2.6" fill="none" stroke="#000080" stroke-width="0.6"/><circle cx="15" cy="10" r="0.6" fill="#000080"/>`,
+    auto: `<rect width="30" height="20" fill="#2b3156"/>
+           <g fill="none" stroke="#4fd1c5" stroke-width="1.1"><circle cx="15" cy="10" r="7"/><ellipse cx="15" cy="10" rx="3" ry="7"/>
+           <path d="M8,10 H22 M9,6.5 H21 M9,13.5 H21"/></g>`
+  };
+  const flagSvg = (code) =>
+    `<svg viewBox="0 0 30 20" width="30" height="20" aria-hidden="true">${FLAGS[code]}</svg>`;
+
+  // ---- Language picker on the home screen: flag button → grid of flags ----
+  const btn = document.getElementById('langBtn');
+  const menu = document.getElementById('langMenu');
+  const openMenu = (open) => {
+    menu.hidden = !open;
+    btn.setAttribute('aria-expanded', open);
+    if (open) (menu.querySelector('[aria-checked="true"]') || menu.firstChild).focus();
+  };
   function fillPicker() {
-    sel.innerHTML = '';
-    const auto = new Option(t('auto') + ' (' + NAMES[detect()] + ')', 'auto');
-    sel.add(auto);
-    for (const code of Object.keys(STR)) sel.add(new Option(NAMES[code], code));
-    sel.value = pref;
-    sel.setAttribute('aria-label', t('language'));
+    btn.innerHTML = flagSvg(lang) + (pref === 'auto' ? '<b class="autoBadge">A</b>' : '') + '<span class="caret">▾</span>';
+    btn.title = t('language') + ': ' + (pref === 'auto' ? t('auto') + ' · ' : '') + NAMES[lang];
+    btn.setAttribute('aria-label', btn.title);
+    menu.setAttribute('aria-label', t('language'));
+    menu.innerHTML = '';
+    for (const code of ['auto', ...Object.keys(STR)]) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('role', 'menuitemradio');
+      b.setAttribute('aria-checked', code === pref);
+      const name = code === 'auto' ? t('auto') + ' (' + NAMES[detect()] + ')' : NAMES[code];
+      b.title = name;
+      b.setAttribute('aria-label', name);
+      b.innerHTML = flagSvg(code) + (code === 'auto' ? `<small>${t('auto')}</small>` : '');
+      b.addEventListener('click', () => { openMenu(false); set(code); btn.focus(); });
+      menu.appendChild(b);
+    }
   }
   subs.push(fillPicker);
-  sel.addEventListener('change', () => { set(sel.value); sel.blur(); });
+  btn.addEventListener('click', (e) => { e.stopPropagation(); openMenu(menu.hidden); });
+  document.addEventListener('click', (e) => { if (!menu.hidden && !menu.contains(e.target)) openMenu(false); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.hidden) { e.stopPropagation(); openMenu(false); btn.focus(); } }, true);
 
   return { t, num: n => nf.format(n), apply, set, onChange: f => subs.push(f), get lang() { return lang; } };
 })();
