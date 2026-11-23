@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Drone Dash</title>
 <meta name="description" content="Dodge barriers, grab coins, shoot down drones and keep your fuel up.">
-<meta name="theme-color" content="#0f1220">
+<meta name="theme-color" content="#0b1226">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <!-- iOS / iPadOS home-screen app -->
@@ -16,7 +16,12 @@
 <meta name="apple-mobile-web-app-title" content="Drone Dash">
 <style>
   :root {
-    --bg: #0f1220;
+    /* Ukrainian theme: flag blue and yellow on a deep navy. The road itself keeps its
+       own neutral colours so obstacles stay easy to read. */
+    --ua-blue: #0057B7;          /* flag blue: fills */
+    --ua-blue-lt: #4f9dff;       /* the same blue, lifted to read as text/lines on dark */
+    --ua-yellow: #FFD500;        /* flag yellow */
+    --bg: #0b1226;
     --road: #1b1f33;
     --line: #5f6894;
     --player: #4fd1c5;
@@ -25,9 +30,9 @@
     --fuel: #48bb78;
     --fuel-mid: #ed8936;
     --text: #e8ecf8;
-    --muted: #8b93b5;
-    --accent: #4fd1c5;
-    --card: #232845;
+    --muted: #8f9bc2;
+    --accent: var(--ua-yellow);  /* primary buttons, highlights */
+    --card: #1b2548;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body {
@@ -116,7 +121,7 @@
   .tag { flex: none; min-width: 44px; white-space: nowrap; font-size: 12px; font-weight: 800; letter-spacing: 1px; color: var(--muted); }
   .bar { flex: 1; height: 10px; border-radius: 5px; background: rgba(255,255,255,.1); overflow: hidden; }
   .bar > div { height: 100%; width: 0; border-radius: 5px; transition: background-color .3s; }
-  #prog { background: var(--accent); }
+  #prog { background: var(--ua-blue-lt); }
   #fuel { background: var(--fuel); }
   .small { flex: none; width: 54px; text-align: right; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
   #pips { flex: none; width: 54px; display: flex; justify-content: flex-end; gap: 3px; }
@@ -135,8 +140,8 @@
     padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   }
   button.ghost {
-    font-size: 15px; padding: 9px 20px; margin-top: 0; color: var(--accent);
-    background: transparent; box-shadow: inset 0 0 0 2px var(--accent);
+    font-size: 15px; padding: 9px 20px; margin-top: 0; color: var(--ua-blue-lt);
+    background: transparent; box-shadow: inset 0 0 0 2px var(--ua-blue-lt);
   }
   #installHint { font-size: 13px; }
   [hidden] { display: none !important; }
@@ -145,20 +150,23 @@
   .overlay p { margin: 0; color: var(--muted); line-height: 1.5; }
   .overlay .big { font-size: 22px; color: var(--text); font-weight: 700; }
   button {
-    font: inherit; font-size: 20px; font-weight: 700; color: #0f1220; background: var(--accent);
+    font: inherit; font-size: 20px; font-weight: 700; color: #0a1c3d; background: var(--accent);
     border: 0; border-radius: 12px; padding: 14px 36px; cursor: pointer; margin-top: 8px;
-    box-shadow: 0 6px 0 #2c8f86; transition: transform .08s, box-shadow .08s;
+    box-shadow: 0 6px 0 #b39500; transition: transform .08s, box-shadow .08s;
   }
-  button:active { transform: translateY(4px); box-shadow: 0 2px 0 #2c8f86; }
+  button:active { transform: translateY(4px); box-shadow: 0 2px 0 #b39500; }
 
   /* ---- Home screen ---- */
   #home {
     gap: 10px;
-    background: radial-gradient(circle at 50% 28%, rgba(79,209,197,.2), rgba(10,12,24,.95) 62%);
+    background:
+      radial-gradient(circle at 50% 26%, rgba(0,87,183,.45), rgba(0,87,183,0) 45%),
+      radial-gradient(circle at 50% 70%, rgba(255,213,0,.08), rgba(255,213,0,0) 40%),
+      rgba(9,14,32,.94);
   }
   .logo {
     width: 132px; height: 132px; border-radius: 30px;
-    box-shadow: 0 18px 40px rgba(0,0,0,.55), 0 0 0 3px rgba(79,209,197,.35);
+    box-shadow: 0 18px 40px rgba(0,0,0,.55), 0 0 0 3px rgba(255,213,0,.5);
     animation: logoIn .6s cubic-bezier(.2,1.4,.4,1) both, bob 3s ease-in-out .6s infinite;
   }
   @keyframes logoIn { from { transform: translateY(30px) scale(.6); opacity: 0; } }
@@ -167,14 +175,20 @@
     margin: 14px 0 0; font-size: 48px; font-weight: 900; letter-spacing: 3px; line-height: .95;
     text-shadow: 0 6px 24px rgba(0,0,0,.6); animation: fadeUp .5s .15s both;
   }
-  .title span { display: block; color: var(--accent); }
+  .title span { display: block; color: var(--ua-yellow); }
+  /* small blue-over-yellow flag stripe under the title */
+  .uaStripe {
+    width: 72px; height: 8px; border-radius: 4px; margin: 2px 0 4px;
+    background: linear-gradient(var(--ua-blue) 50%, var(--ua-yellow) 50%);
+    box-shadow: 0 0 0 1px rgba(255,255,255,.12); animation: fadeUp .5s .2s both;
+  }
   .tagline { max-width: 300px; text-wrap: balance; animation: fadeUp .5s .25s both; }
   #homeBest { font-size: 14px; color: var(--coin) !important; font-weight: 700; animation: fadeUp .5s .3s both; }
   @keyframes fadeUp { from { transform: translateY(14px); opacity: 0; } }
   .menuBtns { display: grid; gap: 14px; width: 250px; margin-top: 18px; animation: fadeUp .5s .35s both; }
   .menuBtns button { width: 100%; margin: 0; }
   button.secondary {
-    background: rgba(255,255,255,.1); color: var(--text); box-shadow: 0 6px 0 rgba(0,0,0,.35);
+    background: rgba(0,87,183,.45); color: var(--text); box-shadow: 0 6px 0 rgba(0,0,0,.35);
   }
   button.secondary:active { box-shadow: 0 2px 0 rgba(0,0,0,.35); }
   #wrap.at-home #hud { visibility: hidden; }
@@ -210,7 +224,7 @@
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
     width: 52px; height: 42px; padding: 0; background: rgba(255,255,255,.06);
   }
-  #langMenu button[aria-checked="true"] { box-shadow: inset 0 0 0 2px var(--accent); background: rgba(79,209,197,.15); }
+  #langMenu button[aria-checked="true"] { box-shadow: inset 0 0 0 2px var(--accent); background: rgba(255,213,0,.12); }
   #langMenu button:focus-visible { outline: 2px solid var(--text); outline-offset: 1px; }
   #langMenu button[data-code="auto"] {
     grid-column: 1 / -1; width: auto; height: 40px; flex-direction: row; gap: 10px; padding: 0 12px;
@@ -218,9 +232,11 @@
   #langMenu small { font-size: 13px; line-height: 1; color: var(--text); font-weight: 700; }
 
   /* ---- How-to-play popup ---- */
-  #intro { background: rgba(10, 12, 24, .7); }
+  #intro { background: rgba(9, 14, 32, .72); }
   .card {
-    width: 100%; max-width: 340px; max-height: 100%; overflow-y: auto; background: var(--card); border-radius: 20px;
+    width: 100%; max-width: 340px; max-height: 100%; overflow-y: auto; border-radius: 20px;
+    /* thin blue-and-yellow flag strip along the top edge */
+    background: linear-gradient(90deg, var(--ua-blue) 50%, var(--ua-yellow) 50%) top / 100% 4px no-repeat, var(--card);
     padding: 22px 20px 20px; display: flex; flex-direction: column; align-items: center; gap: 12px;
     box-shadow: 0 20px 50px rgba(0,0,0,.5); animation: cardIn .35s cubic-bezier(.2,1.4,.4,1);
   }
@@ -382,7 +398,7 @@
     text-shadow: 0 4px 18px rgba(0,0,0,.7);
   }
   #banner { padding: 0 16px; }
-  #banner .t { font-size: clamp(30px, 10vw, 44px); line-height: 1.1; font-weight: 900; color: var(--accent); }
+  #banner .t { font-size: clamp(30px, 10vw, 44px); line-height: 1.1; font-weight: 900; color: var(--ua-blue-lt); }
   #banner .s { font-size: 16px; font-weight: 700; color: var(--text); margin-top: 4px; }
   #banner .r { font-size: 18px; font-weight: 900; color: var(--coin); margin-top: 8px; }
   #banner .r:empty { display: none; }
@@ -484,7 +500,7 @@
   .recList li {
     display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 12px; background: rgba(255,255,255,.05); text-align: left;
   }
-  .recList li.latest { background: rgba(79,209,197,.16); box-shadow: inset 0 0 0 2px var(--accent); }
+  .recList li.latest { background: rgba(0,87,183,.3); box-shadow: inset 0 0 0 2px var(--ua-blue-lt); }
   .recList .rank { flex: none; width: 22px; font-weight: 900; color: var(--muted); text-align: center; }
   .recList li:first-child .rank { color: var(--coin); }
   .recList canvas { flex: none; background: var(--road); border-radius: 8px; }
@@ -517,6 +533,7 @@
   <div id="home" class="overlay">
     <img class="logo" src="icons/icon-512.png" alt="" width="132" height="132">
     <h1 class="title">DRONE<span>DASH</span></h1>
+    <div class="uaStripe" aria-hidden="true"></div>
     <p class="tagline" data-i18n="tagline">Dodge the barriers. Grab the coins. Shoot down the drones. Don't run out of fuel.</p>
     <p id="homeBest" hidden></p>
     <div class="menuBtns">
@@ -1129,7 +1146,7 @@ window.I18N = (() => {
          ${[[6.5, 4], [23.5, 4], [6.5, 16], [23.5, 16]].map(([x, y]) =>
            `<rect x="${x - 0.7}" y="${y - 2}" width="1.4" height="4"/><rect x="${x - 2}" y="${y - 0.7}" width="4" height="1.4"/>`).join('')}</g>`,
     auto: `<rect width="30" height="20" fill="#2b3156"/>
-           <g fill="none" stroke="#4fd1c5" stroke-width="1.1"><circle cx="15" cy="10" r="7"/><ellipse cx="15" cy="10" rx="3" ry="7"/>
+           <g fill="none" stroke="#4f9dff" stroke-width="1.1"><circle cx="15" cy="10" r="7"/><ellipse cx="15" cy="10" rx="3" ry="7"/>
            <path d="M8,10 H22 M9,6.5 H21 M9,13.5 H21"/></g>`
   };
   const flagSvg = (code) =>
@@ -1632,7 +1649,7 @@ window.LD_RULES = (() => {
           shake = Math.max(shake, 0.15);
           const pts = DODGE_PTS * level;
           bonus += pts;
-          floatText(lx, impactY - 40, t('dodged') + ' +' + num(pts), '#4fd1c5');
+          floatText(lx, impactY - 40, t('dodged') + ' +' + num(pts), getVar('--ua-blue-lt'));
         }
       }
     }
