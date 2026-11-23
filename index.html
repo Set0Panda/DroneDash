@@ -57,13 +57,18 @@
   }
   #streak.on { visibility: visible; }
   #lives { margin-left: auto; letter-spacing: 4px; color: var(--enemy); font-size: 18px; }
-  #mute, #pauseBtn {
+  #mute {
     pointer-events: auto; margin: 0; padding: 5px 7px; font-size: 16px; line-height: 1; border-radius: 8px;
     background: rgba(255,255,255,.1); color: var(--text); box-shadow: none;
   }
-  #mute:active, #pauseBtn:active { transform: scale(.92); box-shadow: none; }
-  #pauseBtn { min-width: 32px; }
-  #pauseBtn:disabled { opacity: .35; }
+  #mute:active { transform: scale(.92); box-shadow: none; }
+  /* Pause: round button in the bottom bar, between the coin info and FIRE */
+  #pauseBtn {
+    flex: none; width: 48px; height: 48px; margin: 0; padding: 0; border-radius: 50%;
+    font-size: 20px; line-height: 1; color: var(--text);
+    background: rgba(255,255,255,.1); box-shadow: 0 4px 0 rgba(0,0,0,.35);
+  }
+  #pauseBtn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.35); }
   #pause { background: rgba(6, 8, 16, .78); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
   .pauseCard { gap: 18px; max-width: 300px; }
   .pauseCard h1 { font-size: 36px; }
@@ -83,7 +88,7 @@
   .eggCoins { display: flex; gap: 5px; }
   .eggCoins i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--coin); opacity: .4; }
   .eggCoins i.on { background: var(--coin); opacity: 1; }
-  #eggNext { font-size: 13px; font-weight: 700; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #eggNext { font-size: 12px; line-height: 1.25; font-weight: 700; color: var(--muted); overflow-wrap: anywhere; }
   #rocketBtn {
     flex: none; position: relative; margin: 0; padding: 10px 18px 10px 14px; min-width: 132px; min-height: 54px;
     display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -433,11 +438,12 @@
       <div class="eggTop"><span class="eggCoins" id="eggCoins"><i></i><i></i><i></i></span><span class="eggKills" id="eggKills">🎯 0</span></div>
       <span id="eggNext"></span>
     </div>
+    <button id="pauseBtn" type="button" data-i18n-title="pause" data-i18n-aria="pause" aria-label="Pause">⏸</button>
     <button id="rocketBtn" type="button" disabled><span class="rk">🚀</span><span data-i18n="launch">FIRE</span><b id="rocketN">0</b></button>
   </div>
 
   <div id="hud">
-    <div class="hrow"><span id="score">0</span><span id="streak">×2</span><span id="lives"></span><button id="pauseBtn" type="button" data-i18n-title="pause" data-i18n-aria="pause" aria-label="Pause">⏸</button><button id="mute" type="button" aria-label="Mute sound">🔊</button></div>
+    <div class="hrow"><span id="score">0</span><span id="streak">×2</span><span id="lives"></span><button id="mute" type="button" aria-label="Mute sound">🔊</button></div>
     <div class="hrow"><span class="tag" id="level">LV 1</span><div class="bar"><div id="prog"></div></div><span class="small" id="togo">400 m</span></div>
     <div class="hrow" id="fuelRow"><span class="tag" data-i18n="fuel">FUEL</span><div class="bar"><div id="fuel"></div></div><span id="pips" data-i18n-title="pipsTitle" title="Coins until next fuel top-up"><i></i><i></i><i></i><i></i><i></i></span></div>
   </div>
