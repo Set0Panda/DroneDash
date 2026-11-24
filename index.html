@@ -750,6 +750,8 @@
   .dailyBtn .btnIco, .raidBtn .btnIco { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 28px; line-height: 1; }
   .raidBtn { position: relative; overflow: visible; }
   .raidBtn.locked { opacity: .6; filter: grayscale(.7); }
+  .raidDiffWhat { font-size: 12px; color: var(--muted); font-weight: 700; margin-top: -4px; }
+  .startPick .diffWhat { color: var(--muted); font-weight: 700; margin-top: -4px; }
   .raidDiff { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .raidDiff button { margin: 0; padding: 7px 4px; min-height: 0; display: grid; justify-items: center; gap: 3px; border-radius: 12px; font-size: 20px;
                      color: var(--text); background: rgba(0,87,183,.45); box-shadow: 0 4px 0 rgba(0,0,0,.35); }
@@ -784,9 +786,11 @@
   .upBar { height: 10px; border-radius: 5px; background: rgba(255,255,255,.12); overflow: hidden; }
   .upBar i { display: block; height: 100%; background: linear-gradient(90deg, var(--ua-blue-lt), var(--ua-yellow)); border-radius: 5px; }
   .upTile { display: grid; justify-items: center; gap: 1px; padding: 5px 2px 6px; border-radius: 10px; background: rgba(255,255,255,.06); }
-  .upTile b { font-size: 10px; line-height: 1.15; text-align: center; overflow-wrap: anywhere; }
+  .upTile b { font-size: 10px; line-height: 1.15; text-align: center; overflow-wrap: break-word; hyphens: auto;
+               display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; max-width: 100%; }
   .upTile small { font-size: 10px; color: var(--muted); }
-  .upTile.locked canvas { filter: grayscale(1); opacity: .22; transform: scale(.8); }
+  .upTile.locked canvas { display: none; }   /* locked: just the name and level; tap to see it on your car */
+  .upTile.locked { padding-top: 7px; }
   .upTile.locked { background: rgba(255,255,255,.03); }
   .upTile.locked b { color: var(--muted); font-weight: 700; }
   .upTile.next { box-shadow: inset 0 0 0 2px var(--ua-yellow); }
@@ -905,7 +909,7 @@
       <div id="upGrid" class="upGrid"></div>
       <div id="upPeek" role="dialog" aria-modal="true" aria-labelledby="peekName" hidden>
         <div class="peekCard"><canvas id="peekCar"></canvas><b id="peekName"></b><small id="peekLv"></small>
-          <button id="peekOk" class="ghost" type="button">OK</button></div>
+          <button id="peekOk" class="ghost" type="button" data-i18n="ok">OK</button></div>
       </div>
       <button id="upBack" class="ghost" data-i18n="home">Home</button>
     </div>
@@ -995,6 +999,7 @@
         <li><span class="ico autoIco">⛽</span><span data-i18n="raidRule5" data-rich><b>No fuel drain</b> · win = <b>♥ + repair</b></span></li>
       </ul>
       <div id="raidDiff" class="raidDiff" role="group"></div>
+      <small id="raidDiffWhat" class="raidDiffWhat" aria-live="polite"></small>
       <button id="raidGo" type="button"></button>
     </div>
   </div>
@@ -1125,7 +1130,8 @@ window.I18N = (() => {
       livesAria: "{n} of {max} lives",
       raidLocked: "Beat your first giant Shahed to unlock",
       raidDiff0: "Rookie", raidDiff1: "Veteran", raidDiff2: "Legend",
-      recRuns: "Runs", recRaid: "Raid", recDaily: "Daily", recNone: "Not played yet", recStreakHint: "Play a daily every day to keep it going"
+      recRuns: "Runs", recRaid: "Raid", recDaily: "Daily", recNone: "Not played yet", recStreakHint: "Play a daily every day to keep it going",
+      diffWhat0: "Slower road · score ×0.7", diffWhat1: "Normal speed · score ×1", diffWhat2: "Faster road · score ×1.3", raidWhat0: "Weaker giant Shaheds, fewer bombs", raidWhat1: "Standard giant Shaheds", raidWhat2: "Tougher giant Shaheds, more bombs", ok: "OK"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -1217,7 +1223,8 @@ window.I18N = (() => {
       livesAria: "{n} de {max} vidas",
       raidLocked: "Derriba tu primer Shahed gigante para desbloquear",
       raidDiff0: "Novato", raidDiff1: "Veterano", raidDiff2: "Leyenda",
-      recRuns: "Partidas", recRaid: "Incursión", recDaily: "Diario", recNone: "Aún sin jugar", recStreakHint: "Juega el diario cada día para mantenerla"
+      recRuns: "Partidas", recRaid: "Incursión", recDaily: "Diario", recNone: "Aún sin jugar", recStreakHint: "Juega el diario cada día para mantenerla",
+      diffWhat0: "Carretera más lenta · puntos ×0,7", diffWhat1: "Velocidad normal · puntos ×1", diffWhat2: "Carretera más rápida · puntos ×1,3", raidWhat0: "Shaheds gigantes más débiles, menos bombas", raidWhat1: "Shaheds gigantes normales", raidWhat2: "Shaheds gigantes más duros, más bombas", ok: "OK"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -1309,7 +1316,8 @@ window.I18N = (() => {
       livesAria: "{n} vies sur {max}",
       raidLocked: "Abats ton premier Shahed géant pour débloquer",
       raidDiff0: "Bleu", raidDiff1: "Vétéran", raidDiff2: "Légende",
-      recRuns: "Parties", recRaid: "Raid", recDaily: "Défi du jour", recNone: "Pas encore joué", recStreakHint: "Joue le défi chaque jour pour la garder"
+      recRuns: "Parties", recRaid: "Raid", recDaily: "Défi du jour", recNone: "Pas encore joué", recStreakHint: "Joue le défi chaque jour pour la garder",
+      diffWhat0: "Route plus lente · score ×0,7", diffWhat1: "Vitesse normale · score ×1", diffWhat2: "Route plus rapide · score ×1,3", raidWhat0: "Shaheds géants plus faibles, moins de bombes", raidWhat1: "Shaheds géants normaux", raidWhat2: "Shaheds géants plus coriaces, plus de bombes", ok: "OK"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -1401,7 +1409,8 @@ window.I18N = (() => {
       livesAria: "{n} von {max} Leben",
       raidLocked: "Schieß deine erste Riesen-Shahed ab zum Freischalten",
       raidDiff0: "Rekrut", raidDiff1: "Veteran", raidDiff2: "Legende",
-      recRuns: "Fahrten", recRaid: "Angriff", recDaily: "Täglich", recNone: "Noch nicht gespielt", recStreakHint: "Spiel jeden Tag die Tagesfahrt, um sie zu halten"
+      recRuns: "Fahrten", recRaid: "Angriff", recDaily: "Täglich", recNone: "Noch nicht gespielt", recStreakHint: "Spiel jeden Tag die Tagesfahrt, um sie zu halten",
+      diffWhat0: "Langsamere Straße · Punkte ×0,7", diffWhat1: "Normales Tempo · Punkte ×1", diffWhat2: "Schnellere Straße · Punkte ×1,3", raidWhat0: "Schwächere Riesen-Shaheds, weniger Bomben", raidWhat1: "Normale Riesen-Shaheds", raidWhat2: "Härtere Riesen-Shaheds, mehr Bomben", ok: "OK"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -1493,7 +1502,8 @@ window.I18N = (() => {
       livesAria: "{n} de {max} vidas",
       raidLocked: "Derrube seu primeiro Shahed gigante para desbloquear",
       raidDiff0: "Novato", raidDiff1: "Veterano", raidDiff2: "Lenda",
-      recRuns: "Corridas", recRaid: "Ataque", recDaily: "Diário", recNone: "Ainda não jogado", recStreakHint: "Jogue o diário todo dia para mantê-la"
+      recRuns: "Corridas", recRaid: "Ataque", recDaily: "Diário", recNone: "Ainda não jogado", recStreakHint: "Jogue o diário todo dia para mantê-la",
+      diffWhat0: "Estrada mais lenta · pontos ×0,7", diffWhat1: "Velocidade normal · pontos ×1", diffWhat2: "Estrada mais rápida · pontos ×1,3", raidWhat0: "Shaheds gigantes mais fracos, menos bombas", raidWhat1: "Shaheds gigantes normais", raidWhat2: "Shaheds gigantes mais duros, mais bombas", ok: "OK"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -1585,7 +1595,8 @@ window.I18N = (() => {
       livesAria: "{n} vite su {max}",
       raidLocked: "Abbatti il tuo primo Shahed gigante per sbloccare",
       raidDiff0: "Recluta", raidDiff1: "Veterano", raidDiff2: "Leggenda",
-      recRuns: "Partite", recRaid: "Raid", recDaily: "Giornaliera", recNone: "Non ancora giocato", recStreakHint: "Gioca la sfida ogni giorno per mantenerla"
+      recRuns: "Partite", recRaid: "Raid", recDaily: "Giornaliera", recNone: "Non ancora giocato", recStreakHint: "Gioca la sfida ogni giorno per mantenerla",
+      diffWhat0: "Strada più lenta · punti ×0,7", diffWhat1: "Velocità normale · punti ×1", diffWhat2: "Strada più veloce · punti ×1,3", raidWhat0: "Shahed giganti più deboli, meno bombe", raidWhat1: "Shahed giganti normali", raidWhat2: "Shahed giganti più tosti, più bombe", ok: "OK"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -1677,7 +1688,8 @@ window.I18N = (() => {
       livesAria: "ライフ {n}/{max}",
       raidLocked: "巨大シャヘドを1機撃墜で解放",
       raidDiff0: "ルーキー", raidDiff1: "ベテラン", raidDiff2: "レジェンド",
-      recRuns: "ラン", recRaid: "襲来", recDaily: "デイリー", recNone: "まだプレイしていません", recStreakHint: "毎日デイリーを遊んで連続記録を伸ばそう"
+      recRuns: "ラン", recRaid: "襲来", recDaily: "デイリー", recNone: "まだプレイしていません", recStreakHint: "毎日デイリーを遊んで連続記録を伸ばそう",
+      diffWhat0: "道路がゆっくり · スコア×0.7", diffWhat1: "通常の速さ · スコア×1", diffWhat2: "道路が速い · スコア×1.3", raidWhat0: "巨大シャヘドが弱く、爆弾が少ない", raidWhat1: "標準の巨大シャヘド", raidWhat2: "巨大シャヘドが強く、爆弾が多い", ok: "OK"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -1769,7 +1781,8 @@ window.I18N = (() => {
       livesAria: "生命 {n}/{max}",
       raidLocked: "击落第一架巨型沙赫德即可解锁",
       raidDiff0: "新兵", raidDiff1: "老兵", raidDiff2: "传奇",
-      recRuns: "跑局", recRaid: "空袭", recDaily: "每日", recNone: "尚未游玩", recStreakHint: "每天玩每日挑战来保持连胜"
+      recRuns: "跑局", recRaid: "空袭", recDaily: "每日", recNone: "尚未游玩", recStreakHint: "每天玩每日挑战来保持连胜",
+      diffWhat0: "路速更慢 · 得分×0.7", diffWhat1: "正常速度 · 得分×1", diffWhat2: "路速更快 · 得分×1.3", raidWhat0: "巨型沙赫德更弱，炸弹更少", raidWhat1: "标准巨型沙赫德", raidWhat2: "巨型沙赫德更强，炸弹更多", ok: "好的"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -1861,7 +1874,8 @@ window.I18N = (() => {
       livesAria: "생명 {n}/{max}",
       raidLocked: "첫 거대 샤헤드를 격추하면 해제",
       raidDiff0: "신병", raidDiff1: "베테랑", raidDiff2: "전설",
-      recRuns: "기록", recRaid: "공습", recDaily: "일일", recNone: "아직 플레이 안 함", recStreakHint: "매일 일일 도전을 플레이해 이어가세요"
+      recRuns: "기록", recRaid: "공습", recDaily: "일일", recNone: "아직 플레이 안 함", recStreakHint: "매일 일일 도전을 플레이해 이어가세요",
+      diffWhat0: "느린 도로 · 점수 ×0.7", diffWhat1: "보통 속도 · 점수 ×1", diffWhat2: "빠른 도로 · 점수 ×1.3", raidWhat0: "약한 거대 샤헤드, 폭탄 적음", raidWhat1: "표준 거대 샤헤드", raidWhat2: "강한 거대 샤헤드, 폭탄 많음", ok: "확인"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -1953,7 +1967,8 @@ window.I18N = (() => {
       livesAria: "{max} में से {n} जान",
       raidLocked: "अनलॉक के लिए पहला विशाल शाहेद गिराओ",
       raidDiff0: "नौसिखिया", raidDiff1: "अनुभवी", raidDiff2: "दिग्गज",
-      recRuns: "दौड़ें", recRaid: "हमला", recDaily: "दैनिक", recNone: "अभी खेला नहीं", recStreakHint: "इसे बनाए रखने के लिए रोज़ दैनिक खेलें"
+      recRuns: "दौड़ें", recRaid: "हमला", recDaily: "दैनिक", recNone: "अभी खेला नहीं", recStreakHint: "इसे बनाए रखने के लिए रोज़ दैनिक खेलें",
+      diffWhat0: "धीमी सड़क · स्कोर ×0.7", diffWhat1: "सामान्य रफ़्तार · स्कोर ×1", diffWhat2: "तेज़ सड़क · स्कोर ×1.3", raidWhat0: "कमज़ोर विशाल शाहेद, कम बम", raidWhat1: "सामान्य विशाल शाहेद", raidWhat2: "मज़बूत विशाल शाहेद, ज़्यादा बम", ok: "ठीक है"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -2047,7 +2062,8 @@ window.I18N = (() => {
       livesAria: "{n} з {max} життів",
       raidLocked: "Збий перший гігантський шахед, щоб відкрити",
       raidDiff0: "Новобранець", raidDiff1: "Ветеран", raidDiff2: "Легенда",
-      recRuns: "Заїзди", recRaid: "Атака", recDaily: "Щоденне", recNone: "Ще не грали", recStreakHint: "Грай щоденне щодня, щоб не перервати серію"
+      recRuns: "Заїзди", recRaid: "Атака", recDaily: "Щоденне", recNone: "Ще не грали", recStreakHint: "Грай щоденне щодня, щоб не перервати серію",
+      diffWhat0: "Повільніша дорога · очки ×0,7", diffWhat1: "Звичайна швидкість · очки ×1", diffWhat2: "Швидша дорога · очки ×1,3", raidWhat0: "Слабші гігантські шахеди, менше бомб", raidWhat1: "Звичайні гігантські шахеди", raidWhat2: "Міцніші гігантські шахеди, більше бомб", ok: "OK"
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -2139,7 +2155,8 @@ window.I18N = (() => {
       livesAria: "{max}-დან {n} სიცოცხლე",
       raidLocked: "გასახსნელად ჩამოაგდე პირველი გიგანტური შაჰედი",
       raidDiff0: "ახალბედა", raidDiff1: "ვეტერანი", raidDiff2: "ლეგენდა",
-      recRuns: "რბოლები", recRaid: "შეტევა", recDaily: "დღიური", recNone: "ჯერ არ გითამაშია", recStreakHint: "ითამაშე დღიური ყოველდღე, რომ სერია გააგრძელო"
+      recRuns: "რბოლები", recRaid: "შეტევა", recDaily: "დღიური", recNone: "ჯერ არ გითამაშია", recStreakHint: "ითამაშე დღიური ყოველდღე, რომ სერია გააგრძელო",
+      diffWhat0: "ნელი გზა · ქულა ×0,7", diffWhat1: "ჩვეულებრივი სიჩქარე · ქულა ×1", diffWhat2: "სწრაფი გზა · ქულა ×1,3", raidWhat0: "სუსტი გიგანტური შაჰედები, ნაკლები ბომბი", raidWhat1: "ჩვეულებრივი გიგანტური შაჰედები", raidWhat2: "ძლიერი გიგანტური შაჰედები, მეტი ბომბი", ok: "კარგი"
     }
   };
   const NAMES = {
@@ -4443,6 +4460,7 @@ window.LD_RULES = (() => {
       const cv = document.createElement('canvas'), b = document.createElement('b'), sm = document.createElement('small');
       b.textContent = t(u.key);
       sm.textContent = (u.level > best ? '🔒 ' : '') + t('lv', { n: u.level });
+      tile.title = t(u.key);
       tile.append(cv, b, sm); grid.appendChild(tile);
       tile.tabIndex = 0; tile.setAttribute('role', 'button');
       tile.addEventListener('click', () => peekUpgrade(u, u.level <= best));
@@ -4451,6 +4469,11 @@ window.LD_RULES = (() => {
     }
     $('upPeek').hidden = true;
     show('upgrades');
+    for (const b of grid.querySelectorAll('.upTile b')) {             // long names (some languages): smaller text, never cut off
+      let fs = 10;
+      while (b.scrollHeight > b.clientHeight + 1 && fs > 7.5) { fs -= 0.5; b.style.fontSize = fs + 'px'; }
+    }
+    fitCard('upgrades');
   }
   // Tap an upgrade: a bigger picture of your car with it, and when you got it (or when you will).
   let peekFrom = null;
@@ -6129,6 +6152,9 @@ window.LD_RULES = (() => {
     name.className = 'areaName';
     name.textContent = startHint || (AREAS[cur].icon + ' ' + t(AREAS[cur].key) + ' · ' + t('lv', { n: areaStart(cur) }) + ' · ' + DIFFS[diffI].icon + ' ' + t(DIFFS[diffI].key));
     box.appendChild(name);
+    const what = document.createElement('small');                 // what the difficulty does, in plain words
+    what.className = 'areaName diffWhat'; what.textContent = t('diffWhat' + diffI);
+    box.appendChild(what);
     requestAnimationFrame(fitHome);                                // the height may have changed
   }
   $('dailyBtn').addEventListener('click', () => { mode = 'daily'; startPlay(); });
@@ -6152,6 +6178,7 @@ window.LD_RULES = (() => {
       b.addEventListener('click', () => { diffI = i; try { localStorage.setItem('ddDiff', i); } catch {} paintRaidDiff(); });
       box.appendChild(b);
     });
+    $('raidDiffWhat').textContent = t('raidWhat' + diffI);
   }
   function openRaidHelp(from) {
     helpFrom = from === 'pause' ? 'pause' : 'raid';     // from the pause menu the run stays frozen
