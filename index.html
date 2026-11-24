@@ -554,6 +554,40 @@
 
   /* ---- Home: colour + records row ---- */
   .menuRow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  /* ---- Missions: three goals, a star for each ---- */
+  .missions { display: grid; gap: 5px; padding: 9px 10px 8px; border-radius: 14px; background: rgba(255,255,255,.07);
+              box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); text-align: left; }
+  .msHead { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 12px; font-weight: 800;
+            letter-spacing: .4px; color: var(--muted); }
+  .msHead b { color: var(--coin); font-size: 13px; white-space: nowrap; }
+  .msRow { display: grid; grid-template-columns: 20px 1fr auto; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; line-height: 1.2; }
+  .msRow .mi { text-align: center; font-size: 14px; }
+  .msRow .mt { min-width: 0; }
+  .msRow .mp { display: block; height: 3px; margin-top: 3px; border-radius: 2px; background: rgba(255,255,255,.12); overflow: hidden; }
+  .msRow .mp i { display: block; height: 100%; width: var(--p, 0%); background: var(--coin); border-radius: 2px; }
+  .msRow .mn { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .msRow.done .mt { color: #7ee2a8; }
+  .msRow.done .mp i { background: #36d399; }
+  .msSkip { margin: 0; padding: 2px 6px; min-height: 0; font-size: 13px; line-height: 1.2; border-radius: 8px; color: var(--muted);
+            background: rgba(255,255,255,.08); box-shadow: none; }
+  .msNext { font-size: 11px; color: var(--muted); text-align: center; margin-top: 1px; }
+  .pauseCard .missions, .overCard .missions { width: 100%; max-width: 300px; margin: 0 auto; }
+  /* mid-run: a pill that drops in under the HUD */
+  .msToast { position: absolute; left: 50%; top: calc(96px + env(safe-area-inset-top, 0px)); z-index: 5; transform: translateX(-50%);
+             max-width: min(92%, 340px); padding: 8px 14px; border-radius: 14px; font-size: 14px; font-weight: 800; text-align: center;
+             color: #0f1220; background: #7ee2a8; box-shadow: 0 6px 20px rgba(0,0,0,.45); pointer-events: none; }
+  .msToast.show { animation: msToast 2.6s ease both; }
+  @keyframes msToast { 0% { opacity: 0; transform: translate(-50%, -14px); } 10%, 85% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -8px); } }
+  /* garage: finish and trail pickers */
+  .pickRow { width: 100%; max-width: 280px; display: grid; gap: 6px; }
+  .pickRow > span { font-size: 12px; font-weight: 800; color: var(--muted); letter-spacing: .4px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+  .chips button { margin: 0; padding: 5px 9px; min-height: 0; font-size: 12px; font-weight: 800; border-radius: 10px;
+                  color: var(--text); background: rgba(255,255,255,.08); box-shadow: none; }
+  .chips button.on { background: var(--ua-yellow); color: #0f1220; }
+  .chips button:disabled { opacity: .45; cursor: default; }
+  @media (max-height: 860px) { .logo { width: 96px; height: 96px; border-radius: 22px; } .title { font-size: 40px; margin-top: 6px; } .menuBtns { gap: 10px; margin-top: 10px; } }
+  @media (max-height: 740px) { .logo { width: 72px; height: 72px; border-radius: 18px; } .tagline { display: none; } }
   .dailyBtn { display: grid; gap: 2px; justify-items: center; padding-top: 10px; padding-bottom: 10px; }
   .dailyBtn small { font-size: 12px; font-weight: 700; opacity: .85; max-width: 100%; white-space: pre-line; line-height: 1.35; text-wrap: balance; }
   .overDaily { font-size: 14px; font-weight: 800; color: var(--coin) !important; margin: -4px 0 0 !important; }
@@ -641,6 +675,7 @@
 
   <div id="count"></div>
   <div id="banner"></div>
+  <div id="msToast" class="msToast" hidden></div>
 
   <div id="home" class="overlay">
     <img class="logo" src="icons/icon-512.png" alt="" width="132" height="132">
@@ -651,6 +686,7 @@
     <div class="menuBtns">
       <button id="playBtn">▶ <span data-i18n="play">Play</span></button>
       <button id="dailyBtn" class="secondary dailyBtn" type="button"><span>📅 <span data-i18n="daily">Daily challenge</span></span><small id="dailySub"></small></button>
+      <div id="homeMissions" class="missions"></div>
       <div class="menuRow">
         <button id="garageBtn" class="secondary" type="button"><i class="swatch"></i><span data-i18n="colourBtn">Paint</span></button>
         <button id="recordsBtn" class="secondary" type="button">🏆 <span data-i18n="records">Records</span></button>
@@ -683,6 +719,8 @@
       </div>
       <div class="shadeRow"><span aria-hidden="true">⚫</span><input type="range" id="shade" min="0" max="100" step="1" data-i18n-aria="shade"><span aria-hidden="true">⚪</span></div>
       <p data-i18n="garageHint">Drag around the wheel to pick a colour</p>
+      <div class="pickRow"><span data-i18n="finishLabel">Finish</span><div id="finChips" class="chips"></div></div>
+      <div class="pickRow"><span data-i18n="trailLabel">Overdrive trail</span><div id="trailChips" class="chips"></div></div>
       <button id="garageDone" data-i18n="done">Done</button>
     </div>
   </div>
@@ -699,6 +737,7 @@
   <div id="pause" class="overlay hidden">
     <div class="card pauseCard" role="dialog" aria-labelledby="pauseTitle">
       <h1 id="pauseTitle">⏸ <span data-i18n="paused">Paused</span></h1>
+      <div id="pauseMissions" class="missions"></div>
       <div class="overBtns">
         <button id="resumeBtn">▶ <span data-i18n="resume">Resume</span></button>
         <button id="pauseHelp" class="secondary" data-i18n="howToPlay">How to Play</button>
@@ -753,6 +792,7 @@
       <p id="overDaily" class="overDaily" hidden></p>
       <p id="overTrip" class="overTrip"></p>
       <p id="bestLine"></p>
+      <div id="overMissions" class="missions" hidden></div>
       <div class="overBtns">
         <button id="retryBtn" data-i18n="retry">Retry</button>
         <button id="shareBtn" class="secondary" type="button">📤 <span data-i18n="share">Share</span></button>
@@ -819,7 +859,16 @@ window.I18N = (() => {
       upSparkle: "Star trail", upStrobes: "Roof strobes", upHolo: "Holo paint", upJet: "Jet flames",
       upRainbow: "Rainbow trail", upLaurel: "Laurel wreath", upLegend: "Legend gold",
       privacyNote: "No ads, no cookies. Only anonymous play counts.",
-      comboTip: "COMBO ×2!", comboTipSub: "Coins, near misses and drones keep it going", comboFade: "Keep it going or it fades!", overdrive: "OVERDRIVE!", odSub: "Smash everything!", calmOn: "Reduce motion: On", calmOff: "Reduce motion: Off"
+      comboTip: "COMBO ×2!", comboTipSub: "Coins, near misses and drones keep it going", comboFade: "Keep it going or it fades!", overdrive: "OVERDRIVE!", odSub: "Smash everything!", calmOn: "Reduce motion: On", calmOff: "Reduce motion: Off",
+      missions: "Missions", msSwap: "Swap this mission (once a day)", msNext: "Next: {item} at ★{n}", rank0: "Rookie",
+      rank1: "Pro", rank2: "Ace", rank3: "Legend", ms_coins: "Grab {n} coins in one run",
+      ms_level: "Reach level {n}", ms_dist: "Drive {n} m in one run", ms_combo: "Reach a ×{n} combo", ms_close: "{n} near misses in one run",
+      ms_kills: "Shoot down {n} Shaheds in one run", ms_barrier: "Blow up {n} barriers with rockets", ms_clean: "{n} levels without a scratch", ms_od: "Overdrive {n}× in one run",
+      ms_smash: "Smash {n} things in Overdrive", ms_heart: "Grab {n} ♥ in one run", ms_wreck: "Reach a checkpoint badly damaged", ms_tCoins: "Collect {n} coins in total",
+      ms_tKills: "Shoot down {n} Shaheds in total", ms_tDaily: "Play {n} daily challenges", finishLabel: "Finish", trailLabel: "Overdrive trail",
+      fin_gloss: "Gloss", fin_metallic: "Metallic", fin_pearl: "Pearl", fin_matte: "Matte",
+      fin_chrome: "Chrome", fin_neon: "Neon", fin_candy: "Candy", trail_rainbow: "Rainbow",
+      trail_fire: "Fire", trail_ice: "Ice", trail_gold: "Gold"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -869,7 +918,16 @@ window.I18N = (() => {
       upSparkle: "Estela de estrellas", upStrobes: "Luces estroboscópicas", upHolo: "Pintura holográfica", upJet: "Llamas de reactor",
       upRainbow: "Estela arcoíris", upLaurel: "Corona de laurel", upLegend: "Oro de leyenda",
       privacyNote: "Sin anuncios ni cookies. Solo recuentos anónimos de partidas.",
-      comboTip: "¡COMBO ×2!", comboTipSub: "Monedas, roces y drones lo mantienen", comboFade: "¡Sigue o se apaga!", overdrive: "¡OVERDRIVE!", odSub: "¡Arrasa con todo!", calmOn: "Reducir movimiento: Sí", calmOff: "Reducir movimiento: No"
+      comboTip: "¡COMBO ×2!", comboTipSub: "Monedas, roces y drones lo mantienen", comboFade: "¡Sigue o se apaga!", overdrive: "¡OVERDRIVE!", odSub: "¡Arrasa con todo!", calmOn: "Reducir movimiento: Sí", calmOff: "Reducir movimiento: No",
+      missions: "Misiones", msSwap: "Cambiar esta misión (una vez al día)", msNext: "Siguiente: {item} con ★{n}", rank0: "Novato",
+      rank1: "Pro", rank2: "As", rank3: "Leyenda", ms_coins: "Coge {n} monedas en una partida",
+      ms_level: "Llega al nivel {n}", ms_dist: "Recorre {n} m en una partida", ms_combo: "Consigue un combo ×{n}", ms_close: "{n} roces en una partida",
+      ms_kills: "Derriba {n} Shaheds en una partida", ms_barrier: "Vuela {n} barreras con cohetes", ms_clean: "{n} niveles sin un rasguño", ms_od: "Overdrive {n}× en una partida",
+      ms_smash: "Destroza {n} cosas en Overdrive", ms_heart: "Coge {n} ♥ en una partida", ms_wreck: "Llega a un control muy dañado", ms_tCoins: "Reúne {n} monedas en total",
+      ms_tKills: "Derriba {n} Shaheds en total", ms_tDaily: "Juega {n} desafíos diarios", finishLabel: "Acabado", trailLabel: "Estela de Overdrive",
+      fin_gloss: "Brillo", fin_metallic: "Metalizado", fin_pearl: "Perla", fin_matte: "Mate",
+      fin_chrome: "Cromo", fin_neon: "Neón", fin_candy: "Caramelo", trail_rainbow: "Arcoíris",
+      trail_fire: "Fuego", trail_ice: "Hielo", trail_gold: "Oro"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -919,7 +977,16 @@ window.I18N = (() => {
       upSparkle: "Traînée d'étoiles", upStrobes: "Gyrophares", upHolo: "Peinture holographique", upJet: "Flammes de réacteur",
       upRainbow: "Traînée arc-en-ciel", upLaurel: "Couronne de laurier", upLegend: "Or légendaire",
       privacyNote: "Sans pub ni cookies. Seulement des comptages anonymes de parties.",
-      comboTip: "COMBO ×2 !", comboTipSub: "Pièces, frôlements et drones l’entretiennent", comboFade: "Continue ou il s’éteint !", overdrive: "OVERDRIVE !", odSub: "Fonce dans le tas !", calmOn: "Réduire les animations : oui", calmOff: "Réduire les animations : non"
+      comboTip: "COMBO ×2 !", comboTipSub: "Pièces, frôlements et drones l’entretiennent", comboFade: "Continue ou il s’éteint !", overdrive: "OVERDRIVE !", odSub: "Fonce dans le tas !", calmOn: "Réduire les animations : oui", calmOff: "Réduire les animations : non",
+      missions: "Missions", msSwap: "Changer cette mission (une fois par jour)", msNext: "Suivant : {item} à ★{n}", rank0: "Débutant",
+      rank1: "Pro", rank2: "As", rank3: "Légende", ms_coins: "Ramasse {n} pièces en une partie",
+      ms_level: "Atteins le niveau {n}", ms_dist: "Roule {n} m en une partie", ms_combo: "Fais un combo ×{n}", ms_close: "{n} frôlements en une partie",
+      ms_kills: "Abats {n} Shaheds en une partie", ms_barrier: "Fais sauter {n} barrières à la roquette", ms_clean: "{n} niveaux sans une égratignure", ms_od: "Overdrive {n}× en une partie",
+      ms_smash: "Pulvérise {n} obstacles en Overdrive", ms_heart: "Ramasse {n} ♥ en une partie", ms_wreck: "Passe un point de contrôle très abîmé", ms_tCoins: "Ramasse {n} pièces au total",
+      ms_tKills: "Abats {n} Shaheds au total", ms_tDaily: "Joue {n} défis du jour", finishLabel: "Finition", trailLabel: "Traînée d’Overdrive",
+      fin_gloss: "Brillant", fin_metallic: "Métallisé", fin_pearl: "Nacré", fin_matte: "Mat",
+      fin_chrome: "Chrome", fin_neon: "Néon", fin_candy: "Bonbon", trail_rainbow: "Arc-en-ciel",
+      trail_fire: "Feu", trail_ice: "Glace", trail_gold: "Or"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -969,7 +1036,16 @@ window.I18N = (() => {
       upSparkle: "Sternenspur", upStrobes: "Dach-Blitzer", upHolo: "Holo-Lack", upJet: "Düsenflammen",
       upRainbow: "Regenbogenspur", upLaurel: "Lorbeerkranz", upLegend: "Legendengold",
       privacyNote: "Keine Werbung, keine Cookies. Nur anonyme Spielzählungen.",
-      comboTip: "COMBO ×2!", comboTipSub: "Münzen, knappe Manöver und Drohnen halten ihn am Laufen", comboFade: "Weitermachen, sonst verblasst er!", overdrive: "OVERDRIVE!", odSub: "Mach alles platt!", calmOn: "Weniger Bewegung: An", calmOff: "Weniger Bewegung: Aus"
+      comboTip: "COMBO ×2!", comboTipSub: "Münzen, knappe Manöver und Drohnen halten ihn am Laufen", comboFade: "Weitermachen, sonst verblasst er!", overdrive: "OVERDRIVE!", odSub: "Mach alles platt!", calmOn: "Weniger Bewegung: An", calmOff: "Weniger Bewegung: Aus",
+      missions: "Missionen", msSwap: "Mission tauschen (einmal am Tag)", msNext: "Nächstes: {item} bei ★{n}", rank0: "Neuling",
+      rank1: "Profi", rank2: "Ass", rank3: "Legende", ms_coins: "Sammle {n} Münzen in einer Runde",
+      ms_level: "Erreiche Level {n}", ms_dist: "Fahre {n} m in einer Runde", ms_combo: "Erreiche eine ×{n}-Combo", ms_close: "{n} knappe Manöver in einer Runde",
+      ms_kills: "Schieß {n} Shaheds in einer Runde ab", ms_barrier: "Spreng {n} Barrieren mit Raketen", ms_clean: "{n} Level ohne Kratzer", ms_od: "Overdrive {n}× in einer Runde",
+      ms_smash: "Zerlege {n} Dinge im Overdrive", ms_heart: "Sammle {n} ♥ in einer Runde", ms_wreck: "Erreiche einen Checkpoint stark beschädigt", ms_tCoins: "Sammle insgesamt {n} Münzen",
+      ms_tKills: "Schieß insgesamt {n} Shaheds ab", ms_tDaily: "Spiel {n} Tages-Challenges", finishLabel: "Lackart", trailLabel: "Overdrive-Spur",
+      fin_gloss: "Glanz", fin_metallic: "Metallic", fin_pearl: "Perlmutt", fin_matte: "Matt",
+      fin_chrome: "Chrom", fin_neon: "Neon", fin_candy: "Candy", trail_rainbow: "Regenbogen",
+      trail_fire: "Feuer", trail_ice: "Eis", trail_gold: "Gold"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -1019,7 +1095,16 @@ window.I18N = (() => {
       upSparkle: "Rastro de estrelas", upStrobes: "Luzes estroboscópicas", upHolo: "Pintura holográfica", upJet: "Chamas a jato",
       upRainbow: "Rastro arco-íris", upLaurel: "Coroa de louros", upLegend: "Ouro lendário",
       privacyNote: "Sem anúncios nem cookies. Só contagens anônimas de partidas.",
-      comboTip: "COMBO ×2!", comboTipSub: "Moedas, quase-batidas e drones mantêm o combo", comboFade: "Continue ou ele some!", overdrive: "OVERDRIVE!", odSub: "Destrua tudo!", calmOn: "Reduzir movimento: Ligado", calmOff: "Reduzir movimento: Desligado"
+      comboTip: "COMBO ×2!", comboTipSub: "Moedas, quase-batidas e drones mantêm o combo", comboFade: "Continue ou ele some!", overdrive: "OVERDRIVE!", odSub: "Destrua tudo!", calmOn: "Reduzir movimento: Ligado", calmOff: "Reduzir movimento: Desligado",
+      missions: "Missões", msSwap: "Trocar esta missão (uma vez por dia)", msNext: "Próximo: {item} com ★{n}", rank0: "Novato",
+      rank1: "Pro", rank2: "Ás", rank3: "Lenda", ms_coins: "Pegue {n} moedas numa partida",
+      ms_level: "Chegue ao nível {n}", ms_dist: "Percorra {n} m numa partida", ms_combo: "Faça um combo ×{n}", ms_close: "{n} quase-batidas numa partida",
+      ms_kills: "Derrube {n} Shaheds numa partida", ms_barrier: "Exploda {n} barreiras com foguetes", ms_clean: "{n} níveis sem um arranhão", ms_od: "Overdrive {n}× numa partida",
+      ms_smash: "Destrua {n} coisas no Overdrive", ms_heart: "Pegue {n} ♥ numa partida", ms_wreck: "Chegue a um checkpoint muito danificado", ms_tCoins: "Junte {n} moedas no total",
+      ms_tKills: "Derrube {n} Shaheds no total", ms_tDaily: "Jogue {n} desafios diários", finishLabel: "Acabamento", trailLabel: "Rastro do Overdrive",
+      fin_gloss: "Brilho", fin_metallic: "Metálico", fin_pearl: "Pérola", fin_matte: "Fosco",
+      fin_chrome: "Cromado", fin_neon: "Neon", fin_candy: "Doce", trail_rainbow: "Arco-íris",
+      trail_fire: "Fogo", trail_ice: "Gelo", trail_gold: "Ouro"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -1069,7 +1154,16 @@ window.I18N = (() => {
       upSparkle: "Scia di stelle", upStrobes: "Lampeggianti sul tetto", upHolo: "Vernice olografica", upJet: "Fiamme a getto",
       upRainbow: "Scia arcobaleno", upLaurel: "Corona d'alloro", upLegend: "Oro leggendario",
       privacyNote: "Niente pubblicità né cookie. Solo conteggi anonimi delle partite.",
-      comboTip: "COMBO ×2!", comboTipSub: "Monete, sorpassi al pelo e droni la tengono viva", comboFade: "Continua o si spegne!", overdrive: "OVERDRIVE!", odSub: "Spacca tutto!", calmOn: "Riduci movimento: Sì", calmOff: "Riduci movimento: No"
+      comboTip: "COMBO ×2!", comboTipSub: "Monete, sorpassi al pelo e droni la tengono viva", comboFade: "Continua o si spegne!", overdrive: "OVERDRIVE!", odSub: "Spacca tutto!", calmOn: "Riduci movimento: Sì", calmOff: "Riduci movimento: No",
+      missions: "Missioni", msSwap: "Cambia questa missione (una volta al giorno)", msNext: "Prossimo: {item} a ★{n}", rank0: "Novellino",
+      rank1: "Pro", rank2: "Asso", rank3: "Leggenda", ms_coins: "Prendi {n} monete in una partita",
+      ms_level: "Raggiungi il livello {n}", ms_dist: "Percorri {n} m in una partita", ms_combo: "Fai una combo ×{n}", ms_close: "{n} sorpassi al pelo in una partita",
+      ms_kills: "Abbatti {n} Shahed in una partita", ms_barrier: "Fai saltare {n} barriere coi razzi", ms_clean: "{n} livelli senza un graffio", ms_od: "Overdrive {n}× in una partita",
+      ms_smash: "Distruggi {n} cose in Overdrive", ms_heart: "Prendi {n} ♥ in una partita", ms_wreck: "Raggiungi un checkpoint malridotto", ms_tCoins: "Raccogli {n} monete in totale",
+      ms_tKills: "Abbatti {n} Shahed in totale", ms_tDaily: "Gioca {n} sfide del giorno", finishLabel: "Finitura", trailLabel: "Scia Overdrive",
+      fin_gloss: "Lucida", fin_metallic: "Metallizzata", fin_pearl: "Perla", fin_matte: "Opaca",
+      fin_chrome: "Cromata", fin_neon: "Neon", fin_candy: "Candy", trail_rainbow: "Arcobaleno",
+      trail_fire: "Fuoco", trail_ice: "Ghiaccio", trail_gold: "Oro"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -1119,7 +1213,16 @@ window.I18N = (() => {
       upSparkle: "星のトレイル", upStrobes: "ルーフストロボ", upHolo: "ホログラム塗装", upJet: "ジェットフレイム",
       upRainbow: "虹のトレイル", upLaurel: "月桂冠", upLegend: "レジェンドゴールド",
       privacyNote: "広告なし・Cookieなし。匿名のプレイ回数のみ集計します。",
-      comboTip: "コンボ ×2！", comboTipSub: "コイン・ギリギリ回避・撃墜でつなごう", comboFade: "続けないと消えていく！", overdrive: "OVERDRIVE！", odSub: "全部ぶっ壊せ！", calmOn: "動きを減らす：オン", calmOff: "動きを減らす：オフ"
+      comboTip: "コンボ ×2！", comboTipSub: "コイン・ギリギリ回避・撃墜でつなごう", comboFade: "続けないと消えていく！", overdrive: "OVERDRIVE！", odSub: "全部ぶっ壊せ！", calmOn: "動きを減らす：オン", calmOff: "動きを減らす：オフ",
+      missions: "ミッション", msSwap: "このミッションを交換（1日1回）", msNext: "次：★{n}で{item}", rank0: "ルーキー",
+      rank1: "プロ", rank2: "エース", rank3: "レジェンド", ms_coins: "1回の走行でコイン{n}枚",
+      ms_level: "レベル{n}に到達", ms_dist: "1回の走行で{n} m走る", ms_combo: "×{n}コンボを達成", ms_close: "1回の走行でギリギリ回避{n}回",
+      ms_kills: "1回の走行でシャヘドを{n}機撃墜", ms_barrier: "ロケットでバリアを{n}個破壊", ms_clean: "無傷で{n}レベル", ms_od: "1回の走行でOVERDRIVE {n}回",
+      ms_smash: "OVERDRIVE中に{n}個破壊", ms_heart: "1回の走行で♥を{n}個", ms_wreck: "ボロボロでチェックポイント到達", ms_tCoins: "累計コイン{n}枚",
+      ms_tKills: "累計シャヘド{n}機撃墜", ms_tDaily: "デイリーチャレンジを{n}回プレイ", finishLabel: "塗装の仕上げ", trailLabel: "OVERDRIVEの軌跡",
+      fin_gloss: "グロス", fin_metallic: "メタリック", fin_pearl: "パール", fin_matte: "マット",
+      fin_chrome: "クローム", fin_neon: "ネオン", fin_candy: "キャンディ", trail_rainbow: "レインボー",
+      trail_fire: "ファイア", trail_ice: "アイス", trail_gold: "ゴールド"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -1169,7 +1272,16 @@ window.I18N = (() => {
       upSparkle: "星光尾迹", upStrobes: "车顶爆闪灯", upHolo: "全息车漆", upJet: "喷射火焰",
       upRainbow: "彩虹尾迹", upLaurel: "月桂花环", upLegend: "传奇金",
       privacyNote: "无广告，无 Cookie。仅统计匿名游玩次数。",
-      comboTip: "连击 ×2！", comboTipSub: "金币、擦身而过和击落都能续上", comboFade: "继续，不然会消退！", overdrive: "OVERDRIVE！", odSub: "全部撞飞！", calmOn: "减少动效：开", calmOff: "减少动效：关"
+      comboTip: "连击 ×2！", comboTipSub: "金币、擦身而过和击落都能续上", comboFade: "继续，不然会消退！", overdrive: "OVERDRIVE！", odSub: "全部撞飞！", calmOn: "减少动效：开", calmOff: "减少动效：关",
+      missions: "任务", msSwap: "更换此任务（每天一次）", msNext: "下一个：★{n} 解锁{item}", rank0: "新手",
+      rank1: "高手", rank2: "王牌", rank3: "传奇", ms_coins: "一局内收集 {n} 枚金币",
+      ms_level: "到达第 {n} 关", ms_dist: "一局内行驶 {n} 米", ms_combo: "达成 ×{n} 连击", ms_close: "一局内擦身而过 {n} 次",
+      ms_kills: "一局内击落 {n} 架沙赫德", ms_barrier: "用火箭炸毁 {n} 个路障", ms_clean: "连续 {n} 关毫发无损", ms_od: "一局内触发 OVERDRIVE {n} 次",
+      ms_smash: "OVERDRIVE 中撞飞 {n} 个障碍", ms_heart: "一局内拿到 {n} 颗 ♥", ms_wreck: "车子严重受损时通过检查点", ms_tCoins: "累计收集 {n} 枚金币",
+      ms_tKills: "累计击落 {n} 架沙赫德", ms_tDaily: "玩 {n} 次每日挑战", finishLabel: "漆面", trailLabel: "OVERDRIVE 尾迹",
+      fin_gloss: "亮光", fin_metallic: "金属漆", fin_pearl: "珠光", fin_matte: "哑光",
+      fin_chrome: "镀铬", fin_neon: "霓虹", fin_candy: "糖果漆", trail_rainbow: "彩虹",
+      trail_fire: "火焰", trail_ice: "冰霜", trail_gold: "黄金"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -1219,7 +1331,16 @@ window.I18N = (() => {
       upSparkle: "별빛 궤적", upStrobes: "루프 스트로브", upHolo: "홀로그램 도색", upJet: "제트 불꽃",
       upRainbow: "무지개 궤적", upLaurel: "월계관", upLegend: "전설의 골드",
       privacyNote: "광고 없음, 쿠키 없음. 익명 플레이 횟수만 집계합니다.",
-      comboTip: "콤보 ×2!", comboTipSub: "코인, 아슬아슬 회피, 격추로 이어가세요", comboFade: "계속하지 않으면 사라져요!", overdrive: "OVERDRIVE!", odSub: "전부 부숴버려!", calmOn: "움직임 줄이기: 켜짐", calmOff: "움직임 줄이기: 꺼짐"
+      comboTip: "콤보 ×2!", comboTipSub: "코인, 아슬아슬 회피, 격추로 이어가세요", comboFade: "계속하지 않으면 사라져요!", overdrive: "OVERDRIVE!", odSub: "전부 부숴버려!", calmOn: "움직임 줄이기: 켜짐", calmOff: "움직임 줄이기: 꺼짐",
+      missions: "미션", msSwap: "이 미션 교체 (하루 한 번)", msNext: "다음: ★{n}에 {item}", rank0: "루키",
+      rank1: "프로", rank2: "에이스", rank3: "레전드", ms_coins: "한 판에 코인 {n}개 모으기",
+      ms_level: "레벨 {n} 도달", ms_dist: "한 판에 {n} m 달리기", ms_combo: "×{n} 콤보 달성", ms_close: "한 판에 아슬아슬 회피 {n}번",
+      ms_kills: "한 판에 샤헤드 {n}대 격추", ms_barrier: "로켓으로 바리케이드 {n}개 폭파", ms_clean: "무사고로 {n}레벨", ms_od: "한 판에 OVERDRIVE {n}번",
+      ms_smash: "OVERDRIVE 중 {n}개 부수기", ms_heart: "한 판에 ♥ {n}개 얻기", ms_wreck: "크게 부서진 채 체크포인트 도달", ms_tCoins: "코인 총 {n}개 모으기",
+      ms_tKills: "샤헤드 총 {n}대 격추", ms_tDaily: "일일 챌린지 {n}번 플레이", finishLabel: "도장 마감", trailLabel: "OVERDRIVE 궤적",
+      fin_gloss: "유광", fin_metallic: "메탈릭", fin_pearl: "펄", fin_matte: "무광",
+      fin_chrome: "크롬", fin_neon: "네온", fin_candy: "캔디", trail_rainbow: "무지개",
+      trail_fire: "불꽃", trail_ice: "얼음", trail_gold: "황금"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -1269,7 +1390,16 @@ window.I18N = (() => {
       upSparkle: "सितारों की लकीर", upStrobes: "छत की स्ट्रोब लाइटें", upHolo: "होलो पेंट", upJet: "जेट लपटें",
       upRainbow: "इंद्रधनुषी लकीर", upLaurel: "विजय माला", upLegend: "लीजेंड गोल्ड",
       privacyNote: "कोई विज्ञापन नहीं, कोई कुकी नहीं। सिर्फ़ गुमनाम खेल गिनती।",
-      comboTip: "कॉम्बो ×2!", comboTipSub: "सिक्के, बाल-बाल बचना और ड्रोन इसे चालू रखते हैं", comboFade: "चलते रहो, वरना यह घट जाएगा!", overdrive: "OVERDRIVE!", odSub: "सब तोड़ डालो!", calmOn: "कम मोशन: चालू", calmOff: "कम मोशन: बंद"
+      comboTip: "कॉम्बो ×2!", comboTipSub: "सिक्के, बाल-बाल बचना और ड्रोन इसे चालू रखते हैं", comboFade: "चलते रहो, वरना यह घट जाएगा!", overdrive: "OVERDRIVE!", odSub: "सब तोड़ डालो!", calmOn: "कम मोशन: चालू", calmOff: "कम मोशन: बंद",
+      missions: "मिशन", msSwap: "यह मिशन बदलें (दिन में एक बार)", msNext: "अगला: ★{n} पर {item}", rank0: "नौसिखिया",
+      rank1: "प्रो", rank2: "इक्का", rank3: "लेजेंड", ms_coins: "एक दौड़ में {n} सिक्के लो",
+      ms_level: "लेवल {n} तक पहुँचो", ms_dist: "एक दौड़ में {n} m चलाओ", ms_combo: "×{n} कॉम्बो बनाओ", ms_close: "एक दौड़ में {n} बार बाल-बाल बचो",
+      ms_kills: "एक दौड़ में {n} शाहेद गिराओ", ms_barrier: "रॉकेट से {n} बैरियर उड़ाओ", ms_clean: "बिना खरोंच {n} लेवल", ms_od: "एक दौड़ में {n}× OVERDRIVE",
+      ms_smash: "OVERDRIVE में {n} चीज़ें तोड़ो", ms_heart: "एक दौड़ में {n} ♥ लो", ms_wreck: "बुरी तरह टूटी कार से चेकपॉइंट पहुँचो", ms_tCoins: "कुल {n} सिक्के जमा करो",
+      ms_tKills: "कुल {n} शाहेद गिराओ", ms_tDaily: "{n} रोज़ाना चुनौतियाँ खेलो", finishLabel: "फ़िनिश", trailLabel: "OVERDRIVE ट्रेल",
+      fin_gloss: "ग्लॉस", fin_metallic: "मेटैलिक", fin_pearl: "मोती", fin_matte: "मैट",
+      fin_chrome: "क्रोम", fin_neon: "नियॉन", fin_candy: "कैंडी", trail_rainbow: "इंद्रधनुष",
+      trail_fire: "आग", trail_ice: "बर्फ़", trail_gold: "सोना"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -1321,7 +1451,16 @@ window.I18N = (() => {
       upSparkle: "Зоряний слід", upStrobes: "Стробоскопи на даху", upHolo: "Голографічна фарба", upJet: "Реактивне полум'я",
       upRainbow: "Райдужний слід", upLaurel: "Лавровий вінок", upLegend: "Легендарне золото",
       privacyNote: "Без реклами й cookie. Лише анонімний підрахунок ігор.",
-      comboTip: "КОМБО ×2!", comboTipSub: "Монети, проїзд на волосині й дрони підтримують його", comboFade: "Не зупиняйся, бо згасне!", overdrive: "OVERDRIVE!", odSub: "Розноси все!", calmOn: "Менше руху: Увімк.", calmOff: "Менше руху: Вимк."
+      comboTip: "КОМБО ×2!", comboTipSub: "Монети, проїзд на волосині й дрони підтримують його", comboFade: "Не зупиняйся, бо згасне!", overdrive: "OVERDRIVE!", odSub: "Розноси все!", calmOn: "Менше руху: Увімк.", calmOff: "Менше руху: Вимк.",
+      missions: "Місії", msSwap: "Замінити місію (раз на день)", msNext: "Далі: {item} за ★{n}", rank0: "Новачок",
+      rank1: "Профі", rank2: "Ас", rank3: "Легенда", ms_coins: "Збери {n} монет за заїзд",
+      ms_level: "Досягни рівня {n}", ms_dist: "Проїдь {n} м за заїзд", ms_combo: "Зроби комбо ×{n}", ms_close: "{n} разів на волосині за заїзд",
+      ms_kills: "Збий {n} шахедів за заїзд", ms_barrier: "Підірви {n} бар'єрів ракетами", ms_clean: "{n} рівнів без подряпини", ms_od: "OVERDRIVE {n}× за заїзд",
+      ms_smash: "Розбий {n} перешкод в OVERDRIVE", ms_heart: "Збери {n} ♥ за заїзд", ms_wreck: "Доїдь до чекпойнту сильно побитим", ms_tCoins: "Збери загалом {n} монет",
+      ms_tKills: "Збий загалом {n} шахедів", ms_tDaily: "Зіграй {n} щоденних викликів", finishLabel: "Покриття", trailLabel: "Слід OVERDRIVE",
+      fin_gloss: "Глянець", fin_metallic: "Металік", fin_pearl: "Перламутр", fin_matte: "Матове",
+      fin_chrome: "Хром", fin_neon: "Неон", fin_candy: "Цукерка", trail_rainbow: "Веселка",
+      trail_fire: "Вогонь", trail_ice: "Лід", trail_gold: "Золото"
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -1371,7 +1510,16 @@ window.I18N = (() => {
       upSparkle: "ვარსკვლავების კვალი", upStrobes: "სახურავის სტრობები", upHolo: "ჰოლოგრაფიული საღებავი", upJet: "რეაქტიული ალი",
       upRainbow: "ცისარტყელას კვალი", upLaurel: "დაფნის გვირგვინი", upLegend: "ლეგენდარული ოქრო",
       privacyNote: "რეკლამისა და cookie-ების გარეშე. მხოლოდ ანონიმური თამაშების დათვლა.",
-      comboTip: "კომბო ×2!", comboTipSub: "მონეტები, ძლივს აცილება და დრონები ინარჩუნებს", comboFade: "განაგრძე, თორემ ჩაქრება!", overdrive: "OVERDRIVE!", odSub: "ყველაფერი დაამსხვრიე!", calmOn: "ნაკლები მოძრაობა: ჩართ.", calmOff: "ნაკლები მოძრაობა: გამორთ."
+      comboTip: "კომბო ×2!", comboTipSub: "მონეტები, ძლივს აცილება და დრონები ინარჩუნებს", comboFade: "განაგრძე, თორემ ჩაქრება!", overdrive: "OVERDRIVE!", odSub: "ყველაფერი დაამსხვრიე!", calmOn: "ნაკლები მოძრაობა: ჩართ.", calmOff: "ნაკლები მოძრაობა: გამორთ.",
+      missions: "მისიები", msSwap: "მისიის შეცვლა (დღეში ერთხელ)", msNext: "შემდეგი: {item} ★{n}-ზე", rank0: "ახალბედა",
+      rank1: "პრო", rank2: "ასი", rank3: "ლეგენდა", ms_coins: "ერთ რბოლაში აიღე {n} მონეტა",
+      ms_level: "მიაღწიე დონე {n}-ს", ms_dist: "ერთ რბოლაში გაიარე {n} მ", ms_combo: "გააკეთე ×{n} კომბო", ms_close: "ერთ რბოლაში {n}-ჯერ ძლივს აცილება",
+      ms_kills: "ერთ რბოლაში ჩამოაგდე {n} შაჰედი", ms_barrier: "რაკეტებით ააფეთქე {n} ბარიერი", ms_clean: "{n} დონე ნაკაწრის გარეშე", ms_od: "ერთ რბოლაში OVERDRIVE {n}-ჯერ",
+      ms_smash: "OVERDRIVE-ში დაამსხვრიე {n} რამ", ms_heart: "ერთ რბოლაში აიღე {n} ♥", ms_wreck: "მიაღწიე საკონტროლო პუნქტს ძლიერ დაზიანებით", ms_tCoins: "სულ შეაგროვე {n} მონეტა",
+      ms_tKills: "სულ ჩამოაგდე {n} შაჰედი", ms_tDaily: "ითამაშე {n} დღის გამოწვევა", finishLabel: "საღებავის ტიპი", trailLabel: "OVERDRIVE-ის კვალი",
+      fin_gloss: "პრიალა", fin_metallic: "მეტალიკი", fin_pearl: "მარგალიტი", fin_matte: "მქრქალი",
+      fin_chrome: "ქრომი", fin_neon: "ნეონი", fin_candy: "კანფეტი", trail_rainbow: "ცისარტყელა",
+      trail_fire: "ცეცხლი", trail_ice: "ყინული", trail_gold: "ოქრო"
     }
   };
   const NAMES = {
@@ -1863,6 +2011,9 @@ window.LD_RULES = (() => {
   // Damage: the car shows the lives you've lost. Each crash adds a stage (dented on the side it
   // was hit), each heart you grab repairs one. Drawn over whatever upgrades the car has earned.
   let dents = [], smokeT = 0;
+  // What this run has done, for missions.
+  const newRunStats = () => ({ close: 0, barriers: 0, clean: 0, odSmash: 0, hearts: 0, wreck: 0, maxMult: 1 });
+  let rs = newRunStats();
   const tip = k => { if (readNum(k)) return false; writeNum(k, 1); return true; };   // one-time callouts
   let speedLines = [], closeBurst = 0;   // roadside speed streaks; a short flare after a close call
   // Coin Rush: after every 5th checkpoint, the next RUSH_ROWS rows all carry a coin worth double.
@@ -2000,6 +2151,7 @@ window.LD_RULES = (() => {
       odGo()      { arp([392, 523, 659, 784, 1047, 1319], 0.04, { type: 'sawtooth', vol: 0.06, dur: 0.18 }); noise(0.5, { vol: 0.3, from: 600, to: 6000 }); },
       smash()     { noise(0.22, { vol: 0.35, from: 3200, to: 260 }); tone(150, 0.14, { type: 'square', vol: 0.1, slide: 0.5 }); },
       tick()      { tone(1400, 0.03, { type: 'square', vol: 0.05 }); },
+      mission()   { arp([784, 988, 1175, 1568], 0.07, { type: 'triangle', vol: 0.16, dur: 0.26 }); },
       repair()    { tone(1760, 0.05, { type: 'square', vol: 0.06 }); tone(2350, 0.05, { type: 'square', vol: 0.05, delay: 0.09 }); arp([659, 880, 1175], 0.06, { type: 'triangle', vol: 0.12, dur: 0.2, delay: 0.16 }); },
       hurt()      { if (!muffle) return; const t = ac.currentTime; muffle.frequency.cancelScheduledValues(t); muffle.frequency.setValueAtTime(450, t); muffle.frequency.setTargetAtTime(20000, t + 0.25, 0.3); },
       pitch(k)    { enginePitch = k; },
@@ -2088,6 +2240,7 @@ window.LD_RULES = (() => {
   const score = () => Math.floor(distance / PX_PER_M) + bonus;
 
   function reset() {
+    if (msRunOn) msEndRun();          // left a run part-way (Retry / Home): its progress still counts
     player = { lane: 1, x: laneX(1), y: H - 100, w: R.carW(laneW), h: R.CAR_H };
     objects = []; particles = []; floats = [];
     runDay = mode === 'daily' ? dayInfo() : null;
@@ -2098,7 +2251,7 @@ window.LD_RULES = (() => {
     lives = MAX_LIVES; level = twist.start || 1; speed = levelSpeed(level); slip = 0;
     spawnDist = 200; flash = 0; roadOffset = 0; shake = 0; planner = R.newPlanner(roadRand);
     levelDist = 0; distance = 0; bonus = 0; fuel = 100; coins = 0; coinMeter = 0; lowFuelT = 0; finishSpawned = false;
-    combo = 0; comboIdle = 0; cleanLevel = true; odPhase = ''; odT = 0; odBoost = 1; overdrives = 0; warpT = 0; hurtT = 0; dents = []; smokeT = 0; sfx.pitch(1);
+    combo = 0; comboIdle = 0; cleanLevel = true; odPhase = ''; odT = 0; odBoost = 1; overdrives = 0; warpT = 0; hurtT = 0; dents = []; smokeT = 0; rs = newRunStats(); sfx.pitch(1);
     // One rocket loaded from the start, so the first Shahed (7 s in, before 3 coins are usually collected) can be shot down.
     drones = []; rockets = []; booms = []; wallet = ROCKET_COST; droneT = twist.swarm ? 4 : 7; droneSeen = false; kills = 0; droneQueue = []; resuming = false; runTime = 0; carNo = 1 + Math.floor(Math.random() * 99);
     lastLeftLane = -1; lastLaneChangeT = -9; speedLines = []; closeBurst = 0; heartProgress = 0; heartsEarned = 0;
@@ -2156,6 +2309,7 @@ window.LD_RULES = (() => {
     combo = Math.min(OD_AT, combo + n); comboIdle = 0;
     bumpCombo();
     const m = comboMult();
+    rs.maxMult = Math.max(rs.maxMult, m);
     if (m > before) {
       bigText(player.x, player.y - 60, '×' + m + '!', TIER_COLORS[m - 1]);
       sfx.tier(m);
@@ -2206,6 +2360,7 @@ window.LD_RULES = (() => {
   }
   // Overdrive: whatever you drive into goes flying.
   function odSmash(o) {
+    rs.odSmash++;
     if (o.works) o.used = true; else o.dead = true;
     const x = objX(o), y = o.y + o.h / 2;
     for (const c of DEBRIS[o.skin] || DEBRIS.barrier) burst(x, y, c, 10);
@@ -2424,6 +2579,7 @@ window.LD_RULES = (() => {
         const reach = 24 + ROCKET_V * dt * 1.6;          // rocket + target can close >40 px a frame: don't skip past
         if (dist < reach && tg.type === 'enemy') {
           // Barrier smashed: the lane is clear. A few points, no effect on the drone combo.
+          rs.barriers++;
           tg.dead = r.dead = true;
           explode(at.x, at.y);
           for (const c of DEBRIS[tg.skin] || DEBRIS.barrier) burst(at.x, at.y, c, 10);
@@ -2563,7 +2719,9 @@ window.LD_RULES = (() => {
   };
   // Everything drawCar() needs to paint a car: body colour, underglow, and whether
   // the body is dark enough to need a light rim to stand out on the road.
-  const carPaint = (h, v = 50) => ({ body: hueColor(h, v), glow: hueColor(h, 50), dark: v < 30 });
+  // Paint finish (earned with mission stars): '' gloss, metallic, pearl, matte, chrome, neon, candy.
+  let carFinish = (() => { try { return localStorage.getItem('ddFinish') || ''; } catch { return ''; } })();
+  const carPaint = (h, v = 50, fin = carFinish) => ({ body: hueColor(h, v), glow: hueColor(h, 50), dark: v < 30, fin });
   const readStored = (k, d) => { try { const s = localStorage.getItem(k); return s !== null && s !== '' && isFinite(+s) ? +s : d; } catch { return d; } };
   let carHue = readStored('laneDodgerHue', 174);              // ≈ the original teal
   let carShade = readStored('laneDodgerShade', 50);
@@ -2627,6 +2785,7 @@ window.LD_RULES = (() => {
     if (o.type === 'life') {
       o.dead = true;
       lives = Math.min(MAX_LIVES, lives + 1);
+      rs.hearts++;
       sfx.levelUp();
       burst(cx, o.y + o.h / 2, getVar('--enemy'), 16); burst(cx, o.y + o.h / 2, '#fff', 8);
       floatText(cx, o.y, '+1 ♥', getVar('--enemy'));
@@ -2675,6 +2834,7 @@ window.LD_RULES = (() => {
   }
 
   function closeCall(o) {
+    rs.close++;
     const pts = CLOSE_PTS * level * comboMult();
     bonus += pts;
     floatText(laneX(o.lane), player.y - 6, t('close') + ' +' + num(pts), '#7fe3ff');
@@ -2696,7 +2856,8 @@ window.LD_RULES = (() => {
     fuel = Math.min(100, fuel + CHECKPOINT_FUEL);
     const pts = 100 * (level - 1);
     bonus += pts;
-    if (cleanLevel) addCombo(GAIN.level);  // a whole level without a scratch
+    if (cleanLevel) { addCombo(GAIN.level); rs.clean++; }  // a whole level without a scratch
+    if (dents.length >= 2) rs.wreck++;      // made it to a checkpoint in a wreck
     cleanLevel = true;
     spawnDist = Math.max(spawnDist, 260); // short breather after the line
     sfx.levelUp();
@@ -2722,7 +2883,7 @@ window.LD_RULES = (() => {
     if (odPhase) { odPhase = ''; sfx.pitch(1); }
     warpT = 0;
     lastRun = { s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, k: kills, o: overdrives, tm: Math.round(runTime), a: areaFor(level),
-                h: carHue, v: carShade, no: carNo, day: runDay ? runDay.n : 0, tw: runDay ? twist.key : '' };
+                h: carHue, v: carShade, no: carNo, f: carFinish, day: runDay ? runDay.n : 0, tw: runDay ? twist.key : '' };
     $('shareNote').hidden = true;
     $('overDaily').hidden = !runDay;
     { const run = lastRun; shareCard(run).toBlob(b => { run.blob = b; }, 'image/png'); }   // ready before Share is tapped
@@ -2738,7 +2899,7 @@ window.LD_RULES = (() => {
     const bestLevel = runDay ? 0 : Math.max(readNum('laneDodgerBestLevel'), level);
     if (!runDay) { writeNum('laneDodgerBest', best); writeNum('laneDodgerBestLevel', bestLevel); }
     if (s > 0 && !runDay) {
-      const run = { s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, h: carHue, v: carShade, k: kills, o: overdrives, a: areaFor(level), tm: Math.round(runTime), no: carNo, t: Date.now() };
+      const run = { s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, h: carHue, v: carShade, k: kills, o: overdrives, a: areaFor(level), tm: Math.round(runTime), no: carNo, f: carFinish, t: Date.now() };
       if (saveRun(run)) latestRunT = run.t;
     }
     el.over.classList.toggle('fuel', reason === 'fuel');
@@ -2754,6 +2915,7 @@ window.LD_RULES = (() => {
     const A = AREAS[areaFor(level)];
     $('overTrip').textContent = A.icon + ' ' + t(A.key) + ' · ⏱ ' + fmtTime(runTime) + (overdrives ? ' · ⚡ ' + num(overdrives) : '');
     if (!runDay) $('bestLine').textContent = t('bestLine', { best, level: bestLevel });
+    paintOverMissions(msEndRun());
     el.over.classList.remove('hidden');
     fitStats();
   }
@@ -2800,7 +2962,7 @@ window.LD_RULES = (() => {
     ctx = c;
     try {
       c.save(); c.translate(CW / 2, 330); c.scale(4.4, 4.4);
-      drawCar(0, 0, 39, R.CAR_H, carPaint(r.h, r.v), r.l, { loaded: 3, kick: 0 }, r.no);
+      drawCar(0, 0, 39, R.CAR_H, carPaint(r.h, r.v, r.f || ''), r.l, { loaded: 3, kick: 0 }, r.no);
       c.restore();
     } finally { ctx = saved; }
     // score and where you got to
@@ -2887,6 +3049,7 @@ window.LD_RULES = (() => {
   }
   function beginCountdown() {
     reset();
+    msStartRun();
     dailyBanner();
     ddTrack(runDay ? 'daily-start' : 'run-start', runDay ? 'Daily challenge started' : 'Run started');
     show(null); // hide every overlay (home, popup, game over)
@@ -2913,6 +3076,7 @@ window.LD_RULES = (() => {
     wheel.setAttribute('aria-valuenow', carHue);
     shadeEl.value = carShade;
     shadeEl.style.setProperty('--hue', hueColor(carHue));    // slider runs black → this colour → white
+    paintChips();
     paintCarOn(preview, 100, 124, carPaint(carHue, carShade), 0, 1.35);
   }
   function pickHue(e) {
@@ -2932,6 +3096,197 @@ window.LD_RULES = (() => {
     if (d) { e.preventDefault(); e.stopPropagation(); setHue(carHue + d); paintGarage(); }
   });
   function openGarage() { state = 'garage'; show('garage'); paintGarage(); }
+
+  // ---- Missions: three goals at a time, a ★ for each; every 3 stars unlocks something ----
+  // Run missions count your best single run since the mission came up; total missions add up
+  // over runs. Goals grow with the stars you have. A finished mission is swapped for a new one
+  // when the run ends, never mid-run. One swap a day for a mission you don't fancy.
+  const MS_KEY = 'ddMissions';
+  const MISSIONS = [
+    { id: 'coins',  icon: '🪙', goals: [10, 20, 30, 45, 60, 80],          run: () => coins },
+    { id: 'level',  icon: '🏁', goals: [3, 5, 8, 12, 16, 20],              run: () => runDay && twist.start ? 0 : level },
+    { id: 'dist',   icon: '🛣️', goals: [1000, 2000, 3000, 4500, 6000, 8000], run: () => Math.floor(distance / PX_PER_M) },
+    { id: 'combo',  icon: '🔥', goals: [2, 3, 4, 5, 5, 5],                 run: () => rs.maxMult },
+    { id: 'close',  icon: '💨', goals: [5, 10, 15, 20, 30, 40],            run: () => rs.close },
+    { id: 'kills',  icon: '🎯', goals: [1, 3, 5, 8, 12, 16],               run: () => kills },
+    { id: 'barrier', icon: '🚀', goals: [1, 2, 3, 5, 7, 10],               run: () => rs.barriers },
+    { id: 'clean',  icon: '✨', goals: [1, 2, 3, 4, 5, 6],                 run: () => rs.clean },
+    { id: 'od',     icon: '⚡', goals: [1, 1, 2, 2, 3, 3], from: 1,        run: () => overdrives },
+    { id: 'smash',  icon: '💥', goals: [5, 8, 12, 16, 20, 25], from: 2,    run: () => rs.odSmash },
+    { id: 'heart',  icon: '❤️', goals: [1, 1, 1, 2, 2, 2], from: 1,        run: () => rs.hearts },
+    { id: 'wreck',  icon: '🔧', goals: [1, 1, 1, 1, 1, 1], from: 2,        run: () => rs.wreck },
+    { id: 'tCoins', icon: '💰', goals: [100, 200, 300, 500, 750, 1000],    total: () => coins },
+    { id: 'tKills', icon: '🛩️', goals: [10, 20, 30, 50, 75, 100],          total: () => kills },
+    { id: 'tDaily', icon: '📅', goals: [1, 2, 3, 4, 5, 7],                 total: () => runDay ? 1 : 0 },
+  ];
+  const MS_BY = Object.fromEntries(MISSIONS.map(d => [d.id, d]));
+  // Rewards for stars, and the rank shown next to them.
+  const REWARDS = [
+    { at: 3, k: 'fin', id: 'metallic' }, { at: 6, k: 'trail', id: 'fire' }, { at: 9, k: 'fin', id: 'pearl' },
+    { at: 12, k: 'fin', id: 'matte' }, { at: 15, k: 'trail', id: 'ice' }, { at: 18, k: 'fin', id: 'chrome' },
+    { at: 21, k: 'trail', id: 'gold' }, { at: 24, k: 'fin', id: 'neon' }, { at: 27, k: 'fin', id: 'candy' },
+  ];
+  const FINISHES = ['', 'metallic', 'pearl', 'matte', 'chrome', 'neon', 'candy'];
+  const TRAILS = ['rainbow', 'fire', 'ice', 'gold'];
+  const needStars = (k, id) => (REWARDS.find(r => r.k === k && r.id === id) || { at: 0 }).at;
+  const rewardName = r => t(r.k === 'fin' ? 'fin_' + r.id : 'trail_' + r.id);
+  const rankKey = () => 'rank' + (ms.stars >= 30 ? 3 : ms.stars >= 15 ? 2 : ms.stars >= 6 ? 1 : 0);
+  let ms = (() => { try { const d = JSON.parse(localStorage.getItem(MS_KEY) || 'null'); if (d && Array.isArray(d.active) && d.active.every(m => MS_BY[m.id])) return d; } catch {} return null; })()
+    || { stars: 0, skip: 0, active: [{ id: 'coins', goal: 10, have: 0, base: 0 }, { id: 'level', goal: 3, have: 0, base: 0 }, { id: 'close', goal: 5, have: 0, base: 0 }] };
+  function saveMs() { try { localStorage.setItem(MS_KEY, JSON.stringify(ms)); } catch {} }
+  let msRunOn = false, msStars0 = 0;
+  const msTier = () => Math.min(5, Math.floor(ms.stars / 3));
+  function newMission(exclude) {
+    const tier = msTier(), pool = MISSIONS.filter(d => (d.from || 0) <= tier && !exclude.includes(d.id));
+    const d = pool[Math.floor(Math.random() * pool.length)];
+    return { id: d.id, goal: d.goals[Math.min(tier, d.goals.length - 1)], have: 0, base: 0 };
+  }
+  // Finished in a run that never ended properly (page closed mid-run): swap them now.
+  if (ms.active.some(m => m.done)) { ms.active = ms.active.map(m => m.done ? newMission(ms.active.map(x => x.id)) : m); saveMs(); }
+  // Progress right now: best run so far (run missions) or the running total (total missions).
+  function msValue(m) {
+    const d = MS_BY[m.id];
+    if (d.total) return (m.base || 0) + (msRunOn ? d.total() : 0);
+    return Math.max(m.have || 0, msRunOn ? d.run() : 0);
+  }
+  const msText = m => t('ms_' + m.id, { n: m.goal });
+  function msStartRun() { msRunOn = true; msStars0 = ms.stars; }
+  function msCheck() {
+    for (const m of ms.active) {
+      if (m.done || msValue(m) < m.goal) continue;
+      m.done = true; ms.stars++;
+      saveMs();
+      sfx.mission();
+      const got = REWARDS.find(r => r.at === ms.stars);
+      toast('✅ ' + msText(m) + '  ★' + (got ? '  🎁 ' + rewardName(got) : ''));
+    }
+  }
+  // The run is over: bank its progress, swap finished missions for new ones.
+  function msEndRun() {
+    if (!msRunOn) return null;
+    for (const m of ms.active) {
+      const d = MS_BY[m.id];
+      if (d.total) m.base = (m.base || 0) + d.total(); else m.have = Math.max(m.have || 0, d.run());
+    }
+    msRunOn = false;
+    const done = ms.active.filter(m => m.done);
+    const unlocked = REWARDS.filter(r => r.at > msStars0 && r.at <= ms.stars);
+    ms.active = ms.active.map(m => m.done ? newMission(ms.active.map(x => x.id)) : m);
+    saveMs();
+    return { done, unlocked };
+  }
+  function toast(text) {
+    const e = $('msToast');
+    e.textContent = text; e.hidden = false;
+    e.classList.remove('show'); void e.offsetWidth; e.classList.add('show');
+    clearTimeout(toast.t); toast.t = setTimeout(() => { e.hidden = true; }, 2700);
+  }
+  function msRow(m, done) {
+    const row = document.createElement('div');
+    row.className = 'msRow' + (done ? ' done' : '');
+    const ic = document.createElement('span'); ic.className = 'mi'; ic.textContent = done ? '✅' : MS_BY[m.id].icon;
+    const tx = document.createElement('span'); tx.className = 'mt'; tx.textContent = msText(m);
+    const v = done ? m.goal : Math.min(m.goal, msValue(m));
+    if (!done && m.goal > 1) { const bar = document.createElement('i'); bar.className = 'mp'; const f = document.createElement('i'); f.style.setProperty('--p', (v / m.goal * 100).toFixed(0) + '%'); bar.appendChild(f); tx.appendChild(bar); }
+    const nn = document.createElement('span'); nn.className = 'mn'; nn.textContent = done ? '★' : num(v) + '/' + num(m.goal);
+    row.append(ic, tx, nn);
+    return row;
+  }
+  function msHead(box, label) {
+    const h = document.createElement('div'); h.className = 'msHead';
+    const a = document.createElement('span'); a.textContent = label;
+    const b = document.createElement('b'); b.textContent = '★ ' + num(ms.stars) + ' · ' + t(rankKey());
+    h.append(a, b); box.appendChild(h);
+  }
+  // The mission card: home (with the daily swap) and the pause menu.
+  function paintMissions(box, withSkip) {
+    box.textContent = '';
+    msHead(box, t('missions'));
+    const canSkip = withSkip && ms.skip !== dayInfo().n;
+    ms.active.forEach((m, i) => {
+      const row = msRow(m, !!m.done);
+      if (canSkip && !m.done) {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'msSkip'; b.textContent = '↻'; b.title = t('msSwap'); b.setAttribute('aria-label', t('msSwap'));
+        b.addEventListener('click', () => {
+          ms.active[i] = newMission(ms.active.map(x => x.id)); ms.skip = dayInfo().n; saveMs(); paintMissions(box, true);
+        });
+        row.appendChild(b); row.style.gridTemplateColumns = '20px 1fr auto auto';
+      }
+      box.appendChild(row);
+    });
+    const nx = REWARDS.find(r => r.at > ms.stars);
+    if (nx) { const p = document.createElement('div'); p.className = 'msNext'; p.textContent = '🎁 ' + t('msNext', { item: rewardName(nx), n: nx.at }); box.appendChild(p); }
+  }
+  // Game over: the missions finished this run and anything they unlocked.
+  function paintOverMissions(res) {
+    const box = $('overMissions');
+    box.hidden = !(res && res.done.length);
+    if (box.hidden) return;
+    box.textContent = '';
+    msHead(box, t('missions'));
+    for (const m of res.done) box.appendChild(msRow(m, true));
+    for (const r of res.unlocked) { const p = document.createElement('div'); p.className = 'msNext'; p.style.color = 'var(--coin)'; p.textContent = '🎁 ' + t('unlocked', { item: rewardName(r) }); box.appendChild(p); }
+  }
+  // Overdrive trail colour (rainbow until another is unlocked and picked in the garage).
+  function carTrail() { let v = 'rainbow'; try { v = localStorage.getItem('ddTrail') || 'rainbow'; } catch {} return TRAILS.includes(v) && needStars('trail', v) <= ms.stars ? v : 'rainbow'; }
+  function trailHue(off) {
+    const tt = performance.now() / 1000, tr = carTrail();
+    if (tr === 'fire') return 18 + 22 * Math.sin(tt * 7 + off);
+    if (tr === 'ice') return 195 + 18 * Math.sin(tt * 5 + off);
+    if (tr === 'gold') return 46 + 6 * Math.sin(tt * 6 + off);
+    return (tt * 240 + off * 60) % 360;
+  }
+  // Paint finishes, laid over the body colour.
+  function drawFinish(paint, l, y, w, h, tNow) {
+    const f = paint.fin, rr = Math.min(w * 0.32, 16);
+    if (f === 'neon') {
+      ctx.save(); ctx.shadowColor = paint.glow; ctx.shadowBlur = 14; ctx.strokeStyle = paint.glow; ctx.lineWidth = 2;
+      roundRect(l + 1, y + 1, w - 2, h - 2, rr); ctx.stroke(); ctx.restore(); return;
+    }
+    ctx.save(); roundRect(l, y, w, h, rr); ctx.clip();
+    let g;
+    if (f === 'metallic') {
+      g = ctx.createLinearGradient(l, y, l + w, y + h);
+      g.addColorStop(0, 'rgba(255,255,255,.32)'); g.addColorStop(0.42, 'rgba(255,255,255,0)'); g.addColorStop(0.55, 'rgba(255,255,255,.14)'); g.addColorStop(1, 'rgba(0,0,0,.25)');
+    } else if (f === 'pearl') {
+      const k = (Math.sin(tNow * 0.9) + 1) / 2;
+      g = ctx.createLinearGradient(l, y + h * k * 0.6, l + w, y + h);
+      g.addColorStop(0, 'rgba(255,185,240,.34)'); g.addColorStop(0.5, 'rgba(180,240,255,.3)'); g.addColorStop(1, 'rgba(255,250,210,.22)');
+    } else if (f === 'matte') {
+      g = 'rgba(62,64,74,.32)';
+    } else if (f === 'chrome') {
+      g = ctx.createLinearGradient(l, y, l + w, y);
+      g.addColorStop(0, 'rgba(255,255,255,.6)'); g.addColorStop(0.22, 'rgba(25,30,44,.4)'); g.addColorStop(0.46, 'rgba(255,255,255,.65)');
+      g.addColorStop(0.72, 'rgba(25,30,44,.35)'); g.addColorStop(1, 'rgba(255,255,255,.5)');
+    } else if (f === 'candy') {
+      g = ctx.createRadialGradient(l + w * 0.35, y + h * 0.28, 2, l + w / 2, y + h / 2, h * 0.75);
+      g.addColorStop(0, 'rgba(255,255,255,.5)'); g.addColorStop(0.28, 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(0,0,0,.4)');
+    }
+    if (g) { ctx.fillStyle = g; ctx.fillRect(l, y, w, h); }
+    if (f === 'metallic') for (let i = 0; i < 18; i++) { ctx.fillStyle = 'rgba(255,255,255,.4)'; ctx.fillRect(l + hash(i * 5.3) * w, y + hash(i * 9.1) * h, 1, 1); }
+    ctx.restore();
+  }
+  // Garage: finish and trail pickers; locked ones show the stars they need.
+  function paintChips() {
+    const mk = (box, items, cur, kind, label, pick) => {
+      box.textContent = '';
+      for (const id of items) {
+        const need = needStars(kind, id), b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = need > ms.stars ? '🔒 ' + label(id) + ' ★' + need : label(id);
+        b.disabled = need > ms.stars;
+        b.classList.toggle('on', id === cur);
+        b.addEventListener('click', () => { pick(id); paintGarage(); });
+        box.appendChild(b);
+      }
+    };
+    if (needStars('fin', carFinish) > ms.stars) carFinish = '';
+    mk($('finChips'), FINISHES, carFinish, 'fin', id => t('fin_' + (id || 'gloss')), id => {
+      carFinish = id; try { localStorage.setItem('ddFinish', id); } catch {}
+    });
+    mk($('trailChips'), TRAILS, carTrail(), 'trail', id => t('trail_' + id), id => { try { localStorage.setItem('ddTrail', id); } catch {} });
+  }
 
   // ---- Records: your top 10 runs, each with the car you drove (colour + upgrades earned) ----
   const RUNS_KEY = 'laneDodgerRuns', MAX_RUNS = 10;
@@ -2970,7 +3325,7 @@ window.LD_RULES = (() => {
       info.append(b, where, trip);
       li.append(rank, cv, info);
       list.appendChild(li);
-      paintCarOn(cv, 50, 70, carPaint(r.h, r.v ?? 50), r.l, 0.76, r.no ?? 7);  // older runs: no shade / number saved
+      paintCarOn(cv, 50, 70, carPaint(r.h, r.v ?? 50, r.f || ''), r.l, 0.76, r.no ?? 7);  // older runs: no shade / number saved
     });
   }
   function openRecords() { state = 'records'; renderRecords(); show('records'); }
@@ -2987,6 +3342,7 @@ window.LD_RULES = (() => {
     // today's twist on one line, your best and streak (once you have them) on the next
     const mine = [d.best ? '🏆 ' + num(d.best) : '', d.streak ? '🔥 ' + num(d.streak) : ''].filter(Boolean).join(' · ');
     $('dailySub').textContent = '#' + n + ' · ' + t(tw.key) + (mine ? '\n' + mine : '');
+    paintMissions($('homeMissions'), true);
     const best = readNum('laneDodgerBest');
     const hb = $('homeBest');
     hb.hidden = !best;
@@ -3024,6 +3380,7 @@ window.LD_RULES = (() => {
   // Retry: no countdown, just a quick GO! and straight back in.
   function restart() {
     reset();
+    msStartRun();
     dailyBanner();
     ddTrack(runDay ? 'daily-start' : 'run-start', runDay ? 'Daily challenge started' : 'Run started');
     show(null); // hides game over or the pause menu
@@ -3042,6 +3399,7 @@ window.LD_RULES = (() => {
     state = 'paused';
     el.count.innerHTML = '';
     show('pause');
+    paintMissions($('pauseMissions'), false);
     $('resumeBtn').focus();
   }
   function resumeGame() {
@@ -3193,6 +3551,7 @@ window.LD_RULES = (() => {
       return false;
     });
     if (DRONES() && state === 'play') updateDrones(dt);
+    if (state === 'play') msCheck();
     updateHud();
   }
 
@@ -3291,6 +3650,7 @@ window.LD_RULES = (() => {
     }
     ctx.fillStyle = color;
     roundRect(l, y, w, h, Math.min(w * 0.32, 16)); ctx.fill();
+    if (paint.fin) drawFinish(paint, l, y, w, h, tNow);
     if (has('upLegend')) {                    // gold flake: glitter that catches the light
       for (let i = 0; i < 14; i++) {
         const fx = l + 3 + hash(i * 3.1) * (w - 6), fy = y + 3 + hash(i * 7.7) * (h - 6);
@@ -4264,7 +4624,7 @@ window.LD_RULES = (() => {
       ctx.save();
       if (blink) ctx.globalAlpha = 0.45;
       if (lean) { const cy = player.y + player.h / 2; ctx.translate(player.x, cy); ctx.rotate(lean); ctx.translate(-player.x, -cy); }
-      if (odPhase) { ctx.shadowColor = `hsl(${(performance.now() / 4) % 360},100%,60%)`; ctx.shadowBlur = 26; }
+      if (odPhase) { ctx.shadowColor = `hsl(${trailHue(1)},100%,60%)`; ctx.shadowBlur = 26; }
       drawCar(player.x, player.y, player.w, player.h, carPaint(carHue, carShade), level,
               { loaded: Math.min(MAX_ROCKETS, Math.floor(wallet / ROCKET_COST)), kick: launcherKick }, carNo);
       ctx.shadowBlur = 0;
@@ -4348,18 +4708,18 @@ window.LD_RULES = (() => {
   }
   // Overdrive: road edges pulsing in shifting colours and a bright trail streaming off the car.
   function drawOverdrive() {
-    const tNow = performance.now() / 1000, hue = (tNow * 240) % 360;
+    const tNow = performance.now() / 1000, hue = trailHue(0), hue2 = trailHue(3);
     const a = calm ? 0.7 : 0.55 + 0.35 * Math.sin(tNow * 14);
     ctx.save();
     ctx.shadowBlur = 24;
-    for (const [x, hh] of [[vergeW, hue], [W - vergeW, hue + 180]]) {
+    for (const [x, hh] of [[vergeW, hue], [W - vergeW, hue2]]) {
       ctx.shadowColor = ctx.fillStyle = `hsla(${hh % 360},100%,60%,${a.toFixed(3)})`;
       ctx.fillRect(x - 5, 0, 10, H);
     }
     ctx.restore();
     const y0 = player.y + player.h * 0.55, len = 190;
     const g = ctx.createLinearGradient(0, y0, 0, y0 + len);
-    g.addColorStop(0, `hsla(${hue},100%,65%,.9)`); g.addColorStop(0.5, `hsla(${(hue + 120) % 360},100%,60%,.45)`); g.addColorStop(1, 'rgba(0,0,0,0)');
+    g.addColorStop(0, `hsla(${hue},100%,65%,.9)`); g.addColorStop(0.5, `hsla(${hue2},100%,60%,.45)`); g.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = g;
     ctx.beginPath(); ctx.moveTo(player.x - player.w * 0.45, y0); ctx.lineTo(player.x + player.w * 0.45, y0);
     ctx.lineTo(player.x + player.w * 0.15, y0 + len); ctx.lineTo(player.x - player.w * 0.15, y0 + len); ctx.closePath(); ctx.fill();

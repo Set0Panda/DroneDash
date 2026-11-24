@@ -131,6 +131,9 @@
     while (frames < 30000 && $('over').classList.contains('hidden')) { drive(); stepSafe(1); frames++; }
     report.stats.normalRun = { frames, endedWithGameOver: !$('over').classList.contains('hidden'),
       level: __G().level, journeyLine: $('overTrip').textContent, title: $('overTitle').textContent };
+    // Missions: the runs so far should have finished some and shown them on game over
+    try { const m = JSON.parse(localStorage.getItem('ddMissions') || '{}'); report.checks.missionStars = m.stars || 0; report.checks.missionsActive = (m.active || []).length; } catch (e) { err('missions', e); }
+    report.checks.missionsOnGameOver = !$('overMissions').hidden;
     // Share: no share sheet in a hidden test window, so it copies the text instead
     try { Object.defineProperty(navigator, 'share', { value: undefined, configurable: true }); Object.defineProperty(navigator, 'canShare', { value: undefined, configurable: true }); } catch (e) {}
     try { Object.defineProperty(navigator, 'clipboard', { value: { writeText: async t => { window.__copied = t; } }, configurable: true }); } catch (e) {}
