@@ -251,7 +251,7 @@
   /* ---- Home screen ---- */
   /* Centred while it fits; once it's taller than the screen it scrolls instead of being cut off at
      the top (the spacers do the centring), and it always starts below the corner buttons. */
-  #home { justify-content: flex-start; overflow-y: auto; padding-top: calc(60px + env(safe-area-inset-top, 0px)); }
+  #home { justify-content: flex-start; overflow-y: hidden; padding-top: calc(60px + env(safe-area-inset-top, 0px)); }
   #home::before, #home::after { content: ''; flex: 1 0 0; }
   /* everything but the corner buttons; scaled down as a whole when the screen is too short (fitHome) */
   .homeStack { display: flex; flex-direction: column; align-items: center; gap: inherit; flex: none; width: 100%; }
@@ -686,6 +686,24 @@
 
   /* ---- Records ---- */
   .recCard { gap: 12px; }
+  .recTabs { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .recTabs button { margin: 0; padding: 8px 4px; min-height: 0; font-size: 14px; font-weight: 800; border-radius: 12px;
+                    background: rgba(255,255,255,.08); box-shadow: none; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .recTabs button[aria-selected="true"] { background: var(--ua-blue); box-shadow: inset 0 0 0 2px var(--ua-yellow); }
+  .recTabs button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  .recPane { width: 100%; display: grid; gap: 8px; }
+  .recBox { display: grid; gap: 6px; width: 100%; }
+  .recRow { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 12px; background: rgba(255,255,255,.06); text-align: left; }
+  .recRow.cur { box-shadow: inset 0 0 0 2px var(--ua-yellow); }
+  .recRow .ico { flex: none; font-size: 22px; width: 28px; text-align: center; }
+  .recRow .info { min-width: 0; display: grid; gap: 2px; }
+  .recRow .info b { font-size: 16px; }
+  .recRow .info small { font-size: 13px; color: var(--muted); }
+  .recRow .info small.got { color: var(--coin); font-weight: 800; font-variant-numeric: tabular-nums; }
+  .recRow .marks { font-size: 12px; letter-spacing: 1px; white-space: nowrap; }
+  .recRow .marks i { font-style: normal; opacity: .22; filter: grayscale(1); }
+  .recRow .marks i.on { opacity: 1; filter: none; }
+  .recNote { font-size: 13px; color: var(--muted); margin: 2px 0 0; }
   /* Upgrades: every car upgrade, greyed until you've reached its level */
   .menuRow.three { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
   /* How to Play: the combo badge as it looks next to the score */
@@ -716,7 +734,8 @@
   .startPick button.on { background: var(--ua-blue); box-shadow: 0 4px 0 #003a7a, inset 0 0 0 2px var(--ua-yellow); }
   .startPick button.locked { opacity: .4; filter: grayscale(1); position: relative; }
   .startPick button.locked::after { content: '🔒'; position: absolute; right: -5px; bottom: -5px; font-size: 11px; filter: none; }
-  .startPick small.areaName { text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); }
+  .startPick small.areaName { text-align: center; font-size: 11px; font-weight: 700; color: var(--muted);
+                              max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   .raidBtn { display: grid; gap: 1px; justify-items: center; padding: 8px 10px; font-size: 21px; line-height: 1.15; }
   .raidBtn small { font-size: 13px; font-weight: 700; opacity: .8; }
@@ -727,6 +746,11 @@
   .dailyBtn .btnIco, .raidBtn .btnIco { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 28px; line-height: 1; }
   .raidBtn { position: relative; overflow: visible; }
   .raidBtn.locked { opacity: .6; filter: grayscale(.7); }
+  .raidDiff { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .raidDiff button { margin: 0; padding: 7px 4px; min-height: 0; display: grid; justify-items: center; gap: 3px; border-radius: 12px; font-size: 20px;
+                     color: var(--text); background: rgba(0,87,183,.45); box-shadow: 0 4px 0 rgba(0,0,0,.35); }
+  .raidDiff button small { font-size: 13px; font-weight: 800; }
+  .raidDiff button.on { background: var(--ua-blue); box-shadow: 0 4px 0 #003a7a, inset 0 0 0 2px var(--ua-yellow); }
   .raidBtn.locked .limited { display: none; }
   .raidBtn.nope { animation: nope .35s; }
   @keyframes nope { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
@@ -851,8 +875,17 @@
   <div id="records" class="overlay hidden">
     <div class="card recCard" role="dialog" aria-labelledby="recTitle">
       <h1 id="recTitle">🏆 <span data-i18n="records">Records</span></h1>
-      <ol id="recList" class="recList"></ol>
-      <p id="recEmpty" data-i18n="noRuns" hidden>No runs yet. Go play!</p>
+      <div id="recTabs" class="recTabs" role="tablist">
+        <button type="button" role="tab" data-tab="runs"><span aria-hidden="true">🏁</span> <span data-i18n="recRuns">Runs</span></button>
+        <button type="button" role="tab" data-tab="raid"><span aria-hidden="true">🛸</span> <span data-i18n="recRaid">Raid</span></button>
+        <button type="button" role="tab" data-tab="daily"><span aria-hidden="true">📅</span> <span data-i18n="recDaily">Daily</span></button>
+      </div>
+      <div id="recPane" class="recPane" role="tabpanel">
+        <ol id="recList" class="recList"></ol>
+        <p id="recEmpty" data-i18n="noRuns" hidden>No runs yet. Go play!</p>
+        <div id="recRaidBox" class="recBox" hidden></div>
+        <div id="recDailyBox" class="recBox" hidden></div>
+      </div>
       <button id="recBack" class="ghost" data-i18n="home">Home</button>
     </div>
   </div>
@@ -922,6 +955,7 @@
         <li><span class="ico autoIco">🪙</span><span data-i18n="raidRule4" data-rich><b>Rocket</b> = 3 coins · coins ×2 · <b>Overdrive</b> = free</span></li>
         <li><span class="ico autoIco">⛽</span><span data-i18n="raidRule5" data-rich><b>No fuel drain</b> · win = <b>♥ + repair</b></span></li>
       </ul>
+      <div id="raidDiff" class="raidDiff" role="group"></div>
       <button id="raidGo" type="button"></button>
     </div>
   </div>
@@ -1050,7 +1084,9 @@ window.I18N = (() => {
       startLocked: "Unlocks at LV {n}",
       scrollPrev: "Show earlier areas", scrollNext: "Show more areas",
       livesAria: "{n} of {max} lives",
-      raidLocked: "Beat your first giant Shahed to unlock"
+      raidLocked: "Beat your first giant Shahed to unlock",
+      raidDiff0: "Rookie", raidDiff1: "Veteran", raidDiff2: "Legend",
+      recRuns: "Runs", recRaid: "Raid", recDaily: "Daily", recNone: "Not played yet", recStreakHint: "Play a daily every day to keep it going"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -1140,7 +1176,9 @@ window.I18N = (() => {
       startLocked: "Se desbloquea en el NV {n}",
       scrollPrev: "Ver zonas anteriores", scrollNext: "Ver más zonas",
       livesAria: "{n} de {max} vidas",
-      raidLocked: "Derriba tu primer Shahed gigante para desbloquear"
+      raidLocked: "Derriba tu primer Shahed gigante para desbloquear",
+      raidDiff0: "Novato", raidDiff1: "Veterano", raidDiff2: "Leyenda",
+      recRuns: "Partidas", recRaid: "Incursión", recDaily: "Diario", recNone: "Aún sin jugar", recStreakHint: "Juega el diario cada día para mantenerla"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -1230,7 +1268,9 @@ window.I18N = (() => {
       startLocked: "Débloqué au NIV {n}",
       scrollPrev: "Voir les zones précédentes", scrollNext: "Voir plus de zones",
       livesAria: "{n} vies sur {max}",
-      raidLocked: "Abats ton premier Shahed géant pour débloquer"
+      raidLocked: "Abats ton premier Shahed géant pour débloquer",
+      raidDiff0: "Bleu", raidDiff1: "Vétéran", raidDiff2: "Légende",
+      recRuns: "Parties", recRaid: "Raid", recDaily: "Défi du jour", recNone: "Pas encore joué", recStreakHint: "Joue le défi chaque jour pour la garder"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -1320,7 +1360,9 @@ window.I18N = (() => {
       startLocked: "Ab Level {n}",
       scrollPrev: "Vorherige Gebiete zeigen", scrollNext: "Weitere Gebiete zeigen",
       livesAria: "{n} von {max} Leben",
-      raidLocked: "Schieß deine erste Riesen-Shahed ab zum Freischalten"
+      raidLocked: "Schieß deine erste Riesen-Shahed ab zum Freischalten",
+      raidDiff0: "Rekrut", raidDiff1: "Veteran", raidDiff2: "Legende",
+      recRuns: "Fahrten", recRaid: "Angriff", recDaily: "Täglich", recNone: "Noch nicht gespielt", recStreakHint: "Spiel jeden Tag die Tagesfahrt, um sie zu halten"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -1410,7 +1452,9 @@ window.I18N = (() => {
       startLocked: "Desbloqueia no NV {n}",
       scrollPrev: "Ver áreas anteriores", scrollNext: "Ver mais áreas",
       livesAria: "{n} de {max} vidas",
-      raidLocked: "Derrube seu primeiro Shahed gigante para desbloquear"
+      raidLocked: "Derrube seu primeiro Shahed gigante para desbloquear",
+      raidDiff0: "Novato", raidDiff1: "Veterano", raidDiff2: "Lenda",
+      recRuns: "Corridas", recRaid: "Ataque", recDaily: "Diário", recNone: "Ainda não jogado", recStreakHint: "Jogue o diário todo dia para mantê-la"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -1500,7 +1544,9 @@ window.I18N = (() => {
       startLocked: "Si sblocca al LV {n}",
       scrollPrev: "Mostra zone precedenti", scrollNext: "Mostra altre zone",
       livesAria: "{n} vite su {max}",
-      raidLocked: "Abbatti il tuo primo Shahed gigante per sbloccare"
+      raidLocked: "Abbatti il tuo primo Shahed gigante per sbloccare",
+      raidDiff0: "Recluta", raidDiff1: "Veterano", raidDiff2: "Leggenda",
+      recRuns: "Partite", recRaid: "Raid", recDaily: "Giornaliera", recNone: "Non ancora giocato", recStreakHint: "Gioca la sfida ogni giorno per mantenerla"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -1590,7 +1636,9 @@ window.I18N = (() => {
       startLocked: "レベル{n}で解放",
       scrollPrev: "前のエリアを表示", scrollNext: "ほかのエリアを表示",
       livesAria: "ライフ {n}/{max}",
-      raidLocked: "巨大シャヘドを1機撃墜で解放"
+      raidLocked: "巨大シャヘドを1機撃墜で解放",
+      raidDiff0: "ルーキー", raidDiff1: "ベテラン", raidDiff2: "レジェンド",
+      recRuns: "ラン", recRaid: "襲来", recDaily: "デイリー", recNone: "まだプレイしていません", recStreakHint: "毎日デイリーを遊んで連続記録を伸ばそう"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -1680,7 +1728,9 @@ window.I18N = (() => {
       startLocked: "第 {n} 关解锁",
       scrollPrev: "查看前面的区域", scrollNext: "查看更多区域",
       livesAria: "生命 {n}/{max}",
-      raidLocked: "击落第一架巨型沙赫德即可解锁"
+      raidLocked: "击落第一架巨型沙赫德即可解锁",
+      raidDiff0: "新兵", raidDiff1: "老兵", raidDiff2: "传奇",
+      recRuns: "跑局", recRaid: "空袭", recDaily: "每日", recNone: "尚未游玩", recStreakHint: "每天玩每日挑战来保持连胜"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -1770,7 +1820,9 @@ window.I18N = (() => {
       startLocked: "레벨 {n}에서 해제",
       scrollPrev: "이전 구역 보기", scrollNext: "구역 더 보기",
       livesAria: "생명 {n}/{max}",
-      raidLocked: "첫 거대 샤헤드를 격추하면 해제"
+      raidLocked: "첫 거대 샤헤드를 격추하면 해제",
+      raidDiff0: "신병", raidDiff1: "베테랑", raidDiff2: "전설",
+      recRuns: "기록", recRaid: "공습", recDaily: "일일", recNone: "아직 플레이 안 함", recStreakHint: "매일 일일 도전을 플레이해 이어가세요"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -1860,7 +1912,9 @@ window.I18N = (() => {
       startLocked: "लेवल {n} पर अनलॉक",
       scrollPrev: "पिछले इलाके दिखाएँ", scrollNext: "और इलाके दिखाएँ",
       livesAria: "{max} में से {n} जान",
-      raidLocked: "अनलॉक के लिए पहला विशाल शाहेद गिराओ"
+      raidLocked: "अनलॉक के लिए पहला विशाल शाहेद गिराओ",
+      raidDiff0: "नौसिखिया", raidDiff1: "अनुभवी", raidDiff2: "दिग्गज",
+      recRuns: "दौड़ें", recRaid: "हमला", recDaily: "दैनिक", recNone: "अभी खेला नहीं", recStreakHint: "इसे बनाए रखने के लिए रोज़ दैनिक खेलें"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -1952,7 +2006,9 @@ window.I18N = (() => {
       startLocked: "Відкривається на рівні {n}",
       scrollPrev: "Попередні зони", scrollNext: "Більше зон",
       livesAria: "{n} з {max} життів",
-      raidLocked: "Збий перший гігантський шахед, щоб відкрити"
+      raidLocked: "Збий перший гігантський шахед, щоб відкрити",
+      raidDiff0: "Новобранець", raidDiff1: "Ветеран", raidDiff2: "Легенда",
+      recRuns: "Заїзди", recRaid: "Атака", recDaily: "Щоденне", recNone: "Ще не грали", recStreakHint: "Грай щоденне щодня, щоб не перервати серію"
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -2042,7 +2098,9 @@ window.I18N = (() => {
       startLocked: "იხსნება დონე {n}-ზე",
       scrollPrev: "წინა ზონების ჩვენება", scrollNext: "მეტი ზონის ჩვენება",
       livesAria: "{max}-დან {n} სიცოცხლე",
-      raidLocked: "გასახსნელად ჩამოაგდე პირველი გიგანტური შაჰედი"
+      raidLocked: "გასახსნელად ჩამოაგდე პირველი გიგანტური შაჰედი",
+      raidDiff0: "ახალბედა", raidDiff1: "ვეტერანი", raidDiff2: "ლეგენდა",
+      recRuns: "რბოლები", recRaid: "შეტევა", recDaily: "დღიური", recNone: "ჯერ არ გითამაშია", recStreakHint: "ითამაშე დღიური ყოველდღე, რომ სერია გააგრძელო"
     }
   };
   const NAMES = {
@@ -2454,7 +2512,16 @@ window.LD_RULES = (() => {
   const areaStart = a => a === 0 ? 1 : a * 5;
   function reachedAreas() { const best = readNum('laneDodgerBestLevel'); return [...AREAS.keys()].filter(a => a === 0 || best >= areaStart(a)); }
   function chosenStart() { const a = +(localStorage.getItem('ddStartArea') || 0); return reachedAreas().includes(a) ? areaStart(a) : 1; }   // raidOD: Overdrive saved from the last win
-  const RAID_KEY = 'ddRaid', RAID_GAP = 2.5;         // RAID_GAP: seconds of road between one giant Shahed's victory lap and the next
+  const RAID_KEY = 'ddRaid', RAID_GAP = 2.5;
+  // Raid bests, one per difficulty (Rookie / Veteran / Legend). Older saves had a single {n, tm}:
+  // that one becomes the Veteran best.
+  function loadRaid() {
+    let r = {}; try { r = JSON.parse(localStorage.getItem(RAID_KEY) || '{}') || {}; } catch {}
+    if (Array.isArray(r.d)) return [0, 1, 2].map(i => r.d[i] || {});
+    return [{}, r.n ? { n: r.n, tm: r.tm } : {}, {}];
+  }
+  function saveRaid(d) { try { localStorage.setItem(RAID_KEY, JSON.stringify({ d })); } catch {} }
+  const raidPlayed = () => loadRaid().some(r => r.n);         // RAID_GAP: seconds of road between one giant Shahed's victory lap and the next
   const RAID_SPEED = 0.7;                            // giant Shahed fights (and whole raids) run the road at 70% speed
   let runDay = null, twist = NO_TWIST;  // the day and twist of the run being played
   let roadRand = Math.random, droneRand = Math.random;
@@ -2565,6 +2632,9 @@ window.LD_RULES = (() => {
   const BOSS_FROM = 9, BOSS_TOTAL = 9;         // first one at the end of the sunflower fields (the wheat fields stay a gentle start)
   const BOSS_PTS = 600, BOSS_HIT_PTS = 40;     // x level x combo
   const BOSS_COMBO = 10;
+  // Raid difficulty (Rookie / Veteran / Legend): hits each giant Shahed takes, and how spaced out its
+  // drops and warnings are (bigger = more time).
+  const RAID_HP = [0.75, 1, 1.25], RAID_BOMBS = [1.25, 1, 0.85];
   const RAID_OD_TIME = 3.5, FREE_RELOAD = 0.8;   // the raid's opening Overdrive (s); time between free rockets (s)
   let freeCool = 0;                        // combo for each rocket that hits its body
   const BOMB_FUEL = 10;                        // fuel lost to a direct hit from one of its bombs
@@ -2939,7 +3009,7 @@ window.LD_RULES = (() => {
     sfx.whoosh();
   }
   function startBoss() {
-    const a = areaFor(level), hp = bossHP(a);
+    const a = areaFor(level), hp = raidOn ? Math.max(3, Math.round(bossHP(a) * RAID_HP[runDiffI])) : bossHP(a);
     // its health bar sits just under the HUD (taller on phones with a notch), the Shahed below that
     const barY = Math.max(56, ($('hud').getBoundingClientRect().bottom - canvas.getBoundingClientRect().top) / viewK - 12);
     // Each one is bigger: wings spanning 70% of the screen for the first, the full width by the ninth.
@@ -2983,11 +3053,11 @@ window.LD_RULES = (() => {
     }
     b.x += (laneX(b.lane) - b.x) * ease(rage ? 5 : 3.5, dt);
     if (b.y > b.ty - 25 && (b.dropT -= dt) <= 0) {                // drops small Shaheds into the lane below it
-      b.dropT = Math.max(0.8, 2.3 - 0.16 * b.a) * (rage ? 0.7 : 1);   // ~2.1 s apart for the first one, 0.8 s by the last
+      b.dropT = Math.max(0.8, 2.3 - 0.16 * b.a) * (rage ? 0.7 : 1) * (raidOn ? RAID_BOMBS[runDiffI] : 1);   // ~2.1 s apart for the first one, 0.8 s by the last
       const lane = Math.max(0, Math.min(2, Math.round((b.x - vergeW - laneW / 2) / laneW)));
       const lanes = [lane];
       if (droneRand() < 0.06 * b.a + (rage ? 0.2 : 0)) lanes.push(lane === 0 ? 1 : lane === 2 ? 1 : (droneRand() < 0.5 ? 0 : 2));
-      const ch = Math.max(0.45, BOMB_CHARGE - 0.028 * b.a);          // less warning each area: 0.67 s down to 0.45 s
+      const ch = Math.max(0.45, BOMB_CHARGE - 0.028 * b.a) * (raidOn ? RAID_BOMBS[runDiffI] : 1);          // less warning each area: 0.67 s down to 0.45 s
       b.charge = { lanes, t: ch, max: ch };
     }
   }
@@ -3730,12 +3800,12 @@ window.LD_RULES = (() => {
       $('bestLine').textContent = t('dailyBest', { best: d.best }) + (d.streak ? ' · 🔥 ' + t('streak', { n: d.streak }) : '');
     }
     if (raidOn) {
-      let rb = {}; try { rb = JSON.parse(localStorage.getItem(RAID_KEY) || '{}') || {}; } catch {}
+      const all = loadRaid(); let rb = all[runDiffI];
       const better = bossesRun > (rb.n || 0) || (bossesRun === (rb.n || 0) && bossesRun > 0 && runTime < (rb.tm || Infinity));
-      if (better) { rb = { n: bossesRun, tm: Math.round(runTime) }; try { localStorage.setItem(RAID_KEY, JSON.stringify(rb)); } catch {} }
+      if (better) { rb = all[runDiffI] = { n: bossesRun, tm: Math.round(runTime) }; saveRaid(all); }
       $('overDaily').textContent = '🛸 ' + t('raidBtn') + ' · ' + t('raidResult', { n: bossesRun }) + ' · ⏱ ' + fmtTime(runTime);
       $('newBest').hidden = !(better && bossesRun > 0);
-      $('bestLine').textContent = rb.n ? t('raidBest', { n: rb.n, time: fmtTime(rb.tm || 0) }) : '';
+      $('bestLine').textContent = rb.n ? DIFFS[runDiffI].icon + ' ' + t('raidDiff' + runDiffI) + ' · ' + t('raidBest', { n: rb.n, time: fmtTime(rb.tm || 0) }) : '';
     }
     const prevBest = separate ? Infinity : readNum('laneDodgerBest');
     const best = separate ? 0 : Math.max(prevBest, s);
@@ -3763,6 +3833,8 @@ window.LD_RULES = (() => {
     paintOverMissions(msEndRun());
     el.over.classList.remove('hidden');
     fitStats();
+    shownOverlay = 'over';
+    requestAnimationFrame(() => fitCard('over'));
   }
   // ---- Share: a picture of the result plus a line of text, through the phone's share sheet ----
   let lastRun = null;
@@ -3908,12 +3980,26 @@ window.LD_RULES = (() => {
   const wrapEl = $('wrap');
   function show(id) {
     for (const o of ['home', 'intro', 'over', 'garage', 'records', 'pause', 'upgrades', 'raidHelp', 'settingsView']) $(o).classList.toggle('hidden', o !== id);
+    shownOverlay = id;
     if (id === 'home') { $('home').scrollTop = 0; requestAnimationFrame(fitHome); }
+    else if (id) requestAnimationFrame(() => fitCard(id));
     wrapEl.classList.toggle('at-home', ['home', 'garage', 'records', 'upgrades', 'settingsView'].includes(id));
   }
 
   // Home screen: if everything doesn't fit the screen's height, shrink it evenly until it does, so
   // the logo is never pushed off the top and nothing needs scrolling.
+  // Any card (game over, pause, records, paint …): shrink it evenly if it's taller than the window,
+  // instead of a scrollbar.
+  function fitCard(id) {
+    const ov = $(id); if (!ov || ov.classList.contains('hidden')) return;
+    const card = ov.querySelector('.card'); if (!card) return;
+    card.style.zoom = ''; card.style.maxHeight = '';
+    const cs = getComputedStyle(ov);
+    const avail = ov.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 2;
+    const need = card.scrollHeight;
+    if (need > avail) { card.style.maxHeight = 'none'; card.style.zoom = Math.max(0.6, avail / need).toFixed(3); }
+  }
+  let shownOverlay = null;
   function fitHome() {
     const h = $('home'), st = $('homeStack');
     if (h.classList.contains('hidden')) return;
@@ -3923,7 +4009,7 @@ window.LD_RULES = (() => {
     const need = st.offsetHeight;
     if (need > avail) st.style.zoom = Math.max(0.55, avail / need).toFixed(3);
   }
-  window.addEventListener('resize', () => requestAnimationFrame(fitHome));
+  window.addEventListener('resize', () => requestAnimationFrame(() => { fitHome(); if (shownOverlay && shownOverlay !== 'home') fitCard(shownOverlay); }));
   // ---- Garage: hue wheel around a live preview of the car ----
   const wheel = $('wheel'), knob = $('knob'), preview = $('carPreview'), shadeEl = $('shade');
   shadeEl.addEventListener('input', () => { setShade(+shadeEl.value); paintGarage(); });
@@ -4215,7 +4301,64 @@ window.LD_RULES = (() => {
       paintCarOn(cv, 50, 70, carPaint(r.h, r.v ?? 50, r.f || '', r.km || 0), r.l, 0.76, r.no ?? 7);  // older runs: no shade / number saved
     });
   }
-  function openRecords() { state = 'records'; renderRecords(); show('records'); }
+  // Records has three tabs: your top runs, raid bests per difficulty, and today's daily.
+  let recTab = 'runs';
+  function recRow(icon, title, line, got, extra, cur) {
+    const row = document.createElement('div'); row.className = 'recRow' + (cur ? ' cur' : '');
+    const ic = document.createElement('span'); ic.className = 'ico'; ic.textContent = icon; ic.setAttribute('aria-hidden', 'true');
+    const info = document.createElement('div'); info.className = 'info';
+    const b = document.createElement('b'); b.textContent = title;
+    const sm = document.createElement('small'); sm.textContent = line; if (got) sm.className = 'got';
+    info.append(b, sm); row.append(ic, info);
+    if (extra) info.append(extra);
+    return row;
+  }
+  function renderRaidRecords() {
+    const box = $('recRaidBox'); box.textContent = '';
+    if (!(bossMarks().length > 0 || raidPlayed())) {                // locked: say how to open it
+      box.append(recRow('🔒', t('raidBtn'), t('raidLocked'), false));
+      return;
+    }
+    loadRaid().forEach((r, i) => {
+      const marks = document.createElement('span'); marks.className = 'marks'; marks.setAttribute('aria-hidden', 'true');
+      marks.title = t('raidResult', { n: r.n || 0 });
+      for (let k = 0; k < 9; k++) { const m = document.createElement('i'); m.textContent = '🛸'; if (k < (r.n || 0)) m.className = 'on'; marks.append(m); }
+      box.append(recRow(DIFFS[i].icon, t('raidDiff' + i),
+        r.n ? r.n + '/9 · ⏱ ' + fmtTime(r.tm || 0) : t('recNone'), !!r.n, marks, i === diffI));
+    });
+    const note = document.createElement('p'); note.className = 'recNote'; note.textContent = t('raidSub');
+    box.append(note);
+  }
+  function renderDailyRecords() {
+    const box = $('recDailyBox'), { n, twist: tw } = dayInfo(), d = dailyNow();
+    box.textContent = '';
+    box.append(recRow('📅', t('dailyNum', { n }) + ' · ' + t(tw.key),
+      d.best ? '🏆 ' + num(d.best) + (d.level ? ' · ' + t('lv', { n: d.level }) : '') : t('recNone'), !!d.best));
+    box.append(recRow('🔥', t('streak', { n: d.streak || 0 }), t('recStreakHint'), false));
+  }
+  function paintRecTab() {
+    for (const b of $('recTabs').children) {
+      const on = b.dataset.tab === recTab;
+      b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1;
+    }
+    const runs = recTab === 'runs';
+    $('recList').hidden = !runs;
+    if (runs) renderRecords(); else $('recEmpty').hidden = true;
+    $('recRaidBox').hidden = recTab !== 'raid'; if (recTab === 'raid') renderRaidRecords();
+    $('recDailyBox').hidden = recTab !== 'daily'; if (recTab === 'daily') renderDailyRecords();
+    requestAnimationFrame(() => fitCard('records'));
+  }
+  $('recTabs').addEventListener('click', e => {
+    const b = e.target.closest('button[data-tab]'); if (!b) return;
+    recTab = b.dataset.tab; paintRecTab(); b.focus();
+  });
+  $('recTabs').addEventListener('keydown', e => {                   // arrow keys move between tabs
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    const tabs = [...$('recTabs').children], i = tabs.findIndex(b => b.dataset.tab === recTab);
+    const j = (i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length;
+    recTab = tabs[j].dataset.tab; paintRecTab(); tabs[j].focus(); e.preventDefault();
+  });
+  function openRecords() { state = 'records'; show('records'); paintRecTab(); }
   // Upgrades: all 25, each on a little copy of your car as it looks at that level. Unlocked once
   // you've reached its level in any run; the next one to get is outlined.
   function openUpgrades() {
@@ -4251,13 +4394,13 @@ window.LD_RULES = (() => {
     paintMissions($('homeMissions'), true);
     paintStartPick();
     requestAnimationFrame(fitHome);
-    const rb = (() => { try { return JSON.parse(localStorage.getItem(RAID_KEY) || '{}') || {}; } catch { return {}; } })();
+    const rb = loadRaid()[diffI];                                // the best for the difficulty you've picked
     // Shahed Raid opens once you've beaten a giant Shahed in a normal run (or played a raid before)
-    const raidOpen = bossMarks().length > 0 || !!rb.n;
+    const raidOpen = bossMarks().length > 0 || raidPlayed();
     $('raidBtn').classList.toggle('locked', !raidOpen);
     $('raidBtn').setAttribute('aria-disabled', String(!raidOpen));
     $('raidBtn').querySelector('small').textContent = !raidOpen ? '🔒 ' + t('raidLocked')
-      : rb.n ? t('raidBest', { n: rb.n, time: fmtTime(rb.tm || 0) }) : t('raidSub');
+      : rb.n ? DIFFS[diffI].icon + ' ' + t('raidBest', { n: rb.n, time: fmtTime(rb.tm || 0) }) : t('raidSub');
     const best = readNum('laneDodgerBest');
     const hb = $('homeBest');
     hb.hidden = !best;
@@ -5886,6 +6029,7 @@ window.LD_RULES = (() => {
     name.className = 'areaName';
     name.textContent = startHint || (AREAS[cur].icon + ' ' + t(AREAS[cur].key) + ' · ' + t('lv', { n: areaStart(cur) }) + ' · ' + DIFFS[diffI].icon + ' ' + t(DIFFS[diffI].key));
     box.appendChild(name);
+    requestAnimationFrame(fitHome);                                // the height may have changed
   }
   $('dailyBtn').addEventListener('click', () => { mode = 'daily'; startPlay(); });
   $('raidBtn').addEventListener('click', () => {
@@ -5896,10 +6040,25 @@ window.LD_RULES = (() => {
     mode = 'raid'; openRaidHelp('start');
   });
   // The raid's own How to Play: before each raid, and in place of the normal one while a raid is paused.
+  // The raid's difficulty: the same setting as under Play, with raid names (Rookie / Veteran / Legend).
+  function paintRaidDiff() {
+    const box = $('raidDiff'); box.textContent = '';
+    DIFFS.forEach((d, i) => {
+      const b = document.createElement('button'); b.type = 'button';
+      b.classList.toggle('on', i === diffI); b.setAttribute('aria-pressed', String(i === diffI));
+      const ic = document.createElement('span'); ic.textContent = d.icon; ic.setAttribute('aria-hidden', 'true');
+      const nm = document.createElement('small'); nm.textContent = t('raidDiff' + i);
+      b.append(ic, nm);
+      b.addEventListener('click', () => { diffI = i; try { localStorage.setItem('ddDiff', i); } catch {} paintRaidDiff(); });
+      box.appendChild(b);
+    });
+  }
   function openRaidHelp(from) {
     helpFrom = from === 'pause' ? 'pause' : 'raid';     // from the pause menu the run stays frozen
     state = 'menu';
     $('raidGo').textContent = from === 'pause' ? t('gotIt') : '▶ ' + t('raidStart');
+    $('raidDiff').hidden = from === 'pause';                    // chosen before the raid, not halfway through
+    paintRaidDiff();
     show('raidHelp');
   }
   $('raidGo').addEventListener('click', () => {
