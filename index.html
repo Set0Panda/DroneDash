@@ -70,7 +70,6 @@
   }
   .hrow { display: flex; align-items: center; gap: 10px; }
   #score { font-weight: 800; font-size: 22px; font-variant-numeric: tabular-nums; }
-  #score.bump { animation: coinBump .25s ease-out; }
   /* Combo badge: xN in the tier's colour, with a thin bar filling towards the next tier
      (at x5: towards Overdrive; during Overdrive: the time left) */
   #streak {
@@ -135,16 +134,18 @@
   }
   #wrap.at-home #eggBar { visibility: hidden; }
   .eggInfo { flex: 1; min-width: 0; display: grid; gap: 5px; }
-  .eggTop { display: flex; align-items: center; gap: 9px; }
-  .eggKills { font-size: 15px; font-weight: 900; color: #FFD700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .eggTop { display: flex; align-items: center; gap: 11px; }
+  .eggTop .coinChip { font-size: 18px; gap: 6px; }
+  .eggTop .coinChip i { width: 17px; height: 17px; }
+  .eggKills { font-size: 18px; font-weight: 900; color: #FFD700; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .eggKills.bump { animation: killBump .5s cubic-bezier(.2,1.6,.4,1); }
   @keyframes killBump { 30% { transform: scale(1.5); } }
   /* coins towards the next rocket: a small rocket in front so they don't read as more coins */
   .eggCoins { display: flex; align-items: center; gap: 4px; }
-  .eggCoins::before { content: '🚀'; font-size: 12px; margin-right: 1px; }
-  .eggCoins i { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--coin); opacity: .4; }
+  .eggCoins::before { content: '🚀'; font-size: 14px; margin-right: 1px; }
+  .eggCoins i { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--coin); opacity: .4; }
   .eggCoins i.on { background: var(--coin); opacity: 1; }
-  .eggSub { display: flex; align-items: center; gap: 6px; min-height: 16px; }
+  .eggSub { display: flex; align-items: center; gap: 6px; min-height: 18px; }
   #eggBar.alert .eggCoins { display: none; }          /* the alert takes the whole line */
   .fireWrap { justify-self: stretch; position: relative; display: flex; align-items: stretch; gap: 6px; min-width: 0; max-width: 100%; }
   /* first Shahed ever: a bouncing tag pointing down at FIRE, so new players find the button */
@@ -177,7 +178,7 @@
   /* FIRE slims down to sit beside it: smaller icon; long labels drop the icon or shrink (fitFire) */
   #rocketBtn .fireLabel { white-space: nowrap; }
   #rocketBtn.compact .rk { display: none; }
-  #eggNext { font-size: 12px; line-height: 1.25; font-weight: 800; color: var(--muted); overflow-wrap: anywhere; }
+  #eggNext { font-size: 14px; line-height: 1.25; font-weight: 800; color: var(--muted); overflow-wrap: anywhere; }
   #rocketBtn {
     position: relative; margin: 0; padding: 10px 10px; min-width: 0; flex: 1 1 auto; min-height: 54px;
     display: flex; align-items: center; justify-content: center; gap: 6px;
@@ -279,6 +280,12 @@
     background: rgba(255,255,255,.1); box-shadow: none;
   }
   #helpBtn:active { transform: scale(.92); box-shadow: none; }
+  #homeSound {
+    position: absolute; top: calc(12px + env(safe-area-inset-top, 0px)); left: 60px; z-index: 2;
+    width: 40px; height: 40px; padding: 0; margin: 0; border-radius: 50%;
+    font-size: 18px; line-height: 1; background: rgba(255,255,255,.1); box-shadow: none;
+  }
+  #homeSound:active { transform: scale(.92); box-shadow: none; }
   .langPick {
     position: absolute; top: calc(12px + env(safe-area-inset-top, 0px)); right: 12px;
     z-index: 2;
@@ -654,6 +661,7 @@
     <button id="installBtn" class="ghost" hidden>📲 <span data-i18n="installApp">Install app</span></button>
     <p id="installHint" hidden></p>
     <button id="helpBtn" type="button" data-i18n-title="howToPlay" data-i18n-aria="howToPlay" title="How to play" aria-label="How to play">?</button>
+    <button id="homeSound" type="button" aria-pressed="true"></button>
     <div class="langPick">
       <button id="langBtn" type="button" aria-haspopup="true" aria-expanded="false"></button>
       <div id="langMenu" role="menu" hidden></div>
@@ -1852,7 +1860,6 @@ window.LD_RULES = (() => {
     warpT = Math.max(warpT, dur);
   }
   let hurtT = 0;            // red glow round the screen edges after losing a life
-  let flyers = [];          // coins flying up into the score
   const tip = k => { if (readNum(k)) return false; writeNum(k, 1); return true; };   // one-time callouts
   let speedLines = [], closeBurst = 0;   // roadside speed streaks; a short flare after a close call
   // Coin Rush: after every 5th checkpoint, the next RUSH_ROWS rows all carry a coin worth double.
@@ -1869,43 +1876,39 @@ window.LD_RULES = (() => {
 
   // ---------- Sound: everything is synthesised with Web Audio, no files ----------
 
-  // Car engine, modelled on what a 4-cylinder actually makes:
-  //  - firing pulses: a sawtooth at the firing rate (rpm / 30), soft-clipped for grit
-  //  - crank rumble: a sine an octave below
-  //  - combustion noise: band-passed noise chopped at the firing rate
-  // all through a low-pass that opens with rpm, like an exhaust note brightening.
+  // Car sound: a soft electric hum, like an EV. A smooth tone with a quieter octave and fifth
+  // above it, rising with road speed, plus a breath of filtered noise for tyres and wind.
+  // No gears, no grit.
   function buildEngine(ac, dest, noiseBuf) {
-    const fire = ac.createOscillator(), sub = ac.createOscillator();
-    fire.type = 'sawtooth'; sub.type = 'sine';
-    const shaper = ac.createWaveShaper(), curve = new Float32Array(1024);
-    for (let i = 0; i < curve.length; i++) { const x = i / 511.5 - 1; curve[i] = 4 * x / (1 + 3 * Math.abs(x)); }
-    shaper.curve = curve;
-    const fireGain = ac.createGain(); fireGain.gain.value = 0.5;
-    const subGain = ac.createGain(); subGain.gain.value = 0.8;
+    const base = ac.createOscillator(), oct = ac.createOscillator(), fifth = ac.createOscillator();
+    base.type = 'sine'; oct.type = 'triangle'; fifth.type = 'sine';
+    const gBase = ac.createGain(); gBase.gain.value = 0.7;
+    const gOct = ac.createGain(); gOct.gain.value = 0.18;
+    const gFifth = ac.createGain(); gFifth.gain.value = 0.08;
+    const wob = ac.createOscillator(), wobG = ac.createGain();       // a slow, gentle wobble so it feels alive
+    wob.frequency.value = 5.5; wobG.gain.value = 1.5; wob.connect(wobG);
+    wobG.connect(base.frequency); wobG.connect(oct.frequency);
     const nz = ac.createBufferSource(); nz.buffer = noiseBuf; nz.loop = true;
-    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 0.8;
-    const chop = ac.createGain(); chop.gain.value = 0.3;          // noise level, pulsed by each firing
-    const chopDepth = ac.createGain(); chopDepth.gain.value = 0.3;
-    fire.connect(chopDepth).connect(chop.gain);
-    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 2;
-    const shift = ac.createGain();                                  // dips on gear changes
+    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 0.6;
+    const gNz = ac.createGain(); gNz.gain.value = 0.0001;
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 0.5;
     const out = ac.createGain(); out.gain.value = 0.0001;
-    fire.connect(shaper).connect(fireGain).connect(lp);
-    sub.connect(subGain).connect(lp);
-    nz.connect(bp).connect(chop).connect(lp);
-    lp.connect(shift).connect(out).connect(dest);
-    [fire, sub, nz].forEach(s => s.start());
+    base.connect(gBase).connect(lp); oct.connect(gOct).connect(lp); fifth.connect(gFifth).connect(lp);
+    nz.connect(bp).connect(gNz).connect(out);
+    lp.connect(out).connect(dest);
+    [base, oct, fifth, wob, nz].forEach(o => o.start());
     return {
-      shift,
-      set(rpm, t, k) {
-        const f = rpm / 30;
-        fire.frequency.setTargetAtTime(f, t, k);
-        sub.frequency.setTargetAtTime(f / 2, t, k);
-        lp.frequency.setTargetAtTime(320 + rpm * 0.14, t, k);
-        bp.frequency.setTargetAtTime(500 + rpm * 0.2, t, k);
+      // f: the hum's pitch in Hz; v: 0 (still) .. 1 (top speed), for the tyre/wind noise
+      set(f, v, t, k) {
+        base.frequency.setTargetAtTime(f, t, k);
+        oct.frequency.setTargetAtTime(f * 2, t, k);
+        fifth.frequency.setTargetAtTime(f * 3, t, k);
+        lp.frequency.setTargetAtTime(500 + f * 3, t, k);
+        bp.frequency.setTargetAtTime(400 + v * 900, t, k);
+        gNz.gain.setTargetAtTime(0.004 + v * 0.03, t, 0.2);
       },
-      level(v, t) { out.gain.setTargetAtTime(v, t, 0.1); },
-      stop(t) { out.gain.setTargetAtTime(0.0001, t, 0.1); [fire, sub, nz].forEach(s => s.stop(t + 0.6)); }
+      level(v, t) { out.gain.setTargetAtTime(v, t, 0.15); },
+      stop(t) { out.gain.setTargetAtTime(0.0001, t, 0.1); [base, oct, fifth, wob, nz].forEach(o => o.stop(t + 0.6)); }
     };
   } // end buildEngine
 
@@ -1915,6 +1918,8 @@ window.LD_RULES = (() => {
     const VOL = 0.6;
 
     let muffle = null, enginePitch = 1;
+    let mus = null, musGain = null, musOn = false, musStop = 0;
+    const MUSIC_VOL = 0.35;                       // of the game's volume: in the background, not too loud
     function ensure() {
       if (!ac) {
         const AC = window.AudioContext || window.webkitAudioContext;
@@ -1959,9 +1964,6 @@ window.LD_RULES = (() => {
       src.start(t); src.stop(t + dur + 0.02);
     }
 
-    // Speed (px/s) where each gear starts; the last entry is the top of 5th gear.
-    const GEARS = [0, 330, 470, 610, 760, 940], IDLE_RPM = 950;
-
     const arp = (notes, step, opts) => notes.forEach((f, i) => tone(f, opts.dur || 0.2, { ...opts, delay: (opts.delay || 0) + i * step }));
 
     return {
@@ -1988,7 +1990,7 @@ window.LD_RULES = (() => {
       outOfFuel() { for (let i = 0; i < 5; i++) { tone(95 - i * 10, 0.12, { type: 'sawtooth', vol: 0.16, delay: i * 0.18 }); noise(0.08, { vol: 0.12, from: 900, to: 200, delay: i * 0.18 }); } },
       gameOver()  { arp([392, 330, 262, 196], 0.16, { type: 'triangle', vol: 0.18, dur: 0.32, delay: 0.35 }); },
       launch()    { noise(0.45, { vol: 0.25, from: 4000, to: 700 }); tone(280, 0.35, { type: 'sawtooth', vol: 0.08, slide: 3 }); },
-      boom()      { noise(0.8, { vol: 0.6, from: 1800, to: 60 }); tone(70, 0.6, { vol: 0.45, slide: 0.4 }); },
+      boom()      { noise(0.8, { vol: 0.4, from: 1800, to: 60 }); tone(70, 0.6, { vol: 0.3, slide: 0.4 }); },
       // combo tier up: a quick rising run, one note longer per tier
       tier(m)     { arp([523, 659, 784, 1047, 1319].slice(0, m), 0.05, { type: 'square', vol: 0.08, dur: 0.14 }); },
       odBuild()   { tone(58, 0.7, { vol: 0.55, slide: 0.55 }); noise(0.6, { vol: 0.25, from: 300, to: 60 }); },
@@ -1997,6 +1999,31 @@ window.LD_RULES = (() => {
       tick()      { tone(1400, 0.03, { type: 'square', vol: 0.05 }); },
       hurt()      { if (!muffle) return; const t = ac.currentTime; muffle.frequency.cancelScheduledValues(t); muffle.frequency.setValueAtTime(450, t); muffle.frequency.setTargetAtTime(20000, t + 0.25, 0.3); },
       pitch(k)    { enginePitch = k; },
+      // Home screen music (made by a friend of the game): plays quietly while you're on the
+      // home screen and its menus, fades out when a run starts. Through Web Audio so the volume
+      // works on iPhones too, and the mute switch covers it. Starts after the first tap.
+      music(want) {
+        if (!ac) return;
+        want = want && !document.hidden && ac.state === 'running';
+        if (!mus) {
+          if (!want) return;
+          mus = new Audio('audio/home.mp3'); mus.loop = true; mus.preload = 'auto';
+          musGain = ac.createGain(); musGain.gain.value = 0.0001;
+          ac.createMediaElementSource(mus).connect(musGain).connect(master);
+        }
+        if (want === musOn) return;
+        musOn = want;
+        const t = ac.currentTime;
+        musGain.gain.cancelScheduledValues(t);
+        clearTimeout(musStop);
+        if (want) {
+          mus.play().catch(() => { musOn = false; });
+          musGain.gain.setTargetAtTime(MUSIC_VOL, t, 0.5);           // fade in
+        } else {
+          musGain.gain.setTargetAtTime(0.0001, t, 0.25);            // fade out, then pause
+          musStop = setTimeout(() => { if (!musOn) mus.pause(); }, 1500);
+        }
+      },
       // The Shahed's moped-like two-stroke buzz, while one is on screen.
       buzz(on) {
         if (!ac) return;
@@ -2008,7 +2035,7 @@ window.LD_RULES = (() => {
           lfo.frequency.value = 23; lg.gain.value = 9; lfo.connect(lg).connect(o.frequency);
           f.type = 'lowpass'; f.frequency.value = 1100;
           o.connect(f).connect(g).connect(master);
-          g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.07, t + 0.5);
+          g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.028, t + 0.5);
           o.start(); lfo.start();
           this._bz = { o, lfo, g };
         } else if (!on && this._bz) {
@@ -2017,32 +2044,19 @@ window.LD_RULES = (() => {
           b.o.stop(t + 0.5); b.lfo.stop(t + 0.5);
         }
       },
-      // Engine: idles on the start line, then runs through 5 gears with road speed.
-      // RPM climbs through each gear, drops on the up-shift (with a short dip and
-      // crackle), and blips up when you change lanes.
+      // The hum: low and quiet on the start line, rising smoothly in pitch with road speed.
       engine(on, spd) {
         if (!ac) return;
         const t = ac.currentTime;
-        if (on && !engine) { engine = buildEngine(ac, master, noiseBuf); engine.gear = 0; engine.revUntil = 0; }
+        if (on && !engine) { engine = buildEngine(ac, master, noiseBuf); engine.revUntil = 0; }
         if (!engine) return;
         if (!on) { engine.stop(t); engine = null; return; }
-        let g = engine.gear;
-        while (g < GEARS.length - 2 && spd > GEARS[g + 1]) g++;
-        while (g > 0 && spd < GEARS[g] - 25) g--;     // a little hysteresis: no flapping between gears
-        let k = 0.08;
-        if (g > engine.gear) {                          // up-shift: clutch dip + exhaust crackle
-          engine.shift.gain.setTargetAtTime(0.3, t, 0.015);
-          engine.shift.gain.setTargetAtTime(1, t + 0.09, 0.05);
-          noise(0.08, { vol: 0.07, from: 2800, to: 700, delay: 0.03 });
-          k = 0.04;
-        }
-        engine.gear = g;
-        const lo = GEARS[g], hi = GEARS[g + 1];
-        let rpm = spd < 40 ? IDLE_RPM : 2300 + Math.min(1, Math.max(0, (spd - lo) / (hi - lo))) * 3500;
-        if (t < engine.revUntil) rpm *= 1.18;
-        rpm *= enginePitch;                             // Overdrive: the engine screams
-        engine.set(rpm, t, k);
-        engine.level(0.1 + Math.min(rpm, 6000) / 6000 * 0.06, t);
+        const v = Math.min(1, Math.max(0, spd / 950));
+        let f = 70 + v * 150;                             // ~70 Hz idling, ~220 Hz flat out
+        if (t < engine.revUntil) f *= 1.05;               // a slight lift when you change lanes
+        f *= enginePitch;                                 // Overdrive: it sings higher
+        engine.set(f, v, t, 0.12);
+        engine.level(0.07 + v * 0.05, t);
       },
       // Short rev blip when changing lanes.
       rev() {
@@ -2080,7 +2094,7 @@ window.LD_RULES = (() => {
     lives = MAX_LIVES; level = twist.start || 1; speed = levelSpeed(level); slip = 0;
     spawnDist = 200; flash = 0; roadOffset = 0; shake = 0; planner = R.newPlanner(roadRand);
     levelDist = 0; distance = 0; bonus = 0; fuel = 100; coins = 0; coinMeter = 0; lowFuelT = 0; finishSpawned = false;
-    combo = 0; comboIdle = 0; cleanLevel = true; odPhase = ''; odT = 0; odBoost = 1; overdrives = 0; warpT = 0; hurtT = 0; flyers = []; sfx.pitch(1);
+    combo = 0; comboIdle = 0; cleanLevel = true; odPhase = ''; odT = 0; odBoost = 1; overdrives = 0; warpT = 0; hurtT = 0; sfx.pitch(1);
     // One rocket loaded from the start, so the first Shahed (7 s in, before 3 coins are usually collected) can be shot down.
     drones = []; rockets = []; booms = []; wallet = ROCKET_COST; droneT = twist.swarm ? 4 : 7; droneSeen = false; kills = 0; droneQueue = []; resuming = false; runTime = 0; carNo = 1 + Math.floor(Math.random() * 99);
     lastLeftLane = -1; lastLaneChangeT = -9; speedLines = []; closeBurst = 0; heartProgress = 0; heartsEarned = 0;
@@ -2592,7 +2606,6 @@ window.LD_RULES = (() => {
       bonus += pts;
       burst(ox, o.y + o.h / 2, getVar('--coin'), 12);
       floatText(ox, o.y, '+' + num(pts), getVar('--coin'));
-      flyers.push({ x: ox, y: o.y + o.h / 2, t: 0 });
       coinMeter++;
       sfx.coin(comboMult());
       addCombo(GAIN.coin);
@@ -3055,8 +3068,6 @@ window.LD_RULES = (() => {
     floats = floats.filter(f => f.life > 0);
     if (shake > 0) shake -= dt;
     hurtT = Math.max(0, hurtT - realDt);
-    for (const f of flyers) f.t += realDt / 0.45;
-    if (flyers.length && flyers[0].t >= 1) { flyers = flyers.filter(f => f.t < 1); el.score.classList.remove('bump'); void el.score.offsetWidth; el.score.classList.add('bump'); }
 
     if (state === 'countdown') {
       slidePlayer(dt);
@@ -4279,17 +4290,6 @@ window.LD_RULES = (() => {
       g.addColorStop(0, 'rgba(255,40,40,0)'); g.addColorStop(1, `rgba(255,40,40,${(0.55 * hurtT / 0.7).toFixed(3)})`);
       ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
     }
-    if (flyers.length) {                      // coins flying up into the score
-      const cr = canvas.getBoundingClientRect(), sr = el.score.getBoundingClientRect();
-      const tx = sr.left - cr.left + sr.width / 2, ty = sr.top - cr.top + sr.height / 2;
-      for (const f of flyers) {
-        const k = Math.min(1, f.t), e = k * k * (3 - 2 * k);
-        const x = f.x + (tx - f.x) * e, y = f.y + (ty - f.y) * e - Math.sin(k * Math.PI) * 40;
-        ctx.globalAlpha = 1 - 0.4 * k;
-        drawCoin(x, y, 7 - 3 * k);
-      }
-      ctx.globalAlpha = 1;
-    }
   }
   // Overdrive: road edges pulsing in shifting colours and a bright trail streaming off the car.
   function drawOverdrive() {
@@ -4321,6 +4321,7 @@ window.LD_RULES = (() => {
     // Idle on the start line during 3-2-1, then the engine follows road speed.
     sfx.engine(state === 'play' || state === 'stall' || state === 'countdown', state === 'countdown' ? 0 : speed * odBoost);
     sfx.buzz(state === 'play' && drones.length > 0);
+    sfx.music(state === 'home' || state === 'garage' || state === 'records' || (state === 'menu' && helpFrom !== 'pause'));
     requestAnimationFrame(loop);
   }
 
@@ -4374,6 +4375,9 @@ window.LD_RULES = (() => {
     const sb = $('soundBtn');
     sb.textContent = (sfx.muted ? '🔇 ' : '🔊 ') + t(sfx.muted ? 'soundOff' : 'soundOn');
     sb.setAttribute('aria-pressed', String(!sfx.muted)); sb.classList.toggle('on', !sfx.muted);
+    const hs = $('homeSound');                      // the same switch, on the home screen
+    hs.textContent = sfx.muted ? '🔇' : '🔊';
+    hs.title = t(sfx.muted ? 'soundOff' : 'soundOn'); hs.setAttribute('aria-label', hs.title); hs.setAttribute('aria-pressed', String(!sfx.muted));
   }
   I18N.onChange(paintMute);
   function toggleMute() { sfx.ensure(); sfx.toggle(); paintMute(); }
@@ -4414,6 +4418,7 @@ window.LD_RULES = (() => {
     setBtn.setAttribute('aria-expanded', String(!setPanel.hidden));
   });
   soundBtn.addEventListener('click', () => toggleMute());
+  $('homeSound').addEventListener('click', () => { toggleMute(); $('homeSound').blur(); });
   // Which side FIRE sits on. Left by default (the right thumb steers); left-handed players can swap.
   const fireSideBtn = $('fireSideBtn');
   let fireLeft = (() => { try { return localStorage.getItem('laneDodgerFireSide') !== 'right'; } catch { return true; } })();

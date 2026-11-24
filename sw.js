@@ -4,7 +4,7 @@
 // offline or on a very slow connection. Icons and the manifest are served from the cache and
 // refreshed in the background.
 // Bump VERSION whenever you want installed copies to drop the old cache.
-const VERSION = 'drone-dash-v75';
+const VERSION = 'drone-dash-v77';
 const ASSETS = [
   './',
   './index.html',
@@ -33,6 +33,8 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
+  // Music streams straight from the network (players ask for it in pieces, which a cache can't answer).
+  if (new URL(req.url).pathname.includes('/audio/')) return;
   if (req.mode === 'navigate') { e.respondWith(page(req)); return; }
   e.respondWith(
     caches.open(VERSION).then(async (cache) => {
