@@ -1837,6 +1837,9 @@ window.LD_RULES = (() => {
     else if (path === 'swerve') x0 = x1 + side * laneW;
     drones.push({ lane, path, x0, x: x0, y: -60, y0: -60, t: 0, ang: 0, hunter: !!hunter, locked: !hunter, seed: Math.random() * 6 });
   }
+  // Share of the gap to close this frame, tuned to feel the same at any frame rate
+  // (matches the old per-frame step exactly at 60 fps).
+  function ease(rate, dt) { return 1 - Math.pow(1 - Math.min(1, rate / 60), dt * 60); }
   function updateDrones(dt) {
     droneT -= dt;
     if (droneT <= 0 && !drones.length && !droneQueue.length) {
@@ -1886,12 +1889,12 @@ window.LD_RULES = (() => {
       }
       // Glide towards the aim point rather than jump, so a re-aim reads as a turn; over the
       // last 10% of the dive blend onto the lane centre so it lands exactly where it was aimed.
-      const glided = d.x + (want - d.x) * Math.min(1, dt * DRONE.glide);
+      const glided = d.x + (want - d.x) * ease(DRONE.glide, dt);
       const settle = Math.min(1, Math.max(0, (p - 0.9) / 0.1));
       const nx = glided + (laneX(d.lane) - glided) * settle;
       if (dt > 0) {                                                          // nose follows the direction of travel
         const aim = Math.atan2(-(nx - d.x) / dt, v);
-        d.ang += (aim - d.ang) * Math.min(1, dt * 12);
+        d.ang += (aim - d.ang) * ease(12, dt);
       }
       d.x = nx;
       if (!d.dead && d.y >= impactY) {
@@ -2410,7 +2413,7 @@ window.LD_RULES = (() => {
   }
 
   function slidePlayer(dt) {
-    player.x += (laneX(player.lane) - player.x) * Math.min(1, dt * 28);
+    player.x += (laneX(player.lane) - player.x) * ease(28, dt);
     player.y = H - 100;
   }
 
@@ -2463,7 +2466,7 @@ window.LD_RULES = (() => {
     // Speed eases up through each level towards the next level's speed.
     const lenPx = levelLength(level) * PX_PER_M;
     const target = levelSpeed(level) + (levelSpeed(level + 1) - levelSpeed(level)) * 0.6 * Math.min(1, levelDist / lenPx);
-    speed += (target - speed) * Math.min(1, dt * 1.5);
+    speed += (target - speed) * ease(1.5, dt);
 
     const step = speed * dt;
     distance += step;
