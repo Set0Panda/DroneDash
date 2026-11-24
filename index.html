@@ -686,6 +686,8 @@
 
   /* ---- Records ---- */
   .recCard { gap: 12px; }
+  #records { justify-content: flex-start; }
+  #records .recCard { margin-top: min(6vh, 48px); }
   .recTabs { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
   .recTabs button { margin: 0; padding: 8px 4px; min-height: 0; font-size: 14px; font-weight: 800; border-radius: 12px;
                     background: rgba(255,255,255,.08); box-shadow: none; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -769,6 +771,16 @@
   .upTile.locked canvas { filter: grayscale(1); opacity: .35; }
   .upTile.locked b { color: var(--muted); font-weight: 700; }
   .upTile.next { box-shadow: inset 0 0 0 2px var(--ua-yellow); }
+  .upTile { cursor: pointer; }
+  .upTile:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  #upPeek { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(5,7,15,.7); z-index: 5; }
+  #upPeek[hidden] { display: none; }
+  #upPeek .peekCard { display: grid; justify-items: center; gap: 6px; padding: 16px 22px; border-radius: 18px; background: var(--card, #1a2140);
+                      box-shadow: 0 10px 30px rgba(0,0,0,.5), inset 0 0 0 2px var(--ua-yellow); min-width: 180px; }
+  #upPeek canvas { background: var(--road); border-radius: 12px; }
+  #upPeek b { font-size: 20px; }
+  #upPeek small { font-size: 14px; color: var(--muted); font-weight: 700; }
+  #upPeek button { margin: 4px 0 0; min-height: 0; padding: 8px 22px; }
   #pauseNext { font-size: 13px; color: var(--muted) !important; margin: -6px 0 0 !important; }
   .recList { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; gap: 6px; }
   .recList li {
@@ -868,6 +880,10 @@
       <h1 id="upTitle">🎁 <span data-i18n="upgradesBtn">Upgrades</span></h1>
       <p id="upSub" class="upSub"></p>
       <div id="upGrid" class="upGrid"></div>
+      <div id="upPeek" role="dialog" aria-modal="true" aria-labelledby="peekName" hidden>
+        <div class="peekCard"><canvas id="peekCar"></canvas><b id="peekName"></b><small id="peekLv"></small>
+          <button id="peekOk" class="ghost" type="button">OK</button></div>
+      </div>
       <button id="upBack" class="ghost" data-i18n="home">Home</button>
     </div>
   </div>
@@ -4364,7 +4380,7 @@ window.LD_RULES = (() => {
     const pane = $('recPane'), card = pane.closest('.card'), keep = recTab;
     pane.style.minHeight = ''; card.style.zoom = ''; card.style.maxHeight = '';
     let h = 0;
-    for (const tab of ['runs', 'raid', 'daily']) { recTab = tab; paintRecTab(); h = Math.max(h, pane.offsetHeight); }
+    for (const tab of ['runs', 'raid', 'daily']) { recTab = tab; paintRecTab(); h = Math.max(h, Math.ceil(pane.getBoundingClientRect().height)); }
     pane.style.minHeight = h + 'px'; pane.style.alignContent = 'start';
     recTab = keep; paintRecTab();
   }
@@ -4383,10 +4399,29 @@ window.LD_RULES = (() => {
       b.textContent = t(u.key);
       sm.textContent = (u.level > best ? '🔒 ' : '') + t('lv', { n: u.level });
       tile.append(cv, b, sm); grid.appendChild(tile);
+      tile.tabIndex = 0; tile.setAttribute('role', 'button');
+      tile.addEventListener('click', () => peekUpgrade(u, u.level <= best));
+      tile.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); peekUpgrade(u, u.level <= best); } });
       paintCarOn(cv, 44, 58, carPaint(carHue, carShade), u.level, 0.62, carNo);
     }
+    $('upPeek').hidden = true;
     show('upgrades');
   }
+  // Tap an upgrade: a bigger picture of your car with it, and when you got it (or when you will).
+  let peekFrom = null;
+  function peekUpgrade(u, got) {
+    peekFrom = document.activeElement;
+    $('peekName').textContent = t(u.key);
+    $('peekLv').textContent = got ? '✓ ' + t('lv', { n: u.level }) : '🔒 ' + t('startLocked', { n: u.level });
+    const cv = $('peekCar');
+    cv.style.filter = got ? '' : 'grayscale(.6)';
+    paintCarOn(cv, 120, 158, carPaint(carHue, carShade), u.level, 1.65, carNo);
+    $('upPeek').hidden = false; $('peekOk').focus();
+  }
+  function closePeek() { $('upPeek').hidden = true; if (peekFrom) peekFrom.focus(); }
+  $('peekOk').addEventListener('click', closePeek);
+  $('upPeek').addEventListener('click', e => { if (e.target.id === 'upPeek') closePeek(); });
+  $('upPeek').addEventListener('keydown', e => { if (e.key === 'Escape') closePeek(); });
   function goHome() {
     mode = 'normal';
     reset();
@@ -5213,6 +5248,16 @@ window.LD_RULES = (() => {
       for (let i = 0; i < 4; i++) { const a = o.seed + i * 1.6; ctx.fillRect(cx + Math.cos(a) * (rx + 4) - 2, cy + Math.sin(a) * (ry + 4) - 2, 4, 4); }
     } else {
       drawPothole(cx, cy, rx, ry, o.seed);
+    }
+    // At night the headlights catch the rim: a faint outline far off, brighter as the beams reach it.
+    const lk = twist.look || AREAS[lookArea].look;
+    if ((lk === 'night' || lk === 'aurora') && state !== 'home') {
+      const ahead = player.y - cy, side = Math.abs(cx - player.x) / (laneW * 1.2);
+      const beam = ahead > -20 && ahead < 300 ? Math.max(0, 1 - Math.abs(ahead - 110) / 190) * Math.max(0, 1 - side) : 0;
+      const a = 0.18 + 0.6 * beam;
+      ctx.fillStyle = `rgba(255,244,200,${0.12 * beam})`; ctx.beginPath(); ctx.ellipse(cx, cy, rx + 7, ry + 6, 0, 0, 6.29); ctx.fill();
+      ctx.strokeStyle = `rgba(255,236,180,${a})`; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.ellipse(cx, cy, rx + 1.5, ry + 1.5, 0, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke();   // the far lip, lit from below
     }
   }
 

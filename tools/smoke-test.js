@@ -172,6 +172,16 @@
     report.checks.raid = { frames: rf, giantShahedsDown: __G().bossesRun, title: $('overTitle').textContent, line: $('overDaily').textContent };
     $('homeBtn').click(); $('recordsBtn').click(); await sleep(200);
     report.checks.recordsRows = document.querySelectorAll('#recList li').length;
+    // tabs: each shows its own content and the tab row doesn't move
+    const tabTop = () => Math.round($('recTabs').getBoundingClientRect().top), top0 = tabTop(), tabs = {};
+    for (const tb of ['raid', 'daily', 'runs']) {
+      document.querySelector('#recTabs [data-tab=' + tb + ']').click(); await sleep(150);
+      tabs[tb] = (tb === 'raid' ? document.querySelectorAll('#recRaidBox .recRow').length + ' rows'
+        : tb === 'daily' ? document.querySelectorAll('#recDailyBox .recRow').length + ' rows'
+        : document.querySelectorAll('#recList li').length + ' runs') + (Math.abs(tabTop() - top0) <= 2 ? '' : ' (tabs moved ' + top0 + ' to ' + tabTop() + ')');
+    }
+    report.checks.recordsTabs = tabs;
+    if (Object.values(tabs).some(v => v.includes('moved'))) report.errors.push('records tabs moved when switching');
     $('recBack').click();
     if (window.__errs.length) report.errors.push(...window.__errs.map(m => 'normal run: ' + m));
   } catch (e) { err('normal run', e); }
