@@ -2658,9 +2658,15 @@ window.LD_RULES = (() => {
       heartsEarned--;
       objects.push({ type: 'life', lane: r.clear, y: -h - R.COIN_AHEAD - 80, w: 40, h: 38 });
     }
-    if (r.gapLane >= 0) objects.push(pothole(r.gapLane, -h - r.gapAt, oilB < oil));
+    if (r.gapLane >= 0) {
+      const ahead = player.y + h + r.gapAt, rem = levelLength(level) * PX_PER_M - levelDist;   // how far up the road it lands
+      if (ahead < rem - CP_CLEAR_BEFORE || ahead - POTHOLE_H > rem + CP_CLEAR_AFTER) objects.push(pothole(r.gapLane, -h - r.gapAt, oilB < oil));
+    }
     return r.gap;
   }
+  // Room kept clear round a checkpoint line: CP_CLEAR_BEFORE px before it (the line itself) and
+  // CP_CLEAR_AFTER px past it (its "Checkpoint" label sits just beyond the line).
+  const CP_CLEAR_BEFORE = 50, CP_CLEAR_AFTER = 60;
   function pothole(lane, y, oil) {
     return { type: 'hole', lane, y, w: Math.min(laneW * 0.5, 64), h: POTHOLE_H, seed: Math.random() * 100,
              skin: oil ? 'oil' : HOLE_SKINS[areaAtK(kAtY(y))] };
@@ -3518,7 +3524,13 @@ window.LD_RULES = (() => {
 
     // Spawn by distance travelled, so rows never bunch up at high speed.
     spawnDist -= step;
-    if (spawnDist <= 0) spawnDist = spawn();
+    if (spawnDist <= 0) {
+      // Keep the checkpoint line and its label clear: a row that would sit on them (barriers at
+      // the car's distance ahead, its coin and heart further up) starts just past the line instead.
+      const rem = levelLength(level) * PX_PER_M - levelDist, far = player.y + BARRIER_H + R.COIN_AHEAD + 130;
+      if (rem + CP_CLEAR_AFTER > player.y && rem - CP_CLEAR_BEFORE < far) spawnDist = rem + CP_CLEAR_AFTER - player.y + 5;
+      else spawnDist = spawn();
+    }
 
     const px = player.x - player.w / 2, py = player.y;
     for (const o of objects) {
