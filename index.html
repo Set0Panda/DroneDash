@@ -3803,7 +3803,7 @@ window.LD_RULES = (() => {
     if (odPhase) { odPhase = ''; sfx.pitch(1); }
     warpT = 0; boss = null;
     lastRun = { s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, k: kills, o: overdrives, tm: Math.round(runTime), a: raidOn ? lookArea : areaFor(level),
-                h: carHue, v: carShade, no: carNo, f: carFinish, km: bossMarks().length, b: bossesRun, day: runDay ? runDay.n : 0, tw: runDay ? twist.key : '', raid: raidOn ? bossesRun : -1 };
+                h: carHue, v: carShade, no: carNo, f: carFinish, tr: carTrail(), km: bossMarks().length, b: bossesRun, day: runDay ? runDay.n : 0, tw: runDay ? twist.key : '', raid: raidOn ? bossesRun : -1 };
     $('shareNote').hidden = true;
     $('overDaily').hidden = !runDay && !raidOn;
     const separate = runDay || raidOn;                            // daily and raid runs keep their own bests
@@ -3828,7 +3828,7 @@ window.LD_RULES = (() => {
     const bestLevel = separate ? 0 : Math.max(readNum('laneDodgerBestLevel'), level);
     if (!separate) { writeNum('laneDodgerBest', best); writeNum('laneDodgerBestLevel', bestLevel); writeNum('ddBestDist', Math.max(readNum('ddBestDist'), Math.floor(distance / PX_PER_M))); }
     if (s > 0 && !separate) {
-      const run = { df: runDiffI, st: startLevel, s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, h: carHue, v: carShade, k: kills, o: overdrives, a: areaFor(level), tm: Math.round(runTime), no: carNo, f: carFinish, km: bossMarks().length, b: bossesRun, t: Date.now() };
+      const run = { df: runDiffI, st: startLevel, s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, h: carHue, v: carShade, k: kills, o: overdrives, a: areaFor(level), tm: Math.round(runTime), no: carNo, f: carFinish, tr: carTrail(), km: bossMarks().length, b: bossesRun, t: Date.now() };
       if (saveRun(run)) latestRunT = run.t;
     }
     el.over.classList.toggle('fuel', reason === 'fuel');
@@ -4308,7 +4308,9 @@ window.LD_RULES = (() => {
       where.textContent = A.icon + ' ' + t(A.key) + ' · ' + t('lv', { n: r.l });
       trip.textContent = [r.df !== undefined && r.df !== 1 ? DIFFS[r.df].icon : '', r.st > 1 ? t('fromArea', { area: AREAS[areaFor(r.st)].icon }) : '', t('meters', { n: r.d }), r.tm ? '⏱ ' + fmtTime(r.tm) : '', r.k > 0 ? '🎯 ' + num(r.k) : '', r.o > 0 ? '⚡ ' + num(r.o) : '', r.b > 0 ? '🛸 ' + num(r.b) : '', df.format(r.t)]
         .filter(Boolean).join(' · ');
-      info.append(b, where, trip);
+      const look = document.createElement('small');            // paint finish and Overdrive trail (older runs: finish only)
+      look.textContent = ['🎨 ' + t('fin_' + (r.f || 'gloss')), r.tr ? '⚡ ' + t('trail_' + r.tr) : ''].filter(Boolean).join(' · ');
+      info.append(b, where, trip, look);
       const sh = document.createElement('button');              // share this run
       sh.type = 'button'; sh.className = 'recShare'; sh.textContent = '📤'; sh.title = t('share'); sh.setAttribute('aria-label', t('share'));
       sh.addEventListener('click', () => shareRun({ ...r, a: r.a ?? areaFor(r.l), tm: r.tm || 0, day: 0, raid: -1, tw: '' }));   // older runs lack some fields
