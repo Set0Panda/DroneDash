@@ -650,6 +650,12 @@
   .recCard { gap: 12px; }
   /* Upgrades: every car upgrade, greyed until you've reached its level */
   .menuRow.three { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  /* Start from an area you've reached */
+  .startPick { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 5px; margin-top: -4px; }
+  .startPick span { font-size: 12px; font-weight: 800; color: var(--muted); margin-right: 2px; }
+  .startPick button { margin: 0; width: 30px; height: 30px; min-height: 0; padding: 0; border-radius: 9px; font-size: 16px; line-height: 1;
+                      background: rgba(255,255,255,.08); box-shadow: none; }
+  .startPick button.on { background: var(--ua-yellow); }
   .raidBtn { display: grid; gap: 1px; justify-items: center; padding-top: 7px; padding-bottom: 7px; font-size: 15px; }
   .raidBtn small { font-size: 11px; font-weight: 700; opacity: .8; }
   .raidBtn { position: relative; overflow: visible; }
@@ -719,6 +725,7 @@
     <p id="homeBest" hidden></p>
     <div class="menuBtns">
       <button id="playBtn">▶ <span data-i18n="play">Play</span></button>
+      <div id="startPick" class="startPick" hidden></div>
       <button id="dailyBtn" class="secondary dailyBtn" type="button"><span>📅 <span data-i18n="daily">Daily challenge</span></span><small id="dailySub"></small></button>
       <button id="raidBtn" class="secondary raidBtn" type="button"><b class="limited" data-i18n="limited">⏳ Limited time</b><span>🛸 <span data-i18n="raidBtn">Shahed Raid</span></span><small data-i18n="raidSub">All the giant Shaheds, back to back</small></button>
       <div id="homeMissions" class="missions"></div>
@@ -804,6 +811,7 @@
           <button id="autoFireBtn" class="secondary autoFireBtn" type="button" aria-pressed="false"></button>
           <button id="fireSideBtn" class="secondary autoFireBtn" type="button"></button>
           <button id="calmBtn" class="secondary autoFireBtn" type="button" aria-pressed="false"></button>
+          <button id="vibeBtn" class="secondary autoFireBtn" type="button" aria-pressed="true"></button>
         </div>
         <button id="pauseRetry" class="secondary" data-i18n="retry">Retry</button>
         <button id="pauseHome" class="ghost" data-i18n="home">Home</button>
@@ -963,7 +971,8 @@ window.I18N = (() => {
       raidRule5: "**No fuel drain** · win = **♥ + repair**",
       raidStart: "Start raid",
       odNext: "Overdrive ready for the next one",
-      limited: "⏳ Limited time"
+      limited: "⏳ Limited time",
+      vibeOn: "Vibration: On", vibeOff: "Vibration: Off", startFrom: "Start:", fromArea: "from {area}", bestMark: "BEST"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -1046,7 +1055,8 @@ window.I18N = (() => {
       raidRule5: "**Sin gasto de combustible** · victoria = **♥ + reparación**",
       raidStart: "Empezar incursión",
       odNext: "Overdrive listo para el siguiente",
-      limited: "⏳ Tiempo limitado"
+      limited: "⏳ Tiempo limitado",
+      vibeOn: "Vibración: Sí", vibeOff: "Vibración: No", startFrom: "Empezar:", fromArea: "desde {area}", bestMark: "RÉCORD"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -1129,7 +1139,8 @@ window.I18N = (() => {
       raidRule5: "**Pas de carburant consommé** · victoire = **♥ + réparation**",
       raidStart: "Lancer le raid",
       odNext: "Overdrive prêt pour le suivant",
-      limited: "⏳ Durée limitée"
+      limited: "⏳ Durée limitée",
+      vibeOn: "Vibration : oui", vibeOff: "Vibration : non", startFrom: "Départ :", fromArea: "depuis {area}", bestMark: "RECORD"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -1212,7 +1223,8 @@ window.I18N = (() => {
       raidRule5: "**Kein Spritverbrauch** · Sieg = **♥ + Reparatur**",
       raidStart: "Angriff starten",
       odNext: "Overdrive bereit für den nächsten",
-      limited: "⏳ Nur kurze Zeit"
+      limited: "⏳ Nur kurze Zeit",
+      vibeOn: "Vibration: An", vibeOff: "Vibration: Aus", startFrom: "Start:", fromArea: "ab {area}", bestMark: "REKORD"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -1295,7 +1307,8 @@ window.I18N = (() => {
       raidRule5: "**Sem gasto de combustível** · vitória = **♥ + conserto**",
       raidStart: "Começar ataque",
       odNext: "Overdrive pronto para o próximo",
-      limited: "⏳ Tempo limitado"
+      limited: "⏳ Tempo limitado",
+      vibeOn: "Vibração: Ligada", vibeOff: "Vibração: Desligada", startFrom: "Começar:", fromArea: "desde {area}", bestMark: "RECORDE"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -1378,7 +1391,8 @@ window.I18N = (() => {
       raidRule5: "**Niente carburante consumato** · vittoria = **♥ + riparazione**",
       raidStart: "Inizia il raid",
       odNext: "Overdrive pronto per il prossimo",
-      limited: "⏳ A tempo limitato"
+      limited: "⏳ A tempo limitato",
+      vibeOn: "Vibrazione: Sì", vibeOff: "Vibrazione: No", startFrom: "Parti da:", fromArea: "da {area}", bestMark: "RECORD"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -1461,7 +1475,8 @@ window.I18N = (() => {
       raidRule5: "**燃料減らない** · 撃墜＝**♥＋修理**",
       raidStart: "襲来スタート",
       odNext: "次の戦いにOVERDRIVEを温存",
-      limited: "⏳ 期間限定"
+      limited: "⏳ 期間限定",
+      vibeOn: "振動：オン", vibeOff: "振動：オフ", startFrom: "スタート：", fromArea: "{area}から", bestMark: "ベスト"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -1544,7 +1559,8 @@ window.I18N = (() => {
       raidRule5: "**不耗油** · 击落＝**♥＋修好**",
       raidStart: "开始空袭",
       odNext: "OVERDRIVE 留给下一架",
-      limited: "⏳ 限时"
+      limited: "⏳ 限时",
+      vibeOn: "振动：开", vibeOff: "振动：关", startFrom: "起点：", fromArea: "从{area}出发", bestMark: "最佳"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -1627,7 +1643,8 @@ window.I18N = (() => {
       raidRule5: "**연료 소모 없음** · 격추 = **♥ + 수리**",
       raidStart: "공습 시작",
       odNext: "다음 전투에 OVERDRIVE 준비",
-      limited: "⏳ 기간 한정"
+      limited: "⏳ 기간 한정",
+      vibeOn: "진동: 켜짐", vibeOff: "진동: 꺼짐", startFrom: "시작:", fromArea: "{area}부터", bestMark: "최고"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -1710,7 +1727,8 @@ window.I18N = (() => {
       raidRule5: "**ईंधन खर्च नहीं** · जीत = **♥ + मरम्मत**",
       raidStart: "हमला शुरू करो",
       odNext: "अगले के लिए OVERDRIVE तैयार",
-      limited: "⏳ सीमित समय"
+      limited: "⏳ सीमित समय",
+      vibeOn: "कंपन: चालू", vibeOff: "कंपन: बंद", startFrom: "शुरुआत:", fromArea: "{area} से", bestMark: "सर्वश्रेष्ठ"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -1795,7 +1813,8 @@ window.I18N = (() => {
       raidRule5: "**Пальне не витрачається** · перемога = **♥ + ремонт**",
       raidStart: "Почати атаку",
       odNext: "OVERDRIVE готовий до наступного",
-      limited: "⏳ Обмежений час"
+      limited: "⏳ Обмежений час",
+      vibeOn: "Вібрація: Увімк.", vibeOff: "Вібрація: Вимк.", startFrom: "Старт:", fromArea: "з {area}", bestMark: "РЕКОРД"
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -1878,7 +1897,8 @@ window.I18N = (() => {
       raidRule5: "**საწვავი არ იხარჯება** · გამარჯვება = **♥ + შეკეთება**",
       raidStart: "შეტევის დაწყება",
       odNext: "OVERDRIVE მზადაა შემდეგისთვის",
-      limited: "⏳ შეზღუდული დრო"
+      limited: "⏳ შეზღუდული დრო",
+      vibeOn: "ვიბრაცია: ჩართ.", vibeOff: "ვიბრაცია: გამორთ.", startFrom: "დაწყება:", fromArea: "{area}-დან", bestMark: "რეკორდი"
     }
   };
   const NAMES = {
@@ -2274,7 +2294,12 @@ window.LD_RULES = (() => {
   let mode = 'normal';                 // 'normal' | 'daily' | 'raid'
   // Shahed Raid: the 9 giant Shaheds back to back (no fuel drain, no levels in between), each in its
   // own area. Its own best; it doesn't touch the normal records.
-  let raidOn = false, raidWait = 0, raidAreas = [], raidOD = false;   // raidOD: Overdrive saved from the last win
+  let raidOn = false, raidWait = 0, raidAreas = [], raidOD = false;
+  // Area starts: a normal run can begin at the first level of any area you've reached.
+  let startLevel = 1;
+  const areaStart = a => a === 0 ? 1 : a * 5;
+  function reachedAreas() { const best = readNum('laneDodgerBestLevel'); return [...AREAS.keys()].filter(a => a === 0 || best >= areaStart(a)); }
+  function chosenStart() { const a = +(localStorage.getItem('ddStartArea') || 0); return reachedAreas().includes(a) ? areaStart(a) : 1; }   // raidOD: Overdrive saved from the last win
   const RAID_KEY = 'ddRaid', RAID_GAP = 2.5;         // RAID_GAP: seconds of road between one giant Shahed's victory lap and the next
   const RAID_SPEED = 0.7;                            // giant Shahed fights (and whole raids) run the road at 70% speed
   let runDay = null, twist = NO_TWIST;  // the day and twist of the run being played
@@ -2405,6 +2430,9 @@ window.LD_RULES = (() => {
   const HEART_COINS = 10;
   let heartProgress = 0, heartsEarned = 0;
 
+  // Vibration, unless switched off in Settings.
+  let vibeOn = (() => { try { return localStorage.getItem('ddVibe') !== '0'; } catch { return true; } })();
+  function buzz(p) { if (vibeOn && navigator.vibrate) try { navigator.vibrate(p); } catch {} }
   function readNum(k) { try { return +localStorage.getItem(k) || 0; } catch { return 0; } }
   function writeNum(k, v) { try { localStorage.setItem(k, v); } catch {} }
 
@@ -2631,11 +2659,13 @@ window.LD_RULES = (() => {
     objects = []; particles = []; floats = [];
     runDay = mode === 'daily' ? dayInfo() : null;
     raidOn = mode === 'raid'; raidWait = RAID_GAP; raidOD = false;
+    bestDistPx = Math.max(readNum('ddBestDist'), ...loadRuns().map(r => r.d || 0)) * PX_PER_M;   // older players: from their Records
     twist = runDay ? runDay.twist : NO_TWIST;
     roadRand = runDay ? mulberry32(runDay.seed) : Math.random;
     droneRand = runDay ? mulberry32(runDay.seed ^ 0x5bd1e995) : Math.random;
     MAX_LIVES = twist.lives || 3;
-    lives = MAX_LIVES; level = raidOn ? BOSS_FROM : twist.start || 1; speed = levelSpeed(level) * (raidOn ? RAID_SPEED : 1); slip = 0;
+    lives = MAX_LIVES; level = raidOn ? BOSS_FROM : twist.start || (mode === 'normal' ? chosenStart() : 1);
+    startLevel = level; speed = levelSpeed(level) * (raidOn ? RAID_SPEED : 1); slip = 0;
     spawnDist = 200; flash = 0; roadOffset = 0; shake = 0; planner = R.newPlanner(roadRand);
     levelDist = 0; distance = 0; bonus = 0; fuel = 100; coins = 0; coinMeter = 0; lowFuelT = 0; finishSpawned = false;
     combo = 0; comboIdle = 0; cleanLevel = true; odPhase = ''; odT = 0; odBoost = 1; overdrives = 0; warpT = 0; hurtT = 0; dents = []; smokeT = 0; rs = newRunStats(); boss = null; bossDoneLevel = 0; bossesRun = 0; whiteT = 0; sfx.pitch(1);
@@ -2703,7 +2733,7 @@ window.LD_RULES = (() => {
     if (m > before) {
       bigText(player.x, player.y - 60, '×' + m + '!', TIER_COLORS[m - 1]);
       sfx.tier(m);
-      if (navigator.vibrate) navigator.vibrate(25);
+      buzz(25);
       if (m === 2 && tip('ddTipCombo')) showBanner(t('comboTip'), t('comboTipSub'));
     }
     if (combo >= OD_AT) startOverdrive();
@@ -2719,7 +2749,7 @@ window.LD_RULES = (() => {
     warpT = 0; slowmo(OD_BUILD, OD_SLOW);
     sfx.odBuild();
     if (!quiet) showBanner(t('overdrive'), tip('ddTipOD') ? t('odSub') : '');
-    if (navigator.vibrate) navigator.vibrate([30, 60, 80]);
+    buzz([30, 60, 80]);
   }
   function updateOverdrive(dt) {
     if (odPhase === 'build') {
@@ -2767,7 +2797,7 @@ window.LD_RULES = (() => {
     sfx.odBuild();
     showBanner(t('bossBanner'), tip('ddTipBoss') ? t('bossTip', { n: ROCKET_COST }) : '', true);
     if (raidOD) { raidOD = false; combo = OD_AT; startOverdrive(true, RAID_OD_TIME); }   // raid: the last win's Overdrive opens this fight (a short one)
-    if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
+    buzz([40, 60, 40]);
   }
   function updateBoss(dt) {
     const b = boss, rage = b.hp <= b.max / 2;
@@ -2821,7 +2851,7 @@ window.LD_RULES = (() => {
     sfx.smash(); shake = Math.max(shake, 0.12);
     const pts = BOSS_HIT_PTS * level * comboMult(); bonus += pts;
     floatText(x, y - 18, '+' + num(pts), '#FFD700');
-    if (navigator.vibrate) navigator.vibrate(20);
+    buzz(20);
     if (b.hp <= 0) bossDown();
     else addCombo(BOSS_COMBO);                     // good shooting builds the combo: a run of hits sets off Overdrive mid-fight
   }
@@ -2846,7 +2876,7 @@ window.LD_RULES = (() => {
       toast('🛸 ' + t('bossNew'));
     }
     sfx.levelUp();
-    if (navigator.vibrate) navigator.vibrate([60, 40, 120]);
+    buzz([60, 40, 120]);
     if (raidOn) {
       // Raid: no road to smash after it, so the Overdrive is saved to start the next fight with free rockets.
       raidOD = true; raidWait = 1.2;
@@ -2960,7 +2990,7 @@ window.LD_RULES = (() => {
     floatText(x, o.y - 6, t('smashed') + ' +' + num(pts), '#FFD700');
     shake = Math.max(shake, 0.12);
     sfx.smash();
-    if (navigator.vibrate) navigator.vibrate(20);
+    buzz(20);
   }
   const autoChip = $('autoChip'), autoPct = $('autoPct');
   // FIRE shares its column with the auto block: if the label doesn't fit, drop the 🚀 icon, then
@@ -3155,7 +3185,7 @@ window.LD_RULES = (() => {
           if (Math.abs(player.x - lx) / laneW < 0.5) {
             fuel = Math.max(0, fuel - BOMB_FUEL); shake = 0.3; dropTier();
             floatText(player.x, player.y - 24, t('fuelFloat', { n: '−' + BOMB_FUEL }), getVar('--enemy'));
-            if (navigator.vibrate) navigator.vibrate(90);
+            buzz(90);
           }
           continue;
         }
@@ -3167,13 +3197,13 @@ window.LD_RULES = (() => {
           fuel = Math.max(0, fuel - DRONE_FUEL);
           speed *= POTHOLE_SLOW; shake = 0.45; dropTier();
           floatText(player.x, player.y - 24, t('fuelFloat', { n: '−' + DRONE_FUEL }), getVar('--enemy'));
-          if (navigator.vibrate) navigator.vibrate(150);
+          buzz(150);
         } else if (off < 1.5) {
           // Next lane over: caught by the splash. Less fuel, no slowdown, combo kept.
           fuel = Math.max(0, fuel - DRONE.splashFuel);
           shake = Math.max(shake, 0.25);
           floatText(player.x, player.y - 24, t('fuelFloat', { n: '−' + DRONE.splashFuel }), getVar('--fuel-mid'));
-          if (navigator.vibrate) navigator.vibrate(60);
+          buzz(60);
         } else {
           // Two lanes away: clean dodge.
           shake = Math.max(shake, 0.15);
@@ -3476,7 +3506,7 @@ window.LD_RULES = (() => {
       sfx.pothole();
       burst(player.x, player.y + 8, '#8b93b5', 10);
       floatText(player.x, player.y - 24, t('fuelFloat', { n: '−' + POTHOLE_FUEL }), getVar('--enemy'));
-      if (navigator.vibrate) navigator.vibrate(50);
+      buzz(50);
       return;
     }
     if (o.works) o.used = true;     // drive through the cones: one crash, the rest of the line stays put
@@ -3489,7 +3519,7 @@ window.LD_RULES = (() => {
       burst(player.x, player.y + player.h * 0.3, body, 7); burst(player.x, player.y + player.h * 0.3, '#9aa3b8', 4);
     }
     for (const c of DEBRIS[o.skin] || DEBRIS.barrier) burst(player.x, player.y + player.h / 2, c, 12);
-    if (navigator.vibrate) navigator.vibrate(120);
+    buzz(120);
     if (lives <= 0) gameOver('crash');
   }
 
@@ -3566,9 +3596,9 @@ window.LD_RULES = (() => {
     const prevBest = separate ? Infinity : readNum('laneDodgerBest');
     const best = separate ? 0 : Math.max(prevBest, s);
     const bestLevel = separate ? 0 : Math.max(readNum('laneDodgerBestLevel'), level);
-    if (!separate) { writeNum('laneDodgerBest', best); writeNum('laneDodgerBestLevel', bestLevel); }
+    if (!separate) { writeNum('laneDodgerBest', best); writeNum('laneDodgerBestLevel', bestLevel); writeNum('ddBestDist', Math.max(readNum('ddBestDist'), Math.floor(distance / PX_PER_M))); }
     if (s > 0 && !separate) {
-      const run = { s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, h: carHue, v: carShade, k: kills, o: overdrives, a: areaFor(level), tm: Math.round(runTime), no: carNo, f: carFinish, km: bossMarks().length, b: bossesRun, t: Date.now() };
+      const run = { st: startLevel, s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, h: carHue, v: carShade, k: kills, o: overdrives, a: areaFor(level), tm: Math.round(runTime), no: carNo, f: carFinish, km: bossMarks().length, b: bossesRun, t: Date.now() };
       if (saveRun(run)) latestRunT = run.t;
     }
     el.over.classList.toggle('fuel', reason === 'fuel');
@@ -3787,7 +3817,7 @@ window.LD_RULES = (() => {
   const MS_KEY = 'ddMissions';
   const MISSIONS = [
     { id: 'coins',  icon: '🪙', goals: [10, 20, 30, 45, 60, 80],          run: () => coins },
-    { id: 'level',  icon: '🏁', goals: [3, 5, 8, 12, 16, 20],              run: () => (runDay && twist.start) || raidOn ? 0 : level },
+    { id: 'level',  icon: '🏁', goals: [3, 5, 8, 12, 16, 20],              run: () => (runDay && twist.start) || raidOn || startLevel > 1 ? 0 : level },
     { id: 'dist',   icon: '🛣️', goals: [1000, 2000, 3000, 4500, 6000, 8000], run: () => Math.floor(distance / PX_PER_M) },
     { id: 'combo',  icon: '🔥', goals: [2, 3, 4, 5, 5, 5],                 run: () => rs.maxMult },
     { id: 'close',  icon: '💨', goals: [5, 10, 15, 20, 30, 40],            run: () => rs.close },
@@ -4015,7 +4045,7 @@ window.LD_RULES = (() => {
       const A = AREAS[r.a ?? areaFor(r.l)];                       // older runs: work the area out from the level
       where.className = 'where';
       where.textContent = A.icon + ' ' + t(A.key) + ' · ' + t('lv', { n: r.l });
-      trip.textContent = [t('meters', { n: r.d }), r.tm ? '⏱ ' + fmtTime(r.tm) : '', r.k > 0 ? '🎯 ' + num(r.k) : '', r.o > 0 ? '⚡ ' + num(r.o) : '', r.b > 0 ? '🛸 ' + num(r.b) : '', df.format(r.t)]
+      trip.textContent = [r.st > 1 ? t('fromArea', { area: AREAS[areaFor(r.st)].icon }) : '', t('meters', { n: r.d }), r.tm ? '⏱ ' + fmtTime(r.tm) : '', r.k > 0 ? '🎯 ' + num(r.k) : '', r.o > 0 ? '⚡ ' + num(r.o) : '', r.b > 0 ? '🛸 ' + num(r.b) : '', df.format(r.t)]
         .filter(Boolean).join(' · ');
       info.append(b, where, trip);
       li.append(rank, cv, info);
@@ -4057,6 +4087,9 @@ window.LD_RULES = (() => {
     const mine = [d.best ? '🏆 ' + num(d.best) : '', d.streak ? '🔥 ' + num(d.streak) : ''].filter(Boolean).join(' · ');
     $('dailySub').textContent = '#' + n + ' · ' + t(tw.key) + (mine ? '\n' + mine : '');
     paintMissions($('homeMissions'), true);
+    paintStartPick();
+    const rb = (() => { try { return JSON.parse(localStorage.getItem(RAID_KEY) || '{}') || {}; } catch { return {}; } })();
+    $('raidBtn').querySelector('small').textContent = rb.n ? t('raidBest', { n: rb.n, time: fmtTime(rb.tm || 0) }) : t('raidSub');
     const best = readNum('laneDodgerBest');
     const hb = $('homeBest');
     hb.hidden = !best;
@@ -5350,6 +5383,7 @@ window.LD_RULES = (() => {
     drawRoadMarkings();
     drawLook('under');                       // sunset glow / night darkness / rain tint on the ground
     drawSpeedLines();                        // streaks along the roadside as the pace builds
+    drawBestMark();                          // a line across the road where your longest run ended
 
     for (const o of objects) {
       if (o.type === 'finish') drawFinish(o.y, o.h);
@@ -5477,6 +5511,23 @@ window.LD_RULES = (() => {
     }
     ctx.restore();
   }
+  // Your longest drive so far, as a gold line across the road (normal runs only).
+  let bestDistPx = 0;
+  function drawBestMark() {
+    if (state !== 'play' || mode !== 'normal' || !bestDistPx) return;
+    const y = player.y - (bestDistPx - distance);
+    if (y < -20 || y > H + 20) return;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,213,0,.85)'; ctx.lineWidth = 3; ctx.setLineDash([12, 8]);
+    ctx.beginPath(); ctx.moveTo(vergeW, y); ctx.lineTo(W - vergeW, y); ctx.stroke();
+    ctx.setLineDash([]);
+    const label = '🏆 ' + t('bestMark');
+    ctx.font = '800 12px system-ui, sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+    ctx.fillStyle = 'rgba(11,13,23,.8)'; const tw = ctx.measureText(label).width;
+    roundRect(W - vergeW - tw - 14, y - 22, tw + 12, 18, 9); ctx.fill();
+    ctx.fillStyle = '#FFD500'; ctx.fillText(label, W - vergeW - 8, y - 6);
+    ctx.restore();
+  }
   // Overdrive: road edges pulsing in shifting colours and a bright trail streaming off the car.
   function drawOverdrive() {
     const tNow = performance.now() / 1000, hue = trailHue(0), hue2 = trailHue(3);
@@ -5577,6 +5628,21 @@ window.LD_RULES = (() => {
   I18N.onChange(() => { rocketBtn.title = t('rocketTitle', { n: ROCKET_COST }); rocketBtn.setAttribute('aria-label', rocketBtn.title); layoutEgg(); fitFire(); });
   window.addEventListener('resize', fitFire);
   $('playBtn').addEventListener('click', () => { mode = 'normal'; startPlay(); });
+  // The start picker: one small button per area reached (hidden until there's a second one).
+  function paintStartPick() {
+    const box = $('startPick'), got = reachedAreas(), cur = areaFor(chosenStart());
+    box.hidden = got.length < 2;
+    if (box.hidden) return;
+    box.textContent = '';
+    const lab = document.createElement('span'); lab.textContent = t('startFrom'); box.appendChild(lab);
+    for (const a of got) {
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = AREAS[a].icon;
+      b.title = t(AREAS[a].key) + ' · ' + t('lv', { n: areaStart(a) }); b.setAttribute('aria-label', b.title);
+      b.classList.toggle('on', a === cur);
+      b.addEventListener('click', () => { try { localStorage.setItem('ddStartArea', a); } catch {} paintStartPick(); });
+      box.appendChild(b);
+    }
+  }
   $('dailyBtn').addEventListener('click', () => { mode = 'daily'; startPlay(); });
   $('raidBtn').addEventListener('click', () => { mode = 'raid'; openRaidHelp('start'); });
   // The raid's own How to Play: before each raid, and in place of the normal one while a raid is paused.
@@ -5639,6 +5705,18 @@ window.LD_RULES = (() => {
   I18N.onChange(paintFireSide);
   paintFireSide();
   // Reduce motion: no screen shake, slow motion, camera push or pulsing.
+  const vibeBtn = $('vibeBtn');
+  function paintVibe() {
+    vibeBtn.textContent = '📳 ' + t(vibeOn ? 'vibeOn' : 'vibeOff');
+    vibeBtn.setAttribute('aria-pressed', String(vibeOn)); vibeBtn.classList.toggle('on', vibeOn);
+  }
+  vibeBtn.addEventListener('click', () => {
+    vibeOn = !vibeOn;
+    try { localStorage.setItem('ddVibe', vibeOn ? '1' : '0'); } catch {}
+    paintVibe(); buzz(40);
+  });
+  I18N.onChange(paintVibe);
+  paintVibe();
   const calmBtn = $('calmBtn');
   function paintCalm() {
     calmBtn.textContent = '🎬 ' + t(calm ? 'calmOn' : 'calmOff');
