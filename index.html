@@ -750,6 +750,10 @@
   .dailyBtn .btnIco, .raidBtn .btnIco { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 28px; line-height: 1; }
   .raidBtn { position: relative; overflow: visible; }
   .raidBtn.locked { opacity: .6; filter: grayscale(.7); }
+  .learnTip { display: grid; justify-items: center; gap: 6px; padding: 8px 10px; border-radius: 12px; background: rgba(46,204,113,.12);
+              box-shadow: inset 0 0 0 1px rgba(46,204,113,.45); font-size: 13px; font-weight: 700; width: 100%; }
+  .learnTip[hidden] { display: none; }
+  .learnTip button { margin: 0; min-height: 0; padding: 7px 16px; font-size: 14px; }
   .raidDiffWhat { font-size: 12px; color: var(--muted); font-weight: 700; margin-top: -4px; }
   .startPick .diffWhat { color: var(--muted); font-weight: 700; margin-top: -4px; }
   .raidDiff { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -1020,6 +1024,8 @@
       <p id="overDaily" class="overDaily" hidden></p>
       <p id="overTrip" class="overTrip"></p>
       <p id="bestLine"></p>
+      <div id="learnTip" class="learnTip" hidden><span data-i18n="learnTip">Finding it tough? Try Learner: a slower road.</span>
+        <button id="learnBtn" type="button" class="secondary"><span aria-hidden="true">🟢</span> <span data-i18n="learnBtn">Try Learner</span></button></div>
       <div id="overMissions" class="missions" hidden></div>
       <div class="overBtns">
         <button id="retryBtn" data-i18n="retry">Retry</button>
@@ -1131,7 +1137,8 @@ window.I18N = (() => {
       raidDiff0: "Rookie", raidDiff1: "Veteran", raidDiff2: "Legend",
       recRuns: "Runs", recRaid: "Raid", recDaily: "Daily", recNone: "Not played yet", recStreakHint: "Play a daily every day to keep it going",
       diffWhat0: "Slower road · score ×0.7", diffWhat1: "Normal speed · score ×1", diffWhat2: "Faster road · score ×1.3", raidWhat0: "Weaker giant Shaheds, fewer bombs", raidWhat1: "Standard giant Shaheds", raidWhat2: "Tougher giant Shaheds, more bombs", ok: "OK",
-      installHintFfDesk: "Firefox on computers can't install apps. Open this page in Chrome or Edge to install it, or bookmark it (Ctrl+D).", installHintFfAndroid: "To install: tap the menu (⋮) and choose “Add to Home screen”."
+      installHintFfDesk: "Firefox on computers can't install apps. Open this page in Chrome or Edge to install it, or bookmark it (Ctrl+D).", installHintFfAndroid: "To install: tap the menu (⋮) and choose “Add to Home screen”.",
+      lowFuelTip: "Low fuel! Grab coins", learnTip: "Finding it tough? Try Learner: a slower road.", learnBtn: "Try Learner"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -1225,7 +1232,8 @@ window.I18N = (() => {
       raidDiff0: "Novato", raidDiff1: "Veterano", raidDiff2: "Leyenda",
       recRuns: "Partidas", recRaid: "Incursión", recDaily: "Diario", recNone: "Aún sin jugar", recStreakHint: "Juega el diario cada día para mantenerla",
       diffWhat0: "Carretera más lenta · puntos ×0,7", diffWhat1: "Velocidad normal · puntos ×1", diffWhat2: "Carretera más rápida · puntos ×1,3", raidWhat0: "Shaheds gigantes más débiles, menos bombas", raidWhat1: "Shaheds gigantes normales", raidWhat2: "Shaheds gigantes más duros, más bombas", ok: "OK",
-      installHintFfDesk: "Firefox en ordenador no puede instalar apps. Abre esta página en Chrome o Edge para instalarla, o guárdala en marcadores (Ctrl+D).", installHintFfAndroid: "Para instalar: toca el menú (⋮) y elige «Añadir a pantalla de inicio»."
+      installHintFfDesk: "Firefox en ordenador no puede instalar apps. Abre esta página en Chrome o Edge para instalarla, o guárdala en marcadores (Ctrl+D).", installHintFfAndroid: "Para instalar: toca el menú (⋮) y elige «Añadir a pantalla de inicio».",
+      lowFuelTip: "¡Poco combustible! Coge monedas", learnTip: "¿Se te hace difícil? Prueba Aprendiz: carretera más lenta.", learnBtn: "Probar Aprendiz"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -1319,7 +1327,8 @@ window.I18N = (() => {
       raidDiff0: "Bleu", raidDiff1: "Vétéran", raidDiff2: "Légende",
       recRuns: "Parties", recRaid: "Raid", recDaily: "Défi du jour", recNone: "Pas encore joué", recStreakHint: "Joue le défi chaque jour pour la garder",
       diffWhat0: "Route plus lente · score ×0,7", diffWhat1: "Vitesse normale · score ×1", diffWhat2: "Route plus rapide · score ×1,3", raidWhat0: "Shaheds géants plus faibles, moins de bombes", raidWhat1: "Shaheds géants normaux", raidWhat2: "Shaheds géants plus coriaces, plus de bombes", ok: "OK",
-      installHintFfDesk: "Firefox sur ordinateur ne peut pas installer d'applis. Ouvre cette page dans Chrome ou Edge pour l'installer, ou ajoute-la aux favoris (Ctrl+D).", installHintFfAndroid: "Pour installer : touche le menu (⋮) et choisis « Ajouter à l'écran d'accueil »."
+      installHintFfDesk: "Firefox sur ordinateur ne peut pas installer d'applis. Ouvre cette page dans Chrome ou Edge pour l'installer, ou ajoute-la aux favoris (Ctrl+D).", installHintFfAndroid: "Pour installer : touche le menu (⋮) et choisis « Ajouter à l'écran d'accueil ».",
+      lowFuelTip: "Peu d'essence ! Prends des pièces", learnTip: "C'est dur ? Essaie Apprenti conducteur : une route plus lente.", learnBtn: "Essayer Apprenti conducteur"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -1413,7 +1422,8 @@ window.I18N = (() => {
       raidDiff0: "Rekrut", raidDiff1: "Veteran", raidDiff2: "Legende",
       recRuns: "Fahrten", recRaid: "Angriff", recDaily: "Täglich", recNone: "Noch nicht gespielt", recStreakHint: "Spiel jeden Tag die Tagesfahrt, um sie zu halten",
       diffWhat0: "Langsamere Straße · Punkte ×0,7", diffWhat1: "Normales Tempo · Punkte ×1", diffWhat2: "Schnellere Straße · Punkte ×1,3", raidWhat0: "Schwächere Riesen-Shaheds, weniger Bomben", raidWhat1: "Normale Riesen-Shaheds", raidWhat2: "Härtere Riesen-Shaheds, mehr Bomben", ok: "OK",
-      installHintFfDesk: "Firefox auf dem Computer kann keine Apps installieren. Öffne diese Seite in Chrome oder Edge, um sie zu installieren, oder setze ein Lesezeichen (Strg+D).", installHintFfAndroid: "Zum Installieren: Tippe auf das Menü (⋮) und wähle „Zum Startbildschirm hinzufügen“."
+      installHintFfDesk: "Firefox auf dem Computer kann keine Apps installieren. Öffne diese Seite in Chrome oder Edge, um sie zu installieren, oder setze ein Lesezeichen (Strg+D).", installHintFfAndroid: "Zum Installieren: Tippe auf das Menü (⋮) und wähle „Zum Startbildschirm hinzufügen“.",
+      lowFuelTip: "Wenig Sprit! Münzen holen", learnTip: "Zu schwer? Probier Fahrschüler: langsamere Straße.", learnBtn: "Fahrschüler testen"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -1507,7 +1517,8 @@ window.I18N = (() => {
       raidDiff0: "Novato", raidDiff1: "Veterano", raidDiff2: "Lenda",
       recRuns: "Corridas", recRaid: "Ataque", recDaily: "Diário", recNone: "Ainda não jogado", recStreakHint: "Jogue o diário todo dia para mantê-la",
       diffWhat0: "Estrada mais lenta · pontos ×0,7", diffWhat1: "Velocidade normal · pontos ×1", diffWhat2: "Estrada mais rápida · pontos ×1,3", raidWhat0: "Shaheds gigantes mais fracos, menos bombas", raidWhat1: "Shaheds gigantes normais", raidWhat2: "Shaheds gigantes mais duros, mais bombas", ok: "OK",
-      installHintFfDesk: "O Firefox no computador não instala apps. Abra esta página no Chrome ou no Edge para instalar, ou adicione aos favoritos (Ctrl+D).", installHintFfAndroid: "Para instalar: toque no menu (⋮) e escolha “Adicionar à tela inicial”."
+      installHintFfDesk: "O Firefox no computador não instala apps. Abra esta página no Chrome ou no Edge para instalar, ou adicione aos favoritos (Ctrl+D).", installHintFfAndroid: "Para instalar: toque no menu (⋮) e escolha “Adicionar à tela inicial”.",
+      lowFuelTip: "Pouco combustível! Pegue moedas", learnTip: "Está difícil? Tente Aprendiz: estrada mais lenta.", learnBtn: "Tentar Aprendiz"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -1601,7 +1612,8 @@ window.I18N = (() => {
       raidDiff0: "Recluta", raidDiff1: "Veterano", raidDiff2: "Leggenda",
       recRuns: "Partite", recRaid: "Raid", recDaily: "Giornaliera", recNone: "Non ancora giocato", recStreakHint: "Gioca la sfida ogni giorno per mantenerla",
       diffWhat0: "Strada più lenta · punti ×0,7", diffWhat1: "Velocità normale · punti ×1", diffWhat2: "Strada più veloce · punti ×1,3", raidWhat0: "Shahed giganti più deboli, meno bombe", raidWhat1: "Shahed giganti normali", raidWhat2: "Shahed giganti più tosti, più bombe", ok: "OK",
-      installHintFfDesk: "Firefox su computer non può installare app. Apri questa pagina in Chrome o Edge per installarla, oppure aggiungila ai segnalibri (Ctrl+D).", installHintFfAndroid: "Per installarla: tocca il menu (⋮) e scegli “Aggiungi a schermata Home”."
+      installHintFfDesk: "Firefox su computer non può installare app. Apri questa pagina in Chrome o Edge per installarla, oppure aggiungila ai segnalibri (Ctrl+D).", installHintFfAndroid: "Per installarla: tocca il menu (⋮) e scegli “Aggiungi a schermata Home”.",
+      lowFuelTip: "Poco carburante! Prendi monete", learnTip: "Troppo difficile? Prova «Foglio rosa»: strada più lenta.", learnBtn: "Prova «Foglio rosa»"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -1695,7 +1707,8 @@ window.I18N = (() => {
       raidDiff0: "ルーキー", raidDiff1: "ベテラン", raidDiff2: "レジェンド",
       recRuns: "ラン", recRaid: "襲来", recDaily: "デイリー", recNone: "まだプレイしていません", recStreakHint: "毎日デイリーを遊んで連続記録を伸ばそう",
       diffWhat0: "道路がゆっくり · スコア×0.7", diffWhat1: "通常の速さ · スコア×1", diffWhat2: "道路が速い · スコア×1.3", raidWhat0: "巨大シャヘドが弱く、爆弾が少ない", raidWhat1: "標準の巨大シャヘド", raidWhat2: "巨大シャヘドが強く、爆弾が多い", ok: "OK",
-      installHintFfDesk: "パソコン版Firefoxではアプリをインストールできません。ChromeかEdgeでこのページを開いてインストールするか、ブックマーク（Ctrl+D）してください。", installHintFfAndroid: "インストールするには：メニュー（⋮）から「ホーム画面に追加」を選択。"
+      installHintFfDesk: "パソコン版Firefoxではアプリをインストールできません。ChromeかEdgeでこのページを開いてインストールするか、ブックマーク（Ctrl+D）してください。", installHintFfAndroid: "インストールするには：メニュー（⋮）から「ホーム画面に追加」を選択。",
+      lowFuelTip: "燃料が少ない！コインを取ろう", learnTip: "難しい？仮免許を試そう：道路がゆっくり。", learnBtn: "仮免許で遊ぶ"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -1789,7 +1802,8 @@ window.I18N = (() => {
       raidDiff0: "新兵", raidDiff1: "老兵", raidDiff2: "传奇",
       recRuns: "跑局", recRaid: "空袭", recDaily: "每日", recNone: "尚未游玩", recStreakHint: "每天玩每日挑战来保持连胜",
       diffWhat0: "路速更慢 · 得分×0.7", diffWhat1: "正常速度 · 得分×1", diffWhat2: "路速更快 · 得分×1.3", raidWhat0: "巨型沙赫德更弱，炸弹更少", raidWhat1: "标准巨型沙赫德", raidWhat2: "巨型沙赫德更强，炸弹更多", ok: "好的",
-      installHintFfDesk: "电脑版 Firefox 无法安装应用。请在 Chrome 或 Edge 中打开此页面安装，或将其加入书签（Ctrl+D）。", installHintFfAndroid: "安装方法：点按菜单（⋮），选择“添加到主屏幕”。"
+      installHintFfDesk: "电脑版 Firefox 无法安装应用。请在 Chrome 或 Edge 中打开此页面安装，或将其加入书签（Ctrl+D）。", installHintFfAndroid: "安装方法：点按菜单（⋮），选择“添加到主屏幕”。",
+      lowFuelTip: "燃油不足！快吃金币", learnTip: "觉得难？试试新手司机：路速更慢。", learnBtn: "试试新手司机"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -1883,7 +1897,8 @@ window.I18N = (() => {
       raidDiff0: "신병", raidDiff1: "베테랑", raidDiff2: "전설",
       recRuns: "기록", recRaid: "공습", recDaily: "일일", recNone: "아직 플레이 안 함", recStreakHint: "매일 일일 도전을 플레이해 이어가세요",
       diffWhat0: "느린 도로 · 점수 ×0.7", diffWhat1: "보통 속도 · 점수 ×1", diffWhat2: "빠른 도로 · 점수 ×1.3", raidWhat0: "약한 거대 샤헤드, 폭탄 적음", raidWhat1: "표준 거대 샤헤드", raidWhat2: "강한 거대 샤헤드, 폭탄 많음", ok: "확인",
-      installHintFfDesk: "컴퓨터용 Firefox는 앱을 설치할 수 없어요. Chrome이나 Edge에서 이 페이지를 열어 설치하거나 북마크(Ctrl+D)하세요.", installHintFfAndroid: "설치하려면: 메뉴(⋮)를 탭하고 ‘홈 화면에 추가’를 선택하세요."
+      installHintFfDesk: "컴퓨터용 Firefox는 앱을 설치할 수 없어요. Chrome이나 Edge에서 이 페이지를 열어 설치하거나 북마크(Ctrl+D)하세요.", installHintFfAndroid: "설치하려면: 메뉴(⋮)를 탭하고 ‘홈 화면에 추가’를 선택하세요.",
+      lowFuelTip: "연료 부족! 코인을 모으세요", learnTip: "어렵나요? 초보 운전으로 해 보세요: 느린 도로.", learnBtn: "초보 운전으로 하기"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -1977,7 +1992,8 @@ window.I18N = (() => {
       raidDiff0: "नौसिखिया", raidDiff1: "अनुभवी", raidDiff2: "दिग्गज",
       recRuns: "दौड़ें", recRaid: "हमला", recDaily: "दैनिक", recNone: "अभी खेला नहीं", recStreakHint: "इसे बनाए रखने के लिए रोज़ दैनिक खेलें",
       diffWhat0: "धीमी सड़क · स्कोर ×0.7", diffWhat1: "सामान्य रफ़्तार · स्कोर ×1", diffWhat2: "तेज़ सड़क · स्कोर ×1.3", raidWhat0: "कमज़ोर विशाल शाहेद, कम बम", raidWhat1: "सामान्य विशाल शाहेद", raidWhat2: "मज़बूत विशाल शाहेद, ज़्यादा बम", ok: "ठीक है",
-      installHintFfDesk: "कंप्यूटर पर Firefox ऐप इंस्टॉल नहीं कर सकता। इंस्टॉल करने के लिए यह पेज Chrome या Edge में खोलें, या इसे बुकमार्क करें (Ctrl+D)।", installHintFfAndroid: "इंस्टॉल करने के लिए: मेनू (⋮) पर टैप करें और “होम स्क्रीन पर जोड़ें” चुनें।"
+      installHintFfDesk: "कंप्यूटर पर Firefox ऐप इंस्टॉल नहीं कर सकता। इंस्टॉल करने के लिए यह पेज Chrome या Edge में खोलें, या इसे बुकमार्क करें (Ctrl+D)।", installHintFfAndroid: "इंस्टॉल करने के लिए: मेनू (⋮) पर टैप करें और “होम स्क्रीन पर जोड़ें” चुनें।",
+      lowFuelTip: "ईंधन कम! सिक्के लो", learnTip: "मुश्किल लग रहा है? लर्नर ड्राइवर आज़माओ: धीमी सड़क।", learnBtn: "लर्नर ड्राइवर आज़माओ"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -2073,7 +2089,8 @@ window.I18N = (() => {
       raidDiff0: "Новобранець", raidDiff1: "Ветеран", raidDiff2: "Легенда",
       recRuns: "Заїзди", recRaid: "Атака", recDaily: "Щоденне", recNone: "Ще не грали", recStreakHint: "Грай щоденне щодня, щоб не перервати серію",
       diffWhat0: "Повільніша дорога · очки ×0,7", diffWhat1: "Звичайна швидкість · очки ×1", diffWhat2: "Швидша дорога · очки ×1,3", raidWhat0: "Слабші гігантські шахеди, менше бомб", raidWhat1: "Звичайні гігантські шахеди", raidWhat2: "Міцніші гігантські шахеди, більше бомб", ok: "OK",
-      installHintFfDesk: "Firefox на комп'ютері не може встановлювати застосунки. Відкрий цю сторінку в Chrome або Edge, щоб встановити, або додай у закладки (Ctrl+D).", installHintFfAndroid: "Щоб встановити: торкнись меню (⋮) і вибери «Додати на головний екран»."
+      installHintFfDesk: "Firefox на комп'ютері не може встановлювати застосунки. Відкрий цю сторінку в Chrome або Edge, щоб встановити, або додай у закладки (Ctrl+D).", installHintFfAndroid: "Щоб встановити: торкнись меню (⋮) і вибери «Додати на головний екран».",
+      lowFuelTip: "Мало пального! Збирай монети", learnTip: "Важко? Спробуй «Учень водія»: повільніша дорога.", learnBtn: "Спробувати «Учень водія»"
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -2167,7 +2184,8 @@ window.I18N = (() => {
       raidDiff0: "ახალბედა", raidDiff1: "ვეტერანი", raidDiff2: "ლეგენდა",
       recRuns: "რბოლები", recRaid: "შეტევა", recDaily: "დღიური", recNone: "ჯერ არ გითამაშია", recStreakHint: "ითამაშე დღიური ყოველდღე, რომ სერია გააგრძელო",
       diffWhat0: "ნელი გზა · ქულა ×0,7", diffWhat1: "ჩვეულებრივი სიჩქარე · ქულა ×1", diffWhat2: "სწრაფი გზა · ქულა ×1,3", raidWhat0: "სუსტი გიგანტური შაჰედები, ნაკლები ბომბი", raidWhat1: "ჩვეულებრივი გიგანტური შაჰედები", raidWhat2: "ძლიერი გიგანტური შაჰედები, მეტი ბომბი", ok: "კარგი",
-      installHintFfDesk: "კომპიუტერზე Firefox ვერ აყენებს აპებს. დასაყენებლად გახსენი ეს გვერდი Chrome-ში ან Edge-ში, ან დაამატე სანიშნეებში (Ctrl+D).", installHintFfAndroid: "დასაყენებლად: შეეხე მენიუს (⋮) და აირჩიე „მთავარ ეკრანზე დამატება“."
+      installHintFfDesk: "კომპიუტერზე Firefox ვერ აყენებს აპებს. დასაყენებლად გახსენი ეს გვერდი Chrome-ში ან Edge-ში, ან დაამატე სანიშნეებში (Ctrl+D).", installHintFfAndroid: "დასაყენებლად: შეეხე მენიუს (⋮) და აირჩიე „მთავარ ეკრანზე დამატება“.",
+      lowFuelTip: "საწვავი ცოტაა! შეაგროვე მონეტები", learnTip: "რთულია? სცადე მოსწავლე მძღოლი: ნელი გზა.", learnBtn: "სცადე მოსწავლე მძღოლი"
     }
   };
   const NAMES = {
@@ -2486,7 +2504,7 @@ window.LD_RULES = (() => {
   let state = 'home'; // home | menu (how-to-play) | countdown | play | stall | over | bye
   let player, objects, particles, floats, lives, speed, spawnDist, flash, roadOffset, shake, last;
   let planner; // row planner state (see LD_RULES.planRow)
-  let level, levelDist, distance, bonus, fuel, coins, coinMeter, finishSpawned, stallT, lowFuelT = 0;
+  let level, levelDist, distance, bonus, fuel, coins, coinMeter, finishSpawned, stallT, lowFuelT = 0, lowWarned = false;
   let countT = 0, shownCount = null;
 
   // ---- The journey: every 5 levels the road passes into a new area of the country ----
@@ -2961,7 +2979,7 @@ window.LD_RULES = (() => {
     runDiffI = mode === 'daily' ? 1 : diffI; runDiff = DIFFS[runDiffI];
     startLevel = level; speed = levelSpeed(level) * (raidOn ? RAID_SPEED : 1) * runDiff.speed; slip = 0;
     spawnDist = 200; flash = 0; roadOffset = 0; shake = 0; planner = R.newPlanner(roadRand);
-    levelDist = 0; distance = 0; bonus = 0; fuel = 100; coins = 0; coinMeter = 0; lowFuelT = 0; finishSpawned = false;
+    levelDist = 0; distance = 0; bonus = 0; fuel = 100; coins = 0; coinMeter = 0; lowFuelT = 0; lowWarned = false; finishSpawned = false;
     combo = 0; comboIdle = 0; cleanLevel = true; odPhase = ''; odT = 0; odBoost = 1; overdrives = 0; warpT = 0; hurtT = 0; dents = []; smokeT = 0; rs = newRunStats(); boss = null; bossDoneLevel = 0; bossesRun = 0; whiteT = 0; sfx.pitch(1);
     // One rocket loaded from the start, so the first Shahed (7 s in, before 3 coins are usually collected) can be shot down.
     drones = []; rockets = []; booms = []; wallet = ROCKET_COST; droneT = twist.swarm ? 4 : 7; droneSeen = false; kills = 0; droneQueue = []; resuming = false; runTime = 0; carNo = 1 + Math.floor(Math.random() * 99);
@@ -3882,6 +3900,13 @@ window.LD_RULES = (() => {
       const run = { df: runDiffI, st: startLevel, s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, h: carHue, v: carShade, k: kills, o: overdrives, a: areaFor(level), tm: Math.round(runTime), no: carNo, f: carFinish, tr: carTrail(), km: bossMarks().length, b: bossesRun, t: Date.now() };
       if (saveRun(run)) latestRunT = run.t;
     }
+    // two quick game overs in a row (normal runs, not on Learner): suggest Learner, a few times at most
+    let quick = 0; try { quick = +sessionStorage.getItem('ddQuick') || 0; } catch {}
+    quick = !separate && diffI !== 0 && runTime < 60 && level <= 4 ? quick + 1 : 0;
+    try { sessionStorage.setItem('ddQuick', quick); } catch {}
+    const shown = readNum('ddLearnTip');
+    $('learnTip').hidden = !(quick >= 2 && shown < 3);
+    if (!$('learnTip').hidden) { writeNum('ddLearnTip', shown + 1); try { sessionStorage.setItem('ddQuick', 0); } catch {} }
     el.over.classList.toggle('fuel', reason === 'fuel');
     $('overTitle').textContent = t(reason === 'raid' ? 'raidDone' : reason === 'fuel' ? 'outOfFuel' : 'crashed');
     if (!separate) $('newBest').hidden = !(s > prevBest && s > 0);
@@ -4664,7 +4689,9 @@ window.LD_RULES = (() => {
     flash = Math.max(0, flash - dt);
     slidePlayer(dt);
 
-    if (!odPhase && !boss && !raidOn) fuel = Math.max(0, fuel - fuelDrain(level) * dt);   // Overdrive, finales and raids burn no fuel
+    // first levels burn less (75% at LV 1, full from LV 5), so new players learn the road before fuel bites
+    const fuelEase = level < 5 ? 0.75 + 0.0625 * (level - 1) : 1;
+    if (!odPhase && !boss && !raidOn) fuel = Math.max(0, fuel - fuelDrain(level) * fuelEase * dt);   // Overdrive, finales and raids burn no fuel
     if (raidOn) { if (!boss && !odPhase && (raidWait -= dt) <= 0) { if (bossDoneLevel === level) raidNext(); else startBoss(); } }
     else if (!boss && level % 5 === 4 && level >= BOSS_FROM && bossDoneLevel !== level && levelDist >= levelLength(level) * PX_PER_M * BOSS_AT) startBoss();
     if (boss) updateBoss(dt);
@@ -4676,9 +4703,10 @@ window.LD_RULES = (() => {
     }
     // Warning beeps while low, faster when nearly empty.
     if (fuel <= 25) {
+      if (!lowWarned) { lowWarned = true; floatText(player.x, player.y - 80, '⛽ ' + t('lowFuelTip'), '#ff6b6b'); buzz(60); }
       lowFuelT -= dt;
       if (lowFuelT <= 0) { sfx.lowFuel(); lowFuelT = fuel <= 10 ? 0.8 : 1.6; }
-    } else lowFuelT = 0;
+    } else { lowFuelT = 0; if (fuel > 35) lowWarned = false; }
     if (fuel <= 0) {
       state = 'stall'; stallT = 1.4; breakCombo();
       sfx.outOfFuel();
@@ -5937,6 +5965,12 @@ window.LD_RULES = (() => {
     }
     ctx.globalAlpha = 1;
     ctx.restore();
+    if (state === 'playing' && fuel <= 25 && !odPhase && !boss && !raidOn) {   // low fuel: red pulse round the edges
+      const k = (0.5 + 0.5 * Math.sin(performance.now() / (fuel <= 10 ? 110 : 220))) * (calm ? 0.35 : 1);
+      const g = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.45, W / 2, H / 2, Math.max(W, H) * 0.75);
+      g.addColorStop(0, 'rgba(255,40,40,0)'); g.addColorStop(1, `rgba(255,40,40,${(0.12 + 0.18 * k).toFixed(3)})`);
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    }
     if (whiteT > 0) { ctx.fillStyle = `rgba(255,255,255,${(whiteT / 0.3 * 0.7).toFixed(3)})`; ctx.fillRect(0, 0, W, H); }   // giant Shahed down
     if (hurtT > 0) {                          // lost a life: red glow round the edges
       const g = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75);
@@ -6085,6 +6119,10 @@ window.LD_RULES = (() => {
 
   $('startBtn').addEventListener('click', closeHelp);
   $('retryBtn').addEventListener('click', restart);
+  $('learnBtn').addEventListener('click', () => {               // switch to Learner and go again
+    diffI = 0; try { localStorage.setItem('ddDiff', 0); } catch {}
+    writeNum('ddLearnTip', 3); $('learnTip').hidden = true; restart();
+  });
   $('pauseBtn').addEventListener('click', () => { pauseGame(); $('pauseBtn').blur(); });
   $('resumeBtn').addEventListener('click', resumeGame);
   $('pauseRetry').addEventListener('click', restart);
