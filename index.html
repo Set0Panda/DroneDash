@@ -203,7 +203,8 @@
   #prog { background: var(--ua-blue-lt); }
   #fuel { background: var(--fuel); }
   .small { flex: none; width: 54px; text-align: right; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
-  #pips { flex: none; width: 54px; display: flex; justify-content: flex-end; gap: 3px; }
+  #pips { flex: none; width: 66px; display: flex; justify-content: flex-end; align-items: center; gap: 3px; }
+  #pips::before { content: '⛽'; font-size: 10px; margin-right: 1px; }   /* coins towards the next fuel top-up */
   #pips i { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--coin); opacity: .45; }
   #pips i.on { background: var(--coin); opacity: 1; }
   #pips.full i { animation: pipFlash .6s ease-out; }
@@ -650,12 +651,15 @@
   .recCard { gap: 12px; }
   /* Upgrades: every car upgrade, greyed until you've reached its level */
   .menuRow.three { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  /* How to Play: the combo badge as it looks next to the score */
+  .comboIco { font-style: normal; font-weight: 800; font-size: 11px; color: #0f1220; background: var(--ua-yellow); border-radius: 5px; padding: 1px 4px; }
   /* Start from an area you've reached */
   .startPick { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 5px; margin-top: -4px; }
   .startPick span { font-size: 12px; font-weight: 800; color: var(--muted); margin-right: 2px; }
   .startPick button { margin: 0; width: 30px; height: 30px; min-height: 0; padding: 0; border-radius: 9px; font-size: 16px; line-height: 1;
                       background: rgba(255,255,255,.08); box-shadow: none; }
   .startPick button.on { background: var(--ua-yellow); }
+  .startPick small { flex-basis: 100%; text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); }
   .raidBtn { display: grid; gap: 1px; justify-items: center; padding-top: 7px; padding-bottom: 7px; font-size: 15px; }
   .raidBtn small { font-size: 11px; font-weight: 700; opacity: .8; }
   .raidBtn { position: relative; overflow: visible; }
@@ -727,7 +731,7 @@
       <button id="playBtn">▶ <span data-i18n="play">Play</span></button>
       <div id="startPick" class="startPick" hidden></div>
       <button id="dailyBtn" class="secondary dailyBtn" type="button"><span>📅 <span data-i18n="daily">Daily challenge</span></span><small id="dailySub"></small></button>
-      <button id="raidBtn" class="secondary raidBtn" type="button"><b class="limited" data-i18n="limited">⏳ Limited time</b><span>🛸 <span data-i18n="raidBtn">Shahed Raid</span></span><small data-i18n="raidSub">All the giant Shaheds, back to back</small></button>
+      <button id="raidBtn" class="secondary raidBtn" type="button"><b class="limited" data-i18n="limited">🆕 New</b><span>🛸 <span data-i18n="raidBtn">Shahed Raid</span></span><small data-i18n="raidSub">All the giant Shaheds, back to back</small></button>
       <div id="homeMissions" class="missions"></div>
       <div class="menuRow three">
         <button id="garageBtn" class="secondary" type="button"><i class="swatch"></i><span data-i18n="colourBtn">Paint</span></button>
@@ -826,11 +830,12 @@
       <p class="lead"><span data-i18n="lead1">Tap or drag to change lanes.</span></p>
       <ul class="rules">
         <li><span class="ico"><span class="ico flag"></span></span><span data-i18n="rule1" data-rich><b>Checkpoints</b> = next level, faster</span></li>
-        <li><span class="ico"><span class="ico fuel"></span></span><span data-i18n="rule2" data-rich><b>Fuel</b> drains · <b>5 coins</b> = +40%</span></li>
+        <li><span class="ico autoIco">⛽</span><span data-i18n="rule2" data-rich><b>Fuel</b> drains · <b>5 coins</b> = +40%</span></li>
         <li><span class="ico"><span class="ico block"></span></span><span data-i18n="rule4" data-rich><b>3 crashes</b> = out · <b>10 coins</b> = a <b>♥</b> (fixes the car)</span></li>
         <li><span class="ico"><span class="ico hole"></span></span><span data-i18n="rule5" data-rich><b>Potholes</b> = −8% fuel</span></li>
-        <li><span class="ico"><span class="ico drone"></span></span><span data-i18n="rule6" data-rich><b>FIRE</b> (3 coins) shoots <b>Shaheds</b> and barriers</span></li>
-        <li><span class="ico autoIco">🔥</span><span data-i18n="ruleCombo" data-rich><b>Combo</b>: coins, near misses and drones fill it · <b>max = OVERDRIVE</b></span></li>
+        <li><span class="ico autoIco">🚀</span><span data-i18n="rule6" data-rich><b>FIRE</b> (3 coins) shoots <b>Shaheds</b> and barriers</span></li>
+        <li><span class="ico autoIco">🛸</span><span data-i18n="ruleBoss" data-rich><b>Area end</b> = giant Shahed · get under it and <b>FIRE</b></span></li>
+        <li><span class="ico"><i class="comboIco">×2</i></span><span data-i18n="ruleCombo" data-rich><b>Combo</b>: coins, near misses and drones fill it · <b>max = OVERDRIVE</b></span></li>
         <li><span class="ico autoIco">🤖</span><span data-i18n="ruleAuto" data-rich><b>Auto-fire</b>: aims for you, better with a combo</span></li>
       </ul>
       <p class="keys" data-i18n="keys">Keyboard: ← → or A / D · Space fire · P pause · M mute</p>
@@ -971,8 +976,9 @@ window.I18N = (() => {
       raidRule5: "**No fuel drain** · win = **♥ + repair**",
       raidStart: "Start raid",
       odNext: "Overdrive ready for the next one",
-      limited: "⏳ Limited time",
-      vibeOn: "Vibration: On", vibeOff: "Vibration: Off", startFrom: "Start:", fromArea: "from {area}", bestMark: "BEST"
+      limited: "🆕 New",
+      vibeOn: "Vibration: On", vibeOff: "Vibration: Off", startFrom: "Start:", fromArea: "from {area}", bestMark: "BEST",
+      killMarks: "{n}/{total} kill marks", ruleBoss: "**Area end** = giant Shahed · get under it and **FIRE**"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -1055,8 +1061,9 @@ window.I18N = (() => {
       raidRule5: "**Sin gasto de combustible** · victoria = **♥ + reparación**",
       raidStart: "Empezar incursión",
       odNext: "Overdrive listo para el siguiente",
-      limited: "⏳ Tiempo limitado",
-      vibeOn: "Vibración: Sí", vibeOff: "Vibración: No", startFrom: "Empezar:", fromArea: "desde {area}", bestMark: "RÉCORD"
+      limited: "🆕 Nuevo",
+      vibeOn: "Vibración: Sí", vibeOff: "Vibración: No", startFrom: "Empezar:", fromArea: "desde {area}", bestMark: "RÉCORD",
+      killMarks: "{n}/{total} marcas de derribo", ruleBoss: "**Fin de zona** = Shahed gigante · ponte debajo y **DISPARA**"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -1139,8 +1146,9 @@ window.I18N = (() => {
       raidRule5: "**Pas de carburant consommé** · victoire = **♥ + réparation**",
       raidStart: "Lancer le raid",
       odNext: "Overdrive prêt pour le suivant",
-      limited: "⏳ Durée limitée",
-      vibeOn: "Vibration : oui", vibeOff: "Vibration : non", startFrom: "Départ :", fromArea: "depuis {area}", bestMark: "RECORD"
+      limited: "🆕 Nouveau",
+      vibeOn: "Vibration : oui", vibeOff: "Vibration : non", startFrom: "Départ :", fromArea: "depuis {area}", bestMark: "RECORD",
+      killMarks: "{n}/{total} marques de victoire", ruleBoss: "**Fin de zone** = Shahed géant · place-toi dessous et **FEU**"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -1223,8 +1231,9 @@ window.I18N = (() => {
       raidRule5: "**Kein Spritverbrauch** · Sieg = **♥ + Reparatur**",
       raidStart: "Angriff starten",
       odNext: "Overdrive bereit für den nächsten",
-      limited: "⏳ Nur kurze Zeit",
-      vibeOn: "Vibration: An", vibeOff: "Vibration: Aus", startFrom: "Start:", fromArea: "ab {area}", bestMark: "REKORD"
+      limited: "🆕 Neu",
+      vibeOn: "Vibration: An", vibeOff: "Vibration: Aus", startFrom: "Start:", fromArea: "ab {area}", bestMark: "REKORD",
+      killMarks: "{n}/{total} Abschussmarken", ruleBoss: "**Gebietsende** = Riesen-Shahed · darunter stellen und **FEUER**"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -1307,8 +1316,9 @@ window.I18N = (() => {
       raidRule5: "**Sem gasto de combustível** · vitória = **♥ + conserto**",
       raidStart: "Começar ataque",
       odNext: "Overdrive pronto para o próximo",
-      limited: "⏳ Tempo limitado",
-      vibeOn: "Vibração: Ligada", vibeOff: "Vibração: Desligada", startFrom: "Começar:", fromArea: "desde {area}", bestMark: "RECORDE"
+      limited: "🆕 Novo",
+      vibeOn: "Vibração: Ligada", vibeOff: "Vibração: Desligada", startFrom: "Começar:", fromArea: "desde {area}", bestMark: "RECORDE",
+      killMarks: "{n}/{total} marcas de abate", ruleBoss: "**Fim da área** = Shahed gigante · fique embaixo e **DISPARE**"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -1391,8 +1401,9 @@ window.I18N = (() => {
       raidRule5: "**Niente carburante consumato** · vittoria = **♥ + riparazione**",
       raidStart: "Inizia il raid",
       odNext: "Overdrive pronto per il prossimo",
-      limited: "⏳ A tempo limitato",
-      vibeOn: "Vibrazione: Sì", vibeOff: "Vibrazione: No", startFrom: "Parti da:", fromArea: "da {area}", bestMark: "RECORD"
+      limited: "🆕 Nuovo",
+      vibeOn: "Vibrazione: Sì", vibeOff: "Vibrazione: No", startFrom: "Parti da:", fromArea: "da {area}", bestMark: "RECORD",
+      killMarks: "{n}/{total} segni di abbattimento", ruleBoss: "**Fine zona** = Shahed gigante · mettiti sotto e **FUOCO**"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -1475,8 +1486,9 @@ window.I18N = (() => {
       raidRule5: "**燃料減らない** · 撃墜＝**♥＋修理**",
       raidStart: "襲来スタート",
       odNext: "次の戦いにOVERDRIVEを温存",
-      limited: "⏳ 期間限定",
-      vibeOn: "振動：オン", vibeOff: "振動：オフ", startFrom: "スタート：", fromArea: "{area}から", bestMark: "ベスト"
+      limited: "🆕 新登場",
+      vibeOn: "振動：オン", vibeOff: "振動：オフ", startFrom: "スタート：", fromArea: "{area}から", bestMark: "ベスト",
+      killMarks: "撃墜マーク {n}/{total}", ruleBoss: "**エリアの最後**＝巨大シャヘド · 真下で**発射**"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -1559,8 +1571,9 @@ window.I18N = (() => {
       raidRule5: "**不耗油** · 击落＝**♥＋修好**",
       raidStart: "开始空袭",
       odNext: "OVERDRIVE 留给下一架",
-      limited: "⏳ 限时",
-      vibeOn: "振动：开", vibeOff: "振动：关", startFrom: "起点：", fromArea: "从{area}出发", bestMark: "最佳"
+      limited: "🆕 新",
+      vibeOn: "振动：开", vibeOff: "振动：关", startFrom: "起点：", fromArea: "从{area}出发", bestMark: "最佳",
+      killMarks: "击落标记 {n}/{total}", ruleBoss: "**区域尽头**＝巨型沙赫德 · 开到它下方**发射**"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -1643,8 +1656,9 @@ window.I18N = (() => {
       raidRule5: "**연료 소모 없음** · 격추 = **♥ + 수리**",
       raidStart: "공습 시작",
       odNext: "다음 전투에 OVERDRIVE 준비",
-      limited: "⏳ 기간 한정",
-      vibeOn: "진동: 켜짐", vibeOff: "진동: 꺼짐", startFrom: "시작:", fromArea: "{area}부터", bestMark: "최고"
+      limited: "🆕 신규",
+      vibeOn: "진동: 켜짐", vibeOff: "진동: 꺼짐", startFrom: "시작:", fromArea: "{area}부터", bestMark: "최고",
+      killMarks: "격추 마크 {n}/{total}", ruleBoss: "**구역 끝** = 거대 샤헤드 · 밑으로 가서 **발사**"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -1727,8 +1741,9 @@ window.I18N = (() => {
       raidRule5: "**ईंधन खर्च नहीं** · जीत = **♥ + मरम्मत**",
       raidStart: "हमला शुरू करो",
       odNext: "अगले के लिए OVERDRIVE तैयार",
-      limited: "⏳ सीमित समय",
-      vibeOn: "कंपन: चालू", vibeOff: "कंपन: बंद", startFrom: "शुरुआत:", fromArea: "{area} से", bestMark: "सर्वश्रेष्ठ"
+      limited: "🆕 नया",
+      vibeOn: "कंपन: चालू", vibeOff: "कंपन: बंद", startFrom: "शुरुआत:", fromArea: "{area} से", bestMark: "सर्वश्रेष्ठ",
+      killMarks: "{n}/{total} किल मार्क", ruleBoss: "**इलाके का अंत** = विशाल शाहेद · नीचे आकर **फ़ायर**"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -1813,8 +1828,9 @@ window.I18N = (() => {
       raidRule5: "**Пальне не витрачається** · перемога = **♥ + ремонт**",
       raidStart: "Почати атаку",
       odNext: "OVERDRIVE готовий до наступного",
-      limited: "⏳ Обмежений час",
-      vibeOn: "Вібрація: Увімк.", vibeOff: "Вібрація: Вимк.", startFrom: "Старт:", fromArea: "з {area}", bestMark: "РЕКОРД"
+      limited: "🆕 Нове",
+      vibeOn: "Вібрація: Увімк.", vibeOff: "Вібрація: Вимк.", startFrom: "Старт:", fromArea: "з {area}", bestMark: "РЕКОРД",
+      killMarks: "{n}/{total} позначок збиття", ruleBoss: "**Кінець зони** = гігантський шахед · стань під ним і **ПУСК**"
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -1897,8 +1913,9 @@ window.I18N = (() => {
       raidRule5: "**საწვავი არ იხარჯება** · გამარჯვება = **♥ + შეკეთება**",
       raidStart: "შეტევის დაწყება",
       odNext: "OVERDRIVE მზადაა შემდეგისთვის",
-      limited: "⏳ შეზღუდული დრო",
-      vibeOn: "ვიბრაცია: ჩართ.", vibeOff: "ვიბრაცია: გამორთ.", startFrom: "დაწყება:", fromArea: "{area}-დან", bestMark: "რეკორდი"
+      limited: "🆕 ახალი",
+      vibeOn: "ვიბრაცია: ჩართ.", vibeOff: "ვიბრაცია: გამორთ.", startFrom: "დაწყება:", fromArea: "{area}-დან", bestMark: "რეკორდი",
+      killMarks: "{n}/{total} ნიშანი", ruleBoss: "**ზონის ბოლო** = გიგანტური შაჰედი · დადექი ქვეშ და **ესროლე**"
     }
   };
   const NAMES = {
@@ -3027,7 +3044,7 @@ window.LD_RULES = (() => {
     // The dots already show progress to the next rocket and the FIRE badge shows how many
     // are ready, so the text is only for the Shahed alert, or MAX when no more can be banked.
     set(eggNext, incoming ? (n > 0 && autoFire ? t('shahedBanner') : t(n > 0 ? 'droneAlert' : 'droneNoRocket')) : '');
-    set(autoPct, autoFire && !boss ? Math.round((1 - autoMiss()) * 100) + '%' : '✕');   // off during a giant Shahed fight
+    set(autoPct, autoFire && !boss ? '🎯' + Math.round((1 - autoMiss()) * 100) + '%' : '✕');   // its chance to hit   // off during a giant Shahed fight
     autoChip.classList.toggle('on', autoFire && !boss);
   }
   // The bar only exists in Ukrainian; it takes room from the road, so re-measure the canvas.
@@ -4094,7 +4111,7 @@ window.LD_RULES = (() => {
     const hb = $('homeBest');
     hb.hidden = !best;
     const km = bossMarks().length;
-    hb.textContent = t('homeBest', { best, level: Math.max(1, readNum('laneDodgerBestLevel')) }) + (km ? ' · 🛸 ' + km + '/' + BOSS_TOTAL : '');
+    hb.textContent = t('homeBest', { best, level: Math.max(1, readNum('laneDodgerBestLevel')) }) + (km ? ' · 🛸 ' + t('killMarks', { n: km, total: BOSS_TOTAL }) : '');
   }
   // Play: the how-to-play popup the first time, straight to 3-2-1-GO after that.
   // The popup can also be opened from the home screen's ? button or the pause menu;
@@ -5642,6 +5659,9 @@ window.LD_RULES = (() => {
       b.addEventListener('click', () => { try { localStorage.setItem('ddStartArea', a); } catch {} paintStartPick(); });
       box.appendChild(b);
     }
+    const name = document.createElement('small');                 // icons alone don't say much on a phone
+    name.textContent = AREAS[cur].icon + ' ' + t(AREAS[cur].key) + ' · ' + t('lv', { n: areaStart(cur) });
+    box.appendChild(name);
   }
   $('dailyBtn').addEventListener('click', () => { mode = 'daily'; startPlay(); });
   $('raidBtn').addEventListener('click', () => { mode = 'raid'; openRaidHelp('start'); });
