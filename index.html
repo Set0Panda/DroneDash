@@ -773,11 +773,21 @@
   .menuBtns > * { min-width: 0; }
   .upCard { gap: 10px; }
   .upSub { font-size: 13px; color: var(--muted) !important; margin: -4px 0 0 !important; }
-  .upGrid { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .upGrid { width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
+  /* the goal up top: your car now, the next upgrade and how close you are */
+  .upHero { width: 100%; display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 14px; text-align: left;
+            background: rgba(0,87,183,.25); box-shadow: inset 0 0 0 2px var(--ua-yellow); }
+  .upHero canvas { flex: none; background: var(--road); border-radius: 10px; }
+  .upHeroInfo { min-width: 0; flex: 1; display: grid; gap: 6px; }
+  .upHeroInfo b { font-size: 15px; line-height: 1.2; }
+  .upHeroInfo small { font-size: 12px; color: var(--muted); font-weight: 700; }
+  .upBar { height: 10px; border-radius: 5px; background: rgba(255,255,255,.12); overflow: hidden; }
+  .upBar i { display: block; height: 100%; background: linear-gradient(90deg, var(--ua-blue-lt), var(--ua-yellow)); border-radius: 5px; }
   .upTile { display: grid; justify-items: center; gap: 1px; padding: 5px 2px 6px; border-radius: 10px; background: rgba(255,255,255,.06); }
-  .upTile b { font-size: 11px; line-height: 1.15; text-align: center; }
+  .upTile b { font-size: 10px; line-height: 1.15; text-align: center; overflow-wrap: anywhere; }
   .upTile small { font-size: 10px; color: var(--muted); }
-  .upTile.locked canvas { filter: grayscale(1); opacity: .35; }
+  .upTile.locked canvas { filter: grayscale(1); opacity: .22; transform: scale(.8); }
+  .upTile.locked { background: rgba(255,255,255,.03); }
   .upTile.locked b { color: var(--muted); font-weight: 700; }
   .upTile.next { box-shadow: inset 0 0 0 2px var(--ua-yellow); }
   .upTile { cursor: pointer; }
@@ -888,6 +898,10 @@
     <div class="card upCard" role="dialog" aria-labelledby="upTitle">
       <h1 id="upTitle">🎁 <span data-i18n="upgradesBtn">Upgrades</span></h1>
       <p id="upSub" class="upSub"></p>
+      <div id="upHero" class="upHero">
+        <canvas id="upHeroCar"></canvas>
+        <div class="upHeroInfo"><b id="upHeroNext"></b><div class="upBar"><i id="upBarFill"></i></div><small id="upHeroLv"></small></div>
+      </div>
       <div id="upGrid" class="upGrid"></div>
       <div id="upPeek" role="dialog" aria-modal="true" aria-labelledby="peekName" hidden>
         <div class="peekCard"><canvas id="peekCar"></canvas><b id="peekName"></b><small id="peekLv"></small>
@@ -4415,6 +4429,13 @@ window.LD_RULES = (() => {
     const best = Math.max(1, readNum('laneDodgerBestLevel')), grid = $('upGrid');
     const got = UPGRADES.filter(u => u.level <= best).length, next = UPGRADES.find(u => u.level > best);
     $('upSub').textContent = t('upCount', { n: got, total: UPGRADES.length, best });
+    // the goal: your car now, the next upgrade, and a bar from the last one you got to it
+    paintCarOn($('upHeroCar'), 66, 88, carPaint(carHue, carShade), best, 0.92, carNo);
+    const prevLv = next ? Math.max(1, ...UPGRADES.filter(u => u.level <= best).map(u => u.level), 1) : 0;
+    $('upHeroNext').textContent = next ? '🎁 ' + t('upNext', { item: t(next.key), n: next.level }) : '🏆 ' + t('upCount', { n: got, total: UPGRADES.length, best });
+    $('upHeroLv').textContent = next ? t('lv', { n: best }) + ' → ' + t('lv', { n: next.level }) : '';
+    $('upBarFill').style.width = (next ? Math.max(4, Math.min(100, (best - prevLv + 1) / (next.level - prevLv + 1) * 100)) : 100) + '%';
+    $('upHero').onclick = () => next && peekUpgrade(next, false);
     grid.textContent = '';
     for (const u of UPGRADES) {
       const tile = document.createElement('div');
@@ -4426,7 +4447,7 @@ window.LD_RULES = (() => {
       tile.tabIndex = 0; tile.setAttribute('role', 'button');
       tile.addEventListener('click', () => peekUpgrade(u, u.level <= best));
       tile.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); peekUpgrade(u, u.level <= best); } });
-      paintCarOn(cv, 44, 58, carPaint(carHue, carShade), u.level, 0.62, carNo);
+      paintCarOn(cv, 40, 52, carPaint(carHue, carShade), u.level, 0.56, carNo);
     }
     $('upPeek').hidden = true;
     show('upgrades');
