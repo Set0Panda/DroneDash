@@ -652,6 +652,12 @@
   .menuRow.three { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
   .raidBtn { display: grid; gap: 1px; justify-items: center; padding-top: 7px; padding-bottom: 7px; font-size: 15px; }
   .raidBtn small { font-size: 11px; font-weight: 700; opacity: .8; }
+  .raidBtn { position: relative; overflow: visible; }
+  .raidBtn .limited { position: absolute; top: -9px; right: -6px; padding: 2px 8px; border-radius: 9px; font-size: 10px; font-weight: 900;
+                      letter-spacing: .3px; color: #0f1220; background: var(--ua-yellow); box-shadow: 0 2px 8px rgba(0,0,0,.4);
+                      transform: rotate(4deg); animation: limitedPulse 1.6s ease-in-out infinite; }
+  @keyframes limitedPulse { 50% { transform: rotate(4deg) scale(1.08); } }
+  .calm .raidBtn .limited { animation: none; }
   .menuRow.three button { padding-left: 4px; padding-right: 4px; font-size: 14px; }
   .upCard { gap: 10px; }
   .upSub { font-size: 13px; color: var(--muted) !important; margin: -4px 0 0 !important; }
@@ -714,7 +720,7 @@
     <div class="menuBtns">
       <button id="playBtn">▶ <span data-i18n="play">Play</span></button>
       <button id="dailyBtn" class="secondary dailyBtn" type="button"><span>📅 <span data-i18n="daily">Daily challenge</span></span><small id="dailySub"></small></button>
-      <button id="raidBtn" class="secondary raidBtn" type="button"><span>🛸 <span data-i18n="raidBtn">Shahed Raid</span></span><small data-i18n="raidSub">All the giant Shaheds, back to back</small></button>
+      <button id="raidBtn" class="secondary raidBtn" type="button"><b class="limited" data-i18n="limited">⏳ Limited time</b><span>🛸 <span data-i18n="raidBtn">Shahed Raid</span></span><small data-i18n="raidSub">All the giant Shaheds, back to back</small></button>
       <div id="homeMissions" class="missions"></div>
       <div class="menuRow three">
         <button id="garageBtn" class="secondary" type="button"><i class="swatch"></i><span data-i18n="colourBtn">Paint</span></button>
@@ -956,7 +962,8 @@ window.I18N = (() => {
       raidRule4: "**Rocket** = 3 coins · coins ×2 · **Overdrive** = free",
       raidRule5: "**No fuel drain** · win = **♥ + repair**",
       raidStart: "Start raid",
-      odNext: "Overdrive ready for the next one"
+      odNext: "Overdrive ready for the next one",
+      limited: "⏳ Limited time"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -1038,7 +1045,8 @@ window.I18N = (() => {
       raidRule4: "**Cohete** = 3 monedas · monedas ×2 · **Overdrive** = gratis",
       raidRule5: "**Sin gasto de combustible** · victoria = **♥ + reparación**",
       raidStart: "Empezar incursión",
-      odNext: "Overdrive listo para el siguiente"
+      odNext: "Overdrive listo para el siguiente",
+      limited: "⏳ Tiempo limitado"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -1120,7 +1128,8 @@ window.I18N = (() => {
       raidRule4: "**Roquette** = 3 pièces · pièces ×2 · **Overdrive** = gratuit",
       raidRule5: "**Pas de carburant consommé** · victoire = **♥ + réparation**",
       raidStart: "Lancer le raid",
-      odNext: "Overdrive prêt pour le suivant"
+      odNext: "Overdrive prêt pour le suivant",
+      limited: "⏳ Durée limitée"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -1202,7 +1211,8 @@ window.I18N = (() => {
       raidRule4: "**Rakete** = 3 Münzen · Münzen ×2 · **Overdrive** = gratis",
       raidRule5: "**Kein Spritverbrauch** · Sieg = **♥ + Reparatur**",
       raidStart: "Angriff starten",
-      odNext: "Overdrive bereit für den nächsten"
+      odNext: "Overdrive bereit für den nächsten",
+      limited: "⏳ Nur kurze Zeit"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -1284,7 +1294,8 @@ window.I18N = (() => {
       raidRule4: "**Foguete** = 3 moedas · moedas ×2 · **Overdrive** = grátis",
       raidRule5: "**Sem gasto de combustível** · vitória = **♥ + conserto**",
       raidStart: "Começar ataque",
-      odNext: "Overdrive pronto para o próximo"
+      odNext: "Overdrive pronto para o próximo",
+      limited: "⏳ Tempo limitado"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -1366,7 +1377,8 @@ window.I18N = (() => {
       raidRule4: "**Razzo** = 3 monete · monete ×2 · **Overdrive** = gratis",
       raidRule5: "**Niente carburante consumato** · vittoria = **♥ + riparazione**",
       raidStart: "Inizia il raid",
-      odNext: "Overdrive pronto per il prossimo"
+      odNext: "Overdrive pronto per il prossimo",
+      limited: "⏳ A tempo limitato"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -1448,7 +1460,8 @@ window.I18N = (() => {
       raidRule4: "**ロケット**＝コイン3枚 · コイン×2 · **OVERDRIVE**＝無料",
       raidRule5: "**燃料減らない** · 撃墜＝**♥＋修理**",
       raidStart: "襲来スタート",
-      odNext: "次の戦いにOVERDRIVEを温存"
+      odNext: "次の戦いにOVERDRIVEを温存",
+      limited: "⏳ 期間限定"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -1530,7 +1543,8 @@ window.I18N = (() => {
       raidRule4: "**火箭**＝3 枚金币 · 金币×2 · **OVERDRIVE**＝免费",
       raidRule5: "**不耗油** · 击落＝**♥＋修好**",
       raidStart: "开始空袭",
-      odNext: "OVERDRIVE 留给下一架"
+      odNext: "OVERDRIVE 留给下一架",
+      limited: "⏳ 限时"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -1612,7 +1626,8 @@ window.I18N = (() => {
       raidRule4: "**로켓** = 코인 3개 · 코인 ×2 · **OVERDRIVE** = 무료",
       raidRule5: "**연료 소모 없음** · 격추 = **♥ + 수리**",
       raidStart: "공습 시작",
-      odNext: "다음 전투에 OVERDRIVE 준비"
+      odNext: "다음 전투에 OVERDRIVE 준비",
+      limited: "⏳ 기간 한정"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -1694,7 +1709,8 @@ window.I18N = (() => {
       raidRule4: "**रॉकेट** = 3 सिक्के · सिक्के ×2 · **OVERDRIVE** = मुफ़्त",
       raidRule5: "**ईंधन खर्च नहीं** · जीत = **♥ + मरम्मत**",
       raidStart: "हमला शुरू करो",
-      odNext: "अगले के लिए OVERDRIVE तैयार"
+      odNext: "अगले के लिए OVERDRIVE तैयार",
+      limited: "⏳ सीमित समय"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -1778,7 +1794,8 @@ window.I18N = (() => {
       raidRule4: "**Ракета** = 3 монети · монети ×2 · **OVERDRIVE** = безкоштовно",
       raidRule5: "**Пальне не витрачається** · перемога = **♥ + ремонт**",
       raidStart: "Почати атаку",
-      odNext: "OVERDRIVE готовий до наступного"
+      odNext: "OVERDRIVE готовий до наступного",
+      limited: "⏳ Обмежений час"
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -1860,7 +1877,8 @@ window.I18N = (() => {
       raidRule4: "**რაკეტა** = 3 მონეტა · მონეტები ×2 · **OVERDRIVE** = უფასო",
       raidRule5: "**საწვავი არ იხარჯება** · გამარჯვება = **♥ + შეკეთება**",
       raidStart: "შეტევის დაწყება",
-      odNext: "OVERDRIVE მზადაა შემდეგისთვის"
+      odNext: "OVERDRIVE მზადაა შემდეგისთვის",
+      limited: "⏳ შეზღუდული დრო"
     }
   };
   const NAMES = {
