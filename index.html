@@ -687,10 +687,12 @@
   /* ---- Records ---- */
   .recCard { gap: 12px; }
   #records { justify-content: flex-start; }
-  #records .recCard { margin-top: min(6vh, 48px); }
-  .recTabs { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  #records .recCard { margin-top: min(6vh, 48px); max-height: calc(100% - min(6vh, 48px)); overflow: hidden; }
+  #records .recPane { overflow-y: auto; overflow-x: hidden; min-height: 0; flex: 0 1 auto; }
+  #records .recCard > h1, #records #recBack { flex: none; }
+  .recTabs { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; flex: none; }
   .recTabs button { margin: 0; padding: 8px 4px; min-height: 0; font-size: 14px; font-weight: 800; border-radius: 12px;
-                    background: rgba(255,255,255,.08); box-shadow: none; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+                    background: rgba(255,255,255,.08); box-shadow: none; color: var(--text); white-space: nowrap; overflow: hidden; min-width: 0; }
   .recTabs button[aria-selected="true"] { background: var(--ua-blue); box-shadow: inset 0 0 0 2px var(--ua-yellow); }
   .recTabs button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
   .recPane { width: 100%; display: grid; gap: 8px; }
@@ -762,6 +764,13 @@
   @keyframes limitedPulse { 50% { transform: rotate(4deg) scale(1.08); } }
   .calm .raidBtn .limited { animation: none; }
   .menuRow.three button { padding-left: 4px; padding-right: 4px; font-size: 14px; }
+  /* long words (Georgian, German…) must never push the layout wider than the screen:
+     columns can shrink, and fitLabels() steps the text size down until each label fits */
+  .menuRow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .menuRow.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .menuRow button { min-width: 0; overflow: hidden; }
+  #home { overflow-x: hidden; }
+  .menuBtns > * { min-width: 0; }
   .upCard { gap: 10px; }
   .upSub { font-size: 13px; color: var(--muted) !important; margin: -4px 0 0 !important; }
   .upGrid { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
@@ -2096,7 +2105,7 @@ window.I18N = (() => {
       bossNew: "ახალი ნიშანი შენს მანქანაზე! ★2",
       ms_boss: "ერთ რბოლაში ჩამოაგდე {n} გიგანტური შაჰედი",
       ms_boss_1: "ჩამოაგდე გიგანტური შაჰედი",
-      upgradesBtn: "გაუმჯობესებები", upCount: "{n}/{total} გახსნილი · საუკეთესო დონე {best}", upNext: "შემდეგი: {item} დონე {n}-ზე",
+      upgradesBtn: "აპგრეიდები", upCount: "{n}/{total} გახსნილი · საუკეთესო დონე {best}", upNext: "შემდეგი: {item} დონე {n}-ზე",
       peekNote: "მხოლოდ გადახედვა: გაიხსნება ★{n}-ზე",
       raidBtn: "შაჰედების შეტევა", raidSub: "ყველა 9 გიგანტური შაჰედი ზედიზედ", raidResult: "{n}/9 გიგანტური შაჰედი", raidDone: "შეტევა მოგერიებულია!", raidBest: "საუკეთესო: {n}/9 · ⏱ {time}",
       raidRule1: "**9 გიგანტური შაჰედი** · ყოველი უფრო დიდი",
@@ -3997,7 +4006,7 @@ window.LD_RULES = (() => {
   function show(id) {
     for (const o of ['home', 'intro', 'over', 'garage', 'records', 'pause', 'upgrades', 'raidHelp', 'settingsView']) $(o).classList.toggle('hidden', o !== id);
     shownOverlay = id;
-    if (id === 'home') { $('home').scrollTop = 0; requestAnimationFrame(fitHome); }
+    if (id === 'home') { $('home').scrollTop = 0; fitLabels($('home').querySelectorAll('.menuRow button')); requestAnimationFrame(fitHome); }
     else if (id) requestAnimationFrame(() => fitCard(id));
     wrapEl.classList.toggle('at-home', ['home', 'garage', 'records', 'upgrades', 'settingsView'].includes(id));
   }
@@ -4006,7 +4015,27 @@ window.LD_RULES = (() => {
   // the logo is never pushed off the top and nothing needs scrolling.
   // Any card (game over, pause, records, paint …): shrink it evenly if it's taller than the window,
   // instead of a scrollbar.
+  // Shrink a label's text until it fits its button (for long words in some languages).
+  function fitLabels(els) {
+    const shrink = el => {
+      el.style.fontSize = '';
+      let fs = parseFloat(getComputedStyle(el).fontSize);
+      const min = Math.max(10, fs * 0.72);
+      while (el.scrollWidth > el.clientWidth + 1 && fs > min) { fs -= 0.5; el.style.fontSize = fs + 'px'; }
+      return el.scrollWidth <= el.clientWidth + 1;
+    };
+    for (const el of els) {
+      const ico = el.querySelector('[aria-hidden="true"]');
+      if (ico) ico.style.display = '';
+      if (!shrink(el) && ico) { ico.style.display = 'none'; shrink(el); }   // still too long: the word matters more than the icon
+    }
+  }
+  // Fonts for some scripts (Georgian, Hindi…) arrive after the first layout: measure again then.
+  if (document.fonts) document.fonts.addEventListener('loadingdone', () => {
+    fitHome(); if (shownOverlay === 'records') fitLabels($('recTabs').children);
+  });
   function fitCard(id) {
+    if (id === 'records') return;                    // Records keeps its size; its list scrolls instead
     const ov = $(id); if (!ov || ov.classList.contains('hidden')) return;
     const card = ov.querySelector('.card'); if (!card) return;
     card.style.zoom = ''; card.style.maxHeight = '';
@@ -4020,6 +4049,7 @@ window.LD_RULES = (() => {
     const h = $('home'), st = $('homeStack');
     if (h.classList.contains('hidden')) return;
     st.style.zoom = '';
+    fitLabels(h.querySelectorAll('.menuRow button'));
     const cs = getComputedStyle(h);
     const avail = h.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 4;
     const need = st.offsetHeight;
@@ -4364,7 +4394,8 @@ window.LD_RULES = (() => {
     if (runs) renderRecords(); else $('recEmpty').hidden = true;
     $('recRaidBox').hidden = recTab !== 'raid'; if (recTab === 'raid') renderRaidRecords();
     $('recDailyBox').hidden = recTab !== 'daily'; if (recTab === 'daily') renderDailyRecords();
-    requestAnimationFrame(() => fitCard('records'));
+    $('recPane').scrollTop = 0;
+    fitLabels($('recTabs').children);
   }
   $('recTabs').addEventListener('click', e => {
     const b = e.target.closest('button[data-tab]'); if (!b) return;
@@ -4376,16 +4407,7 @@ window.LD_RULES = (() => {
     const j = (i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length;
     recTab = tabs[j].dataset.tab; paintRecTab(); tabs[j].focus(); e.preventDefault();
   });
-  function openRecords() {
-    state = 'records'; show('records');
-    // Size the card for the tallest tab, so the tabs stay put when you switch between them.
-    const pane = $('recPane'), card = pane.closest('.card'), keep = recTab;
-    pane.style.minHeight = ''; card.style.zoom = ''; card.style.maxHeight = '';
-    let h = 0;
-    for (const tab of ['runs', 'raid', 'daily']) { recTab = tab; paintRecTab(); h = Math.max(h, Math.ceil(pane.getBoundingClientRect().height)); }
-    pane.style.minHeight = h + 'px'; pane.style.alignContent = 'start';
-    recTab = keep; paintRecTab();
-  }
+  function openRecords() { state = 'records'; show('records'); paintRecTab(); }
   // Upgrades: all 25, each on a little copy of your car as it looks at that level. Unlocked once
   // you've reached its level in any run; the next one to get is outlined.
   function openUpgrades() {
@@ -4439,6 +4461,7 @@ window.LD_RULES = (() => {
     $('dailySub').textContent = '#' + n + ' · ' + t(tw.key) + (mine ? '\n' + mine : '');
     paintMissions($('homeMissions'), true);
     paintStartPick();
+    if (!$('home').classList.contains('hidden')) fitLabels($('home').querySelectorAll('.menuRow button'));
     requestAnimationFrame(fitHome);
     const rb = loadRaid()[diffI];                                // the best for the difficulty you've picked
     // Shahed Raid opens once you've beaten a giant Shahed in a normal run (or played a raid before)
