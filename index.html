@@ -726,6 +726,10 @@
   .dailyBtn, .raidBtn { position: relative; padding-left: 42px !important; padding-right: 42px !important; }
   .dailyBtn .btnIco, .raidBtn .btnIco { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 28px; line-height: 1; }
   .raidBtn { position: relative; overflow: visible; }
+  .raidBtn.locked { opacity: .6; filter: grayscale(.7); }
+  .raidBtn.locked .limited { display: none; }
+  .raidBtn.nope { animation: nope .35s; }
+  @keyframes nope { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
   .raidBtn .limited { position: absolute; top: -9px; right: -6px; padding: 2px 8px; border-radius: 9px; font-size: 10px; font-weight: 900;
                       letter-spacing: .3px; color: #0f1220; background: var(--ua-yellow); box-shadow: 0 2px 8px rgba(0,0,0,.4);
                       transform: rotate(4deg); animation: limitedPulse 1.6s ease-in-out infinite; }
@@ -797,7 +801,7 @@
       <button id="playBtn"><span class="playIco" aria-hidden="true">▶</span><span data-i18n="play">Play</span></button>
       <div id="startPick" class="startPick" hidden></div>
       <button id="dailyBtn" class="secondary dailyBtn" type="button"><span class="btnIco" aria-hidden="true">📅</span><span data-i18n="daily">Daily challenge</span><small id="dailySub"></small></button>
-      <button id="raidBtn" class="secondary raidBtn" type="button"><b class="limited" data-i18n="limited">🆕 New</b><span class="btnIco" aria-hidden="true">🛸</span><span data-i18n="raidBtn">Shahed Raid</span><small data-i18n="raidSub">All the giant Shaheds, back to back</small></button>
+      <button id="raidBtn" class="secondary raidBtn" type="button"><b class="limited" data-i18n="limited">🆕 New</b><span class="btnIco" aria-hidden="true">🛸</span><span data-i18n="raidBtn">Shahed Raid</span><small data-i18n="raidSub">All 9 giant Shaheds in a row</small></button>
       <div id="homeMissions" class="missions"></div>
       <div class="menuRow three">
         <button id="garageBtn" class="secondary" type="button"><i class="swatch"></i><span data-i18n="colourBtn">Paint</span></button>
@@ -818,11 +822,6 @@
     </div>
   </div>
 
-  <div id="bye" class="overlay hidden">
-    <h1 data-i18n="thanks">Thanks for playing!</h1>
-    <p data-i18n="closeNow">You can close this window now.</p>
-    <button id="byeBack" class="secondary" data-i18n="backToMenu">Back to menu</button>
-  </div>
 
   <div id="garage" class="overlay hidden">
     <div class="card garageCard" role="dialog" aria-labelledby="garageTitle">
@@ -965,10 +964,9 @@ window.I18N = (() => {
   const STR = {
     en: {
       tagline: "Dodge obstacles. Shoot down drones.",
-      play: 'Play', exit: 'Exit', installApp: 'Install app', updateReady: "New version ready · tap to update",
+      play: 'Play', installApp: 'Install app', updateReady: "New version ready · tap to update",
       installHintIos: 'Play it like an app: tap Share, then “Add to Home Screen”.',
       installHintMenu: 'To install: open the browser menu (⋮) and choose “Install app” or “Add to Home screen”.', installHintInApp: 'To install, open this page in your browser (Chrome, Safari…) first.',
-      thanks: 'Thanks for playing!', closeNow: 'You can close this window now.', backToMenu: 'Back to menu',
       howToPlay: 'How to Play',
       lead1: "Tap or drag to change lanes.",
       rule1: "**Checkpoints** = next level, faster",
@@ -1036,7 +1034,7 @@ window.I18N = (() => {
       ms_boss_1: "Take down a giant Shahed",
       upgradesBtn: "Upgrades", upCount: "{n}/{total} unlocked · best level {best}", upNext: "Next: {item} at level {n}",
       peekNote: "Preview only: unlocks at ★{n}",
-      raidBtn: "Shahed Raid", raidSub: "All the giant Shaheds, back to back", raidResult: "{n}/9 giant Shaheds", raidDone: "RAID COMPLETE!", raidBest: "Best raid: {n}/9 · ⏱ {time}",
+      raidBtn: "Shahed Raid", raidSub: "All 9 giant Shaheds in a row", raidResult: "{n}/9 giant Shaheds", raidDone: "RAID COMPLETE!", raidBest: "Best raid: {n}/9 · ⏱ {time}",
       raidRule1: "**9 giant Shaheds** · each one bigger",
       raidRule2: "**Under its body** + FIRE = hit · wings block",
       raidRule3: "**Red lane** = bomb · move!",
@@ -1047,19 +1045,18 @@ window.I18N = (() => {
       limited: "🆕 New",
       vibeOn: "Vibration: On", vibeOff: "Vibration: Off", startFrom: "Start:", fromArea: "from {area}", bestMark: "BEST",
       killMarks: "{n}/{total} kill marks", ruleBoss: "**Area end** = giant Shahed · get under it and **FIRE**",
-      saverOn: "Battery saver: On", saverOff: "Battery saver: Off",
-      diffLabel: "Difficulty: {name}", diffEasy: "Learner", diffCareer: "Career Driver", diffExpert: "Getaway Expert",
+      saverOn: "Battery saver: On", saverOff: "Battery saver: Off", diffEasy: "Learner", diffCareer: "Career Driver", diffExpert: "Getaway Expert",
       diffTitle: "Difficulty:",
       startLocked: "Unlocks at LV {n}",
       scrollPrev: "Show earlier areas", scrollNext: "Show more areas",
-      livesAria: "{n} of {max} lives"
+      livesAria: "{n} of {max} lives",
+      raidLocked: "Beat your first giant Shahed to unlock"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
-      play: 'Jugar', exit: 'Salir', installApp: 'Instalar app', updateReady: "Nueva versión lista · toca para actualizar",
+      play: 'Jugar', installApp: 'Instalar app', updateReady: "Nueva versión lista · toca para actualizar",
       installHintIos: 'Juega como una app: toca Compartir y luego «Añadir a pantalla de inicio».',
       installHintMenu: 'Para instalar: abre el menú del navegador (⋮) y elige «Instalar app» o «Añadir a pantalla de inicio».', installHintInApp: 'Para instalarla, abre primero esta página en tu navegador (Chrome, Safari…).',
-      thanks: '¡Gracias por jugar!', closeNow: 'Ya puedes cerrar esta ventana.', backToMenu: 'Volver al menú',
       howToPlay: 'Cómo jugar',
       lead1: "Toca o arrastra para cambiar de carril.",
       rule1: "**Puntos de control** = siguiente nivel, más rápido",
@@ -1127,7 +1124,7 @@ window.I18N = (() => {
       ms_boss_1: "Derriba un Shahed gigante",
       upgradesBtn: "Mejoras", upCount: "{n}/{total} desbloqueadas · mejor nivel {best}", upNext: "Siguiente: {item} en el nivel {n}",
       peekNote: "Solo vista previa: se desbloquea con ★{n}",
-      raidBtn: "Incursión Shahed", raidSub: "Todos los Shahed gigantes seguidos", raidResult: "{n}/9 Shahed gigantes", raidDone: "¡INCURSIÓN COMPLETADA!", raidBest: "Mejor incursión: {n}/9 · ⏱ {time}",
+      raidBtn: "Incursión Shahed", raidSub: "Los 9 Shaheds gigantes seguidos", raidResult: "{n}/9 Shahed gigantes", raidDone: "¡INCURSIÓN COMPLETADA!", raidBest: "Mejor incursión: {n}/9 · ⏱ {time}",
       raidRule1: "**9 Shaheds gigantes** · cada uno más grande",
       raidRule2: "**Bajo su cuerpo** + DISPARAR = impacto · las alas bloquean",
       raidRule3: "**Carril rojo** = bomba · ¡muévete!",
@@ -1138,19 +1135,18 @@ window.I18N = (() => {
       limited: "🆕 Nuevo",
       vibeOn: "Vibración: Sí", vibeOff: "Vibración: No", startFrom: "Empezar:", fromArea: "desde {area}", bestMark: "RÉCORD",
       killMarks: "{n}/{total} marcas de derribo", ruleBoss: "**Fin de zona** = Shahed gigante · ponte debajo y **DISPARA**",
-      saverOn: "Ahorro de batería: Sí", saverOff: "Ahorro de batería: No",
-      diffLabel: "Dificultad: {name}", diffEasy: "Aprendiz", diffCareer: "Piloto profesional", diffExpert: "Experto en fugas",
+      saverOn: "Ahorro de batería: Sí", saverOff: "Ahorro de batería: No", diffEasy: "Aprendiz", diffCareer: "Piloto profesional", diffExpert: "Experto en fugas",
       diffTitle: "Dificultad:",
       startLocked: "Se desbloquea en el NV {n}",
       scrollPrev: "Ver zonas anteriores", scrollNext: "Ver más zonas",
-      livesAria: "{n} de {max} vidas"
+      livesAria: "{n} de {max} vidas",
+      raidLocked: "Derriba tu primer Shahed gigante para desbloquear"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
-      play: 'Jouer', exit: 'Quitter', installApp: `Installer l'app`, updateReady: "Nouvelle version prête · touche pour mettre à jour",
+      play: 'Jouer', installApp: `Installer l'app`, updateReady: "Nouvelle version prête · touche pour mettre à jour",
       installHintIos: `Joue comme avec une app${NB}: touche Partager, puis «${NB}Sur l'écran d'accueil${NB}».`,
       installHintMenu: `Pour installer${NB}: ouvre le menu du navigateur (⋮) et choisis «${NB}Installer l'application${NB}» ou «${NB}Ajouter à l'écran d'accueil${NB}».`, installHintInApp: `Pour l'installer, ouvre d'abord cette page dans ton navigateur (Chrome, Safari…).`,
-      thanks: `Merci d'avoir joué${NB}!`, closeNow: 'Tu peux fermer cette fenêtre.', backToMenu: 'Retour au menu',
       howToPlay: 'Comment jouer',
       lead1: "Touche ou glisse pour changer de voie.",
       rule1: "**Points de contrôle** = niveau suivant, plus rapide",
@@ -1218,7 +1214,7 @@ window.I18N = (() => {
       ms_boss_1: "Abats un Shahed géant",
       upgradesBtn: "Bonus", upCount: "{n}/{total} débloqués · meilleur niveau {best}", upNext: "Suivant : {item} au niveau {n}",
       peekNote: "Aperçu seulement : débloqué à ★{n}",
-      raidBtn: "Raid Shahed", raidSub: "Tous les Shaheds géants à la suite", raidResult: "{n}/9 Shaheds géants", raidDone: "RAID TERMINÉ !", raidBest: "Meilleur raid : {n}/9 · ⏱ {time}",
+      raidBtn: "Raid Shahed", raidSub: "Les 9 Shaheds géants à la suite", raidResult: "{n}/9 Shaheds géants", raidDone: "RAID TERMINÉ !", raidBest: "Meilleur raid : {n}/9 · ⏱ {time}",
       raidRule1: "**9 Shaheds géants** · chacun plus grand",
       raidRule2: "**Sous son corps** + FEU = touché · les ailes bloquent",
       raidRule3: "**Voie rouge** = bombe · bouge !",
@@ -1229,19 +1225,18 @@ window.I18N = (() => {
       limited: "🆕 Nouveau",
       vibeOn: "Vibration : oui", vibeOff: "Vibration : non", startFrom: "Départ :", fromArea: "depuis {area}", bestMark: "RECORD",
       killMarks: "{n}/{total} marques de victoire", ruleBoss: "**Fin de zone** = Shahed géant · place-toi dessous et **FEU**",
-      saverOn: "Économie de batterie : oui", saverOff: "Économie de batterie : non",
-      diffLabel: "Difficulté : {name}", diffEasy: "Apprenti conducteur", diffCareer: "Pilote de carrière", diffExpert: "Expert de la fuite",
+      saverOn: "Économie de batterie : oui", saverOff: "Économie de batterie : non", diffEasy: "Apprenti conducteur", diffCareer: "Pilote de carrière", diffExpert: "Expert de la fuite",
       diffTitle: "Difficulté :",
       startLocked: "Débloqué au NIV {n}",
       scrollPrev: "Voir les zones précédentes", scrollNext: "Voir plus de zones",
-      livesAria: "{n} vies sur {max}"
+      livesAria: "{n} vies sur {max}",
+      raidLocked: "Abats ton premier Shahed géant pour débloquer"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
-      play: 'Spielen', exit: 'Beenden', installApp: 'App installieren', updateReady: "Neue Version bereit · tippen zum Aktualisieren",
+      play: 'Spielen', installApp: 'App installieren', updateReady: "Neue Version bereit · tippen zum Aktualisieren",
       installHintIos: 'Als App spielen: Tippe auf Teilen und dann „Zum Home-Bildschirm“.',
       installHintMenu: 'Zum Installieren: Öffne das Browsermenü (⋮) und wähle „App installieren“ oder „Zum Startbildschirm hinzufügen“.', installHintInApp: 'Öffne diese Seite zuerst in deinem Browser (Chrome, Safari …), um sie zu installieren.',
-      thanks: 'Danke fürs Spielen!', closeNow: 'Du kannst dieses Fenster jetzt schließen.', backToMenu: 'Zurück zum Menü',
       howToPlay: 'So wird gespielt',
       lead1: "Tippen oder ziehen zum Spurwechsel.",
       rule1: "**Checkpoints** = nächstes Level, schneller",
@@ -1309,7 +1304,7 @@ window.I18N = (() => {
       ms_boss_1: "Schieß eine Riesen-Shahed ab",
       upgradesBtn: "Extras", upCount: "{n}/{total} freigeschaltet · bestes Level {best}", upNext: "Nächstes: {item} bei Level {n}",
       peekNote: "Nur Vorschau: wird bei ★{n} freigeschaltet",
-      raidBtn: "Shahed-Angriff", raidSub: "Alle Riesen-Shaheds direkt hintereinander", raidResult: "{n}/9 Riesen-Shaheds", raidDone: "ANGRIFF ABGEWEHRT!", raidBest: "Bester Angriff: {n}/9 · ⏱ {time}",
+      raidBtn: "Shahed-Angriff", raidSub: "Alle 9 Riesen-Shaheds am Stück", raidResult: "{n}/9 Riesen-Shaheds", raidDone: "ANGRIFF ABGEWEHRT!", raidBest: "Bester Angriff: {n}/9 · ⏱ {time}",
       raidRule1: "**9 Riesen-Shaheds** · jede größer",
       raidRule2: "**Unter den Rumpf** + FEUER = Treffer · Flügel blocken",
       raidRule3: "**Rote Spur** = Bombe · weg da!",
@@ -1320,19 +1315,18 @@ window.I18N = (() => {
       limited: "🆕 Neu",
       vibeOn: "Vibration: An", vibeOff: "Vibration: Aus", startFrom: "Start:", fromArea: "ab {area}", bestMark: "REKORD",
       killMarks: "{n}/{total} Abschussmarken", ruleBoss: "**Gebietsende** = Riesen-Shahed · darunter stellen und **FEUER**",
-      saverOn: "Akku sparen: An", saverOff: "Akku sparen: Aus",
-      diffLabel: "Schwierigkeit: {name}", diffEasy: "Fahrschüler", diffCareer: "Profifahrer", diffExpert: "Fluchtexperte",
+      saverOn: "Akku sparen: An", saverOff: "Akku sparen: Aus", diffEasy: "Fahrschüler", diffCareer: "Profifahrer", diffExpert: "Fluchtexperte",
       diffTitle: "Schwierigkeit:",
       startLocked: "Ab Level {n}",
       scrollPrev: "Vorherige Gebiete zeigen", scrollNext: "Weitere Gebiete zeigen",
-      livesAria: "{n} von {max} Leben"
+      livesAria: "{n} von {max} Leben",
+      raidLocked: "Schieß deine erste Riesen-Shahed ab zum Freischalten"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
-      play: 'Jogar', exit: 'Sair', installApp: 'Instalar app', updateReady: "Nova versão pronta · toque para atualizar",
+      play: 'Jogar', installApp: 'Instalar app', updateReady: "Nova versão pronta · toque para atualizar",
       installHintIos: 'Jogue como um app: toque em Compartilhar e depois em “Adicionar à Tela de Início”.',
       installHintMenu: 'Para instalar: abra o menu do navegador (⋮) e escolha “Instalar app” ou “Adicionar à tela inicial”.', installHintInApp: 'Para instalar, abra primeiro esta página no seu navegador (Chrome, Safari…).',
-      thanks: 'Obrigado por jogar!', closeNow: 'Você já pode fechar esta janela.', backToMenu: 'Voltar ao menu',
       howToPlay: 'Como jogar',
       lead1: "Toque ou arraste para mudar de faixa.",
       rule1: "**Checkpoints** = próximo nível, mais rápido",
@@ -1400,7 +1394,7 @@ window.I18N = (() => {
       ms_boss_1: "Derrube um Shahed gigante",
       upgradesBtn: "Melhorias", upCount: "{n}/{total} desbloqueadas · melhor nível {best}", upNext: "Próxima: {item} no nível {n}",
       peekNote: "Só pré-visualização: desbloqueia com ★{n}",
-      raidBtn: "Ataque Shahed", raidSub: "Todos os Shaheds gigantes seguidos", raidResult: "{n}/9 Shaheds gigantes", raidDone: "ATAQUE CONCLUÍDO!", raidBest: "Melhor ataque: {n}/9 · ⏱ {time}",
+      raidBtn: "Ataque Shahed", raidSub: "Os 9 Shaheds gigantes seguidos", raidResult: "{n}/9 Shaheds gigantes", raidDone: "ATAQUE CONCLUÍDO!", raidBest: "Melhor ataque: {n}/9 · ⏱ {time}",
       raidRule1: "**9 Shaheds gigantes** · cada um maior",
       raidRule2: "**Sob o corpo** + DISPARAR = acerto · asas bloqueiam",
       raidRule3: "**Faixa vermelha** = bomba · saia!",
@@ -1411,19 +1405,18 @@ window.I18N = (() => {
       limited: "🆕 Novo",
       vibeOn: "Vibração: Ligada", vibeOff: "Vibração: Desligada", startFrom: "Começar:", fromArea: "desde {area}", bestMark: "RECORDE",
       killMarks: "{n}/{total} marcas de abate", ruleBoss: "**Fim da área** = Shahed gigante · fique embaixo e **DISPARE**",
-      saverOn: "Economia de bateria: Ligada", saverOff: "Economia de bateria: Desligada",
-      diffLabel: "Dificuldade: {name}", diffEasy: "Aprendiz", diffCareer: "Piloto de carreira", diffExpert: "Especialista em fugas",
+      saverOn: "Economia de bateria: Ligada", saverOff: "Economia de bateria: Desligada", diffEasy: "Aprendiz", diffCareer: "Piloto de carreira", diffExpert: "Especialista em fugas",
       diffTitle: "Dificuldade:",
       startLocked: "Desbloqueia no NV {n}",
       scrollPrev: "Ver áreas anteriores", scrollNext: "Ver mais áreas",
-      livesAria: "{n} de {max} vidas"
+      livesAria: "{n} de {max} vidas",
+      raidLocked: "Derrube seu primeiro Shahed gigante para desbloquear"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
-      play: 'Gioca', exit: 'Esci', installApp: 'Installa app', updateReady: "Nuova versione pronta · tocca per aggiornare",
+      play: 'Gioca', installApp: 'Installa app', updateReady: "Nuova versione pronta · tocca per aggiornare",
       installHintIos: `Gioca come un'app: tocca Condividi, poi “Aggiungi alla schermata Home”.`,
       installHintMenu: 'Per installarla: apri il menu del browser (⋮) e scegli “Installa app” o “Aggiungi a schermata Home”.', installHintInApp: 'Per installarla, apri prima questa pagina nel tuo browser (Chrome, Safari…).',
-      thanks: 'Grazie per aver giocato!', closeNow: 'Ora puoi chiudere questa finestra.', backToMenu: 'Torna al menu',
       howToPlay: 'Come si gioca',
       lead1: "Tocca o trascina per cambiare corsia.",
       rule1: "**Checkpoint** = livello successivo, più veloce",
@@ -1491,7 +1484,7 @@ window.I18N = (() => {
       ms_boss_1: "Abbatti uno Shahed gigante",
       upgradesBtn: "Extra", upCount: "{n}/{total} sbloccati · miglior livello {best}", upNext: "Prossimo: {item} al livello {n}",
       peekNote: "Solo anteprima: si sblocca a ★{n}",
-      raidBtn: "Raid Shahed", raidSub: "Tutti gli Shahed giganti di fila", raidResult: "{n}/9 Shahed giganti", raidDone: "RAID COMPLETATO!", raidBest: "Miglior raid: {n}/9 · ⏱ {time}",
+      raidBtn: "Raid Shahed", raidSub: "I 9 Shahed giganti di fila", raidResult: "{n}/9 Shahed giganti", raidDone: "RAID COMPLETATO!", raidBest: "Miglior raid: {n}/9 · ⏱ {time}",
       raidRule1: "**9 Shahed giganti** · ognuno più grande",
       raidRule2: "**Sotto il corpo** + FUOCO = colpito · le ali bloccano",
       raidRule3: "**Corsia rossa** = bomba · spostati!",
@@ -1502,19 +1495,18 @@ window.I18N = (() => {
       limited: "🆕 Nuovo",
       vibeOn: "Vibrazione: Sì", vibeOff: "Vibrazione: No", startFrom: "Parti da:", fromArea: "da {area}", bestMark: "RECORD",
       killMarks: "{n}/{total} segni di abbattimento", ruleBoss: "**Fine zona** = Shahed gigante · mettiti sotto e **FUOCO**",
-      saverOn: "Risparmio batteria: Sì", saverOff: "Risparmio batteria: No",
-      diffLabel: "Difficoltà: {name}", diffEasy: "Foglio rosa", diffCareer: "Pilota di carriera", diffExpert: "Esperto di fughe",
+      saverOn: "Risparmio batteria: Sì", saverOff: "Risparmio batteria: No", diffEasy: "Foglio rosa", diffCareer: "Pilota di carriera", diffExpert: "Esperto di fughe",
       diffTitle: "Difficoltà:",
       startLocked: "Si sblocca al LV {n}",
       scrollPrev: "Mostra zone precedenti", scrollNext: "Mostra altre zone",
-      livesAria: "{n} vite su {max}"
+      livesAria: "{n} vite su {max}",
+      raidLocked: "Abbatti il tuo primo Shahed gigante per sbloccare"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
-      play: 'プレイ', exit: '終了', installApp: 'アプリをインストール', updateReady: "新しいバージョンがあります · タップして更新",
+      play: 'プレイ', installApp: 'アプリをインストール', updateReady: "新しいバージョンがあります · タップして更新",
       installHintIos: 'アプリとして遊ぶには：共有をタップして「ホーム画面に追加」を選択。',
       installHintMenu: 'インストールするには：ブラウザのメニュー（⋮）を開き、「アプリをインストール」または「ホーム画面に追加」を選択。', installHintInApp: 'インストールするには、まずこのページをブラウザ（Chrome、Safari など）で開いてください。',
-      thanks: '遊んでくれてありがとう！', closeNow: 'このウィンドウは閉じてかまいません。', backToMenu: 'メニューに戻る',
       howToPlay: '遊び方',
       lead1: "タップかドラッグで車線を変える。",
       rule1: "**チェックポイント**でレベルアップ、速くなる",
@@ -1582,7 +1574,7 @@ window.I18N = (() => {
       ms_boss_1: "巨大シャヘドを撃墜",
       upgradesBtn: "アップグレード", upCount: "{n}/{total} 解放 · 最高レベル {best}", upNext: "次：レベル{n}で{item}",
       peekNote: "プレビューのみ：★{n}で解放",
-      raidBtn: "シャヘド襲来", raidSub: "巨大シャヘドと連続で対決", raidResult: "巨大シャヘド {n}/9", raidDone: "襲来を撃退！", raidBest: "ベスト：{n}/9 · ⏱ {time}",
+      raidBtn: "シャヘド襲来", raidSub: "巨大シャヘド9機と連戦", raidResult: "巨大シャヘド {n}/9", raidDone: "襲来を撃退！", raidBest: "ベスト：{n}/9 · ⏱ {time}",
       raidRule1: "**巨大シャヘド9機** · どんどん大きく",
       raidRule2: "**胴体の真下**で発射＝命中 · 翼は弾く",
       raidRule3: "**赤い車線**＝爆弾 · よけろ！",
@@ -1593,19 +1585,18 @@ window.I18N = (() => {
       limited: "🆕 新登場",
       vibeOn: "振動：オン", vibeOff: "振動：オフ", startFrom: "スタート：", fromArea: "{area}から", bestMark: "ベスト",
       killMarks: "撃墜マーク {n}/{total}", ruleBoss: "**エリアの最後**＝巨大シャヘド · 真下で**発射**",
-      saverOn: "省電力：オン", saverOff: "省電力：オフ",
-      diffLabel: "難易度：{name}", diffEasy: "仮免許", diffCareer: "キャリアドライバー", diffExpert: "逃走エキスパート",
+      saverOn: "省電力：オン", saverOff: "省電力：オフ", diffEasy: "仮免許", diffCareer: "キャリアドライバー", diffExpert: "逃走エキスパート",
       diffTitle: "難易度：",
       startLocked: "レベル{n}で解放",
       scrollPrev: "前のエリアを表示", scrollNext: "ほかのエリアを表示",
-      livesAria: "ライフ {n}/{max}"
+      livesAria: "ライフ {n}/{max}",
+      raidLocked: "巨大シャヘドを1機撃墜で解放"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
-      play: '开始', exit: '退出', installApp: '安装应用', updateReady: "新版本已就绪 · 点击更新",
+      play: '开始', installApp: '安装应用', updateReady: "新版本已就绪 · 点击更新",
       installHintIos: '像应用一样玩：点按“分享”，然后选择“添加到主屏幕”。',
       installHintMenu: '安装方法：打开浏览器菜单（⋮），选择“安装应用”或“添加到主屏幕”。', installHintInApp: '要安装，请先在浏览器（Chrome、Safari 等）中打开此页面。',
-      thanks: '感谢游玩！', closeNow: '现在可以关闭此窗口了。', backToMenu: '返回菜单',
       howToPlay: '玩法',
       lead1: "点击或拖动来换车道。",
       rule1: "**检查点** = 下一关，更快",
@@ -1673,7 +1664,7 @@ window.I18N = (() => {
       ms_boss_1: "击落一架巨型沙赫德",
       upgradesBtn: "升级", upCount: "已解锁 {n}/{total} · 最高第 {best} 关", upNext: "下一个：第 {n} 关解锁{item}",
       peekNote: "仅预览：★{n} 解锁",
-      raidBtn: "沙赫德空袭", raidSub: "所有巨型沙赫德连续登场", raidResult: "巨型沙赫德 {n}/9", raidDone: "空袭击退！", raidBest: "最佳：{n}/9 · ⏱ {time}",
+      raidBtn: "沙赫德空袭", raidSub: "9 架巨型沙赫德连战", raidResult: "巨型沙赫德 {n}/9", raidDone: "空袭击退！", raidBest: "最佳：{n}/9 · ⏱ {time}",
       raidRule1: "**9 架巨型沙赫德** · 一架比一架大",
       raidRule2: "**机身正下方**＋发射＝命中 · 机翼挡火箭",
       raidRule3: "**红色车道**＝炸弹 · 快躲！",
@@ -1684,19 +1675,18 @@ window.I18N = (() => {
       limited: "🆕 新",
       vibeOn: "振动：开", vibeOff: "振动：关", startFrom: "起点：", fromArea: "从{area}出发", bestMark: "最佳",
       killMarks: "击落标记 {n}/{total}", ruleBoss: "**区域尽头**＝巨型沙赫德 · 开到它下方**发射**",
-      saverOn: "省电模式：开", saverOff: "省电模式：关",
-      diffLabel: "难度：{name}", diffEasy: "新手司机", diffCareer: "职业车手", diffExpert: "飙车专家",
+      saverOn: "省电模式：开", saverOff: "省电模式：关", diffEasy: "新手司机", diffCareer: "职业车手", diffExpert: "飙车专家",
       diffTitle: "难度：",
       startLocked: "第 {n} 关解锁",
       scrollPrev: "查看前面的区域", scrollNext: "查看更多区域",
-      livesAria: "生命 {n}/{max}"
+      livesAria: "生命 {n}/{max}",
+      raidLocked: "击落第一架巨型沙赫德即可解锁"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
-      play: '플레이', exit: '종료', installApp: '앱 설치', updateReady: "새 버전 준비됨 · 탭하여 업데이트",
+      play: '플레이', installApp: '앱 설치', updateReady: "새 버전 준비됨 · 탭하여 업데이트",
       installHintIos: '앱처럼 즐기기: 공유를 탭한 뒤 ‘홈 화면에 추가’를 선택하세요.',
       installHintMenu: '설치하려면: 브라우저 메뉴(⋮)를 열고 ‘앱 설치’ 또는 ‘홈 화면에 추가’를 선택하세요.', installHintInApp: '설치하려면 먼저 브라우저(Chrome, Safari 등)에서 이 페이지를 여세요.',
-      thanks: '플레이해 주셔서 감사합니다!', closeNow: '이제 이 창을 닫아도 됩니다.', backToMenu: '메뉴로 돌아가기',
       howToPlay: '게임 방법',
       lead1: "탭하거나 드래그해서 차선 변경.",
       rule1: "**체크포인트** = 다음 레벨, 더 빠르게",
@@ -1764,7 +1754,7 @@ window.I18N = (() => {
       ms_boss_1: "거대 샤헤드 격추",
       upgradesBtn: "업그레이드", upCount: "{n}/{total} 해제 · 최고 레벨 {best}", upNext: "다음: 레벨 {n}에서 {item}",
       peekNote: "미리보기만: ★{n}에 해제",
-      raidBtn: "샤헤드 공습", raidSub: "거대 샤헤드 연속 대결", raidResult: "거대 샤헤드 {n}/9", raidDone: "공습 격퇴!", raidBest: "최고 기록: {n}/9 · ⏱ {time}",
+      raidBtn: "샤헤드 공습", raidSub: "거대 샤헤드 9대 연속", raidResult: "거대 샤헤드 {n}/9", raidDone: "공습 격퇴!", raidBest: "최고 기록: {n}/9 · ⏱ {time}",
       raidRule1: "**거대 샤헤드 9대** · 점점 더 커짐",
       raidRule2: "**몸체 바로 밑** + 발사 = 명중 · 날개는 막음",
       raidRule3: "**빨간 차선** = 폭탄 · 피해!",
@@ -1775,19 +1765,18 @@ window.I18N = (() => {
       limited: "🆕 신규",
       vibeOn: "진동: 켜짐", vibeOff: "진동: 꺼짐", startFrom: "시작:", fromArea: "{area}부터", bestMark: "최고",
       killMarks: "격추 마크 {n}/{total}", ruleBoss: "**구역 끝** = 거대 샤헤드 · 밑으로 가서 **발사**",
-      saverOn: "배터리 절약: 켜짐", saverOff: "배터리 절약: 꺼짐",
-      diffLabel: "난이도: {name}", diffEasy: "초보 운전", diffCareer: "커리어 드라이버", diffExpert: "도주 전문가",
+      saverOn: "배터리 절약: 켜짐", saverOff: "배터리 절약: 꺼짐", diffEasy: "초보 운전", diffCareer: "커리어 드라이버", diffExpert: "도주 전문가",
       diffTitle: "난이도:",
       startLocked: "레벨 {n}에서 해제",
       scrollPrev: "이전 구역 보기", scrollNext: "구역 더 보기",
-      livesAria: "생명 {n}/{max}"
+      livesAria: "생명 {n}/{max}",
+      raidLocked: "첫 거대 샤헤드를 격추하면 해제"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
-      play: 'खेलें', exit: 'बाहर निकलें', installApp: 'ऐप इंस्टॉल करें', updateReady: "नया संस्करण तैयार · अपडेट के लिए टैप करें",
+      play: 'खेलें', installApp: 'ऐप इंस्टॉल करें', updateReady: "नया संस्करण तैयार · अपडेट के लिए टैप करें",
       installHintIos: 'ऐप की तरह खेलें: शेयर पर टैप करें, फिर “होम स्क्रीन पर जोड़ें” चुनें।',
       installHintMenu: 'इंस्टॉल करने के लिए: ब्राउज़र मेनू (⋮) खोलें और “ऐप इंस्टॉल करें” या “होम स्क्रीन पर जोड़ें” चुनें।', installHintInApp: 'इंस्टॉल करने के लिए पहले यह पेज अपने ब्राउज़र (Chrome, Safari…) में खोलें।',
-      thanks: 'खेलने के लिए धन्यवाद!', closeNow: 'अब आप यह विंडो बंद कर सकते हैं।', backToMenu: 'मेन्यू पर वापस',
       howToPlay: 'कैसे खेलें',
       lead1: "लेन बदलने के लिए टैप या ड्रैग करें।",
       rule1: "**चेकपॉइंट** = अगला लेवल, और तेज़",
@@ -1855,7 +1844,7 @@ window.I18N = (() => {
       ms_boss_1: "एक विशाल शाहेद गिराओ",
       upgradesBtn: "अपग्रेड", upCount: "{n}/{total} अनलॉक · सर्वश्रेष्ठ लेवल {best}", upNext: "अगला: लेवल {n} पर {item}",
       peekNote: "सिर्फ़ झलक: ★{n} पर अनलॉक",
-      raidBtn: "शाहेद हमला", raidSub: "सारे विशाल शाहेद, एक के बाद एक", raidResult: "{n}/9 विशाल शाहेद", raidDone: "हमला नाकाम!", raidBest: "सर्वश्रेष्ठ: {n}/9 · ⏱ {time}",
+      raidBtn: "शाहेद हमला", raidSub: "सारे 9 विशाल शाहेद लगातार", raidResult: "{n}/9 विशाल शाहेद", raidDone: "हमला नाकाम!", raidBest: "सर्वश्रेष्ठ: {n}/9 · ⏱ {time}",
       raidRule1: "**9 विशाल शाहेद** · हर एक बड़ा",
       raidRule2: "**बॉडी के नीचे** + फ़ायर = हिट · पंख रोकते हैं",
       raidRule3: "**लाल लेन** = बम · हटो!",
@@ -1866,19 +1855,18 @@ window.I18N = (() => {
       limited: "🆕 नया",
       vibeOn: "कंपन: चालू", vibeOff: "कंपन: बंद", startFrom: "शुरुआत:", fromArea: "{area} से", bestMark: "सर्वश्रेष्ठ",
       killMarks: "{n}/{total} किल मार्क", ruleBoss: "**इलाके का अंत** = विशाल शाहेद · नीचे आकर **फ़ायर**",
-      saverOn: "बैटरी सेवर: चालू", saverOff: "बैटरी सेवर: बंद",
-      diffLabel: "कठिनाई: {name}", diffEasy: "लर्नर ड्राइवर", diffCareer: "करियर ड्राइवर", diffExpert: "गेटअवे एक्सपर्ट",
+      saverOn: "बैटरी सेवर: चालू", saverOff: "बैटरी सेवर: बंद", diffEasy: "लर्नर ड्राइवर", diffCareer: "करियर ड्राइवर", diffExpert: "गेटअवे एक्सपर्ट",
       diffTitle: "कठिनाई:",
       startLocked: "लेवल {n} पर अनलॉक",
       scrollPrev: "पिछले इलाके दिखाएँ", scrollNext: "और इलाके दिखाएँ",
-      livesAria: "{max} में से {n} जान"
+      livesAria: "{max} में से {n} जान",
+      raidLocked: "अनलॉक के लिए पहला विशाल शाहेद गिराओ"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
-      play: 'Грати', exit: 'Вийти', installApp: 'Встановити застосунок', updateReady: "Нова версія готова · торкніться, щоб оновити",
+      play: 'Грати', installApp: 'Встановити застосунок', updateReady: "Нова версія готова · торкніться, щоб оновити",
       installHintIos: 'Грай як у застосунку: натисни «Поділитися», потім «На початковий екран».',
       installHintMenu: 'Щоб встановити: відкрий меню браузера (⋮) і вибери «Встановити застосунок» або «Додати на головний екран».', installHintInApp: 'Щоб встановити, спершу відкрий цю сторінку у своєму браузері (Chrome, Safari…).',
-      thanks: 'Дякуємо за гру!', closeNow: 'Тепер можна закрити це вікно.', backToMenu: 'Назад до меню',
       howToPlay: 'Як грати',
       lead1: "Торкнись або тягни, щоб змінити смугу.",
       rule1: '**Чекпоінти** = наступний рівень, швидше',
@@ -1948,7 +1936,7 @@ window.I18N = (() => {
       ms_boss_1: "Збий гігантський шахед",
       upgradesBtn: "Апгрейди", upCount: "{n}/{total} відкрито · найкращий рівень {best}", upNext: "Далі: {item} на рівні {n}",
       peekNote: "Лише перегляд: відкриється за ★{n}",
-      raidBtn: "Атака шахедів", raidSub: "Усі гігантські шахеди поспіль", raidResult: "{n}/9 гігантських шахедів", raidDone: "АТАКУ ВІДБИТО!", raidBest: "Найкраща атака: {n}/9 · ⏱ {time}",
+      raidBtn: "Атака шахедів", raidSub: "Усі 9 гігантських шахедів поспіль", raidResult: "{n}/9 гігантських шахедів", raidDone: "АТАКУ ВІДБИТО!", raidBest: "Найкраща атака: {n}/9 · ⏱ {time}",
       raidRule1: "**9 гігантських шахедів** · кожен більший",
       raidRule2: "**Під корпус** + ПУСК = влучання · крила блокують",
       raidRule3: "**Червона смуга** = бомба · геть!",
@@ -1959,19 +1947,18 @@ window.I18N = (() => {
       limited: "🆕 Нове",
       vibeOn: "Вібрація: Увімк.", vibeOff: "Вібрація: Вимк.", startFrom: "Старт:", fromArea: "з {area}", bestMark: "РЕКОРД",
       killMarks: "{n}/{total} позначок збиття", ruleBoss: "**Кінець зони** = гігантський шахед · стань під ним і **ПУСК**",
-      saverOn: "Економія батареї: Увімк.", saverOff: "Економія батареї: Вимк.",
-      diffLabel: "Складність: {name}", diffEasy: "Учень водія", diffCareer: "Професійний водій", diffExpert: "Експерт втечі",
+      saverOn: "Економія батареї: Увімк.", saverOff: "Економія батареї: Вимк.", diffEasy: "Учень водія", diffCareer: "Професійний водій", diffExpert: "Експерт втечі",
       diffTitle: "Складність:",
       startLocked: "Відкривається на рівні {n}",
       scrollPrev: "Попередні зони", scrollNext: "Більше зон",
-      livesAria: "{n} з {max} життів"
+      livesAria: "{n} з {max} життів",
+      raidLocked: "Збий перший гігантський шахед, щоб відкрити"
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
-      play: 'თამაში', exit: 'გასვლა', installApp: 'აპის დაყენება', updateReady: "ახალი ვერსია მზადაა · შეეხეთ განახლებისთვის",
+      play: 'თამაში', installApp: 'აპის დაყენება', updateReady: "ახალი ვერსია მზადაა · შეეხეთ განახლებისთვის",
       installHintIos: 'ითამაშე როგორც აპში: შეეხე „გაზიარებას“, შემდეგ კი „მთავარ ეკრანზე დამატებას“.',
       installHintMenu: 'დასაყენებლად: გახსენი ბრაუზერის მენიუ (⋮) და აირჩიე „აპის დაყენება“ ან „მთავარ ეკრანზე დამატება“.', installHintInApp: 'დასაყენებლად ჯერ გახსენი ეს გვერდი შენს ბრაუზერში (Chrome, Safari…).',
-      thanks: 'მადლობა თამაშისთვის!', closeNow: 'ახლა შეგიძლია ეს ფანჯარა დახურო.', backToMenu: 'მენიუში დაბრუნება',
       howToPlay: 'როგორ ვითამაშოთ',
       lead1: "შეეხე ან გაასრიალე ზოლის შესაცვლელად.",
       rule1: '**საკონტროლო პუნქტი** = შემდეგი დონე, უფრო სწრაფად',
@@ -2039,7 +2026,7 @@ window.I18N = (() => {
       ms_boss_1: "ჩამოაგდე გიგანტური შაჰედი",
       upgradesBtn: "გაუმჯობესებები", upCount: "{n}/{total} გახსნილი · საუკეთესო დონე {best}", upNext: "შემდეგი: {item} დონე {n}-ზე",
       peekNote: "მხოლოდ გადახედვა: გაიხსნება ★{n}-ზე",
-      raidBtn: "შაჰედების შეტევა", raidSub: "ყველა გიგანტური შაჰედი ზედიზედ", raidResult: "{n}/9 გიგანტური შაჰედი", raidDone: "შეტევა მოგერიებულია!", raidBest: "საუკეთესო: {n}/9 · ⏱ {time}",
+      raidBtn: "შაჰედების შეტევა", raidSub: "ყველა 9 გიგანტური შაჰედი ზედიზედ", raidResult: "{n}/9 გიგანტური შაჰედი", raidDone: "შეტევა მოგერიებულია!", raidBest: "საუკეთესო: {n}/9 · ⏱ {time}",
       raidRule1: "**9 გიგანტური შაჰედი** · ყოველი უფრო დიდი",
       raidRule2: "**კორპუსის ქვეშ** + გასროლა = მოხვედრა · ფრთები ბლოკავს",
       raidRule3: "**წითელი ზოლი** = ბომბი · გაეცალე!",
@@ -2050,12 +2037,12 @@ window.I18N = (() => {
       limited: "🆕 ახალი",
       vibeOn: "ვიბრაცია: ჩართ.", vibeOff: "ვიბრაცია: გამორთ.", startFrom: "დაწყება:", fromArea: "{area}-დან", bestMark: "რეკორდი",
       killMarks: "{n}/{total} ნიშანი", ruleBoss: "**ზონის ბოლო** = გიგანტური შაჰედი · დადექი ქვეშ და **ესროლე**",
-      saverOn: "ბატარეის დაზოგვა: ჩართ.", saverOff: "ბატარეის დაზოგვა: გამორთ.",
-      diffLabel: "სირთულე: {name}", diffEasy: "მოსწავლე მძღოლი", diffCareer: "პროფესიონალი მძღოლი", diffExpert: "გაქცევის ექსპერტი",
+      saverOn: "ბატარეის დაზოგვა: ჩართ.", saverOff: "ბატარეის დაზოგვა: გამორთ.", diffEasy: "მოსწავლე მძღოლი", diffCareer: "პროფესიონალი მძღოლი", diffExpert: "გაქცევის ექსპერტი",
       diffTitle: "სირთულე:",
       startLocked: "იხსნება დონე {n}-ზე",
       scrollPrev: "წინა ზონების ჩვენება", scrollNext: "მეტი ზონის ჩვენება",
-      livesAria: "{max}-დან {n} სიცოცხლე"
+      livesAria: "{max}-დან {n} სიცოცხლე",
+      raidLocked: "გასახსნელად ჩამოაგდე პირველი გიგანტური შაჰედი"
     }
   };
   const NAMES = {
@@ -3920,9 +3907,9 @@ window.LD_RULES = (() => {
   // ---- Home screen ----
   const wrapEl = $('wrap');
   function show(id) {
-    for (const o of ['home', 'bye', 'intro', 'over', 'garage', 'records', 'pause', 'upgrades', 'raidHelp', 'settingsView']) $(o).classList.toggle('hidden', o !== id);
+    for (const o of ['home', 'intro', 'over', 'garage', 'records', 'pause', 'upgrades', 'raidHelp', 'settingsView']) $(o).classList.toggle('hidden', o !== id);
     if (id === 'home') { $('home').scrollTop = 0; requestAnimationFrame(fitHome); }
-    wrapEl.classList.toggle('at-home', ['home', 'bye', 'garage', 'records', 'upgrades', 'settingsView'].includes(id));
+    wrapEl.classList.toggle('at-home', ['home', 'garage', 'records', 'upgrades', 'settingsView'].includes(id));
   }
 
   // Home screen: if everything doesn't fit the screen's height, shrink it evenly until it does, so
@@ -4265,7 +4252,12 @@ window.LD_RULES = (() => {
     paintStartPick();
     requestAnimationFrame(fitHome);
     const rb = (() => { try { return JSON.parse(localStorage.getItem(RAID_KEY) || '{}') || {}; } catch { return {}; } })();
-    $('raidBtn').querySelector('small').textContent = rb.n ? t('raidBest', { n: rb.n, time: fmtTime(rb.tm || 0) }) : t('raidSub');
+    // Shahed Raid opens once you've beaten a giant Shahed in a normal run (or played a raid before)
+    const raidOpen = bossMarks().length > 0 || !!rb.n;
+    $('raidBtn').classList.toggle('locked', !raidOpen);
+    $('raidBtn').setAttribute('aria-disabled', String(!raidOpen));
+    $('raidBtn').querySelector('small').textContent = !raidOpen ? '🔒 ' + t('raidLocked')
+      : rb.n ? t('raidBest', { n: rb.n, time: fmtTime(rb.tm || 0) }) : t('raidSub');
     const best = readNum('laneDodgerBest');
     const hb = $('homeBest');
     hb.hidden = !best;
@@ -5765,7 +5757,7 @@ window.LD_RULES = (() => {
     else if ((e.key === 'p' || e.key === 'P' || e.key === 'Escape') && (state === 'play' || state === 'countdown')) pauseGame();
     else if ((e.key === 'p' || e.key === 'P' || e.key === 'Escape') && state === 'paused') resumeGame();
     else if (e.key === 'Escape' && state === 'menu' && helpFrom === 'pause') closeHelp();   // back to the pause menu
-    else if (e.key === 'Escape' && ['menu', 'over', 'bye', 'garage', 'records'].includes(state)) goHome();
+    else if (e.key === 'Escape' && ['menu', 'over', 'garage', 'records'].includes(state)) goHome();
     else if ((e.key === 'Enter' || e.key === ' ') && state === 'over') { e.preventDefault(); restart(); }
   });
 
@@ -5896,7 +5888,13 @@ window.LD_RULES = (() => {
     box.appendChild(name);
   }
   $('dailyBtn').addEventListener('click', () => { mode = 'daily'; startPlay(); });
-  $('raidBtn').addEventListener('click', () => { mode = 'raid'; openRaidHelp('start'); });
+  $('raidBtn').addEventListener('click', () => {
+    if ($('raidBtn').classList.contains('locked')) {            // not yet: a little shake, the subtitle says why
+      const b = $('raidBtn'); b.classList.remove('nope'); void b.offsetWidth; b.classList.add('nope'); buzz(30);
+      return;
+    }
+    mode = 'raid'; openRaidHelp('start');
+  });
   // The raid's own How to Play: before each raid, and in place of the normal one while a raid is paused.
   function openRaidHelp(from) {
     helpFrom = from === 'pause' ? 'pause' : 'raid';     // from the pause menu the run stays frozen
@@ -6011,7 +6009,6 @@ window.LD_RULES = (() => {
   $('upBtn').addEventListener('click', openUpgrades);
   $('upBack').addEventListener('click', goHome);
   $('homeBtn').addEventListener('click', goHome);
-  $('byeBack').addEventListener('click', () => { sfx.ensure(); goHome(); });
 
   // Re-render dynamic text when the language changes (picker on the home screen).
   I18N.onChange(() => { paintMute(); updateHud(); paintHomeBest(); fitStats(); });
