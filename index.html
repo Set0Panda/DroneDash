@@ -683,6 +683,8 @@
   .recList li {
     display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 12px; background: rgba(255,255,255,.05); text-align: left;
   }
+  .recList .recShare { margin: 0 0 0 auto; flex: none; width: 34px; height: 34px; min-height: 0; padding: 0; border-radius: 10px;
+                        font-size: 16px; line-height: 1; background: rgba(255,255,255,.08); box-shadow: none; }
   .recList li.latest { background: rgba(0,87,183,.3); box-shadow: inset 0 0 0 2px var(--ua-blue-lt); }
   .recList .rank { flex: none; width: 22px; font-weight: 900; color: var(--muted); text-align: center; }
   .recList li:first-child .rank { color: var(--coin); }
@@ -816,6 +818,7 @@
           <button id="fireSideBtn" class="secondary autoFireBtn" type="button"></button>
           <button id="calmBtn" class="secondary autoFireBtn" type="button" aria-pressed="false"></button>
           <button id="vibeBtn" class="secondary autoFireBtn" type="button" aria-pressed="true"></button>
+          <button id="saverBtn" class="secondary autoFireBtn" type="button" aria-pressed="false"></button>
         </div>
         <button id="pauseRetry" class="secondary" data-i18n="retry">Retry</button>
         <button id="pauseHome" class="ghost" data-i18n="home">Home</button>
@@ -978,7 +981,8 @@ window.I18N = (() => {
       odNext: "Overdrive ready for the next one",
       limited: "🆕 New",
       vibeOn: "Vibration: On", vibeOff: "Vibration: Off", startFrom: "Start:", fromArea: "from {area}", bestMark: "BEST",
-      killMarks: "{n}/{total} kill marks", ruleBoss: "**Area end** = giant Shahed · get under it and **FIRE**"
+      killMarks: "{n}/{total} kill marks", ruleBoss: "**Area end** = giant Shahed · get under it and **FIRE**",
+      saverOn: "Battery saver: On", saverOff: "Battery saver: Off"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -1063,7 +1067,8 @@ window.I18N = (() => {
       odNext: "Overdrive listo para el siguiente",
       limited: "🆕 Nuevo",
       vibeOn: "Vibración: Sí", vibeOff: "Vibración: No", startFrom: "Empezar:", fromArea: "desde {area}", bestMark: "RÉCORD",
-      killMarks: "{n}/{total} marcas de derribo", ruleBoss: "**Fin de zona** = Shahed gigante · ponte debajo y **DISPARA**"
+      killMarks: "{n}/{total} marcas de derribo", ruleBoss: "**Fin de zona** = Shahed gigante · ponte debajo y **DISPARA**",
+      saverOn: "Ahorro de batería: Sí", saverOff: "Ahorro de batería: No"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -1148,7 +1153,8 @@ window.I18N = (() => {
       odNext: "Overdrive prêt pour le suivant",
       limited: "🆕 Nouveau",
       vibeOn: "Vibration : oui", vibeOff: "Vibration : non", startFrom: "Départ :", fromArea: "depuis {area}", bestMark: "RECORD",
-      killMarks: "{n}/{total} marques de victoire", ruleBoss: "**Fin de zone** = Shahed géant · place-toi dessous et **FEU**"
+      killMarks: "{n}/{total} marques de victoire", ruleBoss: "**Fin de zone** = Shahed géant · place-toi dessous et **FEU**",
+      saverOn: "Économie de batterie : oui", saverOff: "Économie de batterie : non"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -1233,7 +1239,8 @@ window.I18N = (() => {
       odNext: "Overdrive bereit für den nächsten",
       limited: "🆕 Neu",
       vibeOn: "Vibration: An", vibeOff: "Vibration: Aus", startFrom: "Start:", fromArea: "ab {area}", bestMark: "REKORD",
-      killMarks: "{n}/{total} Abschussmarken", ruleBoss: "**Gebietsende** = Riesen-Shahed · darunter stellen und **FEUER**"
+      killMarks: "{n}/{total} Abschussmarken", ruleBoss: "**Gebietsende** = Riesen-Shahed · darunter stellen und **FEUER**",
+      saverOn: "Akku sparen: An", saverOff: "Akku sparen: Aus"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -1318,7 +1325,8 @@ window.I18N = (() => {
       odNext: "Overdrive pronto para o próximo",
       limited: "🆕 Novo",
       vibeOn: "Vibração: Ligada", vibeOff: "Vibração: Desligada", startFrom: "Começar:", fromArea: "desde {area}", bestMark: "RECORDE",
-      killMarks: "{n}/{total} marcas de abate", ruleBoss: "**Fim da área** = Shahed gigante · fique embaixo e **DISPARE**"
+      killMarks: "{n}/{total} marcas de abate", ruleBoss: "**Fim da área** = Shahed gigante · fique embaixo e **DISPARE**",
+      saverOn: "Economia de bateria: Ligada", saverOff: "Economia de bateria: Desligada"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -1403,7 +1411,8 @@ window.I18N = (() => {
       odNext: "Overdrive pronto per il prossimo",
       limited: "🆕 Nuovo",
       vibeOn: "Vibrazione: Sì", vibeOff: "Vibrazione: No", startFrom: "Parti da:", fromArea: "da {area}", bestMark: "RECORD",
-      killMarks: "{n}/{total} segni di abbattimento", ruleBoss: "**Fine zona** = Shahed gigante · mettiti sotto e **FUOCO**"
+      killMarks: "{n}/{total} segni di abbattimento", ruleBoss: "**Fine zona** = Shahed gigante · mettiti sotto e **FUOCO**",
+      saverOn: "Risparmio batteria: Sì", saverOff: "Risparmio batteria: No"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -1488,7 +1497,8 @@ window.I18N = (() => {
       odNext: "次の戦いにOVERDRIVEを温存",
       limited: "🆕 新登場",
       vibeOn: "振動：オン", vibeOff: "振動：オフ", startFrom: "スタート：", fromArea: "{area}から", bestMark: "ベスト",
-      killMarks: "撃墜マーク {n}/{total}", ruleBoss: "**エリアの最後**＝巨大シャヘド · 真下で**発射**"
+      killMarks: "撃墜マーク {n}/{total}", ruleBoss: "**エリアの最後**＝巨大シャヘド · 真下で**発射**",
+      saverOn: "省電力：オン", saverOff: "省電力：オフ"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -1573,7 +1583,8 @@ window.I18N = (() => {
       odNext: "OVERDRIVE 留给下一架",
       limited: "🆕 新",
       vibeOn: "振动：开", vibeOff: "振动：关", startFrom: "起点：", fromArea: "从{area}出发", bestMark: "最佳",
-      killMarks: "击落标记 {n}/{total}", ruleBoss: "**区域尽头**＝巨型沙赫德 · 开到它下方**发射**"
+      killMarks: "击落标记 {n}/{total}", ruleBoss: "**区域尽头**＝巨型沙赫德 · 开到它下方**发射**",
+      saverOn: "省电模式：开", saverOff: "省电模式：关"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -1658,7 +1669,8 @@ window.I18N = (() => {
       odNext: "다음 전투에 OVERDRIVE 준비",
       limited: "🆕 신규",
       vibeOn: "진동: 켜짐", vibeOff: "진동: 꺼짐", startFrom: "시작:", fromArea: "{area}부터", bestMark: "최고",
-      killMarks: "격추 마크 {n}/{total}", ruleBoss: "**구역 끝** = 거대 샤헤드 · 밑으로 가서 **발사**"
+      killMarks: "격추 마크 {n}/{total}", ruleBoss: "**구역 끝** = 거대 샤헤드 · 밑으로 가서 **발사**",
+      saverOn: "배터리 절약: 켜짐", saverOff: "배터리 절약: 꺼짐"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -1743,7 +1755,8 @@ window.I18N = (() => {
       odNext: "अगले के लिए OVERDRIVE तैयार",
       limited: "🆕 नया",
       vibeOn: "कंपन: चालू", vibeOff: "कंपन: बंद", startFrom: "शुरुआत:", fromArea: "{area} से", bestMark: "सर्वश्रेष्ठ",
-      killMarks: "{n}/{total} किल मार्क", ruleBoss: "**इलाके का अंत** = विशाल शाहेद · नीचे आकर **फ़ायर**"
+      killMarks: "{n}/{total} किल मार्क", ruleBoss: "**इलाके का अंत** = विशाल शाहेद · नीचे आकर **फ़ायर**",
+      saverOn: "बैटरी सेवर: चालू", saverOff: "बैटरी सेवर: बंद"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -1830,7 +1843,8 @@ window.I18N = (() => {
       odNext: "OVERDRIVE готовий до наступного",
       limited: "🆕 Нове",
       vibeOn: "Вібрація: Увімк.", vibeOff: "Вібрація: Вимк.", startFrom: "Старт:", fromArea: "з {area}", bestMark: "РЕКОРД",
-      killMarks: "{n}/{total} позначок збиття", ruleBoss: "**Кінець зони** = гігантський шахед · стань під ним і **ПУСК**"
+      killMarks: "{n}/{total} позначок збиття", ruleBoss: "**Кінець зони** = гігантський шахед · стань під ним і **ПУСК**",
+      saverOn: "Економія батареї: Увімк.", saverOff: "Економія батареї: Вимк."
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -1915,7 +1929,8 @@ window.I18N = (() => {
       odNext: "OVERDRIVE მზადაა შემდეგისთვის",
       limited: "🆕 ახალი",
       vibeOn: "ვიბრაცია: ჩართ.", vibeOff: "ვიბრაცია: გამორთ.", startFrom: "დაწყება:", fromArea: "{area}-დან", bestMark: "რეკორდი",
-      killMarks: "{n}/{total} ნიშანი", ruleBoss: "**ზონის ბოლო** = გიგანტური შაჰედი · დადექი ქვეშ და **ესროლე**"
+      killMarks: "{n}/{total} ნიშანი", ruleBoss: "**ზონის ბოლო** = გიგანტური შაჰედი · დადექი ქვეშ და **ესროლე**",
+      saverOn: "ბატარეის დაზოგვა: ჩართ.", saverOff: "ბატარეის დაზოგვა: გამორთ."
     }
   };
   const NAMES = {
@@ -2448,6 +2463,8 @@ window.LD_RULES = (() => {
   let heartProgress = 0, heartsEarned = 0;
 
   // Vibration, unless switched off in Settings.
+  // Battery saver: fewer frames and lower resolution, for older or warm phones.
+  let saver = (() => { try { return localStorage.getItem('ddSaver') === '1'; } catch { return false; } })();
   let vibeOn = (() => { try { return localStorage.getItem('ddVibe') !== '0'; } catch { return true; } })();
   function buzz(p) { if (vibeOn && navigator.vibrate) try { navigator.vibrate(p); } catch {} }
   function readNum(k) { try { return +localStorage.getItem(k) || 0; } catch { return 0; } }
@@ -2654,7 +2671,7 @@ window.LD_RULES = (() => {
   let viewK = 1;                // screen px per world unit
   function resize() {
     const r = canvas.getBoundingClientRect();
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    dpr = saver ? 1 : Math.min(window.devicePixelRatio || 1, 2);   // battery saver: draw at 1x
     viewK = Math.max(0.5, r.height / VIEW_H);
     W = r.width / viewK; H = r.height / viewK;
     canvas.width = r.width * dpr; canvas.height = r.height * dpr;
@@ -3694,11 +3711,11 @@ window.LD_RULES = (() => {
     c.fillStyle = '#9fb3d9'; c.font = font(700, 36); c.fillText(GAME_URL.replace(/^https:\/\//, ''), CW / 2, 1290);
     return cv;
   }
-  async function shareRun() {
-    const r = lastRun; if (!r) return;
+  async function shareRun(run) {
+    const r = run && run.s !== undefined ? run : lastRun; if (!r) return;
     ddTrack('share', 'Shared a result');
     const text = shareText(r), note = $('shareNote');
-    const say = k => { note.textContent = t(k); note.hidden = false; };
+    const say = k => { if (r === lastRun) { note.textContent = t(k); note.hidden = false; } else toast(t(k)); };   // from Records: a pop-up
     try {
       const blob = r.blob || await new Promise(res => shareCard(r).toBlob(res, 'image/png'));
       const file = blob && new File([blob], 'drone-dash.png', { type: 'image/png' });
@@ -4065,7 +4082,10 @@ window.LD_RULES = (() => {
       trip.textContent = [r.st > 1 ? t('fromArea', { area: AREAS[areaFor(r.st)].icon }) : '', t('meters', { n: r.d }), r.tm ? '⏱ ' + fmtTime(r.tm) : '', r.k > 0 ? '🎯 ' + num(r.k) : '', r.o > 0 ? '⚡ ' + num(r.o) : '', r.b > 0 ? '🛸 ' + num(r.b) : '', df.format(r.t)]
         .filter(Boolean).join(' · ');
       info.append(b, where, trip);
-      li.append(rank, cv, info);
+      const sh = document.createElement('button');              // share this run
+      sh.type = 'button'; sh.className = 'recShare'; sh.textContent = '📤'; sh.title = t('share'); sh.setAttribute('aria-label', t('share'));
+      sh.addEventListener('click', () => shareRun({ ...r, a: r.a ?? areaFor(r.l), tm: r.tm || 0, day: 0, raid: -1, tw: '' }));   // older runs lack some fields
+      li.append(rank, cv, info, sh);
       list.appendChild(li);
       paintCarOn(cv, 50, 70, carPaint(r.h, r.v ?? 50, r.f || '', r.km || 0), r.l, 0.76, r.no ?? 7);  // older runs: no shade / number saved
     });
@@ -5012,6 +5032,23 @@ window.LD_RULES = (() => {
     ctx.restore();
   }
   const chased = d => rockets.some(r => r.target === d);
+  // Diagonal stripes over a danger lane, strongest near the car, so the warning doesn't rely on
+  // seeing red (colour-blind players).
+  let stripeTile = null;
+  function dangerStripes(x, y, w, h, alpha) {
+    if (h <= 0) return;
+    if (!stripeTile) {
+      stripeTile = document.createElement('canvas'); stripeTile.width = stripeTile.height = 18;
+      const c = stripeTile.getContext('2d');
+      c.strokeStyle = 'rgba(255,235,235,.9)'; c.lineWidth = 3;
+      c.beginPath(); c.moveTo(-4, 22); c.lineTo(22, -4); c.moveTo(-4, 4); c.lineTo(4, -4); c.moveTo(14, 22); c.lineTo(22, 14); c.stroke();
+    }
+    ctx.save();
+    ctx.globalAlpha = alpha * 0.35;
+    ctx.fillStyle = ctx.createPattern(stripeTile, 'repeat');
+    ctx.beginPath(); ctx.rect(x, y + h * 0.35, w, h * 0.65); ctx.fill();
+    ctx.restore();
+  }
   // Danger lane: a pulsing red strip down the lane it will hit, drawn on the road before the car.
   function drawDroneWarning(d) {
     const pulse = 0.5 + 0.5 * Math.sin(d.t * 10);
@@ -5024,6 +5061,7 @@ window.LD_RULES = (() => {
     g.addColorStop(1, `rgba(245,101,101,${a.toFixed(3)})`);
     ctx.fillStyle = g;
     ctx.fillRect(lx - laneW / 2 + 4, top, laneW - 8, bottom - top);
+    dangerStripes(lx - laneW / 2 + 4, top, laneW - 8, bottom - top, d.locked ? 0.55 : 0.3);
   }
   // Lock-on brackets round the drone: yellow = you can fire, green = a rocket is on it,
   // red = no rockets. With a shot ready, a dashed aim line runs from your car to it.
@@ -5423,6 +5461,7 @@ window.LD_RULES = (() => {
         const g = ctx.createLinearGradient(0, boss.y, 0, player.y + player.h);
         g.addColorStop(0, 'rgba(245,101,101,0)'); g.addColorStop(1, `rgba(245,101,101,${(0.12 + 0.25 * k * pulse).toFixed(3)})`);
         ctx.fillStyle = g; ctx.fillRect(laneX(l) - laneW / 2 + 4, boss.y, laneW - 8, player.y + player.h - boss.y);
+        dangerStripes(laneX(l) - laneW / 2 + 4, boss.y, laneW - 8, player.y + player.h - boss.y, 0.3 + 0.4 * k);
       }
     }
 
@@ -5562,6 +5601,7 @@ window.LD_RULES = (() => {
   }
 
   function loop(t) {
+    if (saver && last && t - last < 30) { requestAnimationFrame(loop); return; }   // battery saver: about 30 frames a second
     const dt = Math.max(0, Math.min(0.05, (t - (last || t)) / 1000));
     last = t;
     realDt = dt;
@@ -5725,6 +5765,18 @@ window.LD_RULES = (() => {
   I18N.onChange(paintFireSide);
   paintFireSide();
   // Reduce motion: no screen shake, slow motion, camera push or pulsing.
+  const saverBtn = $('saverBtn');
+  function paintSaver() {
+    saverBtn.textContent = '🔋 ' + t(saver ? 'saverOn' : 'saverOff');
+    saverBtn.setAttribute('aria-pressed', String(saver)); saverBtn.classList.toggle('on', saver);
+  }
+  saverBtn.addEventListener('click', () => {
+    saver = !saver;
+    try { localStorage.setItem('ddSaver', saver ? '1' : '0'); } catch {}
+    paintSaver(); resize();
+  });
+  I18N.onChange(paintSaver);
+  paintSaver();
   const vibeBtn = $('vibeBtn');
   function paintVibe() {
     vibeBtn.textContent = '📳 ' + t(vibeOn ? 'vibeOn' : 'vibeOff');
