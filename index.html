@@ -142,18 +142,23 @@
   #wrap #eggBar.stick .stick { order: 1; }
   #wrap #eggBar.stick .eggInfo { order: 2; justify-items: end; text-align: right; }
   #wrap #eggBar.stick .eggTop, #eggBar.stick .eggSub { justify-content: flex-end; }
-  #wrap #eggBar.stick .stick { display: block; position: relative; height: 70px; border-radius: 35px; touch-action: none; user-select: none; cursor: grab;
+  #wrap #eggBar.stick .stick { display: block; position: relative; height: 78px; border-radius: 39px; touch-action: none; user-select: none; cursor: grab;
     background: linear-gradient(#232a4d, #1a2040); box-shadow: inset 0 0 0 2px rgba(255,255,255,.14), inset 0 4px 10px rgba(0,0,0,.4); }
   /* three lane spots on the track, under where the knob rests for each lane */
   .stickSlot { position: absolute; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: rgba(255,255,255,.18); pointer-events: none; }
   .stickSlot.l { left: 34px; } .stickSlot.m { left: 50%; } .stickSlot.r { left: calc(100% - 34px); }
-  .stickKnob { position: absolute; left: 50%; top: 50%; width: 58px; height: 58px; margin: -29px 0 0 -29px; border-radius: 50%;
+  .stickKnob { position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%;
     display: grid; place-items: center; font-size: 26px; pointer-events: none; transition: transform .12s ease-out;
     background: radial-gradient(circle at 40% 35%, #ffe766, var(--ua-yellow) 60%, #d9a800); box-shadow: 0 4px 0 #a07c00, 0 6px 14px rgba(0,0,0,.45); }
   .stick.held .stickKnob { transition: none; }
   .stick.empty .stickKnob { background: radial-gradient(circle at 40% 35%, #59628a, #3a4166); box-shadow: 0 4px 0 #262b47; }
-  .stickKnob b { position: absolute; top: -6px; right: -6px; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px; font-size: 13px; line-height: 22px;
-    background: var(--ua-blue); color: #fff; box-shadow: 0 0 0 2px #0f1220; }
+  /* rockets ready: the whole track glows (visible around the thumb) and the count sits above it */
+  #wrap #eggBar.stick .stick:not(.empty) { box-shadow: inset 0 0 0 3px var(--ua-yellow), 0 0 14px rgba(255,213,0,.45); animation: stickReady 1.2s ease-in-out infinite alternate; }
+  @keyframes stickReady { to { box-shadow: inset 0 0 0 3px var(--ua-yellow), 0 0 22px rgba(255,213,0,.75); } }
+  .stickN { position: absolute; left: 50%; top: -15px; transform: translateX(-50%); padding: 2px 10px; border-radius: 12px; white-space: nowrap;
+    font-size: 14px; font-weight: 900; line-height: 20px; background: var(--ua-yellow); color: #0a1c3d; box-shadow: 0 0 0 2px #0f1220; pointer-events: none; }
+  .stick.empty .stickN { background: #3a4166; color: #8b93b5; }
+  @media (prefers-reduced-motion: reduce) { #wrap #eggBar.stick .stick { animation: none !important; } }
   /* FIRE's side gets the bigger share of the bar (the coin counters need less) */
   #eggBar { grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr); }
   #eggBar.fire-left { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); }
@@ -780,6 +785,7 @@
               box-shadow: inset 0 0 0 1px rgba(46,204,113,.45); font-size: 13px; font-weight: 700; width: 100%; }
   .learnTip[hidden] { display: none; }
   .learnTip button { margin: 0; min-height: 0; padding: 7px 16px; font-size: 14px; }
+  .ctrlNote { display: block; font-size: 12px; color: var(--muted); margin: -4px 0 2px; text-align: center; }
   .raidDiffWhat { font-size: 12px; color: var(--muted); font-weight: 700; margin-top: -4px; }
   .startPick .diffWhat { color: var(--muted); font-weight: 700; margin-top: -4px; }
   .raidDiff { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -869,7 +875,8 @@
     <!-- one-thumb mode: a thumbstick in the middle. Drag it to steer, tap it to fire. -->
     <div id="stick" class="stick" role="group" data-i18n-aria="thumbHint" aria-label="Drag to steer · Tap to fire">
       <span class="stickSlot l" aria-hidden="true"></span><span class="stickSlot m" aria-hidden="true"></span><span class="stickSlot r" aria-hidden="true"></span>
-      <span id="stickKnob" class="stickKnob"><span aria-hidden="true">🚀</span><b id="stickN">0</b></span>
+      <span id="stickKnob" class="stickKnob"><span aria-hidden="true">🚀</span></span>
+      <b id="stickN" class="stickN">🚀 0</b>
     </div>
   </div>
 
@@ -992,7 +999,8 @@
           <button id="fireSideBtn" class="secondary autoFireBtn" type="button"></button>
           <button id="calmBtn" class="secondary autoFireBtn" type="button" aria-pressed="false"></button>
           <button id="vibeBtn" class="secondary autoFireBtn" type="button" aria-pressed="true"></button>
-          <button id="ctrlBtn" class="secondary autoFireBtn" type="button"></button>
+          <button id="ctrlBtn" class="secondary autoFireBtn" type="button" aria-describedby="ctrlNote"></button>
+          <small id="ctrlNote" class="ctrlNote" data-i18n="ctrlNote">Change how you steer and fire on touch screens</small>
           <button id="saverBtn" class="secondary autoFireBtn" type="button" aria-pressed="false"></button>
         </div>
         <button id="pauseRetry" class="secondary" data-i18n="retry">Retry</button>
@@ -1005,13 +1013,13 @@
     <div class="card introCard" role="dialog" aria-labelledby="introTitle">
       <h1 id="introTitle" data-i18n="howToPlay">How to Play</h1>
       <div class="demo" aria-hidden="true"><div class="drone"></div><div class="rocket"></div><div class="boom"></div><div class="car"><i></i><b></b><s></s></div><div class="tap"></div><div class="tap fire"></div></div>
-      <p class="lead"><span data-i18n="lead1">Tap or drag to change lanes.</span></p>
+      <p class="lead"><span id="leadCtrl" data-i18n="lead1">Tap or drag to change lanes.</span></p>
       <ul class="rules">
         <li><span class="ico"><span class="ico flag"></span></span><span data-i18n="rule1" data-rich><b>Checkpoints</b> = next level, faster</span></li>
         <li><span class="ico autoIco">⛽</span><span data-i18n="rule2" data-rich><b>Fuel</b> drains · <b>5 coins</b> = +40%</span></li>
         <li><span class="ico"><span class="ico block"></span></span><span data-i18n="rule4" data-rich><b>3 crashes</b> = out · <b>10 coins</b> = a <b>♥</b> (fixes the car)</span></li>
         <li><span class="ico"><span class="ico hole"></span></span><span data-i18n="rule5" data-rich><b>Potholes</b> = −8% fuel</span></li>
-        <li><span class="ico autoIco">🚀</span><span data-i18n="rule6" data-rich><b>FIRE</b> (3 coins) shoots <b>Shaheds</b> and barriers</span></li>
+        <li><span class="ico autoIco">🚀</span><span data-i18n="rule6" data-rich><b>FIRE</b>: 3 coins at a <b>Shahed</b> or barrier · 1 coin straight ahead</span></li>
         <li><span class="ico autoIco">🛸</span><span data-i18n="ruleBoss" data-rich><b>Area end</b> = giant Shahed · get under it and <b>FIRE</b></span></li>
         <li><span class="ico"><i class="comboIco">×2</i></span><span data-i18n="ruleCombo" data-rich><b>Combo</b>: coins, near misses and drones fill it · <b>max = OVERDRIVE</b></span></li>
         <li><span class="ico autoIco">🤖</span><span data-i18n="ruleAuto" data-rich><b>Auto-fire</b>: aims for you, better with a combo</span></li>
@@ -1088,7 +1096,7 @@ window.I18N = (() => {
       rule2: "**Fuel** drains · **5 coins** = +40%",
       rule4: "**3 crashes** = out · **10 coins** = a **♥** (fixes the car)",
       rule5: "**Potholes** = −8% fuel",
-      rule6: "**FIRE** (3 coins) shoots **Shaheds** and barriers",
+      rule6: "**FIRE**: 3 coins at a **Shahed** or barrier · 1 coin straight ahead",
       ruleCombo: "**Combo**: coins, near misses and drones fill it · **max = OVERDRIVE**",
       ruleAuto: "**Auto-fire**: aims for you, better with a combo",
       keys: "Keyboard: ← → or A / D · Space fire · P pause · M mute", gotIt: 'Got it!',
@@ -1171,7 +1179,8 @@ window.I18N = (() => {
       diffWhat0: "Slower road · score ×0.7", diffWhat1: "Normal speed · score ×1", diffWhat2: "Faster road · score ×1.3", raidWhat0: "Weaker giant Shaheds, fewer bombs", raidWhat1: "Standard giant Shaheds", raidWhat2: "Tougher giant Shaheds, more bombs", ok: "OK",
       installHintFfDesk: "Firefox on computers can't install apps. Open this page in Chrome or Edge to install it, or bookmark it (Ctrl+D).", installHintFfAndroid: "To install: tap the menu (⋮) and choose “Add to Home screen”.",
       lowFuelTip: "Low fuel! Grab coins", learnTip: "Finding it tough? Try Learner: a slower road.", learnBtn: "Try Learner",
-      ctrlThumb: "Controls: One thumb", ctrlLane: "Controls: Tap lane", thumbHint: "Drag to steer · Tap to fire"
+      ctrlThumb: "Controls: One thumb", ctrlLane: "Controls: Tap lane", thumbHint: "Drag to steer · Tap to fire",
+      leadThumb: "Drag the stick or the road to steer · tap to fire.", ctrlNote: "Change how you steer and fire on touch screens"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -1184,7 +1193,7 @@ window.I18N = (() => {
       rule2: "**Combustible** se gasta · **5 monedas** = +40%",
       rule4: "**3 choques** = fuera · **10 monedas** = un **♥** (repara el coche)",
       rule5: "**Baches** = −8% combustible",
-      rule6: "**DISPARAR** (3 monedas) derriba **Shaheds** y barreras",
+      rule6: "**DISPARAR**: 3 monedas a un **Shahed** o barrera · 1 moneda hacia delante",
       ruleCombo: "**Combo**: monedas, roces y drones lo llenan · **al máximo = OVERDRIVE**",
       ruleAuto: "**Disparo automático**: apunta por ti, mejor con combo",
       keys: "Teclado: ← → o A / D · Espacio dispara · P pausa · M silencio", gotIt: '¡Entendido!',
@@ -1267,7 +1276,8 @@ window.I18N = (() => {
       diffWhat0: "Carretera más lenta · puntos ×0,7", diffWhat1: "Velocidad normal · puntos ×1", diffWhat2: "Carretera más rápida · puntos ×1,3", raidWhat0: "Shaheds gigantes más débiles, menos bombas", raidWhat1: "Shaheds gigantes normales", raidWhat2: "Shaheds gigantes más duros, más bombas", ok: "OK",
       installHintFfDesk: "Firefox en ordenador no puede instalar apps. Abre esta página en Chrome o Edge para instalarla, o guárdala en marcadores (Ctrl+D).", installHintFfAndroid: "Para instalar: toca el menú (⋮) y elige «Añadir a pantalla de inicio».",
       lowFuelTip: "¡Poco combustible! Coge monedas", learnTip: "¿Se te hace difícil? Prueba Aprendiz: carretera más lenta.", learnBtn: "Probar Aprendiz",
-      ctrlThumb: "Controles: Un pulgar", ctrlLane: "Controles: Tocar carril", thumbHint: "Arrastra para girar · Toca para disparar"
+      ctrlThumb: "Controles: Un pulgar", ctrlLane: "Controles: Tocar carril", thumbHint: "Arrastra para girar · Toca para disparar",
+      leadThumb: "Arrastra el mando o la carretera para girar · toca para disparar.", ctrlNote: "Cambia cómo giras y disparas en pantallas táctiles"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -1280,7 +1290,7 @@ window.I18N = (() => {
       rule2: `**L'essence** baisse · **5 pièces** = +40${NB}%`,
       rule4: "**3 accidents** = fini · **10 pièces** = un **♥** (répare la voiture)",
       rule5: `**Nids-de-poule** = −8${NB}% d'essence`,
-      rule6: "**FEU** (3 pièces) abat les **Shaheds** et les barrières",
+      rule6: "**FEU** : 3 pièces sur un **Shahed** ou une barrière · 1 pièce tout droit",
       ruleCombo: "**Combo** : pièces, frôlements et drones le remplissent · **au max = OVERDRIVE**",
       ruleAuto: "**Tir auto** : vise pour toi, mieux avec un combo",
       keys: `Clavier${NB}: ← → ou A / D · Espace tir · P pause · M son`, gotIt: `C'est parti${NB}!`,
@@ -1363,7 +1373,8 @@ window.I18N = (() => {
       diffWhat0: "Route plus lente · score ×0,7", diffWhat1: "Vitesse normale · score ×1", diffWhat2: "Route plus rapide · score ×1,3", raidWhat0: "Shaheds géants plus faibles, moins de bombes", raidWhat1: "Shaheds géants normaux", raidWhat2: "Shaheds géants plus coriaces, plus de bombes", ok: "OK",
       installHintFfDesk: "Firefox sur ordinateur ne peut pas installer d'applis. Ouvre cette page dans Chrome ou Edge pour l'installer, ou ajoute-la aux favoris (Ctrl+D).", installHintFfAndroid: "Pour installer : touche le menu (⋮) et choisis « Ajouter à l'écran d'accueil ».",
       lowFuelTip: "Peu d'essence ! Prends des pièces", learnTip: "C'est dur ? Essaie Apprenti conducteur : une route plus lente.", learnBtn: "Essayer Apprenti conducteur",
-      ctrlThumb: "Commandes : Un pouce", ctrlLane: "Commandes : Toucher la voie", thumbHint: "Glisse pour tourner · Touche pour tirer"
+      ctrlThumb: "Commandes : Un pouce", ctrlLane: "Commandes : Toucher la voie", thumbHint: "Glisse pour tourner · Touche pour tirer",
+      leadThumb: "Glisse le joystick ou la route pour tourner · touche pour tirer.", ctrlNote: "Change ta façon de tourner et de tirer sur écran tactile"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -1376,7 +1387,7 @@ window.I18N = (() => {
       rule2: "**Sprit** sinkt · **5 Münzen** = +40 %",
       rule4: "**3 Unfälle** = raus · **10 Münzen** = ein **♥** (repariert das Auto)",
       rule5: "**Schlaglöcher** = −8 % Sprit",
-      rule6: "**FEUER** (3 Münzen) schießt **Shaheds** und Barrieren ab",
+      rule6: "**FEUER**: 3 Münzen auf **Shahed** oder Barriere · 1 Münze geradeaus",
       ruleCombo: "**Combo**: Münzen, knappe Manöver und Drohnen füllen ihn · **voll = OVERDRIVE**",
       ruleAuto: "**Auto-Feuer**: zielt für dich, besser mit Combo",
       keys: "Tastatur: ← → oder A / D · Leertaste Feuer · P Pause · M Ton aus", gotIt: 'Verstanden!',
@@ -1459,7 +1470,8 @@ window.I18N = (() => {
       diffWhat0: "Langsamere Straße · Punkte ×0,7", diffWhat1: "Normales Tempo · Punkte ×1", diffWhat2: "Schnellere Straße · Punkte ×1,3", raidWhat0: "Schwächere Riesen-Shaheds, weniger Bomben", raidWhat1: "Normale Riesen-Shaheds", raidWhat2: "Härtere Riesen-Shaheds, mehr Bomben", ok: "OK",
       installHintFfDesk: "Firefox auf dem Computer kann keine Apps installieren. Öffne diese Seite in Chrome oder Edge, um sie zu installieren, oder setze ein Lesezeichen (Strg+D).", installHintFfAndroid: "Zum Installieren: Tippe auf das Menü (⋮) und wähle „Zum Startbildschirm hinzufügen“.",
       lowFuelTip: "Wenig Sprit! Münzen holen", learnTip: "Zu schwer? Probier Fahrschüler: langsamere Straße.", learnBtn: "Fahrschüler testen",
-      ctrlThumb: "Steuerung: Ein Daumen", ctrlLane: "Steuerung: Spur antippen", thumbHint: "Ziehen zum Lenken · Tippen zum Feuern"
+      ctrlThumb: "Steuerung: Ein Daumen", ctrlLane: "Steuerung: Spur antippen", thumbHint: "Ziehen zum Lenken · Tippen zum Feuern",
+      leadThumb: "Stick oder Straße ziehen zum Lenken · tippen zum Feuern.", ctrlNote: "Wie du auf Touchscreens lenkst und feuerst"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -1472,7 +1484,7 @@ window.I18N = (() => {
       rule2: "**Combustível** acaba · **5 moedas** = +40%",
       rule4: "**3 batidas** = fim · **10 moedas** = um **♥** (conserta o carro)",
       rule5: "**Buracos** = −8% combustível",
-      rule6: "**DISPARAR** (3 moedas) derruba **Shaheds** e barreiras",
+      rule6: "**DISPARAR**: 3 moedas num **Shahed** ou barreira · 1 moeda em frente",
       ruleCombo: "**Combo**: moedas, quase-batidas e drones enchem · **no máximo = OVERDRIVE**",
       ruleAuto: "**Disparo automático**: mira por você, melhor com combo",
       keys: "Teclado: ← → ou A / D · Espaço dispara · P pausa · M som", gotIt: 'Entendi!',
@@ -1555,7 +1567,8 @@ window.I18N = (() => {
       diffWhat0: "Estrada mais lenta · pontos ×0,7", diffWhat1: "Velocidade normal · pontos ×1", diffWhat2: "Estrada mais rápida · pontos ×1,3", raidWhat0: "Shaheds gigantes mais fracos, menos bombas", raidWhat1: "Shaheds gigantes normais", raidWhat2: "Shaheds gigantes mais duros, mais bombas", ok: "OK",
       installHintFfDesk: "O Firefox no computador não instala apps. Abra esta página no Chrome ou no Edge para instalar, ou adicione aos favoritos (Ctrl+D).", installHintFfAndroid: "Para instalar: toque no menu (⋮) e escolha “Adicionar à tela inicial”.",
       lowFuelTip: "Pouco combustível! Pegue moedas", learnTip: "Está difícil? Tente Aprendiz: estrada mais lenta.", learnBtn: "Tentar Aprendiz",
-      ctrlThumb: "Controles: Um polegar", ctrlLane: "Controles: Tocar na faixa", thumbHint: "Arraste para virar · Toque para atirar"
+      ctrlThumb: "Controles: Um polegar", ctrlLane: "Controles: Tocar na faixa", thumbHint: "Arraste para virar · Toque para atirar",
+      leadThumb: "Arraste o controle ou a estrada para virar · toque para atirar.", ctrlNote: "Mude como você vira e atira em telas sensíveis ao toque"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -1568,7 +1581,7 @@ window.I18N = (() => {
       rule2: "**Carburante** cala · **5 monete** = +40%",
       rule4: "**3 incidenti** = fuori · **10 monete** = un **♥** (ripara l'auto)",
       rule5: "**Buche** = −8% carburante",
-      rule6: "**FUOCO** (3 monete) abbatte **Shahed** e barriere",
+      rule6: "**FUOCO**: 3 monete su **Shahed** o barriera · 1 moneta dritto",
       ruleCombo: "**Combo**: monete, sorpassi al pelo e droni lo riempiono · **al massimo = OVERDRIVE**",
       ruleAuto: "**Fuoco automatico**: mira per te, meglio con una combo",
       keys: "Tastiera: ← → o A / D · Spazio fuoco · P pausa · M audio", gotIt: 'Ho capito!',
@@ -1651,7 +1664,8 @@ window.I18N = (() => {
       diffWhat0: "Strada più lenta · punti ×0,7", diffWhat1: "Velocità normale · punti ×1", diffWhat2: "Strada più veloce · punti ×1,3", raidWhat0: "Shahed giganti più deboli, meno bombe", raidWhat1: "Shahed giganti normali", raidWhat2: "Shahed giganti più tosti, più bombe", ok: "OK",
       installHintFfDesk: "Firefox su computer non può installare app. Apri questa pagina in Chrome o Edge per installarla, oppure aggiungila ai segnalibri (Ctrl+D).", installHintFfAndroid: "Per installarla: tocca il menu (⋮) e scegli “Aggiungi a schermata Home”.",
       lowFuelTip: "Poco carburante! Prendi monete", learnTip: "Troppo difficile? Prova «Foglio rosa»: strada più lenta.", learnBtn: "Prova «Foglio rosa»",
-      ctrlThumb: "Comandi: Un pollice", ctrlLane: "Comandi: Tocca la corsia", thumbHint: "Trascina per sterzare · Tocca per sparare"
+      ctrlThumb: "Comandi: Un pollice", ctrlLane: "Comandi: Tocca la corsia", thumbHint: "Trascina per sterzare · Tocca per sparare",
+      leadThumb: "Trascina la levetta o la strada per sterzare · tocca per sparare.", ctrlNote: "Cambia come sterzi e spari sui touchscreen"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -1664,7 +1678,7 @@ window.I18N = (() => {
       rule2: "**燃料**は減る・**コイン5枚**で+40%",
       rule4: "**3回クラッシュ**で終了・**コイン10枚**で**♥**（車も修理）",
       rule5: "**穴ぼこ**は燃料−8%",
-      rule6: "**発射**（コイン3枚）で**シャヘド**もバリアも撃破",
+      rule6: "**発射**：**シャヘド**やバリアにコイン3枚 · まっすぐならコイン1枚",
       ruleCombo: "**コンボ**：コイン・ギリギリ回避・ドローン撃墜でたまる · **満タンでOVERDRIVE**",
       ruleAuto: "**自動発射**：自動で狙う。コンボ中は命中率アップ",
       keys: "キーボード：← → または A / D・スペースで発射・P で一時停止・M でミュート", gotIt: 'OK！',
@@ -1747,7 +1761,8 @@ window.I18N = (() => {
       diffWhat0: "道路がゆっくり · スコア×0.7", diffWhat1: "通常の速さ · スコア×1", diffWhat2: "道路が速い · スコア×1.3", raidWhat0: "巨大シャヘドが弱く、爆弾が少ない", raidWhat1: "標準の巨大シャヘド", raidWhat2: "巨大シャヘドが強く、爆弾が多い", ok: "OK",
       installHintFfDesk: "パソコン版Firefoxではアプリをインストールできません。ChromeかEdgeでこのページを開いてインストールするか、ブックマーク（Ctrl+D）してください。", installHintFfAndroid: "インストールするには：メニュー（⋮）から「ホーム画面に追加」を選択。",
       lowFuelTip: "燃料が少ない！コインを取ろう", learnTip: "難しい？仮免許を試そう：道路がゆっくり。", learnBtn: "仮免許で遊ぶ",
-      ctrlThumb: "操作：片手（親指）", ctrlLane: "操作：車線をタップ", thumbHint: "ドラッグで移動 · タップで発射"
+      ctrlThumb: "操作：片手（親指）", ctrlLane: "操作：車線をタップ", thumbHint: "ドラッグで移動 · タップで発射",
+      leadThumb: "スティックか道路をドラッグで移動 · タップで発射。", ctrlNote: "タッチ画面での移動と発射の方法を変更"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -1760,7 +1775,7 @@ window.I18N = (() => {
       rule2: "**燃油**会减少 · **5 枚金币** = +40%",
       rule4: "**撞3次**出局 · **10 枚金币** = 一颗 **♥**（修好赛车）",
       rule5: "**坑洞**扣 8% 燃油",
-      rule6: "**发射**（3 枚金币）击落**沙赫德**、炸毁路障",
+      rule6: "**发射**：打**沙赫德**或路障 3 枚金币 · 直射 1 枚金币",
       ruleCombo: "**连击**：金币、擦身而过和击落无人机都能攒 · **满了 = OVERDRIVE**",
       ruleAuto: "**自动射击**：替你瞄准，连击越高越准",
       keys: "键盘：← → 或 A / D · 空格 发射 · P 暂停 · M 静音", gotIt: '知道了！',
@@ -1843,7 +1858,8 @@ window.I18N = (() => {
       diffWhat0: "路速更慢 · 得分×0.7", diffWhat1: "正常速度 · 得分×1", diffWhat2: "路速更快 · 得分×1.3", raidWhat0: "巨型沙赫德更弱，炸弹更少", raidWhat1: "标准巨型沙赫德", raidWhat2: "巨型沙赫德更强，炸弹更多", ok: "好的",
       installHintFfDesk: "电脑版 Firefox 无法安装应用。请在 Chrome 或 Edge 中打开此页面安装，或将其加入书签（Ctrl+D）。", installHintFfAndroid: "安装方法：点按菜单（⋮），选择“添加到主屏幕”。",
       lowFuelTip: "燃油不足！快吃金币", learnTip: "觉得难？试试新手司机：路速更慢。", learnBtn: "试试新手司机",
-      ctrlThumb: "操控：单指拇指", ctrlLane: "操控：点击车道", thumbHint: "拖动转向 · 点击开火"
+      ctrlThumb: "操控：单指拇指", ctrlLane: "操控：点击车道", thumbHint: "拖动转向 · 点击开火",
+      leadThumb: "拖动摇杆或路面转向 · 点击开火。", ctrlNote: "更改触屏上的转向和开火方式"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -1856,7 +1872,7 @@ window.I18N = (() => {
       rule2: "**연료**는 줄어듦 · **코인 5개** = +40%",
       rule4: "**3번 충돌**하면 끝 · **코인 10개** = **♥** 하나 (차 수리)",
       rule5: "**포트홀**은 연료 −8%",
-      rule6: "**발사** (코인 3개)로 **샤헤드**와 바리케이드 파괴",
+      rule6: "**발사**: **샤헤드**·바리케이드에 코인 3개 · 직진 발사는 코인 1개",
       ruleCombo: "**콤보**: 코인, 아슬아슬 회피, 드론 격추로 채워짐 · **가득 = OVERDRIVE**",
       ruleAuto: "**자동 발사**: 대신 조준, 콤보가 높을수록 정확",
       keys: "키보드: ← → 또는 A / D · 스페이스 발사 · P 일시 정지 · M 음소거", gotIt: '알겠어요!',
@@ -1939,7 +1955,8 @@ window.I18N = (() => {
       diffWhat0: "느린 도로 · 점수 ×0.7", diffWhat1: "보통 속도 · 점수 ×1", diffWhat2: "빠른 도로 · 점수 ×1.3", raidWhat0: "약한 거대 샤헤드, 폭탄 적음", raidWhat1: "표준 거대 샤헤드", raidWhat2: "강한 거대 샤헤드, 폭탄 많음", ok: "확인",
       installHintFfDesk: "컴퓨터용 Firefox는 앱을 설치할 수 없어요. Chrome이나 Edge에서 이 페이지를 열어 설치하거나 북마크(Ctrl+D)하세요.", installHintFfAndroid: "설치하려면: 메뉴(⋮)를 탭하고 ‘홈 화면에 추가’를 선택하세요.",
       lowFuelTip: "연료 부족! 코인을 모으세요", learnTip: "어렵나요? 초보 운전으로 해 보세요: 느린 도로.", learnBtn: "초보 운전으로 하기",
-      ctrlThumb: "조작: 한 손가락", ctrlLane: "조작: 차선 탭", thumbHint: "드래그로 이동 · 탭으로 발사"
+      ctrlThumb: "조작: 한 손가락", ctrlLane: "조작: 차선 탭", thumbHint: "드래그로 이동 · 탭으로 발사",
+      leadThumb: "스틱이나 도로를 드래그해 이동 · 탭해서 발사.", ctrlNote: "터치스크린에서 이동·발사 방식 변경"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -1952,7 +1969,7 @@ window.I18N = (() => {
       rule2: "**ईंधन** घटता है · **5 सिक्के** = +40%",
       rule4: "**3 टक्कर** = बाहर · **10 सिक्के** = एक **♥** (कार ठीक करता है)",
       rule5: "**गड्ढे** = −8% ईंधन",
-      rule6: "**फ़ायर** (3 सिक्के) से **शाहेद** और बैरियर तोड़ो",
+      rule6: "**फ़ायर**: **शाहेद** या बैरियर पर 3 सिक्के · सीधा 1 सिक्का",
       ruleCombo: "**कॉम्बो**: सिक्के, बाल-बाल बचना और ड्रोन इसे भरते हैं · **पूरा = OVERDRIVE**",
       ruleAuto: "**ऑटो-फ़ायर**: आपके लिए निशाना, कॉम्बो से बेहतर",
       keys: "कीबोर्ड: ← → या A / D · स्पेस फ़ायर · P रोकें · M म्यूट", gotIt: 'समझ गया!',
@@ -2035,7 +2052,8 @@ window.I18N = (() => {
       diffWhat0: "धीमी सड़क · स्कोर ×0.7", diffWhat1: "सामान्य रफ़्तार · स्कोर ×1", diffWhat2: "तेज़ सड़क · स्कोर ×1.3", raidWhat0: "कमज़ोर विशाल शाहेद, कम बम", raidWhat1: "सामान्य विशाल शाहेद", raidWhat2: "मज़बूत विशाल शाहेद, ज़्यादा बम", ok: "ठीक है",
       installHintFfDesk: "कंप्यूटर पर Firefox ऐप इंस्टॉल नहीं कर सकता। इंस्टॉल करने के लिए यह पेज Chrome या Edge में खोलें, या इसे बुकमार्क करें (Ctrl+D)।", installHintFfAndroid: "इंस्टॉल करने के लिए: मेनू (⋮) पर टैप करें और “होम स्क्रीन पर जोड़ें” चुनें।",
       lowFuelTip: "ईंधन कम! सिक्के लो", learnTip: "मुश्किल लग रहा है? लर्नर ड्राइवर आज़माओ: धीमी सड़क।", learnBtn: "लर्नर ड्राइवर आज़माओ",
-      ctrlThumb: "कंट्रोल: एक अंगूठा", ctrlLane: "कंट्रोल: लेन पर टैप", thumbHint: "मोड़ने के लिए खींचो · चलाने के लिए टैप करो"
+      ctrlThumb: "कंट्रोल: एक अंगूठा", ctrlLane: "कंट्रोल: लेन पर टैप", thumbHint: "मोड़ने के लिए खींचो · चलाने के लिए टैप करो",
+      leadThumb: "मोड़ने के लिए स्टिक या सड़क खींचो · चलाने के लिए टैप करो।", ctrlNote: "टच स्क्रीन पर मोड़ने और चलाने का तरीका बदलो"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -2048,7 +2066,7 @@ window.I18N = (() => {
       rule2: "**Пальне** витрачається · **5 монет** = +40%",
       rule4: "**3 аварії** — кінець · **10 монет** = **♥** (лагодить авто)",
       rule5: "**Ями** = −8% пального",
-      rule6: "**ПУСК** (3 монети) збиває **шахеди** й бар'єри",
+      rule6: "**ПУСК**: 3 монети по **шахеду** чи бар'єру · 1 монета прямо",
       ruleCombo: "**Комбо**: монети, проїзд на волосині й дрони заповнюють його · **максимум = OVERDRIVE**",
       ruleAuto: "**Автопуск**: цілиться за тебе, точніше з комбо",
       keys: "Клавіатура: ← → або A / D · Пробіл — пуск · P — пауза · M — звук", gotIt: 'Зрозуміло!',
@@ -2133,7 +2151,8 @@ window.I18N = (() => {
       diffWhat0: "Повільніша дорога · очки ×0,7", diffWhat1: "Звичайна швидкість · очки ×1", diffWhat2: "Швидша дорога · очки ×1,3", raidWhat0: "Слабші гігантські шахеди, менше бомб", raidWhat1: "Звичайні гігантські шахеди", raidWhat2: "Міцніші гігантські шахеди, більше бомб", ok: "OK",
       installHintFfDesk: "Firefox на комп'ютері не може встановлювати застосунки. Відкрий цю сторінку в Chrome або Edge, щоб встановити, або додай у закладки (Ctrl+D).", installHintFfAndroid: "Щоб встановити: торкнись меню (⋮) і вибери «Додати на головний екран».",
       lowFuelTip: "Мало пального! Збирай монети", learnTip: "Важко? Спробуй «Учень водія»: повільніша дорога.", learnBtn: "Спробувати «Учень водія»",
-      ctrlThumb: "Керування: Один палець", ctrlLane: "Керування: Торкнись смуги", thumbHint: "Тягни, щоб кермувати · Торкнись, щоб стріляти"
+      ctrlThumb: "Керування: Один палець", ctrlLane: "Керування: Торкнись смуги", thumbHint: "Тягни, щоб кермувати · Торкнись, щоб стріляти",
+      leadThumb: "Тягни джойстик або дорогу, щоб кермувати · торкнись, щоб стріляти.", ctrlNote: "Як кермувати й стріляти на сенсорному екрані"
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -2146,7 +2165,7 @@ window.I18N = (() => {
       rule2: "**საწვავი** იხარჯება · **5 მონეტა** = +40%",
       rule4: "**3 ავარია** = დასასრული · **10 მონეტა** = **♥** (მანქანას აკეთებს)",
       rule5: "**ორმოები** = −8% საწვავი",
-      rule6: "**გასროლა** (3 მონეტა) ჩამოაგდებს **შაჰედებს** და ბარიერებს",
+      rule6: "**გასროლა**: 3 მონეტა **შაჰედზე** ან ბარიერზე · 1 მონეტა პირდაპირ",
       ruleCombo: "**კომბო**: მონეტები, ძლივს აცილება და დრონები ავსებს · **სავსე = OVERDRIVE**",
       ruleAuto: "**ავტოგასროლა**: შენ მაგივრად უმიზნებს, კომბოთი უკეთესად",
       keys: "კლავიატურა: ← → ან A / D · Space გასროლა · P პაუზა · M ხმა", gotIt: 'გასაგებია!',
@@ -2229,7 +2248,8 @@ window.I18N = (() => {
       diffWhat0: "ნელი გზა · ქულა ×0,7", diffWhat1: "ჩვეულებრივი სიჩქარე · ქულა ×1", diffWhat2: "სწრაფი გზა · ქულა ×1,3", raidWhat0: "სუსტი გიგანტური შაჰედები, ნაკლები ბომბი", raidWhat1: "ჩვეულებრივი გიგანტური შაჰედები", raidWhat2: "ძლიერი გიგანტური შაჰედები, მეტი ბომბი", ok: "კარგი",
       installHintFfDesk: "კომპიუტერზე Firefox ვერ აყენებს აპებს. დასაყენებლად გახსენი ეს გვერდი Chrome-ში ან Edge-ში, ან დაამატე სანიშნეებში (Ctrl+D).", installHintFfAndroid: "დასაყენებლად: შეეხე მენიუს (⋮) და აირჩიე „მთავარ ეკრანზე დამატება“.",
       lowFuelTip: "საწვავი ცოტაა! შეაგროვე მონეტები", learnTip: "რთულია? სცადე მოსწავლე მძღოლი: ნელი გზა.", learnBtn: "სცადე მოსწავლე მძღოლი",
-      ctrlThumb: "მართვა: ერთი ცერით", ctrlLane: "მართვა: ზოლზე შეხება", thumbHint: "გაასრიალე მოსახვევად · შეეხე სასროლად"
+      ctrlThumb: "მართვა: ერთი ცერით", ctrlLane: "მართვა: ზოლზე შეხება", thumbHint: "გაასრიალე მოსახვევად · შეეხე სასროლად",
+      leadThumb: "მოსახვევად გაასრიალე ჯოისტიკი ან გზა · შეეხე სასროლად.", ctrlNote: "შეცვალე მართვა და სროლა სენსორულ ეკრანზე"
     }
   };
   const NAMES = {
@@ -3363,7 +3383,7 @@ window.LD_RULES = (() => {
     set(rocketN, free ? '∞' : String(n));
     set(el.eggKills, '🎯 ' + num(kills));
     rocketBtn.disabled = n === 0 && !free;
-    set($('stickN'), free ? '∞' : String(n)); $('stick').classList.toggle('empty', n === 0 && !free);
+    set($('stickN'), '🚀 ' + (free ? '∞' : String(n))); $('stick').classList.toggle('empty', n === 0 && !free);
     const soon = () => { const b = barrierAhead(); return b && b.y + b.h > player.y - speed * 1.3; };   // a barrier about to block your lane
     rocketBtn.classList.toggle('ready', (n > 0 || free) && state === 'play' && (boss ? Math.abs(boss.x - player.x) < laneW * 0.5 : (!!target() || !!soon())));
     eggPips.forEach((p, i) => p.classList.toggle('on', i < part));
@@ -6441,7 +6461,13 @@ window.LD_RULES = (() => {
   const paintStick = () => eggBar.classList.toggle('stick', ctrl === 'thumb');
   paintStick();
   const ctrlBtn = $('ctrlBtn');
-  function paintCtrl() { ctrlBtn.textContent = (ctrl === 'thumb' ? '👍 ' : '👆 ') + t(ctrl === 'thumb' ? 'ctrlThumb' : 'ctrlLane'); }
+  function paintCtrl() {
+    ctrlBtn.textContent = (ctrl === 'thumb' ? '👍 ' : '👆 ') + t(ctrl === 'thumb' ? 'ctrlThumb' : 'ctrlLane');
+    // How to Play describes the controls you actually have
+    const touch = window.matchMedia && matchMedia('(pointer: coarse)').matches, lead = $('leadCtrl');
+    lead.dataset.i18n = touch && ctrl === 'thumb' ? 'leadThumb' : 'lead1'; lead.textContent = t(lead.dataset.i18n);
+    $('fireSideBtn').hidden = ctrl === 'thumb' && touch;           // no FIRE button to move in one-thumb mode
+  }
   ctrlBtn.addEventListener('click', () => {
     ctrl = ctrl === 'thumb' ? 'lane' : 'thumb';
     try { localStorage.setItem('ddCtrl', ctrl); localStorage.removeItem('ddThumbHint'); } catch {}
