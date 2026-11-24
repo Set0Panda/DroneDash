@@ -208,6 +208,7 @@
     background: transparent; box-shadow: inset 0 0 0 2px var(--ua-blue-lt);
   }
   #installHint { font-size: 13px; }
+  .privacy { font-size: 11px; opacity: .7; text-wrap: balance; margin-top: -6px !important; }
   #updateBtn { color: var(--ua-yellow, #FFD500); box-shadow: inset 0 0 0 2px var(--ua-yellow, #FFD500); }
   [hidden] { display: none !important; }
   .overlay.hidden { display: none; }
@@ -706,6 +707,7 @@
         <li><span class="ico autoIco">🤖</span><span data-i18n="ruleAuto" data-rich><b>Auto-fire</b>: aims for you, better with a coin streak</span></li>
       </ul>
       <p class="keys" data-i18n="keys">Keyboard: ← → or A / D · Space fire · P pause · M mute</p>
+      <p class="privacy" data-i18n="privacyNote">No ads, no cookies. Only anonymous play counts.</p>
       <button id="startBtn" data-i18n="gotIt">Got it!</button>
     </div>
   </div>
@@ -784,13 +786,14 @@ window.I18N = (() => {
       daily: "Daily challenge", dailyNum: "Daily #{n}", dailyBest: "Today's best: {best}", streak: "{n}-day streak",
       twCity: "Start in the city (level 10)", twSwarm: "Drone swarm: twice the Shaheds", twFog: "Sea fog all the way", twRush: "Coin Rush after every checkpoint",
       twDesert: "Start in the desert (level 25)", twOneLife: "One heart only", twSliders: "Sliding barriers from the start", twNight: "Night drive all the way",
-      twOil: "Oil slicks everywhere", twWorks: "Roadworks from the start", share: "Share", shareLine: "I scored {score} in Drone Dash, level {level}",
+      twOil: "Oil slicks everywhere", twWorks: "Roadworks from the start", share: "Share", sharePts: "{score} points", beatIt: "Can you beat it?",
       copied: "Result copied: paste it anywhere", shareFailed: "Couldn't share on this device", slippery: "SLIPPERY!", hzSliders: "Sliding barriers",
       hzOil: "Oil slicks", hzWorks: "Roadworks", area5: "Desert", area6: "Coast bridge",
       area7: "Autumn hills", area8: "Industrial port", area9: "Northern lights", upBolt: "Lightning decals",
       upArches: "Wide arches", upNeonRims: "Neon rims", upCarbon: "Carbon bonnet", upWing: "GT wing",
       upSparkle: "Star trail", upStrobes: "Roof strobes", upHolo: "Holo paint", upJet: "Jet flames",
-      upRainbow: "Rainbow trail", upLaurel: "Laurel wreath", upLegend: "Legend gold"
+      upRainbow: "Rainbow trail", upLaurel: "Laurel wreath", upLegend: "Legend gold",
+      privacyNote: "No ads, no cookies. Only anonymous play counts."
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -831,13 +834,14 @@ window.I18N = (() => {
       daily: "Desafío diario", dailyNum: "Diario n.º {n}", dailyBest: "Mejor de hoy: {best}", streak: "Racha de {n} días",
       twCity: "Empieza en la ciudad (nivel 10)", twSwarm: "Enjambre: el doble de Shaheds", twFog: "Niebla marina todo el camino", twRush: "Lluvia de monedas en cada control",
       twDesert: "Empieza en el desierto (nivel 25)", twOneLife: "Un solo corazón", twSliders: "Barreras móviles desde el inicio", twNight: "Conducción nocturna",
-      twOil: "Manchas de aceite por todas partes", twWorks: "Obras desde el inicio", share: "Compartir", shareLine: "Hice {score} puntos en Drone Dash, nivel {level}",
+      twOil: "Manchas de aceite por todas partes", twWorks: "Obras desde el inicio", share: "Compartir", sharePts: "{score} puntos", beatIt: "¿Puedes superarlo?",
       copied: "Resultado copiado: pégalo donde quieras", shareFailed: "No se pudo compartir en este dispositivo", slippery: "¡RESBALA!", hzSliders: "Barreras móviles",
       hzOil: "Manchas de aceite", hzWorks: "Obras en la vía", area5: "Desierto", area6: "Puente costero",
       area7: "Colinas otoñales", area8: "Puerto industrial", area9: "Auroras boreales", upBolt: "Rayos decorativos",
       upArches: "Pasos de rueda anchos", upNeonRims: "Llantas de neón", upCarbon: "Capó de carbono", upWing: "Alerón GT",
       upSparkle: "Estela de estrellas", upStrobes: "Luces estroboscópicas", upHolo: "Pintura holográfica", upJet: "Llamas de reactor",
-      upRainbow: "Estela arcoíris", upLaurel: "Corona de laurel", upLegend: "Oro de leyenda"
+      upRainbow: "Estela arcoíris", upLaurel: "Corona de laurel", upLegend: "Oro de leyenda",
+      privacyNote: "Sin anuncios ni cookies. Solo recuentos anónimos de partidas."
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -878,13 +882,14 @@ window.I18N = (() => {
       daily: "Défi du jour", dailyNum: "Défi n° {n}", dailyBest: "Meilleur du jour : {best}", streak: "Série de {n} jours",
       twCity: "Départ en ville (niveau 10)", twSwarm: "Essaim : deux fois plus de Shaheds", twFog: "Brouillard marin tout du long", twRush: "Pluie de pièces à chaque checkpoint",
       twDesert: "Départ dans le désert (niveau 25)", twOneLife: "Un seul cœur", twSliders: "Barrières mobiles dès le départ", twNight: "Conduite de nuit",
-      twOil: "Taches d'huile partout", twWorks: "Travaux dès le départ", share: "Partager", shareLine: "J'ai fait {score} points à Drone Dash, niveau {level}",
+      twOil: "Taches d'huile partout", twWorks: "Travaux dès le départ", share: "Partager", sharePts: "{score} points", beatIt: "Tu peux faire mieux ?",
       copied: "Résultat copié : colle-le où tu veux", shareFailed: "Partage impossible sur cet appareil", slippery: "ÇA GLISSE !", hzSliders: "Barrières mobiles",
       hzOil: "Taches d'huile", hzWorks: "Travaux", area5: "Désert", area6: "Pont côtier",
       area7: "Collines d'automne", area8: "Port industriel", area9: "Aurores boréales", upBolt: "Éclairs décoratifs",
       upArches: "Ailes élargies", upNeonRims: "Jantes néon", upCarbon: "Capot carbone", upWing: "Aileron GT",
       upSparkle: "Traînée d'étoiles", upStrobes: "Gyrophares", upHolo: "Peinture holographique", upJet: "Flammes de réacteur",
-      upRainbow: "Traînée arc-en-ciel", upLaurel: "Couronne de laurier", upLegend: "Or légendaire"
+      upRainbow: "Traînée arc-en-ciel", upLaurel: "Couronne de laurier", upLegend: "Or légendaire",
+      privacyNote: "Sans pub ni cookies. Seulement des comptages anonymes de parties."
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -925,13 +930,14 @@ window.I18N = (() => {
       daily: "Tages-Challenge", dailyNum: "Tages-Challenge #{n}", dailyBest: "Heute bester: {best}", streak: "{n} Tage in Folge",
       twCity: "Start in der Stadt (Level 10)", twSwarm: "Drohnenschwarm: doppelt so viele Shaheds", twFog: "Seenebel auf der ganzen Strecke", twRush: "Münzregen nach jedem Checkpoint",
       twDesert: "Start in der Wüste (Level 25)", twOneLife: "Nur ein Herz", twSliders: "Schiebende Sperren von Anfang an", twNight: "Nachtfahrt",
-      twOil: "Ölflecken überall", twWorks: "Baustellen von Anfang an", share: "Teilen", shareLine: "Ich habe {score} Punkte in Drone Dash geschafft, Level {level}",
+      twOil: "Ölflecken überall", twWorks: "Baustellen von Anfang an", share: "Teilen", sharePts: "{score} Punkte", beatIt: "Schaffst du mehr?",
       copied: "Ergebnis kopiert: überall einfügen", shareFailed: "Teilen ist auf diesem Gerät nicht möglich", slippery: "RUTSCHIG!", hzSliders: "Schiebende Sperren",
       hzOil: "Ölflecken", hzWorks: "Baustellen", area5: "Wüste", area6: "Küstenbrücke",
       area7: "Herbsthügel", area8: "Industriehafen", area9: "Nordlichter", upBolt: "Blitz-Dekor",
       upArches: "Breite Kotflügel", upNeonRims: "Neon-Felgen", upCarbon: "Carbon-Motorhaube", upWing: "GT-Flügel",
       upSparkle: "Sternenspur", upStrobes: "Dach-Blitzer", upHolo: "Holo-Lack", upJet: "Düsenflammen",
-      upRainbow: "Regenbogenspur", upLaurel: "Lorbeerkranz", upLegend: "Legendengold"
+      upRainbow: "Regenbogenspur", upLaurel: "Lorbeerkranz", upLegend: "Legendengold",
+      privacyNote: "Keine Werbung, keine Cookies. Nur anonyme Spielzählungen."
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -972,13 +978,14 @@ window.I18N = (() => {
       daily: "Desafio diário", dailyNum: "Diário n.º {n}", dailyBest: "Melhor de hoje: {best}", streak: "Sequência de {n} dias",
       twCity: "Comece na cidade (nível 10)", twSwarm: "Enxame: o dobro de Shaheds", twFog: "Neblina marítima o caminho todo", twRush: "Chuva de moedas a cada checkpoint",
       twDesert: "Comece no deserto (nível 25)", twOneLife: "Só um coração", twSliders: "Barreiras móveis desde o início", twNight: "Corrida noturna",
-      twOil: "Manchas de óleo por todo lado", twWorks: "Obras desde o início", share: "Compartilhar", shareLine: "Fiz {score} pontos no Drone Dash, nível {level}",
+      twOil: "Manchas de óleo por todo lado", twWorks: "Obras desde o início", share: "Compartilhar", sharePts: "{score} pontos", beatIt: "Consegue bater?",
       copied: "Resultado copiado: cole onde quiser", shareFailed: "Não foi possível compartilhar neste aparelho", slippery: "ESCORREGA!", hzSliders: "Barreiras móveis",
       hzOil: "Manchas de óleo", hzWorks: "Obras na pista", area5: "Deserto", area6: "Ponte costeira",
       area7: "Colinas de outono", area8: "Porto industrial", area9: "Auroras boreais", upBolt: "Raios decorativos",
       upArches: "Para-lamas largos", upNeonRims: "Rodas neon", upCarbon: "Capô de carbono", upWing: "Aerofólio GT",
       upSparkle: "Rastro de estrelas", upStrobes: "Luzes estroboscópicas", upHolo: "Pintura holográfica", upJet: "Chamas a jato",
-      upRainbow: "Rastro arco-íris", upLaurel: "Coroa de louros", upLegend: "Ouro lendário"
+      upRainbow: "Rastro arco-íris", upLaurel: "Coroa de louros", upLegend: "Ouro lendário",
+      privacyNote: "Sem anúncios nem cookies. Só contagens anônimas de partidas."
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -1019,13 +1026,14 @@ window.I18N = (() => {
       daily: "Sfida del giorno", dailyNum: "Sfida n. {n}", dailyBest: "Migliore di oggi: {best}", streak: "Serie di {n} giorni",
       twCity: "Parti in città (livello 10)", twSwarm: "Sciame: il doppio degli Shahed", twFog: "Nebbia marina per tutto il viaggio", twRush: "Pioggia di monete a ogni checkpoint",
       twDesert: "Parti nel deserto (livello 25)", twOneLife: "Un solo cuore", twSliders: "Barriere mobili fin dall'inizio", twNight: "Guida notturna",
-      twOil: "Macchie d'olio ovunque", twWorks: "Lavori in corso fin dall'inizio", share: "Condividi", shareLine: "Ho fatto {score} punti a Drone Dash, livello {level}",
+      twOil: "Macchie d'olio ovunque", twWorks: "Lavori in corso fin dall'inizio", share: "Condividi", sharePts: "{score} punti", beatIt: "Riesci a battermi?",
       copied: "Risultato copiato: incollalo dove vuoi", shareFailed: "Impossibile condividere su questo dispositivo", slippery: "SCIVOLA!", hzSliders: "Barriere mobili",
       hzOil: "Macchie d'olio", hzWorks: "Lavori in corso", area5: "Deserto", area6: "Ponte sulla costa",
       area7: "Colline d'autunno", area8: "Porto industriale", area9: "Aurora boreale", upBolt: "Decalcomanie fulmine",
       upArches: "Passaruota allargati", upNeonRims: "Cerchi al neon", upCarbon: "Cofano in carbonio", upWing: "Alettone GT",
       upSparkle: "Scia di stelle", upStrobes: "Lampeggianti sul tetto", upHolo: "Vernice olografica", upJet: "Fiamme a getto",
-      upRainbow: "Scia arcobaleno", upLaurel: "Corona d'alloro", upLegend: "Oro leggendario"
+      upRainbow: "Scia arcobaleno", upLaurel: "Corona d'alloro", upLegend: "Oro leggendario",
+      privacyNote: "Niente pubblicità né cookie. Solo conteggi anonimi delle partite."
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -1066,13 +1074,14 @@ window.I18N = (() => {
       daily: "デイリーチャレンジ", dailyNum: "デイリー #{n}", dailyBest: "今日のベスト：{best}", streak: "{n}日連続",
       twCity: "街からスタート（レベル10）", twSwarm: "ドローンの群れ：シャヘドが2倍", twFog: "ずっと海霧", twRush: "チェックポイントごとにコインラッシュ",
       twDesert: "砂漠からスタート（レベル25）", twOneLife: "ハートは1つだけ", twSliders: "最初から動くバリア", twNight: "ずっと夜のドライブ",
-      twOil: "オイルだらけ", twWorks: "最初から道路工事", share: "シェア", shareLine: "Drone Dashで{score}点、レベル{level}を記録！",
+      twOil: "オイルだらけ", twWorks: "最初から道路工事", share: "シェア", sharePts: "{score}点", beatIt: "これを超えられる？",
       copied: "結果をコピーしました：どこにでも貼り付けられます", shareFailed: "この端末ではシェアできません", slippery: "スリップ！", hzSliders: "動くバリア",
       hzOil: "オイル", hzWorks: "道路工事", area5: "砂漠", area6: "海岸の橋",
       area7: "秋の丘", area8: "工業港", area9: "オーロラ", upBolt: "稲妻デカール",
       upArches: "ワイドフェンダー", upNeonRims: "ネオンリム", upCarbon: "カーボンボンネット", upWing: "GTウイング",
       upSparkle: "星のトレイル", upStrobes: "ルーフストロボ", upHolo: "ホログラム塗装", upJet: "ジェットフレイム",
-      upRainbow: "虹のトレイル", upLaurel: "月桂冠", upLegend: "レジェンドゴールド"
+      upRainbow: "虹のトレイル", upLaurel: "月桂冠", upLegend: "レジェンドゴールド",
+      privacyNote: "広告なし・Cookieなし。匿名のプレイ回数のみ集計します。"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -1113,13 +1122,14 @@ window.I18N = (() => {
       daily: "每日挑战", dailyNum: "每日挑战 #{n}", dailyBest: "今日最佳：{best}", streak: "连续 {n} 天",
       twCity: "从城市出发（第 10 关）", twSwarm: "无人机群：沙赫德翻倍", twFog: "一路海雾", twRush: "每个检查点后都有金币雨",
       twDesert: "从沙漠出发（第 25 关）", twOneLife: "只有一颗心", twSliders: "一开始就有移动路障", twNight: "全程夜间驾驶",
-      twOil: "到处都是油渍", twWorks: "一开始就有道路施工", share: "分享", shareLine: "我在 Drone Dash 中得了 {score} 分，第 {level} 关",
+      twOil: "到处都是油渍", twWorks: "一开始就有道路施工", share: "分享", sharePts: "{score} 分", beatIt: "你能超过吗？",
       copied: "结果已复制：可粘贴到任何地方", shareFailed: "此设备无法分享", slippery: "打滑！", hzSliders: "移动路障",
       hzOil: "油渍", hzWorks: "道路施工", area5: "沙漠", area6: "海岸大桥",
       area7: "秋日山丘", area8: "工业港口", area9: "北极光", upBolt: "闪电贴花",
       upArches: "宽体轮拱", upNeonRims: "霓虹轮圈", upCarbon: "碳纤维引擎盖", upWing: "GT 尾翼",
       upSparkle: "星光尾迹", upStrobes: "车顶爆闪灯", upHolo: "全息车漆", upJet: "喷射火焰",
-      upRainbow: "彩虹尾迹", upLaurel: "月桂花环", upLegend: "传奇金"
+      upRainbow: "彩虹尾迹", upLaurel: "月桂花环", upLegend: "传奇金",
+      privacyNote: "无广告，无 Cookie。仅统计匿名游玩次数。"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -1160,13 +1170,14 @@ window.I18N = (() => {
       daily: "일일 챌린지", dailyNum: "일일 챌린지 #{n}", dailyBest: "오늘 최고: {best}", streak: "{n}일 연속",
       twCity: "도시에서 시작 (레벨 10)", twSwarm: "드론 떼: 샤헤드 두 배", twFog: "끝까지 바다 안개", twRush: "체크포인트마다 코인 러시",
       twDesert: "사막에서 시작 (레벨 25)", twOneLife: "하트 하나뿐", twSliders: "처음부터 움직이는 바리케이드", twNight: "끝까지 야간 주행",
-      twOil: "곳곳에 기름", twWorks: "처음부터 도로 공사", share: "공유", shareLine: "Drone Dash에서 {score}점, 레벨 {level} 달성!",
+      twOil: "곳곳에 기름", twWorks: "처음부터 도로 공사", share: "공유", sharePts: "{score}점", beatIt: "이길 수 있어?",
       copied: "결과 복사됨: 어디든 붙여넣으세요", shareFailed: "이 기기에서는 공유할 수 없습니다", slippery: "미끄러워요!", hzSliders: "움직이는 바리케이드",
       hzOil: "기름 웅덩이", hzWorks: "도로 공사", area5: "사막", area6: "해안 다리",
       area7: "가을 언덕", area8: "산업 항구", area9: "오로라", upBolt: "번개 데칼",
       upArches: "와이드 펜더", upNeonRims: "네온 휠", upCarbon: "카본 보닛", upWing: "GT 윙",
       upSparkle: "별빛 궤적", upStrobes: "루프 스트로브", upHolo: "홀로그램 도색", upJet: "제트 불꽃",
-      upRainbow: "무지개 궤적", upLaurel: "월계관", upLegend: "전설의 골드"
+      upRainbow: "무지개 궤적", upLaurel: "월계관", upLegend: "전설의 골드",
+      privacyNote: "광고 없음, 쿠키 없음. 익명 플레이 횟수만 집계합니다."
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -1207,13 +1218,14 @@ window.I18N = (() => {
       daily: "रोज़ाना चुनौती", dailyNum: "रोज़ाना #{n}", dailyBest: "आज का सर्वश्रेष्ठ: {best}", streak: "लगातार {n} दिन",
       twCity: "शहर से शुरू (लेवल 10)", twSwarm: "ड्रोन झुंड: दोगुने शाहेद", twFog: "पूरे रास्ते समुद्री कोहरा", twRush: "हर चेकपॉइंट के बाद सिक्कों की बारिश",
       twDesert: "रेगिस्तान से शुरू (लेवल 25)", twOneLife: "सिर्फ़ एक दिल", twSliders: "शुरू से खिसकते बैरियर", twNight: "पूरे रास्ते रात की ड्राइव",
-      twOil: "हर जगह तेल के धब्बे", twWorks: "शुरू से सड़क निर्माण", share: "शेयर करें", shareLine: "मैंने Drone Dash में {score} अंक बनाए, लेवल {level}",
+      twOil: "हर जगह तेल के धब्बे", twWorks: "शुरू से सड़क निर्माण", share: "शेयर करें", sharePts: "{score} अंक", beatIt: "क्या तुम इसे हरा सकते हो?",
       copied: "नतीजा कॉपी हो गया: कहीं भी पेस्ट करें", shareFailed: "इस डिवाइस पर शेयर नहीं हो सका", slippery: "फिसलन!", hzSliders: "खिसकते बैरियर",
       hzOil: "तेल के धब्बे", hzWorks: "सड़क निर्माण", area5: "रेगिस्तान", area6: "तटीय पुल",
       area7: "पतझड़ की पहाड़ियाँ", area8: "औद्योगिक बंदरगाह", area9: "ध्रुवीय ज्योति", upBolt: "बिजली डिकल",
       upArches: "चौड़े आर्च", upNeonRims: "नियॉन रिम", upCarbon: "कार्बन बोनट", upWing: "GT विंग",
       upSparkle: "सितारों की लकीर", upStrobes: "छत की स्ट्रोब लाइटें", upHolo: "होलो पेंट", upJet: "जेट लपटें",
-      upRainbow: "इंद्रधनुषी लकीर", upLaurel: "विजय माला", upLegend: "लीजेंड गोल्ड"
+      upRainbow: "इंद्रधनुषी लकीर", upLaurel: "विजय माला", upLegend: "लीजेंड गोल्ड",
+      privacyNote: "कोई विज्ञापन नहीं, कोई कुकी नहीं। सिर्फ़ गुमनाम खेल गिनती।"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -1256,13 +1268,14 @@ window.I18N = (() => {
       daily: "Щоденний виклик", dailyNum: "Щоденний #{n}", dailyBest: "Найкраще сьогодні: {best}", streak: "{n} дн. поспіль",
       twCity: "Старт у місті (рівень 10)", twSwarm: "Рій дронів: удвічі більше Шахедів", twFog: "Морський туман усю дорогу", twRush: "Монетний дощ після кожного чекпоінта",
       twDesert: "Старт у пустелі (рівень 25)", twOneLife: "Лише одне серце", twSliders: "Рухомі бар'єри від старту", twNight: "Нічна їзда",
-      twOil: "Масляні плями всюди", twWorks: "Ремонт дороги від старту", share: "Поділитися", shareLine: "Я набрав {score} очок у Drone Dash, рівень {level}",
+      twOil: "Масляні плями всюди", twWorks: "Ремонт дороги від старту", share: "Поділитися", sharePts: "{score} очок", beatIt: "Зможеш краще?",
       copied: "Результат скопійовано: встав куди завгодно", shareFailed: "Не вдалося поділитися на цьому пристрої", slippery: "СЛИЗЬКО!", hzSliders: "Рухомі бар'єри",
       hzOil: "Масляні плями", hzWorks: "Ремонт дороги", area5: "Пустеля", area6: "Прибережний міст",
       area7: "Осінні пагорби", area8: "Промисловий порт", area9: "Північне сяйво", upBolt: "Блискавки на бортах",
       upArches: "Широкі арки", upNeonRims: "Неонові диски", upCarbon: "Карбоновий капот", upWing: "GT-антикрило",
       upSparkle: "Зоряний слід", upStrobes: "Стробоскопи на даху", upHolo: "Голографічна фарба", upJet: "Реактивне полум'я",
-      upRainbow: "Райдужний слід", upLaurel: "Лавровий вінок", upLegend: "Легендарне золото"
+      upRainbow: "Райдужний слід", upLaurel: "Лавровий вінок", upLegend: "Легендарне золото",
+      privacyNote: "Без реклами й cookie. Лише анонімний підрахунок ігор."
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -1303,13 +1316,14 @@ window.I18N = (() => {
       daily: "დღის გამოწვევა", dailyNum: "დღის გამოწვევა #{n}", dailyBest: "დღევანდელი საუკეთესო: {best}", streak: "{n} დღე ზედიზედ",
       twCity: "დაწყება ქალაქში (დონე 10)", twSwarm: "დრონების გუნდი: ორჯერ მეტი შაჰედი", twFog: "ზღვის ნისლი მთელ გზაზე", twRush: "მონეტების წვიმა ყოველი საკონტროლო წერტილის შემდეგ",
       twDesert: "დაწყება უდაბნოში (დონე 25)", twOneLife: "მხოლოდ ერთი გული", twSliders: "მოძრავი ბარიერები თავიდანვე", twNight: "ღამის მგზავრობა",
-      twOil: "ზეთის ლაქები ყველგან", twWorks: "საგზაო სამუშაოები თავიდანვე", share: "გაზიარება", shareLine: "Drone Dash-ში {score} ქულა დავაგროვე, დონე {level}",
+      twOil: "ზეთის ლაქები ყველგან", twWorks: "საგზაო სამუშაოები თავიდანვე", share: "გაზიარება", sharePts: "{score} ქულა", beatIt: "შეძლებ მეტს?",
       copied: "შედეგი დაკოპირდა: ჩასვი სადაც გინდა", shareFailed: "ამ მოწყობილობაზე გაზიარება ვერ მოხერხდა", slippery: "სრიალებს!", hzSliders: "მოძრავი ბარიერები",
       hzOil: "ზეთის ლაქები", hzWorks: "საგზაო სამუშაოები", area5: "უდაბნო", area6: "სანაპირო ხიდი",
       area7: "შემოდგომის ბორცვები", area8: "სამრეწველო პორტი", area9: "ჩრდილოეთის ციალი", upBolt: "ელვის სტიკერები",
       upArches: "განიერი თაღები", upNeonRims: "ნეონის დისკები", upCarbon: "კარბონის კაპოტი", upWing: "GT ფრთა",
       upSparkle: "ვარსკვლავების კვალი", upStrobes: "სახურავის სტრობები", upHolo: "ჰოლოგრაფიული საღებავი", upJet: "რეაქტიული ალი",
-      upRainbow: "ცისარტყელას კვალი", upLaurel: "დაფნის გვირგვინი", upLegend: "ლეგენდარული ოქრო"
+      upRainbow: "ცისარტყელას კვალი", upLaurel: "დაფნის გვირგვინი", upLegend: "ლეგენდარული ოქრო",
+      privacyNote: "რეკლამისა და cookie-ების გარეშე. მხოლოდ ანონიმური თამაშების დათვლა."
     }
   };
   const NAMES = {
@@ -1462,6 +1476,28 @@ window.I18N = (() => {
 
   return { t, num: n => nf.format(n), apply, set, onChange: f => subs.push(f), get lang() { return lang; } };
 })();
+</script>
+<script>
+// ---------- Play counts (for the developer) ----------
+// Anonymous counts sent to GoatCounter (goatcounter.com): no cookies, no script from anywhere
+// else, nothing about the player. Only from the live site, so local tests are never counted.
+// Off while STATS_SITE is empty; set it to your GoatCounter code (the "xyz" of xyz.goatcounter.com).
+window.ddTrack = (() => {
+  const STATS_SITE = 'dronedash';   // dashboard: https://dronedash.goatcounter.com
+  const LIVE_HOST = 'set0panda.github.io';
+  return (path, title, event = true) => {
+    if (!STATS_SITE || location.hostname !== LIVE_HOST) return;
+    try {
+      const q = new URLSearchParams({ p: path, t: title || path, e: String(event),
+        s: [screen.width, screen.height, window.devicePixelRatio || 1].join(','), rnd: Math.random().toString(36).slice(2) });
+      if (!event && document.referrer) q.set('r', document.referrer);
+      new Image().src = 'https://' + STATS_SITE + '.goatcounter.com/count?' + q;
+    } catch {}
+  };
+})();
+// A visit: '/app' when opened as the installed app, '/' in a browser tab.
+ddTrack(matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches || navigator.standalone === true ? '/app' : '/',
+        'Drone Dash', false);
 </script>
 <script id="rules">
 // ---------- Game rules (pure: no DOM, no drawing) ----------
@@ -1967,7 +2003,8 @@ window.LD_RULES = (() => {
     lives = MAX_LIVES; level = twist.start || 1; speed = levelSpeed(level); slip = 0;
     spawnDist = 200; flash = 0; roadOffset = 0; shake = 0; planner = R.newPlanner(roadRand);
     levelDist = 0; distance = 0; bonus = 0; fuel = 100; coins = 0; coinMeter = 0; streak = 0; lowFuelT = 0; finishSpawned = false;
-    drones = []; rockets = []; booms = []; wallet = 0; droneT = twist.swarm ? 4 : 7; droneSeen = false; kills = 0; killCombo = 0; droneQueue = []; resuming = false; runTime = 0; carNo = 1 + Math.floor(Math.random() * 99);
+    // One rocket loaded from the start, so the first Shahed (7 s in, before 3 coins are usually collected) can be shot down.
+    drones = []; rockets = []; booms = []; wallet = ROCKET_COST; droneT = twist.swarm ? 4 : 7; droneSeen = false; kills = 0; killCombo = 0; droneQueue = []; resuming = false; runTime = 0; carNo = 1 + Math.floor(Math.random() * 99);
     lastLeftLane = -1; lastLaneChangeT = -9; lastCloseT = -9; closeChain = 0; speedLines = []; closeBurst = 0; heartProgress = 0; heartsEarned = 0;
     areaBounds = [{ k: -Infinity, a: areaFor(level) }]; lookArea = areaFor(level); lookFade = 1; rushRows = 0;
     worksPrev = -1;
@@ -2456,6 +2493,7 @@ window.LD_RULES = (() => {
     bonus += pts;
     spawnDist = Math.max(spawnDist, 260); // short breather after the line
     sfx.levelUp();
+    if (level === 10 || level === 25 || level === 50) ddTrack('reached-level-' + level, 'Reached level ' + level);
     const up = UPGRADES.find(u => u.level === level);
     const newArea = areaFor(level) !== areaFor(level - 1);
     if (newArea) { lookArea = areaFor(level); lookFade = 0; }      // its light and weather fade in now
@@ -2513,10 +2551,15 @@ window.LD_RULES = (() => {
   // ---- Share: a picture of the result plus a line of text, through the phone's share sheet ----
   let lastRun = null;
   const GAME_URL = 'https://set0panda.github.io/DroneDash/';
+  // e.g.  📅 Drone Dash · Daily #1: Night drive all the way
+  //       🏆 14,832 points · Level 6 · 🌻 Sunflower fields · 🎯 3
+  //       Can you beat it? https://…
   function shareText(r) {
     const A = AREAS[r.a];
-    const head = r.day ? '📅 ' + t('dailyNum', { n: r.day }) + ' (' + t(r.tw) + ') · ' : '';
-    return head + t('shareLine', { score: r.s, level: r.l }) + ' · ' + A.icon + ' ' + t(A.key) + (r.k ? ' · 🎯 ' + num(r.k) : '');
+    const head = r.day ? '📅 Drone Dash · ' + t('dailyNum', { n: r.day }) + ': ' + t(r.tw) : '🚗 Drone Dash';
+    const line = ['🏆 ' + t('sharePts', { score: r.s }), t('level') + ' ' + num(r.l), A.icon + ' ' + t(A.key), r.k ? '🎯 ' + num(r.k) : '']
+      .filter(Boolean).join(' · ');
+    return head + '\n' + line + '\n' + t('beatIt');
   }
   function shareCard(r) {
     const cv = document.createElement('canvas'), CW = 1080, CH = 1350;
@@ -2552,28 +2595,32 @@ window.LD_RULES = (() => {
       c.restore();
     } finally { ctx = saved; }
     // score and where you got to
-    c.fillStyle = '#ffd84a'; c.font = font(900, 150); c.fillText(num(r.s), CW / 2, 880, CW - 120);
-    c.fillStyle = '#cfd6ea'; c.font = font(700, 40); c.fillText(t('scoreLabel').toUpperCase(), CW / 2, 930);
-    c.fillStyle = '#ffffff'; c.font = font(800, 58); c.fillText(t('lv', { n: r.l }) + ' · ' + A.icon + ' ' + t(A.key), CW / 2, 1030, CW - 120);
-    c.font = font(700, 44); c.fillStyle = '#e6eaf5';
-    c.fillText(['🛣️ ' + t('meters', { n: r.d }), '🪙 ' + num(r.c), r.k ? '🎯 ' + num(r.k) : '', '⏱ ' + fmtTime(r.tm)].filter(Boolean).join('   '), CW / 2, 1110, CW - 100);
-    c.fillStyle = '#9fb3d9'; c.font = font(700, 36); c.fillText(GAME_URL.replace(/^https:\/\//, ''), CW / 2, 1270);
+    c.fillStyle = 'rgba(10,14,32,.88)'; c.beginPath();
+    c.roundRect ? c.roundRect(90, 730, CW - 180, 470, 36) : c.rect(90, 730, CW - 180, 470); c.fill();
+    c.strokeStyle = 'rgba(255,255,255,.12)'; c.lineWidth = 3; c.stroke();
+    c.fillStyle = '#cfd6ea'; c.font = font(800, 38); c.fillText(t('scoreLabel').toUpperCase(), CW / 2, 800);
+    c.fillStyle = '#ffd84a'; c.font = font(900, 140); c.fillText(num(r.s), CW / 2, 940, CW - 220);
+    c.fillStyle = '#ffffff'; c.font = font(800, 54); c.fillText(t('lv', { n: r.l }) + ' · ' + A.icon + ' ' + t(A.key), CW / 2, 1050, CW - 220);
+    c.font = font(700, 42); c.fillStyle = '#e6eaf5';
+    c.fillText(['🛣️ ' + t('meters', { n: r.d }), '🪙 ' + num(r.c), r.k ? '🎯 ' + num(r.k) : '', '⏱ ' + fmtTime(r.tm)].filter(Boolean).join('   '), CW / 2, 1140, CW - 220);
+    c.fillStyle = '#9fb3d9'; c.font = font(700, 36); c.fillText(GAME_URL.replace(/^https:\/\//, ''), CW / 2, 1290);
     return cv;
   }
   async function shareRun() {
     const r = lastRun; if (!r) return;
+    ddTrack('share', 'Shared a result');
     const text = shareText(r), note = $('shareNote');
     const say = k => { note.textContent = t(k); note.hidden = false; };
     try {
       const blob = r.blob || await new Promise(res => shareCard(r).toBlob(res, 'image/png'));
       const file = blob && new File([blob], 'drone-dash.png', { type: 'image/png' });
       if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], text: text + '\n' + GAME_URL });
+        await navigator.share({ files: [file], text: text + ' ' + GAME_URL });
         return;
       }
       if (navigator.share) { await navigator.share({ text, url: GAME_URL }); return; }
       // Desktop without a share sheet: copy the text, and save the picture.
-      try { await navigator.clipboard.writeText(text + '\n' + GAME_URL); say('copied'); } catch { say('shareFailed'); }
+      try { await navigator.clipboard.writeText(text + ' ' + GAME_URL); say('copied'); } catch { say('shareFailed'); }
       if (blob) {
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob); a.download = 'drone-dash.png';
@@ -2582,7 +2629,7 @@ window.LD_RULES = (() => {
       }
     } catch (e) {
       if (e && e.name === 'AbortError') return;   // closed the share sheet
-      try { await navigator.clipboard.writeText(text + '\n' + GAME_URL); say('copied'); } catch { say('shareFailed'); }
+      try { await navigator.clipboard.writeText(text + ' ' + GAME_URL); say('copied'); } catch { say('shareFailed'); }
     }
   }
   // Long numbers ("123.456 m") and long labels ("ABGESCHOSSEN") shrink to fit their
@@ -2632,6 +2679,7 @@ window.LD_RULES = (() => {
   function beginCountdown() {
     reset();
     dailyBanner();
+    ddTrack(runDay ? 'daily-start' : 'run-start', runDay ? 'Daily challenge started' : 'Run started');
     show(null); // hide every overlay (home, popup, game over)
     state = 'countdown';
     countT = COUNTDOWN;
@@ -2766,6 +2814,7 @@ window.LD_RULES = (() => {
   function restart() {
     reset();
     dailyBanner();
+    ddTrack(runDay ? 'daily-start' : 'run-start', runDay ? 'Daily challenge started' : 'Run started');
     show(null); // hides game over or the pause menu
     state = 'play';
     showCount('GO!');
@@ -4200,7 +4249,7 @@ window.LD_RULES = (() => {
     }
     hint.hidden = !hint.hidden;
   });
-  window.addEventListener('appinstalled', () => { btn.hidden = true; hint.hidden = true; });
+  window.addEventListener('appinstalled', () => { btn.hidden = true; hint.hidden = true; ddTrack('install', 'Installed the app'); });
 })();
 </script>
 </body>
