@@ -291,6 +291,13 @@
     font-size: 18px; line-height: 1; background: rgba(255,255,255,.1); box-shadow: none;
   }
   #homeSound:active { transform: scale(.92); box-shadow: none; }
+  #homeSet {
+    position: absolute; top: calc(12px + env(safe-area-inset-top, 0px)); left: 108px; z-index: 2;
+    width: 40px; height: 40px; padding: 0; margin: 0; border-radius: 50%;
+    font-size: 18px; line-height: 1; background: rgba(255,255,255,.1); box-shadow: none;
+  }
+  #homeSet:active { transform: scale(.92); box-shadow: none; }
+  .setCard { gap: 14px; max-width: 300px; }
   .langPick {
     position: absolute; top: calc(12px + env(safe-area-inset-top, 0px)); right: 12px;
     z-index: 2;
@@ -720,6 +727,7 @@
     <p id="installHint" hidden></p>
     <button id="helpBtn" type="button" data-i18n-title="howToPlay" data-i18n-aria="howToPlay" title="How to play" aria-label="How to play">?</button>
     <button id="homeSound" type="button" aria-pressed="true"></button>
+    <button id="homeSet" type="button" data-i18n-title="settings" data-i18n-aria="settings" title="Settings" aria-label="Settings">⚙️</button>
     <div class="langPick">
       <button id="langBtn" type="button" aria-haspopup="true" aria-expanded="false"></button>
       <div id="langMenu" role="menu" hidden></div>
@@ -763,6 +771,15 @@
       <ol id="recList" class="recList"></ol>
       <p id="recEmpty" data-i18n="noRuns" hidden>No runs yet. Go play!</p>
       <button id="recBack" class="ghost" data-i18n="home">Home</button>
+    </div>
+  </div>
+
+  <!-- Settings from the home screen: the pause menu's settings panel is moved in here while it's open -->
+  <div id="settingsView" class="overlay hidden">
+    <div class="card setCard" role="dialog" aria-labelledby="setTitle">
+      <h1 id="setTitle">⚙️ <span data-i18n="settings">Settings</span></h1>
+      <div id="setHost" class="overBtns"></div>
+      <button id="setDone" data-i18n="done">Done</button>
     </div>
   </div>
 
@@ -3696,8 +3713,8 @@ window.LD_RULES = (() => {
   // ---- Home screen ----
   const wrapEl = $('wrap');
   function show(id) {
-    for (const o of ['home', 'bye', 'intro', 'over', 'garage', 'records', 'pause', 'upgrades', 'raidHelp']) $(o).classList.toggle('hidden', o !== id);
-    wrapEl.classList.toggle('at-home', ['home', 'bye', 'garage', 'records', 'upgrades'].includes(id));
+    for (const o of ['home', 'bye', 'intro', 'over', 'garage', 'records', 'pause', 'upgrades', 'raidHelp', 'settingsView']) $(o).classList.toggle('hidden', o !== id);
+    wrapEl.classList.toggle('at-home', ['home', 'bye', 'garage', 'records', 'upgrades', 'settingsView'].includes(id));
   }
 
   // ---- Garage: hue wheel around a live preview of the car ----
@@ -5469,7 +5486,7 @@ window.LD_RULES = (() => {
     // Idle on the start line during 3-2-1, then the engine follows road speed.
     sfx.engine(state === 'play' || state === 'stall' || state === 'countdown', state === 'countdown' ? 0 : speed * odBoost);
     sfx.buzz(state === 'play' && (drones.length > 0 || !!boss));
-    sfx.music(state === 'home' || state === 'garage' || state === 'records' || state === 'upgrades' || (state === 'menu' && helpFrom !== 'pause'));
+    sfx.music(state === 'home' || state === 'garage' || state === 'records' || state === 'upgrades' || state === 'settings' || (state === 'menu' && helpFrom !== 'pause'));
     requestAnimationFrame(loop);
   }
 
@@ -5578,6 +5595,16 @@ window.LD_RULES = (() => {
     setBtn.setAttribute('aria-expanded', String(!setPanel.hidden));
   });
   soundBtn.addEventListener('click', () => toggleMute());
+  // Settings from the home screen: borrow the pause menu's panel (same buttons, same settings).
+  $('homeSet').addEventListener('click', () => {
+    state = 'settings';
+    $('setHost').appendChild(setPanel); setPanel.hidden = false;
+    show('settingsView');
+  });
+  $('setDone').addEventListener('click', () => {
+    setBtn.after(setPanel); setPanel.hidden = true; setBtn.setAttribute('aria-expanded', 'false');
+    goHome();
+  });
   $('homeSound').addEventListener('click', () => { toggleMute(); $('homeSound').blur(); });
   // Which side FIRE sits on. Left by default (the right thumb steers); left-handed players can swap.
   const fireSideBtn = $('fireSideBtn');
