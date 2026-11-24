@@ -4208,7 +4208,11 @@ window.LD_RULES = (() => {
     // so a run in progress is never interrupted.
     const upd = document.getElementById('updateBtn');
     const hadController = !!navigator.serviceWorker.controller;   // false on the very first visit
-    navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController) upd.hidden = false; });
+    // The page is fetched fresh when online, so a new worker taking over in the first seconds just
+    // means this page is already the new version; only offer the reload when it happens later on
+    // (an installed app left open while an update came out, or a page opened offline).
+    const loadedAt = Date.now();
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController && Date.now() - loadedAt > 15000) upd.hidden = false; });
     upd.addEventListener('click', () => location.reload());
   }
 
