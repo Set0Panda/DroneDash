@@ -47,7 +47,7 @@
   }
   const common = [
     // a hook to read game state
-    ["let carNo = 7;", "let carNo = 7; window.__G = () => ({ state, level, lives, fuel, wallet, kills, coins, objects, drones, rockets, player, laneW, lookArea, combo, mult: comboMult(), odPhase, overdrives, bossesRun, bossLane: boss ? Math.max(0, Math.min(2, Math.round((boss.x - vergeW - laneW / 2) / laneW))) : -1 });"],
+    ["let carNo = 7;", "let carNo = 7; window.__G = () => ({ state, level, lives, fuel, wallet, kills, coins, objects, drones, rockets, player, laneW, lookArea, combo, mult: comboMult(), odPhase, overdrives, bossesRun, bossLane: boss ? Math.max(0, Math.min(2, Math.round((boss.x - vergeW - laneW / 2) / laneW))) : -1, bossCharge: boss && boss.charge ? boss.charge.lanes : [] });"],
     // translations table, for the language check
     ["const STR = {", "const STR = window.__STR = {"],
     // count what happened, by the floating texts the game shows
@@ -63,12 +63,15 @@
   function drive() {
     const g = __G(); if (!g.player) return;
     const danger = lane => g.objects.some(o => (o.type === 'enemy' || o.type === 'hole') && !o.dead && !o.used && (o.fx !== undefined ? Math.abs(o.fx - lane) < 0.9 : o.lane === lane) &&
-      o.y + o.h > g.player.y - 230 && o.y < g.player.y + g.player.h);
+      o.y + o.h > g.player.y - 230 && o.y < g.player.y + g.player.h)
+      || g.drones.some(d => d.bomb && !d.dead && d.lane === lane) || g.bossCharge.includes(lane);   // a giant Shahed's bombs and the lanes it's charging
     if (!danger(g.player.lane)) {
       // giant Shahed: slide under it when the way is clear, and fire once lined up
       if (g.bossLane >= 0) {
-        if (g.bossLane === g.player.lane) { if (g.wallet >= 3) $('rocketBtn').click(); }
-        else { const d = g.bossLane < g.player.lane ? -1 : 1; if (!danger(g.player.lane + d)) key(d < 0 ? 'ArrowLeft' : 'ArrowRight'); }
+        let want = g.bossLane;                                                   // short of a rocket: go for the nearest coin
+        if (g.wallet < 3) { const c = g.objects.filter(o => o.type === 'coin' && o.y < g.player.y && o.y > g.player.y - 400).sort((a, b) => b.y - a.y)[0]; if (c) want = c.lane; }
+        if (want === g.player.lane) { if (want === g.bossLane && g.wallet >= 3) $('rocketBtn').click(); }
+        else { const d = want < g.player.lane ? -1 : 1; if (!danger(g.player.lane + d)) key(d < 0 ? 'ArrowLeft' : 'ArrowRight'); }
       }
       return;
     }
@@ -159,6 +162,14 @@
     report.checks.dailyGameOver = !$('over').classList.contains('hidden') && !$('overDaily').hidden;
     $('shareBtn').click(); await sleep(600);
     report.checks.shareCopiesText = !!(window.__copied && window.__copied.includes('Drone Dash'));
+    // Shahed Raid: straight into the giant Shaheds, one after another
+    $('homeBtn').click(); $('raidBtn').click();
+    report.checks.raidBriefing = !$('raidHelp').classList.contains('hidden');
+    $('raidGo').click(); stepSafe(100);
+    $('pauseBtn').click(); $('pauseHelp').click(); report.checks.raidHelpFromPause = !$('raidHelp').classList.contains('hidden');
+    $('raidGo').click(); $('resumeBtn').click();
+    let rf = 0; while (rf < 20000 && $('over').classList.contains('hidden')) { drive(); stepSafe(1); rf++; }
+    report.checks.raid = { frames: rf, giantShahedsDown: __G().bossesRun, title: $('overTitle').textContent, line: $('overDaily').textContent };
     $('homeBtn').click(); $('recordsBtn').click(); await sleep(200);
     report.checks.recordsRows = document.querySelectorAll('#recList li').length;
     $('recBack').click();

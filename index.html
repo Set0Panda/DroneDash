@@ -643,6 +643,8 @@
   .recCard { gap: 12px; }
   /* Upgrades: every car upgrade, greyed until you've reached its level */
   .menuRow.three { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .raidBtn { display: grid; gap: 1px; justify-items: center; padding-top: 7px; padding-bottom: 7px; font-size: 15px; }
+  .raidBtn small { font-size: 11px; font-weight: 700; opacity: .8; }
   .menuRow.three button { padding-left: 4px; padding-right: 4px; font-size: 14px; }
   .upCard { gap: 10px; }
   .upSub { font-size: 13px; color: var(--muted) !important; margin: -4px 0 0 !important; }
@@ -705,6 +707,7 @@
     <div class="menuBtns">
       <button id="playBtn">▶ <span data-i18n="play">Play</span></button>
       <button id="dailyBtn" class="secondary dailyBtn" type="button"><span>📅 <span data-i18n="daily">Daily challenge</span></span><small id="dailySub"></small></button>
+      <button id="raidBtn" class="secondary raidBtn" type="button"><span>🛸 <span data-i18n="raidBtn">Shahed Raid</span></span><small data-i18n="raidSub">All the giant Shaheds, back to back</small></button>
       <div id="homeMissions" class="missions"></div>
       <div class="menuRow three">
         <button id="garageBtn" class="secondary" type="button"><i class="swatch"></i><span data-i18n="colourBtn">Paint</span></button>
@@ -802,6 +805,21 @@
       <p class="keys" data-i18n="keys">Keyboard: ← → or A / D · Space fire · P pause · M mute</p>
       <p class="privacy" data-i18n="privacyNote">No ads, no cookies. Only anonymous play counts.</p>
       <button id="startBtn" data-i18n="gotIt">Got it!</button>
+    </div>
+  </div>
+
+  <!-- Shahed Raid: how the mode works, before each raid (and from the pause menu during one) -->
+  <div id="raidHelp" class="overlay hidden">
+    <div class="card introCard" role="dialog" aria-labelledby="raidHelpTitle">
+      <h1 id="raidHelpTitle">🛸 <span data-i18n="raidBtn">Shahed Raid</span></h1>
+      <ul class="rules">
+        <li><span class="ico autoIco">🛸</span><span data-i18n="raidRule1" data-rich><b>9 giant Shaheds</b> · each one bigger</span></li>
+        <li><span class="ico autoIco">🎯</span><span data-i18n="raidRule2" data-rich><b>Under its body</b> + FIRE = hit · wings block</span></li>
+        <li><span class="ico autoIco">🔴</span><span data-i18n="raidRule3" data-rich><b>Red lane</b> = bomb · move!</span></li>
+        <li><span class="ico autoIco">🪙</span><span data-i18n="raidRule4" data-rich><b>Rocket</b> = 3 coins · coins ×2 · <b>Overdrive</b> = free</span></li>
+        <li><span class="ico autoIco">⛽</span><span data-i18n="raidRule5" data-rich><b>No fuel drain</b> · win = <b>♥ + repair</b></span></li>
+      </ul>
+      <button id="raidGo" type="button"></button>
     </div>
   </div>
 
@@ -913,7 +931,15 @@ window.I18N = (() => {
       ms_boss: "Take down {n} giant Shaheds in one run",
       ms_boss_1: "Take down a giant Shahed",
       upgradesBtn: "Upgrades", upCount: "{n}/{total} unlocked · best level {best}", upNext: "Next: {item} at level {n}",
-      peekNote: "Preview only: unlocks at ★{n}"
+      peekNote: "Preview only: unlocks at ★{n}",
+      raidBtn: "Shahed Raid", raidSub: "All the giant Shaheds, back to back", raidResult: "{n}/9 giant Shaheds", raidDone: "RAID COMPLETE!", raidBest: "Best raid: {n}/9 · ⏱ {time}",
+      raidRule1: "**9 giant Shaheds** · each one bigger",
+      raidRule2: "**Under its body** + FIRE = hit · wings block",
+      raidRule3: "**Red lane** = bomb · move!",
+      raidRule4: "**Rocket** = 3 coins · coins ×2 · **Overdrive** = free",
+      raidRule5: "**No fuel drain** · win = **♥ + repair**",
+      raidStart: "Start raid",
+      odNext: "Overdrive ready for the next one"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -987,7 +1013,15 @@ window.I18N = (() => {
       ms_boss: "Derriba {n} Shaheds gigantes en una partida",
       ms_boss_1: "Derriba un Shahed gigante",
       upgradesBtn: "Mejoras", upCount: "{n}/{total} desbloqueadas · mejor nivel {best}", upNext: "Siguiente: {item} en el nivel {n}",
-      peekNote: "Solo vista previa: se desbloquea con ★{n}"
+      peekNote: "Solo vista previa: se desbloquea con ★{n}",
+      raidBtn: "Incursión Shahed", raidSub: "Todos los Shahed gigantes seguidos", raidResult: "{n}/9 Shahed gigantes", raidDone: "¡INCURSIÓN COMPLETADA!", raidBest: "Mejor incursión: {n}/9 · ⏱ {time}",
+      raidRule1: "**9 Shaheds gigantes** · cada uno más grande",
+      raidRule2: "**Bajo su cuerpo** + DISPARAR = impacto · las alas bloquean",
+      raidRule3: "**Carril rojo** = bomba · ¡muévete!",
+      raidRule4: "**Cohete** = 3 monedas · monedas ×2 · **Overdrive** = gratis",
+      raidRule5: "**Sin gasto de combustible** · victoria = **♥ + reparación**",
+      raidStart: "Empezar incursión",
+      odNext: "Overdrive listo para el siguiente"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -1061,7 +1095,15 @@ window.I18N = (() => {
       ms_boss: "Abats {n} Shaheds géants en une partie",
       ms_boss_1: "Abats un Shahed géant",
       upgradesBtn: "Bonus", upCount: "{n}/{total} débloqués · meilleur niveau {best}", upNext: "Suivant : {item} au niveau {n}",
-      peekNote: "Aperçu seulement : débloqué à ★{n}"
+      peekNote: "Aperçu seulement : débloqué à ★{n}",
+      raidBtn: "Raid Shahed", raidSub: "Tous les Shaheds géants à la suite", raidResult: "{n}/9 Shaheds géants", raidDone: "RAID TERMINÉ !", raidBest: "Meilleur raid : {n}/9 · ⏱ {time}",
+      raidRule1: "**9 Shaheds géants** · chacun plus grand",
+      raidRule2: "**Sous son corps** + FEU = touché · les ailes bloquent",
+      raidRule3: "**Voie rouge** = bombe · bouge !",
+      raidRule4: "**Roquette** = 3 pièces · pièces ×2 · **Overdrive** = gratuit",
+      raidRule5: "**Pas de carburant consommé** · victoire = **♥ + réparation**",
+      raidStart: "Lancer le raid",
+      odNext: "Overdrive prêt pour le suivant"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -1135,7 +1177,15 @@ window.I18N = (() => {
       ms_boss: "Schieß {n} Riesen-Shaheds in einer Runde ab",
       ms_boss_1: "Schieß eine Riesen-Shahed ab",
       upgradesBtn: "Extras", upCount: "{n}/{total} freigeschaltet · bestes Level {best}", upNext: "Nächstes: {item} bei Level {n}",
-      peekNote: "Nur Vorschau: wird bei ★{n} freigeschaltet"
+      peekNote: "Nur Vorschau: wird bei ★{n} freigeschaltet",
+      raidBtn: "Shahed-Angriff", raidSub: "Alle Riesen-Shaheds direkt hintereinander", raidResult: "{n}/9 Riesen-Shaheds", raidDone: "ANGRIFF ABGEWEHRT!", raidBest: "Bester Angriff: {n}/9 · ⏱ {time}",
+      raidRule1: "**9 Riesen-Shaheds** · jede größer",
+      raidRule2: "**Unter den Rumpf** + FEUER = Treffer · Flügel blocken",
+      raidRule3: "**Rote Spur** = Bombe · weg da!",
+      raidRule4: "**Rakete** = 3 Münzen · Münzen ×2 · **Overdrive** = gratis",
+      raidRule5: "**Kein Spritverbrauch** · Sieg = **♥ + Reparatur**",
+      raidStart: "Angriff starten",
+      odNext: "Overdrive bereit für den nächsten"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -1209,7 +1259,15 @@ window.I18N = (() => {
       ms_boss: "Derrube {n} Shaheds gigantes numa partida",
       ms_boss_1: "Derrube um Shahed gigante",
       upgradesBtn: "Melhorias", upCount: "{n}/{total} desbloqueadas · melhor nível {best}", upNext: "Próxima: {item} no nível {n}",
-      peekNote: "Só pré-visualização: desbloqueia com ★{n}"
+      peekNote: "Só pré-visualização: desbloqueia com ★{n}",
+      raidBtn: "Ataque Shahed", raidSub: "Todos os Shaheds gigantes seguidos", raidResult: "{n}/9 Shaheds gigantes", raidDone: "ATAQUE CONCLUÍDO!", raidBest: "Melhor ataque: {n}/9 · ⏱ {time}",
+      raidRule1: "**9 Shaheds gigantes** · cada um maior",
+      raidRule2: "**Sob o corpo** + DISPARAR = acerto · asas bloqueiam",
+      raidRule3: "**Faixa vermelha** = bomba · saia!",
+      raidRule4: "**Foguete** = 3 moedas · moedas ×2 · **Overdrive** = grátis",
+      raidRule5: "**Sem gasto de combustível** · vitória = **♥ + conserto**",
+      raidStart: "Começar ataque",
+      odNext: "Overdrive pronto para o próximo"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -1283,7 +1341,15 @@ window.I18N = (() => {
       ms_boss: "Abbatti {n} Shahed giganti in una partita",
       ms_boss_1: "Abbatti uno Shahed gigante",
       upgradesBtn: "Extra", upCount: "{n}/{total} sbloccati · miglior livello {best}", upNext: "Prossimo: {item} al livello {n}",
-      peekNote: "Solo anteprima: si sblocca a ★{n}"
+      peekNote: "Solo anteprima: si sblocca a ★{n}",
+      raidBtn: "Raid Shahed", raidSub: "Tutti gli Shahed giganti di fila", raidResult: "{n}/9 Shahed giganti", raidDone: "RAID COMPLETATO!", raidBest: "Miglior raid: {n}/9 · ⏱ {time}",
+      raidRule1: "**9 Shahed giganti** · ognuno più grande",
+      raidRule2: "**Sotto il corpo** + FUOCO = colpito · le ali bloccano",
+      raidRule3: "**Corsia rossa** = bomba · spostati!",
+      raidRule4: "**Razzo** = 3 monete · monete ×2 · **Overdrive** = gratis",
+      raidRule5: "**Niente carburante consumato** · vittoria = **♥ + riparazione**",
+      raidStart: "Inizia il raid",
+      odNext: "Overdrive pronto per il prossimo"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -1357,7 +1423,15 @@ window.I18N = (() => {
       ms_boss: "1回の走行で巨大シャヘドを{n}機撃墜",
       ms_boss_1: "巨大シャヘドを撃墜",
       upgradesBtn: "アップグレード", upCount: "{n}/{total} 解放 · 最高レベル {best}", upNext: "次：レベル{n}で{item}",
-      peekNote: "プレビューのみ：★{n}で解放"
+      peekNote: "プレビューのみ：★{n}で解放",
+      raidBtn: "シャヘド襲来", raidSub: "巨大シャヘドと連続で対決", raidResult: "巨大シャヘド {n}/9", raidDone: "襲来を撃退！", raidBest: "ベスト：{n}/9 · ⏱ {time}",
+      raidRule1: "**巨大シャヘド9機** · どんどん大きく",
+      raidRule2: "**胴体の真下**で発射＝命中 · 翼は弾く",
+      raidRule3: "**赤い車線**＝爆弾 · よけろ！",
+      raidRule4: "**ロケット**＝コイン3枚 · コイン×2 · **OVERDRIVE**＝無料",
+      raidRule5: "**燃料減らない** · 撃墜＝**♥＋修理**",
+      raidStart: "襲来スタート",
+      odNext: "次の戦いにOVERDRIVEを温存"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -1431,7 +1505,15 @@ window.I18N = (() => {
       ms_boss: "一局内击落 {n} 架巨型沙赫德",
       ms_boss_1: "击落一架巨型沙赫德",
       upgradesBtn: "升级", upCount: "已解锁 {n}/{total} · 最高第 {best} 关", upNext: "下一个：第 {n} 关解锁{item}",
-      peekNote: "仅预览：★{n} 解锁"
+      peekNote: "仅预览：★{n} 解锁",
+      raidBtn: "沙赫德空袭", raidSub: "所有巨型沙赫德连续登场", raidResult: "巨型沙赫德 {n}/9", raidDone: "空袭击退！", raidBest: "最佳：{n}/9 · ⏱ {time}",
+      raidRule1: "**9 架巨型沙赫德** · 一架比一架大",
+      raidRule2: "**机身正下方**＋发射＝命中 · 机翼挡火箭",
+      raidRule3: "**红色车道**＝炸弹 · 快躲！",
+      raidRule4: "**火箭**＝3 枚金币 · 金币×2 · **OVERDRIVE**＝免费",
+      raidRule5: "**不耗油** · 击落＝**♥＋修好**",
+      raidStart: "开始空袭",
+      odNext: "OVERDRIVE 留给下一架"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -1505,7 +1587,15 @@ window.I18N = (() => {
       ms_boss: "한 판에 거대 샤헤드 {n}대 격추",
       ms_boss_1: "거대 샤헤드 격추",
       upgradesBtn: "업그레이드", upCount: "{n}/{total} 해제 · 최고 레벨 {best}", upNext: "다음: 레벨 {n}에서 {item}",
-      peekNote: "미리보기만: ★{n}에 해제"
+      peekNote: "미리보기만: ★{n}에 해제",
+      raidBtn: "샤헤드 공습", raidSub: "거대 샤헤드 연속 대결", raidResult: "거대 샤헤드 {n}/9", raidDone: "공습 격퇴!", raidBest: "최고 기록: {n}/9 · ⏱ {time}",
+      raidRule1: "**거대 샤헤드 9대** · 점점 더 커짐",
+      raidRule2: "**몸체 바로 밑** + 발사 = 명중 · 날개는 막음",
+      raidRule3: "**빨간 차선** = 폭탄 · 피해!",
+      raidRule4: "**로켓** = 코인 3개 · 코인 ×2 · **OVERDRIVE** = 무료",
+      raidRule5: "**연료 소모 없음** · 격추 = **♥ + 수리**",
+      raidStart: "공습 시작",
+      odNext: "다음 전투에 OVERDRIVE 준비"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -1579,7 +1669,15 @@ window.I18N = (() => {
       ms_boss: "एक दौड़ में {n} विशाल शाहेद गिराओ",
       ms_boss_1: "एक विशाल शाहेद गिराओ",
       upgradesBtn: "अपग्रेड", upCount: "{n}/{total} अनलॉक · सर्वश्रेष्ठ लेवल {best}", upNext: "अगला: लेवल {n} पर {item}",
-      peekNote: "सिर्फ़ झलक: ★{n} पर अनलॉक"
+      peekNote: "सिर्फ़ झलक: ★{n} पर अनलॉक",
+      raidBtn: "शाहेद हमला", raidSub: "सारे विशाल शाहेद, एक के बाद एक", raidResult: "{n}/9 विशाल शाहेद", raidDone: "हमला नाकाम!", raidBest: "सर्वश्रेष्ठ: {n}/9 · ⏱ {time}",
+      raidRule1: "**9 विशाल शाहेद** · हर एक बड़ा",
+      raidRule2: "**बॉडी के नीचे** + फ़ायर = हिट · पंख रोकते हैं",
+      raidRule3: "**लाल लेन** = बम · हटो!",
+      raidRule4: "**रॉकेट** = 3 सिक्के · सिक्के ×2 · **OVERDRIVE** = मुफ़्त",
+      raidRule5: "**ईंधन खर्च नहीं** · जीत = **♥ + मरम्मत**",
+      raidStart: "हमला शुरू करो",
+      odNext: "अगले के लिए OVERDRIVE तैयार"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -1655,7 +1753,15 @@ window.I18N = (() => {
       ms_boss: "Збий {n} гігантських шахедів за заїзд",
       ms_boss_1: "Збий гігантський шахед",
       upgradesBtn: "Апгрейди", upCount: "{n}/{total} відкрито · найкращий рівень {best}", upNext: "Далі: {item} на рівні {n}",
-      peekNote: "Лише перегляд: відкриється за ★{n}"
+      peekNote: "Лише перегляд: відкриється за ★{n}",
+      raidBtn: "Атака шахедів", raidSub: "Усі гігантські шахеди поспіль", raidResult: "{n}/9 гігантських шахедів", raidDone: "АТАКУ ВІДБИТО!", raidBest: "Найкраща атака: {n}/9 · ⏱ {time}",
+      raidRule1: "**9 гігантських шахедів** · кожен більший",
+      raidRule2: "**Під корпус** + ПУСК = влучання · крила блокують",
+      raidRule3: "**Червона смуга** = бомба · геть!",
+      raidRule4: "**Ракета** = 3 монети · монети ×2 · **OVERDRIVE** = безкоштовно",
+      raidRule5: "**Пальне не витрачається** · перемога = **♥ + ремонт**",
+      raidStart: "Почати атаку",
+      odNext: "OVERDRIVE готовий до наступного"
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -1729,7 +1835,15 @@ window.I18N = (() => {
       ms_boss: "ერთ რბოლაში ჩამოაგდე {n} გიგანტური შაჰედი",
       ms_boss_1: "ჩამოაგდე გიგანტური შაჰედი",
       upgradesBtn: "გაუმჯობესებები", upCount: "{n}/{total} გახსნილი · საუკეთესო დონე {best}", upNext: "შემდეგი: {item} დონე {n}-ზე",
-      peekNote: "მხოლოდ გადახედვა: გაიხსნება ★{n}-ზე"
+      peekNote: "მხოლოდ გადახედვა: გაიხსნება ★{n}-ზე",
+      raidBtn: "შაჰედების შეტევა", raidSub: "ყველა გიგანტური შაჰედი ზედიზედ", raidResult: "{n}/9 გიგანტური შაჰედი", raidDone: "შეტევა მოგერიებულია!", raidBest: "საუკეთესო: {n}/9 · ⏱ {time}",
+      raidRule1: "**9 გიგანტური შაჰედი** · ყოველი უფრო დიდი",
+      raidRule2: "**კორპუსის ქვეშ** + გასროლა = მოხვედრა · ფრთები ბლოკავს",
+      raidRule3: "**წითელი ზოლი** = ბომბი · გაეცალე!",
+      raidRule4: "**რაკეტა** = 3 მონეტა · მონეტები ×2 · **OVERDRIVE** = უფასო",
+      raidRule5: "**საწვავი არ იხარჯება** · გამარჯვება = **♥ + შეკეთება**",
+      raidStart: "შეტევის დაწყება",
+      odNext: "OVERDRIVE მზადაა შემდეგისთვის"
     }
   };
   const NAMES = {
@@ -2122,7 +2236,12 @@ window.LD_RULES = (() => {
     const i = ((n * 7) % TWISTS.length + TWISTS.length) % TWISTS.length;   // all 10 in turn, never twice in a row
     return { n, twist: TWISTS[i], seed: Math.imul(n + 977, 2654435761) >>> 0 };
   }
-  let mode = 'normal';                 // 'normal' | 'daily'
+  let mode = 'normal';                 // 'normal' | 'daily' | 'raid'
+  // Shahed Raid: the 9 giant Shaheds back to back (no fuel drain, no levels in between), each in its
+  // own area. Its own best; it doesn't touch the normal records.
+  let raidOn = false, raidWait = 0, raidAreas = [], raidOD = false;   // raidOD: Overdrive saved from the last win
+  const RAID_KEY = 'ddRaid', RAID_GAP = 2.5;         // RAID_GAP: seconds of road between one giant Shahed's victory lap and the next
+  const RAID_SPEED = 0.7;                            // giant Shahed fights (and whole raids) run the road at 70% speed
   let runDay = null, twist = NO_TWIST;  // the day and twist of the run being played
   let roadRand = Math.random, droneRand = Math.random;
   const DAILY_KEY = 'ddDaily';         // { n: day, best, level, tries, streak, last: last day played }
@@ -2231,10 +2350,13 @@ window.LD_RULES = (() => {
   const BOSS_AT = 0.4;                         // how far into the area's last level it turns up
   const BOSS_FROM = 9, BOSS_TOTAL = 9;         // first one at the end of the sunflower fields (the wheat fields stay a gentle start)
   const BOSS_PTS = 600, BOSS_HIT_PTS = 40;     // x level x combo
+  const BOSS_COMBO = 10;
+  const RAID_OD_TIME = 3.5, FREE_RELOAD = 0.8;   // the raid's opening Overdrive (s); time between free rockets (s)
+  let freeCool = 0;                        // combo for each rocket that hits its body
   const BOMB_FUEL = 10;                        // fuel lost to a direct hit from one of its bombs
-  const BOMB_CHARGE = 0.6, BOMB_EXTRA = 140;   // warning before each drop (s); bombs then fly this much faster than the road
+  const BOMB_CHARGE = 0.7, BOMB_EXTRA = 140;   // warning before each drop (s); bombs then fly this much faster than the road
   let boss = null, bossDoneLevel = 0, bossesRun = 0, whiteT = 0;
-  const bossHP = a => 6 + 2 * a;               // hits to bring it down: 8 in the sunflower fields … 24 under the northern lights
+  const bossHP = a => Math.round(4.5 + 1.5 * a); // hits to bring it down: 6 in the sunflower fields … 18 under the northern lights
   // Kill marks: the areas whose giant Shahed you've ever beaten, painted on the car's sides.
   function bossMarks() { try { const a = JSON.parse(localStorage.getItem('ddBosses') || '[]'); return Array.isArray(a) ? a : []; } catch { return []; } }
   const tip = k => { if (readNum(k)) return false; writeNum(k, 1); return true; };   // one-time callouts
@@ -2473,18 +2595,22 @@ window.LD_RULES = (() => {
     player = { lane: 1, x: laneX(1), y: H - 100, w: R.carW(laneW), h: R.CAR_H };
     objects = []; particles = []; floats = [];
     runDay = mode === 'daily' ? dayInfo() : null;
+    raidOn = mode === 'raid'; raidWait = RAID_GAP; raidOD = false;
     twist = runDay ? runDay.twist : NO_TWIST;
     roadRand = runDay ? mulberry32(runDay.seed) : Math.random;
     droneRand = runDay ? mulberry32(runDay.seed ^ 0x5bd1e995) : Math.random;
     MAX_LIVES = twist.lives || 3;
-    lives = MAX_LIVES; level = twist.start || 1; speed = levelSpeed(level); slip = 0;
+    lives = MAX_LIVES; level = raidOn ? BOSS_FROM : twist.start || 1; speed = levelSpeed(level) * (raidOn ? RAID_SPEED : 1); slip = 0;
     spawnDist = 200; flash = 0; roadOffset = 0; shake = 0; planner = R.newPlanner(roadRand);
     levelDist = 0; distance = 0; bonus = 0; fuel = 100; coins = 0; coinMeter = 0; lowFuelT = 0; finishSpawned = false;
     combo = 0; comboIdle = 0; cleanLevel = true; odPhase = ''; odT = 0; odBoost = 1; overdrives = 0; warpT = 0; hurtT = 0; dents = []; smokeT = 0; rs = newRunStats(); boss = null; bossDoneLevel = 0; bossesRun = 0; whiteT = 0; sfx.pitch(1);
     // One rocket loaded from the start, so the first Shahed (7 s in, before 3 coins are usually collected) can be shot down.
     drones = []; rockets = []; booms = []; wallet = ROCKET_COST; droneT = twist.swarm ? 4 : 7; droneSeen = false; kills = 0; droneQueue = []; resuming = false; runTime = 0; carNo = 1 + Math.floor(Math.random() * 99);
     lastLeftLane = -1; lastLaneChangeT = -9; speedLines = []; closeBurst = 0; heartProgress = 0; heartsEarned = 0;
-    areaBounds = [{ k: -Infinity, a: areaFor(level) }]; lookArea = areaFor(level); lookFade = 1; rushRows = 0;
+    // a raid tours the areas in a random order (the fights still get harder one by one)
+    raidAreas = raidOn ? [...AREAS.keys()].sort(() => Math.random() - 0.5).slice(0, BOSS_TOTAL) : [];
+    const startArea = raidOn ? raidAreas[0] : areaFor(level);
+    areaBounds = [{ k: -Infinity, a: startArea }]; lookArea = startArea; lookFade = 1; rushRows = 0;
     worksPrev = -1;
     el.banner.innerHTML = '';
     updateHud();
@@ -2505,8 +2631,8 @@ window.LD_RULES = (() => {
     }
     el.level.textContent = t('lv', { n: level });
     const lenPx = levelLength(level) * PX_PER_M;
-    el.prog.style.width = Math.min(100, levelDist / lenPx * 100) + '%';
-    el.togo.textContent = t('meters', { n: Math.max(0, Math.ceil((lenPx - levelDist) / PX_PER_M)) });
+    el.prog.style.width = (raidOn ? bossesRun / BOSS_TOTAL * 100 : Math.min(100, levelDist / lenPx * 100)) + '%';
+    el.togo.textContent = raidOn ? '🛸 ' + bossesRun + '/' + BOSS_TOTAL : t('meters', { n: Math.max(0, Math.ceil((lenPx - levelDist) / PX_PER_M)) });
     el.fuel.style.width = fuel + '%';
     el.fuel.style.backgroundColor = fuel > 50 ? '' : fuel > 25 ? getVar('--fuel-mid') : '';
     el.fuelRow.classList.toggle('low', fuel <= 25);
@@ -2517,7 +2643,7 @@ window.LD_RULES = (() => {
   let comboShown = '';
   function paintCombo() {
     const m = comboMult(), hi = m < 5 ? COMBO_AT[m] : OD_AT, lo = COMBO_AT[m - 1];
-    const p = odPhase ? (odPhase === 'build' ? 1 : Math.max(0, odT / OD_TIME)) : Math.min(1, (combo - lo) / (hi - lo));
+    const p = odPhase ? (odPhase === 'build' ? 1 : Math.max(0, odT / odLen)) : Math.min(1, (combo - lo) / (hi - lo));
     const txt = odPhase ? '⚡×5' : '×' + m;
     const key = txt + '|' + p.toFixed(2) + '|' + (combo > 0 || !!odPhase) + '|' + (comboIdle > COMBO_IDLE && combo > 0) + '|' + !!odPhase;
     if (key === comboShown) return;
@@ -2551,7 +2677,9 @@ window.LD_RULES = (() => {
   function dropTier() { const m = comboMult(); combo = m >= 2 ? COMBO_AT[m - 2] : 0; comboIdle = 0; cleanLevel = false; }
   function breakCombo() { combo = 0; comboIdle = 0; cleanLevel = false; }
 
-  function startOverdrive(quiet) {          // quiet: the caller shows its own banner
+  let odLen = 6;                            // how long this Overdrive's burst lasts
+  function startOverdrive(quiet, len = OD_TIME) {   // quiet: the caller shows its own banner
+    odLen = len;
     odPhase = 'build'; odT = OD_BUILD; overdrives++;
     warpT = 0; slowmo(OD_BUILD, OD_SLOW);
     sfx.odBuild();
@@ -2561,7 +2689,7 @@ window.LD_RULES = (() => {
   function updateOverdrive(dt) {
     if (odPhase === 'build') {
       odT -= realDt;
-      if (odT <= 0) { odPhase = 'burst'; odT = OD_TIME; sfx.odGo(); sfx.pitch(1.22); shake = Math.max(shake, 0.2); }
+      if (odT <= 0) { odPhase = 'burst'; odT = odLen; sfx.odGo(); sfx.pitch(1.22); shake = Math.max(shake, 0.2); }
       return;
     }
     odT -= dt;
@@ -2591,11 +2719,19 @@ window.LD_RULES = (() => {
     const a = areaFor(level), hp = bossHP(a);
     // its health bar sits just under the HUD (taller on phones with a notch), the Shahed below that
     const barY = Math.max(56, ($('hud').getBoundingClientRect().bottom - canvas.getBoundingClientRect().top) / viewK - 12);
-    const sc = laneW * 2.3 / 62;               // drawn scale: its wings span most of the road
-    boss = { a, hp, max: hp, x: laneX(1), lane: 1, y: -30 * sc, ty: barY + 31 * sc + 6, barY, s: sc, t: 0, moveT: 1.6, dropT: 2.2, hitT: 0 };
+    // Each one is bigger: wings spanning 70% of the screen for the first, the full width by the ninth.
+    // Its nose (where the bombs drop from) stays at the same height whatever its size, so the bigger
+    // ones rise up behind it, engine and prop under the HUD: bombs keep the same warning time.
+    const span = 0.7 + 0.3 * Math.min(1, Math.max(0, (a - 1) / 8));
+    const sc = W * span / 62;                          // the wing is 62 units across
+    const noseY = barY + 57 * (laneW * 2.3 / 62) + 6;  // where the nose sat at the original size
+    const ty = noseY - 26 * sc;                        // the nose is 26 units below its middle
+    boss = { a, hp, max: hp, x: laneX(1), lane: 1, y: -30 * sc, ty, barY, s: sc, t: 0, moveT: 1.6, dropT: 2.2, hitT: 0 };
     droneQueue = [];
+    for (const d of drones) if (!d.dead) { d.dead = true; explode(d.x, d.y); }   // the sky clears: just it and its bombs
     sfx.odBuild();
     showBanner(t('bossBanner'), tip('ddTipBoss') ? t('bossTip', { n: ROCKET_COST }) : '', true);
+    if (raidOD) { raidOD = false; combo = OD_AT; startOverdrive(true, RAID_OD_TIME); }   // raid: the last win's Overdrive opens this fight (a short one)
     if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
   }
   function updateBoss(dt) {
@@ -2618,17 +2754,30 @@ window.LD_RULES = (() => {
     }
     if ((b.moveT -= dt) <= 0) {                                    // slides to another lane now and then
       const opts = [0, 1, 2].filter(l => l !== b.lane);
-      b.lane = opts[Math.floor(droneRand() * opts.length)];
-      b.moveT = (1.3 + droneRand() * 1.2) * (rage ? 0.65 : 1) * Math.max(0.6, 1 - 0.04 * b.a);
+      const hunt = Math.max(0, 0.1 * (b.a - 2));                 // later ones come after you: up to 70% of moves
+      b.lane = droneRand() < hunt && player.lane !== b.lane ? player.lane : opts[Math.floor(droneRand() * opts.length)];
+      b.moveT = (1.3 + droneRand() * 1.2) * (rage ? 0.65 : 1) * Math.max(0.45, 1 - 0.06 * b.a);
     }
     b.x += (laneX(b.lane) - b.x) * ease(rage ? 5 : 3.5, dt);
     if (b.y > b.ty - 25 && (b.dropT -= dt) <= 0) {                // drops small Shaheds into the lane below it
-      b.dropT = Math.max(1.1, 2.4 - 0.12 * b.a) * (rage ? 0.7 : 1);
+      b.dropT = Math.max(0.8, 2.3 - 0.16 * b.a) * (rage ? 0.7 : 1);   // ~2.1 s apart for the first one, 0.8 s by the last
       const lane = Math.max(0, Math.min(2, Math.round((b.x - vergeW - laneW / 2) / laneW)));
       const lanes = [lane];
-      if (droneRand() < (b.a >= 4 ? 0.25 : 0) + (rage ? 0.2 : 0)) lanes.push(lane === 0 ? 1 : lane === 2 ? 1 : (droneRand() < 0.5 ? 0 : 2));
-      b.charge = { lanes, t: BOMB_CHARGE, max: BOMB_CHARGE };
+      if (droneRand() < 0.06 * b.a + (rage ? 0.2 : 0)) lanes.push(lane === 0 ? 1 : lane === 2 ? 1 : (droneRand() < 0.5 ? 0 : 2));
+      const ch = Math.max(0.45, BOMB_CHARGE - 0.028 * b.a);          // less warning each area: 0.67 s down to 0.45 s
+      b.charge = { lanes, t: ch, max: ch };
     }
+  }
+  // Raid: on to the next area and its giant Shahed, or done after the ninth.
+  function raidNext() {
+    if (level + 5 > BOSS_FROM + 5 * (BOSS_TOTAL - 1)) { gameOver('raid'); return; }
+    level += 5;
+    lookArea = raidAreas[bossesRun % raidAreas.length]; lookFade = 0;
+    areaBounds.push({ k: kAtY(-40), a: lookArea });          // the new area's roadside rolls in from the top
+    const A = AREAS[lookArea];
+    showBanner(A.icon + ' ' + t(A.key), t('raidResult', { n: bossesRun }));
+    raidWait = RAID_GAP;
+    sfx.levelUp();
   }
   function bossHit(x, y) {
     const b = boss;
@@ -2639,6 +2788,7 @@ window.LD_RULES = (() => {
     floatText(x, y - 18, '+' + num(pts), '#FFD700');
     if (navigator.vibrate) navigator.vibrate(20);
     if (b.hp <= 0) bossDown();
+    else addCombo(BOSS_COMBO);                     // good shooting builds the combo: a run of hits sets off Overdrive mid-fight
   }
   // Down: a big blast, a shower of coins, the car patched up and rearmed, then a victory lap in
   // Overdrive. The first time for each area it also leaves a kill mark on the car and ★2.
@@ -2662,8 +2812,14 @@ window.LD_RULES = (() => {
     }
     sfx.levelUp();
     if (navigator.vibrate) navigator.vibrate([60, 40, 120]);
-    combo = OD_AT; startOverdrive(true);                  // victory lap
-    showBanner(t('bossDown'), '⚡ ' + t('overdrive') + ' · ♥ ⛽ 🚀', false, '+' + num(pts));
+    if (raidOn) {
+      // Raid: no road to smash after it, so the Overdrive is saved to start the next fight with free rockets.
+      raidOD = true; raidWait = 1.2;
+      showBanner(t('bossDown'), '♥ ⛽ 🚀 · ⚡ ' + t('odNext'), false, '+' + num(pts));
+    } else {
+      combo = OD_AT; startOverdrive(true);                // victory lap
+      showBanner(t('bossDown'), '⚡ ' + t('overdrive') + ' · ♥ ⛽ 🚀', false, '+' + num(pts));
+    }
   }
   // The giant Shahed, drawn in detail (same units as drawShahed, nose pointing down at you): a
   // tailless delta wing with upright fins at the tips, a long tube body with a warhead nose, the
@@ -2718,10 +2874,32 @@ window.LD_RULES = (() => {
     for (const [x, y] of [[0, 15], [-29.8, -10], [29.8, -10]]) { ctx.beginPath(); ctx.arc(x, y, 1.3, 0, 6.29); ctx.fill(); }
     ctx.restore();
   }
+  // Where FIRE goes in a giant Shahed fight: straight up your lane. Green once you're under its body.
+  function drawBossAim(b) {
+    if (wallet < ROCKET_COST && odPhase !== 'burst') return;
+    const on = Math.abs(b.x - player.x) < laneW * 0.6, top = b.y + 20 * b.s;
+    ctx.save();
+    ctx.strokeStyle = on ? 'rgba(126,226,168,.8)' : 'rgba(207,214,234,.35)'; ctx.lineWidth = on ? 2.5 : 1.5;
+    ctx.setLineDash([6, 8]); ctx.lineDashOffset = -performance.now() / 30;
+    ctx.beginPath(); ctx.moveTo(player.x, player.y - 4); ctx.lineTo(player.x, top); ctx.stroke();
+    // lock-on marker where the line meets it: brackets that close in and pulse green when you're under its body
+    ctx.setLineDash([]);
+    const pulse = on ? 1 + 0.12 * Math.sin(performance.now() / 90) : 1;
+    const r = (on ? 13 : 18) * pulse, k = r * 0.55, cy = top - 6;
+    ctx.strokeStyle = on ? '#7ee2a8' : 'rgba(207,214,234,.5)'; ctx.lineWidth = on ? 3 : 2;
+    ctx.beginPath();
+    for (const [sx, sy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+      ctx.moveTo(player.x + sx * r, cy + sy * (r - k)); ctx.lineTo(player.x + sx * r, cy + sy * r); ctx.lineTo(player.x + sx * (r - k), cy + sy * r);
+    }
+    ctx.stroke();
+    if (on) { ctx.fillStyle = '#7ee2a8'; ctx.beginPath(); ctx.arc(player.x, cy, 2.5, 0, Math.PI * 2); ctx.fill(); }
+    ctx.restore();
+  }
   // The giant Shahed: the usual drone, much bigger, with its health bar under the HUD.
   function drawBoss(b) {
     const s = b.s;
     ctx.save(); ctx.translate(b.x, b.y); ctx.scale(s, s);
+    ctx.globalAlpha = 0.82;                   // a little see-through: barriers and coins under its wings still show
     if (b.charge) {                           // charging: a red glow building under its nose
       const k = 1 - b.charge.t / b.charge.max, g = ctx.createRadialGradient(0, 18, 2, 0, 18, 30 + 14 * k);
       g.addColorStop(0, `rgba(255,90,90,${(0.85 * k).toFixed(3)})`); g.addColorStop(1, 'rgba(255,90,90,0)');
@@ -2784,8 +2962,8 @@ window.LD_RULES = (() => {
     // The dots already show progress to the next rocket and the FIRE badge shows how many
     // are ready, so the text is only for the Shahed alert, or MAX when no more can be banked.
     set(eggNext, incoming ? (n > 0 && autoFire ? t('shahedBanner') : t(n > 0 ? 'droneAlert' : 'droneNoRocket')) : '');
-    set(autoPct, autoFire ? Math.round((1 - autoMiss()) * 100) + '%' : '✕');
-    autoChip.classList.toggle('on', autoFire);
+    set(autoPct, autoFire && !boss ? Math.round((1 - autoMiss()) * 100) + '%' : '✕');   // off during a giant Shahed fight
+    autoChip.classList.toggle('on', autoFire && !boss);
   }
   // The bar only exists in Ukrainian; it takes room from the road, so re-measure the canvas.
   function layoutEgg() {
@@ -2814,8 +2992,9 @@ window.LD_RULES = (() => {
   const aimAt = tg => tg.type === 'enemy' ? { x: objX(tg), y: tg.y + tg.h / 2 } : { x: tg.x, y: tg.y };
   // fire(): FIRE button / Space / tapping a drone. fire(drone, true): auto-fire at that drone.
   function fire(at, auto = false) {
-    const cost = odPhase === 'burst' ? 0 : ROCKET_COST;   // Overdrive: rockets are free
+    const cost = odPhase === 'burst' ? 0 : ROCKET_COST;   // Overdrive: rockets are free...
     if (state !== 'play' || !DRONES() || wallet < cost) return false;
+    if (cost === 0) { if (freeCool > 0) return false; freeCool = FREE_RELOAD; }   // ...but one every FREE_RELOAD s
     if (boss && !at) {                            // giant Shahed: FIRE sends a rocket straight up your lane
       wallet -= cost;
       const my = player.y + player.h * 0.41 - 6;
@@ -2826,6 +3005,14 @@ window.LD_RULES = (() => {
       return true;
     }
     const tg = at || target() || barrierAhead();  // drones first, then a barrier blocking your lane
+    if (!tg && cost === 0) {                      // Overdrive, nothing to aim at: a free rocket straight up your lane anyway
+      const my = player.y + player.h * 0.41 - 6;
+      rockets.push({ x: player.x, y: my, vx: 0, vy: -ROCKET_V * 1.6, straight: true });
+      launcherKick = 1;
+      burst(player.x, my, '#fefcbf', 8); burst(player.x, my, '#f6ad55', 6);
+      sfx.launch();
+      return true;
+    }
     if (!tg) return false;
     wallet -= cost;
     const my = player.y + player.h * 0.41 - 6;              // the launcher's muzzle on the roof
@@ -2962,6 +3149,20 @@ window.LD_RULES = (() => {
       }
     }
     for (const r of rockets) {
+      if (r.straight) {                               // blows up the first obstacle it meets in its lane
+        r.y += r.vy * dt;
+        particles.push({ x: r.x, y: r.y + 8, vx: (Math.random() - 0.5) * 40, vy: 60, life: 0.35, color: 'rgba(200,205,220,.7)' });
+        const o = objects.find(o => (o.type === 'enemy' || o.type === 'hole') && !o.dead && !o.used && Math.abs(objX(o) - r.x) < laneW * 0.45 && r.y <= o.y + o.h && r.y >= o.y - 30);
+        if (o) {
+          r.dead = true;
+          if (o.works) o.used = true; else o.dead = true;
+          explode(objX(o), o.y + o.h / 2);
+          for (const c of DEBRIS[o.skin] || DEBRIS.barrier) burst(objX(o), o.y + o.h / 2, c, 10);
+          const pts = SMASH_PTS * level * comboMult(); bonus += pts;
+          floatText(objX(o), o.y - 10, t('smashed') + ' +' + num(pts), '#FFD700');
+        }
+        continue;
+      }
       if (r.boss) {                                   // straight up; hits the giant Shahed if it's over your lane
         r.y += r.vy * dt;
         particles.push({ x: r.x, y: r.y + 8, vx: (Math.random() - 0.5) * 40, vy: 60, life: 0.35, color: 'rgba(200,205,220,.7)' });
@@ -3302,14 +3503,15 @@ window.LD_RULES = (() => {
 
   function gameOver(reason) {
     state = 'over';
-    sfx.gameOver();
+    if (reason === 'raid') sfx.levelUp(); else sfx.gameOver();   // a finished raid gets a fanfare
     const s = score();
     if (odPhase) { odPhase = ''; sfx.pitch(1); }
     warpT = 0; boss = null;
-    lastRun = { s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, k: kills, o: overdrives, tm: Math.round(runTime), a: areaFor(level),
-                h: carHue, v: carShade, no: carNo, f: carFinish, km: bossMarks().length, b: bossesRun, day: runDay ? runDay.n : 0, tw: runDay ? twist.key : '' };
+    lastRun = { s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, k: kills, o: overdrives, tm: Math.round(runTime), a: raidOn ? lookArea : areaFor(level),
+                h: carHue, v: carShade, no: carNo, f: carFinish, km: bossMarks().length, b: bossesRun, day: runDay ? runDay.n : 0, tw: runDay ? twist.key : '', raid: raidOn ? bossesRun : -1 };
     $('shareNote').hidden = true;
-    $('overDaily').hidden = !runDay;
+    $('overDaily').hidden = !runDay && !raidOn;
+    const separate = runDay || raidOn;                            // daily and raid runs keep their own bests
     { const run = lastRun; shareCard(run).toBlob(b => { run.blob = b; }, 'image/png'); }   // ready before Share is tapped
     if (runDay) {
       // Daily runs have their own best and streak; they don't touch the normal records.
@@ -3318,17 +3520,25 @@ window.LD_RULES = (() => {
       $('newBest').hidden = !(d.newBest && s > 0);
       $('bestLine').textContent = t('dailyBest', { best: d.best }) + (d.streak ? ' · 🔥 ' + t('streak', { n: d.streak }) : '');
     }
-    const prevBest = runDay ? Infinity : readNum('laneDodgerBest');
-    const best = runDay ? 0 : Math.max(prevBest, s);
-    const bestLevel = runDay ? 0 : Math.max(readNum('laneDodgerBestLevel'), level);
-    if (!runDay) { writeNum('laneDodgerBest', best); writeNum('laneDodgerBestLevel', bestLevel); }
-    if (s > 0 && !runDay) {
+    if (raidOn) {
+      let rb = {}; try { rb = JSON.parse(localStorage.getItem(RAID_KEY) || '{}') || {}; } catch {}
+      const better = bossesRun > (rb.n || 0) || (bossesRun === (rb.n || 0) && bossesRun > 0 && runTime < (rb.tm || Infinity));
+      if (better) { rb = { n: bossesRun, tm: Math.round(runTime) }; try { localStorage.setItem(RAID_KEY, JSON.stringify(rb)); } catch {} }
+      $('overDaily').textContent = '🛸 ' + t('raidBtn') + ' · ' + t('raidResult', { n: bossesRun }) + ' · ⏱ ' + fmtTime(runTime);
+      $('newBest').hidden = !(better && bossesRun > 0);
+      $('bestLine').textContent = rb.n ? t('raidBest', { n: rb.n, time: fmtTime(rb.tm || 0) }) : '';
+    }
+    const prevBest = separate ? Infinity : readNum('laneDodgerBest');
+    const best = separate ? 0 : Math.max(prevBest, s);
+    const bestLevel = separate ? 0 : Math.max(readNum('laneDodgerBestLevel'), level);
+    if (!separate) { writeNum('laneDodgerBest', best); writeNum('laneDodgerBestLevel', bestLevel); }
+    if (s > 0 && !separate) {
       const run = { s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, h: carHue, v: carShade, k: kills, o: overdrives, a: areaFor(level), tm: Math.round(runTime), no: carNo, f: carFinish, km: bossMarks().length, b: bossesRun, t: Date.now() };
       if (saveRun(run)) latestRunT = run.t;
     }
     el.over.classList.toggle('fuel', reason === 'fuel');
-    $('overTitle').textContent = t(reason === 'fuel' ? 'outOfFuel' : 'crashed');
-    if (!runDay) $('newBest').hidden = !(s > prevBest && s > 0);
+    $('overTitle').textContent = t(reason === 'raid' ? 'raidDone' : reason === 'fuel' ? 'outOfFuel' : 'crashed');
+    if (!separate) $('newBest').hidden = !(s > prevBest && s > 0);
     countUp($('finalScore'), s);
     $('statLevel').textContent = num(level);
     $('statDist').textContent = t('meters', { n: Math.floor(distance / PX_PER_M) });
@@ -3336,9 +3546,9 @@ window.LD_RULES = (() => {
     const egg = DRONES();                                         // 4th tile: Shaheds shot down
     $('statKillsTile').hidden = !egg;
     $('statKills').textContent = num(kills);
-    const A = AREAS[areaFor(level)];
+    const A = AREAS[raidOn ? lookArea : areaFor(level)];
     $('overTrip').textContent = A.icon + ' ' + t(A.key) + ' · ⏱ ' + fmtTime(runTime) + (overdrives ? ' · ⚡ ' + num(overdrives) : '') + (bossesRun ? ' · 🛸 ' + num(bossesRun) : '');
-    if (!runDay) $('bestLine').textContent = t('bestLine', { best, level: bestLevel });
+    if (!separate) $('bestLine').textContent = t('bestLine', { best, level: bestLevel });
     paintOverMissions(msEndRun());
     el.over.classList.remove('hidden');
     fitStats();
@@ -3351,7 +3561,8 @@ window.LD_RULES = (() => {
   //       Can you beat it? https://…
   function shareText(r) {
     const A = AREAS[r.a];
-    const head = r.day ? '📅 Drone Dash · ' + t('dailyNum', { n: r.day }) + ': ' + t(r.tw) : '🚗 Drone Dash';
+    const head = r.day ? '📅 Drone Dash · ' + t('dailyNum', { n: r.day }) + ': ' + t(r.tw)
+      : r.raid >= 0 ? '🛸 Drone Dash · ' + t('raidBtn') + ': ' + t('raidResult', { n: r.raid }) : '🚗 Drone Dash';
     const line = ['🏆 ' + t('sharePts', { score: r.s }), t('level') + ' ' + num(r.l), A.icon + ' ' + t(A.key), r.k ? '🎯 ' + num(r.k) : '']
       .filter(Boolean).join(' · ');
     return head + '\n' + line + '\n' + t('beatIt');
@@ -3376,9 +3587,9 @@ window.LD_RULES = (() => {
     const w1 = c.measureText('DRONE').width, w2 = c.measureText('DASH').width, gap = 26, x0 = CW / 2 - (w1 + gap + w2) / 2;
     c.textAlign = 'left'; c.fillText('DRONE', x0, 150); c.fillStyle = '#FFD500'; c.fillText('DASH', x0 + w1 + gap, 150); c.textAlign = 'center';
     c.fillStyle = '#0057B7'; c.fillRect(CW / 2 - 140, 178, 140, 10); c.fillStyle = '#FFD500'; c.fillRect(CW / 2, 178, 140, 10);
-    if (r.day) {                              // daily badge
+    if (r.day || r.raid >= 0) {               // daily / raid badge
       c.font = font(800, 42);
-      const txt = '📅 ' + t('dailyNum', { n: r.day }) + ' · ' + t(r.tw), tw = Math.min(CW - 120, c.measureText(txt).width + 60);
+      const txt = r.day ? '📅 ' + t('dailyNum', { n: r.day }) + ' · ' + t(r.tw) : '🛸 ' + t('raidBtn') + ' · ' + t('raidResult', { n: r.raid }), tw = Math.min(CW - 120, c.measureText(txt).width + 60);
       c.fillStyle = 'rgba(255,213,0,.16)'; c.beginPath(); c.roundRect ? c.roundRect(CW / 2 - tw / 2, 222, tw, 70, 35) : c.rect(CW / 2 - tw / 2, 222, tw, 70); c.fill();
       c.fillStyle = '#FFD500'; c.fillText(txt, CW / 2, 272, CW - 160);
     }
@@ -3485,7 +3696,7 @@ window.LD_RULES = (() => {
   // ---- Home screen ----
   const wrapEl = $('wrap');
   function show(id) {
-    for (const o of ['home', 'bye', 'intro', 'over', 'garage', 'records', 'pause', 'upgrades']) $(o).classList.toggle('hidden', o !== id);
+    for (const o of ['home', 'bye', 'intro', 'over', 'garage', 'records', 'pause', 'upgrades', 'raidHelp']) $(o).classList.toggle('hidden', o !== id);
     wrapEl.classList.toggle('at-home', ['home', 'bye', 'garage', 'records', 'upgrades'].includes(id));
   }
 
@@ -3541,7 +3752,7 @@ window.LD_RULES = (() => {
   const MS_KEY = 'ddMissions';
   const MISSIONS = [
     { id: 'coins',  icon: '🪙', goals: [10, 20, 30, 45, 60, 80],          run: () => coins },
-    { id: 'level',  icon: '🏁', goals: [3, 5, 8, 12, 16, 20],              run: () => runDay && twist.start ? 0 : level },
+    { id: 'level',  icon: '🏁', goals: [3, 5, 8, 12, 16, 20],              run: () => (runDay && twist.start) || raidOn ? 0 : level },
     { id: 'dist',   icon: '🛣️', goals: [1000, 2000, 3000, 4500, 6000, 8000], run: () => Math.floor(distance / PX_PER_M) },
     { id: 'combo',  icon: '🔥', goals: [2, 3, 4, 5, 5, 5],                 run: () => rs.maxMult },
     { id: 'close',  icon: '💨', goals: [5, 10, 15, 20, 30, 40],            run: () => rs.close },
@@ -3903,6 +4114,7 @@ window.LD_RULES = (() => {
     floats = floats.filter(f => f.life > 0);
     if (shake > 0) shake -= dt;
     hurtT = Math.max(0, hurtT - realDt);
+    freeCool = Math.max(0, freeCool - dt);
 
     if (state === 'countdown') {
       slidePlayer(dt);
@@ -3932,7 +4144,7 @@ window.LD_RULES = (() => {
 
     // Speed eases up through each level towards the next level's speed.
     const lenPx = levelLength(level) * PX_PER_M;
-    const target = levelSpeed(level) + (levelSpeed(level + 1) - levelSpeed(level)) * 0.6 * Math.min(1, levelDist / lenPx);
+    const target = (levelSpeed(level) + (levelSpeed(level + 1) - levelSpeed(level)) * 0.6 * Math.min(1, levelDist / lenPx)) * (raidOn || boss ? RAID_SPEED : 1);   // the road eases off while a giant Shahed is up
     speed += (target - speed) * ease(1.5, dt);
 
     if (odPhase) updateOverdrive(dt);
@@ -3945,12 +4157,13 @@ window.LD_RULES = (() => {
     const step = speed * odBoost * dt;
     distance += step;
     runTime += dt;
-    if (!boss) levelDist += step;            // the level holds still while a giant Shahed is up
+    if (!boss && !raidOn) levelDist += step; // the level holds still while a giant Shahed is up (and all through a raid)
     flash = Math.max(0, flash - dt);
     slidePlayer(dt);
 
-    if (!odPhase && !boss) fuel = Math.max(0, fuel - fuelDrain(level) * dt);   // Overdrive and finales burn no fuel
-    if (!boss && level % 5 === 4 && level >= BOSS_FROM && bossDoneLevel !== level && levelDist >= levelLength(level) * PX_PER_M * BOSS_AT) startBoss();
+    if (!odPhase && !boss && !raidOn) fuel = Math.max(0, fuel - fuelDrain(level) * dt);   // Overdrive, finales and raids burn no fuel
+    if (raidOn) { if (!boss && !odPhase && (raidWait -= dt) <= 0) { if (bossDoneLevel === level) raidNext(); else startBoss(); } }
+    else if (!boss && level % 5 === 4 && level >= BOSS_FROM && bossDoneLevel !== level && levelDist >= levelLength(level) * PX_PER_M * BOSS_AT) startBoss();
     if (boss) updateBoss(dt);
     whiteT = Math.max(0, whiteT - realDt);
     // The combo drains once nothing has added to it for a while.
@@ -5148,7 +5361,10 @@ window.LD_RULES = (() => {
 
     for (const d of drones) { if (d.bomb) { ctx.save(); ctx.translate(d.x, d.y); ctx.scale(0.75, 0.75); drawShahed(0, 0, d.t, d.ang); ctx.restore(); } else drawShahed(d.x, d.y, d.t, d.ang); }
     if (boss) drawBoss(boss);
-    for (const d of drones) if (d.y < player.y) drawLockOn(d);
+    // Lock-on brackets and aim line for Shaheds FIRE will go for. Not on a giant Shahed's bombs:
+    // in that fight FIRE goes straight up at the giant, so the aim line shows that instead.
+    if (boss) drawBossAim(boss);
+    else for (const d of drones) if (d.y < player.y) drawLockOn(d);
     for (const r of rockets) drawRocket(r);
     for (const b of booms) {
       const k = 1 - b.life / 0.4;
@@ -5327,9 +5543,21 @@ window.LD_RULES = (() => {
   window.addEventListener('resize', fitFire);
   $('playBtn').addEventListener('click', () => { mode = 'normal'; startPlay(); });
   $('dailyBtn').addEventListener('click', () => { mode = 'daily'; startPlay(); });
+  $('raidBtn').addEventListener('click', () => { mode = 'raid'; openRaidHelp('start'); });
+  // The raid's own How to Play: before each raid, and in place of the normal one while a raid is paused.
+  function openRaidHelp(from) {
+    helpFrom = from === 'pause' ? 'pause' : 'raid';     // from the pause menu the run stays frozen
+    state = 'menu';
+    $('raidGo').textContent = from === 'pause' ? t('gotIt') : '▶ ' + t('raidStart');
+    show('raidHelp');
+  }
+  $('raidGo').addEventListener('click', () => {
+    if (helpFrom === 'pause') { state = 'paused'; show('pause'); $('resumeBtn').focus(); }
+    else beginCountdown();
+  });
   $('shareBtn').addEventListener('click', shareRun);
   $('helpBtn').addEventListener('click', () => openHelp('home'));
-  $('pauseHelp').addEventListener('click', () => openHelp('pause'));
+  $('pauseHelp').addEventListener('click', () => { if (raidOn) openRaidHelp('pause'); else openHelp('pause'); });
   const autoFireBtn = $('autoFireBtn');
   function paintAutoFire() {
     autoFireBtn.textContent = '🤖 ' + t(autoFire ? 'autoFireOn' : 'autoFireOff');
