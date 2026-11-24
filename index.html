@@ -5276,13 +5276,13 @@ window.LD_RULES = (() => {
     }
     // At night the headlights catch the rim: a faint outline far off, brighter as the beams reach it.
     const lk = twist.look || AREAS[lookArea].look;
-    if ((lk === 'night' || lk === 'aurora') && state !== 'home') {
-      const ahead = player.y - cy, side = Math.abs(cx - player.x) / (laneW * 1.2);
-      const beam = ahead > -20 && ahead < 300 ? Math.max(0, 1 - Math.abs(ahead - 110) / 190) * Math.max(0, 1 - side) : 0;
-      const a = 0.18 + 0.6 * beam;
+    if ((lk === 'night' || lk === 'aurora' || lk === 'fog') && state !== 'home') {
+      const ahead = player.y - cy, side = Math.abs(cx - player.x) / (laneW * 1.6);
+      const beam = ahead > -20 && ahead < 380 ? Math.max(0, 1 - Math.abs(ahead - 140) / 240) * Math.max(0, 1 - side) : 0;
+      const a = 0.4 + 0.55 * beam;
       ctx.fillStyle = `rgba(255,244,200,${0.12 * beam})`; ctx.beginPath(); ctx.ellipse(cx, cy, rx + 7, ry + 6, 0, 0, 6.29); ctx.fill();
       ctx.strokeStyle = `rgba(255,236,180,${a})`; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.ellipse(cx, cy, rx + 1.5, ry + 1.5, 0, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke();   // the far lip, lit from below
+      ctx.beginPath(); ctx.ellipse(cx, cy, rx + 1.5, ry + 1.5, 0, 0, 6.29); ctx.stroke();   // the far lip, lit from below
     }
   }
 
@@ -5622,10 +5622,10 @@ window.LD_RULES = (() => {
         const bar = level >= UP_AT.upLightbar;
         if (state !== 'home') for (const off of bar ? [-0.36, -0.22, 0.22, 0.36] : [-0.22, 0.22]) {
           const hx = player.x + off * player.w, hy = player.y + 4;
-          const g = ctx.createLinearGradient(0, hy, 0, hy - 230);
-          g.addColorStop(0, `rgba(255,244,200,${0.3 * f})`); g.addColorStop(1, 'rgba(255,244,200,0)');
+          const g = ctx.createLinearGradient(0, hy, 0, hy - 340);
+          g.addColorStop(0, `rgba(255,244,200,${0.36 * f})`); g.addColorStop(0.6, `rgba(255,244,200,${0.12 * f})`); g.addColorStop(1, 'rgba(255,244,200,0)');
           ctx.fillStyle = g; ctx.beginPath();
-          ctx.moveTo(hx - 5, hy); ctx.lineTo(hx + 5, hy); ctx.lineTo(hx + 34, hy - 230); ctx.lineTo(hx - 34, hy - 230); ctx.closePath(); ctx.fill();
+          ctx.moveTo(hx - 5, hy); ctx.lineTo(hx + 5, hy); ctx.lineTo(hx + 46, hy - 340); ctx.lineTo(hx - 46, hy - 340); ctx.closePath(); ctx.fill();
         }
       } else if (look === 'rain') {
         ctx.fillStyle = `rgba(40,70,120,${0.14 * f})`; ctx.fillRect(-10, -10, W + 20, H + 20);
