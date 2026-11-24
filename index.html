@@ -6159,7 +6159,8 @@ window.LD_RULES = (() => {
   // a tap fires. 'lane' (and any mouse): tap or drag to the lane you want.
   let ctrl = (() => { try { const v = localStorage.getItem('ddCtrl'); if (v === 'thumb' || v === 'lane') return v; } catch {}
     return window.matchMedia && matchMedia('(pointer: coarse)').matches ? 'thumb' : 'lane'; })();
-  let thumb = null, thumbHintT = 0;                                   // the touch being followed in thumb mode
+  let thumb = null, thumbHintT = 0;
+  const targetUp = () => state === 'play' && (!!boss || drones.some(d => !d.dead));   // a Shahed to shoot at                                   // the touch being followed in thumb mode
   canvas.addEventListener('pointerdown', e => {
     // Tapping a Shahed fires a rocket at it instead of steering.
     if (state === 'play' && DRONES() && drones.length) {
@@ -6168,7 +6169,7 @@ window.LD_RULES = (() => {
     }
     canvas.setPointerCapture(e.pointerId);
     if (ctrl === 'thumb' && e.pointerType !== 'mouse') {
-      thumb = { id: e.pointerId, x: e.clientX, t: performance.now(), lane: player.lane, moved: false };
+      thumb = { id: e.pointerId, x: e.clientX, t: performance.now(), lane: player.lane, moved: false, fired: targetUp() && fire() };
       return;
     }
     dragging = true;
@@ -6177,7 +6178,7 @@ window.LD_RULES = (() => {
   canvas.addEventListener('pointermove', e => {
     if (thumb && e.pointerId === thumb.id) {
       const dx = e.clientX - thumb.x, step = Math.max(28, laneW * viewK * 0.55);   // about half a lane of thumb per lane
-      if (Math.abs(dx) > 10) thumb.moved = true;
+      if (Math.abs(dx) > 16) thumb.moved = true;
       if (canSteer()) setLane(thumb.lane + Math.round(dx / step));
       return;
     }
@@ -6187,7 +6188,7 @@ window.LD_RULES = (() => {
     dragging = false;
     if (!thumb || (e && e.pointerId !== thumb.id)) return;
     const dx = e ? e.clientX - thumb.x : 0, quick = performance.now() - thumb.t < 260;
-    if (!thumb.moved && quick && e && e.type === 'pointerup') fire();                 // tap: fire
+    if (!thumb.moved && !thumb.fired && performance.now() - thumb.t < 400 && e && e.type === 'pointerup') fire();   // tap: fire
     else if (quick && Math.abs(dx) > 18 && player.lane === thumb.lane && canSteer()) setLane(thumb.lane + Math.sign(dx));   // flick: one lane
     thumb = null;
   };
@@ -6415,11 +6416,11 @@ window.LD_RULES = (() => {
   const stickSpan = () => Math.max(0, stick.clientWidth / 2 - 34);   // centre to the outer lane spot
   stick.addEventListener('pointerdown', e => {
     e.preventDefault(); stick.setPointerCapture(e.pointerId);
-    held = { id: e.pointerId, x: e.clientX, t: performance.now(), moved: false };
+    held = { id: e.pointerId, x: e.clientX, t: performance.now(), moved: false, fired: targetUp() && fire() };   // something to shoot: fire at once
   });
   stick.addEventListener('pointermove', e => {
     if (!held || e.pointerId !== held.id) return;
-    if (!held.moved && Math.abs(e.clientX - held.x) < 10) return;
+    if (!held.moved && Math.abs(e.clientX - held.x) < 16) return;
     held.moved = true; stick.classList.add('held');
     const r = stick.getBoundingClientRect(), span = stickSpan();
     const off = Math.max(-span, Math.min(span, e.clientX - (r.left + r.width / 2)));
@@ -6428,7 +6429,7 @@ window.LD_RULES = (() => {
   });
   const letGo = e => {
     if (!held || e.pointerId !== held.id) return;
-    if (!held.moved && performance.now() - held.t < 260 && e.type === 'pointerup') fire();   // tap: fire
+    if (!held.moved && !held.fired && performance.now() - held.t < 400 && e.type === 'pointerup') fire();   // tap: fire
     held = null; stick.classList.remove('held'); syncStick();
   };
   stick.addEventListener('pointerup', letGo);
