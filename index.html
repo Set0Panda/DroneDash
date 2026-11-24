@@ -590,7 +590,8 @@
   .chips button { margin: 0; padding: 5px 9px; min-height: 0; font-size: 12px; font-weight: 800; border-radius: 10px;
                   color: var(--text); background: rgba(255,255,255,.08); box-shadow: none; }
   .chips button.on { background: var(--ua-yellow); color: #0f1220; }
-  .chips button:disabled { opacity: .45; cursor: default; }
+  .chips button.locked { opacity: .55; }
+  .chips button.peek { opacity: 1; box-shadow: inset 0 0 0 2px var(--ua-yellow); }
   @media (max-height: 860px) { .logo { width: 96px; height: 96px; border-radius: 22px; } .title { font-size: 40px; margin-top: 6px; } .menuBtns { gap: 10px; margin-top: 10px; } }
   @media (max-height: 740px) { .logo { width: 72px; height: 72px; border-radius: 18px; } .tagline { display: none; } }
   .dailyBtn { display: grid; gap: 2px; justify-items: center; padding-top: 10px; padding-bottom: 10px; }
@@ -640,6 +641,19 @@
 
   /* ---- Records ---- */
   .recCard { gap: 12px; }
+  /* Upgrades: every car upgrade, greyed until you've reached its level */
+  .menuRow.three { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .menuRow.three button { padding-left: 4px; padding-right: 4px; font-size: 14px; }
+  .upCard { gap: 10px; }
+  .upSub { font-size: 13px; color: var(--muted) !important; margin: -4px 0 0 !important; }
+  .upGrid { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .upTile { display: grid; justify-items: center; gap: 1px; padding: 5px 2px 6px; border-radius: 10px; background: rgba(255,255,255,.06); }
+  .upTile b { font-size: 11px; line-height: 1.15; text-align: center; }
+  .upTile small { font-size: 10px; color: var(--muted); }
+  .upTile.locked canvas { filter: grayscale(1); opacity: .35; }
+  .upTile.locked b { color: var(--muted); font-weight: 700; }
+  .upTile.next { box-shadow: inset 0 0 0 2px var(--ua-yellow); }
+  #pauseNext { font-size: 13px; color: var(--muted) !important; margin: -6px 0 0 !important; }
   .recList { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; gap: 6px; }
   .recList li {
     display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 12px; background: rgba(255,255,255,.05); text-align: left;
@@ -692,11 +706,11 @@
       <button id="playBtn">▶ <span data-i18n="play">Play</span></button>
       <button id="dailyBtn" class="secondary dailyBtn" type="button"><span>📅 <span data-i18n="daily">Daily challenge</span></span><small id="dailySub"></small></button>
       <div id="homeMissions" class="missions"></div>
-      <div class="menuRow">
+      <div class="menuRow three">
         <button id="garageBtn" class="secondary" type="button"><i class="swatch"></i><span data-i18n="colourBtn">Paint</span></button>
+        <button id="upBtn" class="secondary" type="button">🎁 <span data-i18n="upgradesBtn">Upgrades</span></button>
         <button id="recordsBtn" class="secondary" type="button">🏆 <span data-i18n="records">Records</span></button>
       </div>
-      <button id="exitBtn" class="secondary" data-i18n="exit">Exit</button>
     </div>
     <button id="updateBtn" class="ghost" type="button" hidden>🔄 <span data-i18n="updateReady">New version ready · tap to update</span></button>
     <button id="installBtn" class="ghost" hidden>📲 <span data-i18n="installApp">Install app</span></button>
@@ -726,7 +740,17 @@
       <p data-i18n="garageHint">Drag around the wheel to pick a colour</p>
       <div class="pickRow"><span data-i18n="finishLabel">Finish</span><div id="finChips" class="chips"></div></div>
       <div class="pickRow"><span data-i18n="trailLabel">Overdrive trail</span><div id="trailChips" class="chips"></div></div>
+      <p id="finNote" class="upSub" hidden></p>
       <button id="garageDone" data-i18n="done">Done</button>
+    </div>
+  </div>
+
+  <div id="upgrades" class="overlay hidden">
+    <div class="card upCard" role="dialog" aria-labelledby="upTitle">
+      <h1 id="upTitle">🎁 <span data-i18n="upgradesBtn">Upgrades</span></h1>
+      <p id="upSub" class="upSub"></p>
+      <div id="upGrid" class="upGrid"></div>
+      <button id="upBack" class="ghost" data-i18n="home">Home</button>
     </div>
   </div>
 
@@ -742,6 +766,7 @@
   <div id="pause" class="overlay hidden">
     <div class="card pauseCard" role="dialog" aria-labelledby="pauseTitle">
       <h1 id="pauseTitle">⏸ <span data-i18n="paused">Paused</span></h1>
+      <p id="pauseNext"></p>
       <div id="pauseMissions" class="missions"></div>
       <div class="overBtns">
         <button id="resumeBtn">▶ <span data-i18n="resume">Resume</span></button>
@@ -886,7 +911,9 @@ window.I18N = (() => {
       bossDown: "GIANT SHAHED DOWN!",
       bossNew: "New kill mark on your car! ★2",
       ms_boss: "Take down {n} giant Shaheds in one run",
-      ms_boss_1: "Take down a giant Shahed"
+      ms_boss_1: "Take down a giant Shahed",
+      upgradesBtn: "Upgrades", upCount: "{n}/{total} unlocked · best level {best}", upNext: "Next: {item} at level {n}",
+      peekNote: "Preview only: unlocks at ★{n}"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -958,7 +985,9 @@ window.I18N = (() => {
       bossDown: "¡SHAHED GIGANTE DERRIBADO!",
       bossNew: "¡Nueva marca de derribo en tu coche! ★2",
       ms_boss: "Derriba {n} Shaheds gigantes en una partida",
-      ms_boss_1: "Derriba un Shahed gigante"
+      ms_boss_1: "Derriba un Shahed gigante",
+      upgradesBtn: "Mejoras", upCount: "{n}/{total} desbloqueadas · mejor nivel {best}", upNext: "Siguiente: {item} en el nivel {n}",
+      peekNote: "Solo vista previa: se desbloquea con ★{n}"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -1030,7 +1059,9 @@ window.I18N = (() => {
       bossDown: "SHAHED GÉANT ABATTU !",
       bossNew: "Nouvelle marque de victoire sur ta voiture ! ★2",
       ms_boss: "Abats {n} Shaheds géants en une partie",
-      ms_boss_1: "Abats un Shahed géant"
+      ms_boss_1: "Abats un Shahed géant",
+      upgradesBtn: "Bonus", upCount: "{n}/{total} débloqués · meilleur niveau {best}", upNext: "Suivant : {item} au niveau {n}",
+      peekNote: "Aperçu seulement : débloqué à ★{n}"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -1102,7 +1133,9 @@ window.I18N = (() => {
       bossDown: "RIESEN-SHAHED ABGESCHOSSEN!",
       bossNew: "Neue Abschussmarke auf deinem Auto! ★2",
       ms_boss: "Schieß {n} Riesen-Shaheds in einer Runde ab",
-      ms_boss_1: "Schieß eine Riesen-Shahed ab"
+      ms_boss_1: "Schieß eine Riesen-Shahed ab",
+      upgradesBtn: "Extras", upCount: "{n}/{total} freigeschaltet · bestes Level {best}", upNext: "Nächstes: {item} bei Level {n}",
+      peekNote: "Nur Vorschau: wird bei ★{n} freigeschaltet"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -1174,7 +1207,9 @@ window.I18N = (() => {
       bossDown: "SHAHED GIGANTE ABATIDO!",
       bossNew: "Nova marca de abate no seu carro! ★2",
       ms_boss: "Derrube {n} Shaheds gigantes numa partida",
-      ms_boss_1: "Derrube um Shahed gigante"
+      ms_boss_1: "Derrube um Shahed gigante",
+      upgradesBtn: "Melhorias", upCount: "{n}/{total} desbloqueadas · melhor nível {best}", upNext: "Próxima: {item} no nível {n}",
+      peekNote: "Só pré-visualização: desbloqueia com ★{n}"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -1246,7 +1281,9 @@ window.I18N = (() => {
       bossDown: "SHAHED GIGANTE ABBATTUTO!",
       bossNew: "Nuovo segno di abbattimento sull'auto! ★2",
       ms_boss: "Abbatti {n} Shahed giganti in una partita",
-      ms_boss_1: "Abbatti uno Shahed gigante"
+      ms_boss_1: "Abbatti uno Shahed gigante",
+      upgradesBtn: "Extra", upCount: "{n}/{total} sbloccati · miglior livello {best}", upNext: "Prossimo: {item} al livello {n}",
+      peekNote: "Solo anteprima: si sblocca a ★{n}"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -1318,7 +1355,9 @@ window.I18N = (() => {
       bossDown: "巨大シャヘド撃墜！",
       bossNew: "車に新しい撃墜マーク！★2",
       ms_boss: "1回の走行で巨大シャヘドを{n}機撃墜",
-      ms_boss_1: "巨大シャヘドを撃墜"
+      ms_boss_1: "巨大シャヘドを撃墜",
+      upgradesBtn: "アップグレード", upCount: "{n}/{total} 解放 · 最高レベル {best}", upNext: "次：レベル{n}で{item}",
+      peekNote: "プレビューのみ：★{n}で解放"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -1390,7 +1429,9 @@ window.I18N = (() => {
       bossDown: "巨型沙赫德被击落！",
       bossNew: "你的车上多了一个击落标记！★2",
       ms_boss: "一局内击落 {n} 架巨型沙赫德",
-      ms_boss_1: "击落一架巨型沙赫德"
+      ms_boss_1: "击落一架巨型沙赫德",
+      upgradesBtn: "升级", upCount: "已解锁 {n}/{total} · 最高第 {best} 关", upNext: "下一个：第 {n} 关解锁{item}",
+      peekNote: "仅预览：★{n} 解锁"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -1462,7 +1503,9 @@ window.I18N = (() => {
       bossDown: "거대 샤헤드 격추!",
       bossNew: "차에 새 격추 마크! ★2",
       ms_boss: "한 판에 거대 샤헤드 {n}대 격추",
-      ms_boss_1: "거대 샤헤드 격추"
+      ms_boss_1: "거대 샤헤드 격추",
+      upgradesBtn: "업그레이드", upCount: "{n}/{total} 해제 · 최고 레벨 {best}", upNext: "다음: 레벨 {n}에서 {item}",
+      peekNote: "미리보기만: ★{n}에 해제"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -1534,7 +1577,9 @@ window.I18N = (() => {
       bossDown: "विशाल शाहेद गिरा!",
       bossNew: "आपकी कार पर नया किल मार्क! ★2",
       ms_boss: "एक दौड़ में {n} विशाल शाहेद गिराओ",
-      ms_boss_1: "एक विशाल शाहेद गिराओ"
+      ms_boss_1: "एक विशाल शाहेद गिराओ",
+      upgradesBtn: "अपग्रेड", upCount: "{n}/{total} अनलॉक · सर्वश्रेष्ठ लेवल {best}", upNext: "अगला: लेवल {n} पर {item}",
+      peekNote: "सिर्फ़ झलक: ★{n} पर अनलॉक"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -1608,7 +1653,9 @@ window.I18N = (() => {
       bossDown: "ГІГАНТСЬКИЙ ШАХЕД ЗБИТО!",
       bossNew: "Нова позначка збиття на твоєму авто! ★2",
       ms_boss: "Збий {n} гігантських шахедів за заїзд",
-      ms_boss_1: "Збий гігантський шахед"
+      ms_boss_1: "Збий гігантський шахед",
+      upgradesBtn: "Апгрейди", upCount: "{n}/{total} відкрито · найкращий рівень {best}", upNext: "Далі: {item} на рівні {n}",
+      peekNote: "Лише перегляд: відкриється за ★{n}"
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -1680,7 +1727,9 @@ window.I18N = (() => {
       bossDown: "გიგანტური შაჰედი ჩამოგდებულია!",
       bossNew: "ახალი ნიშანი შენს მანქანაზე! ★2",
       ms_boss: "ერთ რბოლაში ჩამოაგდე {n} გიგანტური შაჰედი",
-      ms_boss_1: "ჩამოაგდე გიგანტური შაჰედი"
+      ms_boss_1: "ჩამოაგდე გიგანტური შაჰედი",
+      upgradesBtn: "გაუმჯობესებები", upCount: "{n}/{total} გახსნილი · საუკეთესო დონე {best}", upNext: "შემდეგი: {item} დონე {n}-ზე",
+      peekNote: "მხოლოდ გადახედვა: გაიხსნება ★{n}-ზე"
     }
   };
   const NAMES = {
@@ -2396,12 +2445,18 @@ window.LD_RULES = (() => {
     };
   })();
 
+  // Everyone sees the same stretch of road: the game world is VIEW_H units tall on every screen,
+  // scaled to fit. Without this a tall PC window showed far more road ahead than a phone (so much
+  // more time to react), since obstacles move a set number of units per second.
+  const VIEW_H = 680;
+  let viewK = 1;                // screen px per world unit
   function resize() {
     const r = canvas.getBoundingClientRect();
     dpr = Math.min(window.devicePixelRatio || 1, 2);
-    W = r.width; H = r.height;
-    canvas.width = W * dpr; canvas.height = H * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    viewK = Math.max(0.5, r.height / VIEW_H);
+    W = r.width / viewK; H = r.height / viewK;
+    canvas.width = r.width * dpr; canvas.height = r.height * dpr;
+    ctx.setTransform(dpr * viewK, 0, 0, dpr * viewK, 0, 0);
     vergeW = Math.round(W * VERGE);
     laneW = (W - 2 * vergeW) / LANES;
     if (player) { player.x = laneX(player.lane); player.w = R.carW(laneW); }
@@ -2535,7 +2590,7 @@ window.LD_RULES = (() => {
   function startBoss() {
     const a = areaFor(level), hp = bossHP(a);
     // its health bar sits just under the HUD (taller on phones with a notch), the Shahed below that
-    const barY = Math.max(70, $('hud').getBoundingClientRect().bottom - canvas.getBoundingClientRect().top - 12);
+    const barY = Math.max(56, ($('hud').getBoundingClientRect().bottom - canvas.getBoundingClientRect().top) / viewK - 12);
     const sc = laneW * 2.3 / 62;               // drawn scale: its wings span most of the road
     boss = { a, hp, max: hp, x: laneX(1), lane: 1, y: -30 * sc, ty: barY + 31 * sc + 6, barY, s: sc, t: 0, moveT: 1.6, dropT: 2.2, hitT: 0 };
     droneQueue = [];
@@ -2718,11 +2773,12 @@ window.LD_RULES = (() => {
     const part = full ? ROCKET_COST : wallet % ROCKET_COST;
     const incoming = drones.some(d => !d.dead && !rockets.some(r => r.target === d)); // not already being shot at
     const set = (node, v) => { if (node.textContent !== v) node.textContent = v; };
-    set(rocketN, String(n));
+    const free = odPhase === 'burst';                     // Overdrive: unlimited rockets
+    set(rocketN, free ? '∞' : String(n));
     set(el.eggKills, '🎯 ' + num(kills));
-    rocketBtn.disabled = n === 0;
+    rocketBtn.disabled = n === 0 && !free;
     const soon = () => { const b = barrierAhead(); return b && b.y + b.h > player.y - speed * 1.3; };   // a barrier about to block your lane
-    rocketBtn.classList.toggle('ready', n > 0 && state === 'play' && (boss ? Math.abs(boss.x - player.x) < laneW * 0.5 : (!!target() || !!soon())));
+    rocketBtn.classList.toggle('ready', (n > 0 || free) && state === 'play' && (boss ? Math.abs(boss.x - player.x) < laneW * 0.5 : (!!target() || !!soon())));
     eggPips.forEach((p, i) => p.classList.toggle('on', i < part));
     eggBar.classList.toggle('alert', incoming);
     // The dots already show progress to the next rocket and the FIRE badge shows how many
@@ -2758,9 +2814,10 @@ window.LD_RULES = (() => {
   const aimAt = tg => tg.type === 'enemy' ? { x: objX(tg), y: tg.y + tg.h / 2 } : { x: tg.x, y: tg.y };
   // fire(): FIRE button / Space / tapping a drone. fire(drone, true): auto-fire at that drone.
   function fire(at, auto = false) {
-    if (state !== 'play' || !DRONES() || wallet < ROCKET_COST) return false;
+    const cost = odPhase === 'burst' ? 0 : ROCKET_COST;   // Overdrive: rockets are free
+    if (state !== 'play' || !DRONES() || wallet < cost) return false;
     if (boss && !at) {                            // giant Shahed: FIRE sends a rocket straight up your lane
-      wallet -= ROCKET_COST;
+      wallet -= cost;
       const my = player.y + player.h * 0.41 - 6;
       rockets.push({ x: player.x, y: my, vx: 0, vy: -ROCKET_V * 1.6, boss: true });   // quick, so a steady aim pays off
       launcherKick = 1;
@@ -2770,7 +2827,7 @@ window.LD_RULES = (() => {
     }
     const tg = at || target() || barrierAhead();  // drones first, then a barrier blocking your lane
     if (!tg) return false;
-    wallet -= ROCKET_COST;
+    wallet -= cost;
     const my = player.y + player.h * 0.41 - 6;              // the launcher's muzzle on the roof
     const miss = auto && Math.random() < autoMiss();
     rockets.push({ x: player.x, y: my, vx: 0, vy: -ROCKET_V, target: tg, auto, miss, side: Math.random() < 0.5 ? -1 : 1 });
@@ -3108,7 +3165,7 @@ window.LD_RULES = (() => {
 
   // Draw a car with a given colour and the upgrades of a given level onto another canvas
   // (garage preview, records list). drawCar() paints on `ctx`, so swap it for a moment.
-  function paintCarOn(cv, cssW, cssH, paint, lv, scale, no = 7) {
+  function paintCarOn(cv, cssW, cssH, paint, lv, scale, no = 7, under = null) {   // under(x, y, w, h): drawn first, behind the car
     const d = Math.min(window.devicePixelRatio || 1, 2);
     cv.width = Math.round(cssW * d); cv.height = Math.round(cssH * d);
     cv.style.width = cssW + 'px'; cv.style.height = cssH + 'px';
@@ -3116,8 +3173,9 @@ window.LD_RULES = (() => {
     ctx = c2;
     try {
       c2.setTransform(d * scale, 0, 0, d * scale, 0, 0);
-      const w = 39, h = R.CAR_H;
-      drawCar(cssW / scale / 2, (cssH / scale - h) / 2 - 4, w, h, paint, lv, { loaded: 3, kick: 0 }, no);
+      const w = 39, h = R.CAR_H, cx = cssW / scale / 2, cy = (cssH / scale - h) / 2 - 4;
+      if (under) under(cx, cy, w, h);
+      drawCar(cx, cy, w, h, paint, lv, { loaded: 3, kick: 0 }, no);
     } finally { ctx = saved; }
   }
 
@@ -3427,8 +3485,8 @@ window.LD_RULES = (() => {
   // ---- Home screen ----
   const wrapEl = $('wrap');
   function show(id) {
-    for (const o of ['home', 'bye', 'intro', 'over', 'garage', 'records', 'pause']) $(o).classList.toggle('hidden', o !== id);
-    wrapEl.classList.toggle('at-home', ['home', 'bye', 'garage', 'records'].includes(id));
+    for (const o of ['home', 'bye', 'intro', 'over', 'garage', 'records', 'pause', 'upgrades']) $(o).classList.toggle('hidden', o !== id);
+    wrapEl.classList.toggle('at-home', ['home', 'bye', 'garage', 'records', 'upgrades'].includes(id));
   }
 
   // ---- Garage: hue wheel around a live preview of the car ----
@@ -3443,8 +3501,21 @@ window.LD_RULES = (() => {
     shadeEl.value = carShade;
     shadeEl.style.setProperty('--hue', hueColor(carHue));    // slider runs black → this colour → white
     paintChips();
-    paintCarOn(preview, 100, 124, carPaint(carHue, carShade), 0, 1.35);
+    const fin = peek && peek.k === 'fin' ? peek.id : carFinish;
+    const trail = peek && peek.k === 'trail' ? peek.id : null;
+    // a trail being looked at streams out behind the preview car
+    const under = trail ? (x, y, w, h) => {
+      const g = ctx.createLinearGradient(0, y + h * 0.55, 0, y + h + 40);
+      g.addColorStop(0, `hsla(${trailHue(0, trail)},100%,62%,.95)`); g.addColorStop(0.5, `hsla(${trailHue(3, trail)},100%,60%,.5)`); g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(x - w * 0.45, y + h * 0.55); ctx.lineTo(x + w * 0.45, y + h * 0.55);
+      ctx.lineTo(x + w * 0.15, y + h + 40); ctx.lineTo(x - w * 0.15, y + h + 40); ctx.closePath(); ctx.fill();
+    } : null;
+    paintCarOn(preview, 100, 124, carPaint(carHue, carShade, fin), 0, 1.35, 7, under);
+    const need = peek ? needStars(peek.k, peek.id) : 0, note = $('finNote');
+    note.hidden = !(need > ms.stars);
+    if (!note.hidden) note.textContent = '🔒 ' + t('peekNote', { n: need });
   }
+  let peek = null;          // a finish or trail being previewed in the garage (it may still be locked)
   function pickHue(e) {
     const r = wheel.getBoundingClientRect();
     const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
@@ -3461,7 +3532,7 @@ window.LD_RULES = (() => {
     const d = { ArrowRight: 6, ArrowUp: 6, ArrowLeft: -6, ArrowDown: -6 }[e.key];
     if (d) { e.preventDefault(); e.stopPropagation(); setHue(carHue + d); paintGarage(); }
   });
-  function openGarage() { state = 'garage'; show('garage'); paintGarage(); }
+  function openGarage() { state = 'garage'; peek = null; show('garage'); paintGarage(); }
 
   // ---- Missions: three goals at a time, a ★ for each; every 3 stars unlocks something ----
   // Run missions count your best single run since the mission came up; total missions add up
@@ -3508,8 +3579,15 @@ window.LD_RULES = (() => {
     const d = pool[Math.floor(Math.random() * pool.length)];
     return { id: d.id, goal: d.goals[Math.min(tier, d.goals.length - 1)], have: 0, base: 0 };
   }
-  // Finished in a run that never ended properly (page closed mid-run): swap them now.
-  if (ms.active.some(m => m.done)) { ms.active = ms.active.map(m => m.done ? newMission(ms.active.map(x => x.id)) : m); saveMs(); }
+  // Swap finished missions for new ones, never two of the same kind at once.
+  function refillMissions() {
+    const ids = ms.active.filter(m => !m.done).map(m => m.id);
+    ms.active = ms.active.map(m => { if (!m.done) return m; const nm = newMission(ids.concat(m.id)); ids.push(nm.id); return nm; });
+  }
+  // On load: duplicates left by an older version, or missions finished in a run that never ended
+  // properly (page closed mid-run), are swapped now.
+  ms.active.forEach((m, i) => { if (ms.active.findIndex(x => x.id === m.id) !== i) m.done = true; });
+  if (ms.active.some(m => m.done)) { refillMissions(); saveMs(); }
   // Progress right now: best run so far (run missions) or the running total (total missions).
   function msValue(m) {
     const d = MS_BY[m.id];
@@ -3539,7 +3617,7 @@ window.LD_RULES = (() => {
     msRunOn = false;
     const done = ms.active.filter(m => m.done);
     const unlocked = REWARDS.filter(r => r.at > msStars0 && r.at <= ms.stars);
-    ms.active = ms.active.map(m => m.done ? newMission(ms.active.map(x => x.id)) : m);
+    refillMissions();
     saveMs();
     return { done, unlocked };
   }
@@ -3598,25 +3676,26 @@ window.LD_RULES = (() => {
   }
   // Overdrive trail colour (rainbow until another is unlocked and picked in the garage).
   function carTrail() { let v = 'rainbow'; try { v = localStorage.getItem('ddTrail') || 'rainbow'; } catch {} return TRAILS.includes(v) && needStars('trail', v) <= ms.stars ? v : 'rainbow'; }
-  function trailHue(off) {
-    const tt = performance.now() / 1000, tr = carTrail();
+  function trailHue(off, tr = carTrail()) {
+    const tt = performance.now() / 1000;
     if (tr === 'fire') return 18 + 22 * Math.sin(tt * 7 + off);
     if (tr === 'ice') return 195 + 18 * Math.sin(tt * 5 + off);
     if (tr === 'gold') return 46 + 6 * Math.sin(tt * 6 + off);
     return (tt * 240 + off * 60) % 360;
   }
   // Paint finishes, laid over the body colour.
-  function drawFinish(paint, l, y, w, h, tNow) {
+  function drawPaintFinish(paint, l, y, w, h, tNow) {   // (not drawFinish: that's the checkpoint line)
     const f = paint.fin, rr = Math.min(w * 0.32, 16);
     if (f === 'neon') {
-      ctx.save(); ctx.shadowColor = paint.glow; ctx.shadowBlur = 14; ctx.strokeStyle = paint.glow; ctx.lineWidth = 2;
-      roundRect(l + 1, y + 1, w - 2, h - 2, rr); ctx.stroke(); ctx.restore(); return;
+      ctx.save(); ctx.strokeStyle = paint.glow;
+      ctx.globalAlpha = 0.3; ctx.lineWidth = 6; roundRect(l + 1, y + 1, w - 2, h - 2, rr); ctx.stroke();
+      ctx.globalAlpha = 1; ctx.lineWidth = 2; ctx.stroke(); ctx.restore(); return;
     }
     ctx.save(); roundRect(l, y, w, h, rr); ctx.clip();
     let g;
     if (f === 'metallic') {
       g = ctx.createLinearGradient(l, y, l + w, y + h);
-      g.addColorStop(0, 'rgba(255,255,255,.32)'); g.addColorStop(0.42, 'rgba(255,255,255,0)'); g.addColorStop(0.55, 'rgba(255,255,255,.14)'); g.addColorStop(1, 'rgba(0,0,0,.25)');
+      g.addColorStop(0, 'rgba(255,255,255,.5)'); g.addColorStop(0.35, 'rgba(255,255,255,.05)'); g.addColorStop(0.5, 'rgba(255,255,255,.28)'); g.addColorStop(0.62, 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(0,0,0,.35)');
     } else if (f === 'pearl') {
       const k = (Math.sin(tNow * 0.9) + 1) / 2;
       g = ctx.createLinearGradient(l, y + h * k * 0.6, l + w, y + h);
@@ -3632,7 +3711,7 @@ window.LD_RULES = (() => {
       g.addColorStop(0, 'rgba(255,255,255,.5)'); g.addColorStop(0.28, 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(0,0,0,.4)');
     }
     if (g) { ctx.fillStyle = g; ctx.fillRect(l, y, w, h); }
-    if (f === 'metallic') for (let i = 0; i < 18; i++) { ctx.fillStyle = 'rgba(255,255,255,.4)'; ctx.fillRect(l + hash(i * 5.3) * w, y + hash(i * 9.1) * h, 1, 1); }
+    if (f === 'metallic') for (let i = 0; i < 30; i++) { ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.fillRect(l + hash(i * 5.3) * w, y + hash(i * 9.1) * h, 1.2, 1.2); }   // metal flake
     ctx.restore();
   }
   // Garage: finish and trail pickers; locked ones show the stars they need.
@@ -3643,9 +3722,11 @@ window.LD_RULES = (() => {
         const need = needStars(kind, id), b = document.createElement('button');
         b.type = 'button';
         b.textContent = need > ms.stars ? '🔒 ' + label(id) + ' ★' + need : label(id);
-        b.disabled = need > ms.stars;
+        b.classList.toggle('locked', need > ms.stars);
         b.classList.toggle('on', id === cur);
-        b.addEventListener('click', () => { pick(id); paintGarage(); });
+        b.classList.toggle('peek', !!peek && peek.k === kind && peek.id === id);
+        // tap: see it on the car; it's only applied once unlocked
+        b.addEventListener('click', () => { peek = { k: kind, id }; if (need <= ms.stars) pick(id); paintGarage(); });
         box.appendChild(b);
       }
     };
@@ -3697,6 +3778,25 @@ window.LD_RULES = (() => {
     });
   }
   function openRecords() { state = 'records'; renderRecords(); show('records'); }
+  // Upgrades: all 25, each on a little copy of your car as it looks at that level. Unlocked once
+  // you've reached its level in any run; the next one to get is outlined.
+  function openUpgrades() {
+    state = 'upgrades';
+    const best = Math.max(1, readNum('laneDodgerBestLevel')), grid = $('upGrid');
+    const got = UPGRADES.filter(u => u.level <= best).length, next = UPGRADES.find(u => u.level > best);
+    $('upSub').textContent = t('upCount', { n: got, total: UPGRADES.length, best });
+    grid.textContent = '';
+    for (const u of UPGRADES) {
+      const tile = document.createElement('div');
+      tile.className = 'upTile' + (u.level > best ? ' locked' : '') + (u === next ? ' next' : '');
+      const cv = document.createElement('canvas'), b = document.createElement('b'), sm = document.createElement('small');
+      b.textContent = t(u.key);
+      sm.textContent = (u.level > best ? '🔒 ' : '') + t('lv', { n: u.level });
+      tile.append(cv, b, sm); grid.appendChild(tile);
+      paintCarOn(cv, 44, 58, carPaint(carHue, carShade), u.level, 0.62, carNo);
+    }
+    show('upgrades');
+  }
   function goHome() {
     mode = 'normal';
     reset();
@@ -3736,16 +3836,6 @@ window.LD_RULES = (() => {
     else if (helpFrom === 'pause') { state = 'paused'; show('pause'); $('resumeBtn').focus(); }  // run untouched
     else beginCountdown();
   }
-  // Exit: close the app where the platform allows it (installed app windows, native
-  // wrappers). iOS and normal browser tabs refuse, so fall back to a goodbye screen.
-  function exitGame() {
-    sfx.suspend();
-    const cap = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App;
-    if (cap && cap.exitApp) { cap.exitApp(); return; }
-    try { window.close(); } catch (e) {}
-    setTimeout(() => { if (!window.closed) { state = 'bye'; show('bye'); } }, 250);
-  }
-
   // Retry: no countdown, just a quick GO! and straight back in.
   function restart() {
     reset();
@@ -3769,6 +3859,8 @@ window.LD_RULES = (() => {
     el.count.innerHTML = '';
     show('pause');
     paintMissions($('pauseMissions'), false);
+    const nx = UPGRADES.find(u => u.level > level);
+    $('pauseNext').textContent = nx ? '🎁 ' + t('upNext', { item: t(nx.key), n: nx.level }) : '';
     $('resumeBtn').focus();
   }
   function resumeGame() {
@@ -3933,6 +4025,18 @@ window.LD_RULES = (() => {
     updateHud();
   }
 
+  // A soft glow without shadowBlur (which is slow, especially on phones): the shape plus three
+  // wider, fainter copies of it.
+  function softGlow(x, y, w, h, r, color, alpha, spread) {
+    ctx.save(); ctx.fillStyle = color;
+    for (let i = 3; i >= 1; i--) {
+      const e = spread * i / 3;
+      ctx.globalAlpha = alpha * (0.5 - i * 0.12);
+      roundRect(x - e, y - e, w + 2 * e, h + 2 * e, r + e); ctx.fill();
+    }
+    ctx.globalAlpha = alpha; roundRect(x, y, w, h, r); ctx.fill();
+    ctx.restore();
+  }
   function roundRect(x, y, w, h, r) {
     ctx.beginPath();
     ctx.moveTo(x + r, y);
@@ -3959,9 +4063,7 @@ window.LD_RULES = (() => {
     const gold = has('upGold');
     const tNow = performance.now() / 1000;
     if (has('upLegend')) {                    // legend: a slow golden aura around the whole car
-      ctx.save(); ctx.globalAlpha = 0.35 + 0.15 * Math.sin(tNow * 3);
-      ctx.shadowColor = '#ffd84a'; ctx.shadowBlur = 30; ctx.fillStyle = '#ffd84a';
-      roundRect(l - 7, y - 6, w + 14, h + 12, 18); ctx.fill(); ctx.restore();
+      softGlow(l - 7, y - 6, w + 14, h + 12, 18, '#ffd84a', 0.35 + 0.15 * Math.sin(tNow * 3), 12);
     }
     if (has('upTrail')) {                     // light trail streaming out behind the car (rainbow from L45)
       const g = ctx.createLinearGradient(0, y + h * 0.6, 0, y + h + 80);
@@ -3975,11 +4077,7 @@ window.LD_RULES = (() => {
       ctx.restore();
     }
     if (has('upGlow')) {                      // neon underglow in the car's own colour
-      ctx.save();
-      ctx.shadowColor = paint.glow; ctx.shadowBlur = 24; ctx.globalAlpha = 0.6;
-      ctx.fillStyle = paint.glow;                         // full colour, even on a black or white car
-      roundRect(l - 5, y + 6, w + 10, h - 10, 14); ctx.fill();
-      ctx.restore();
+      softGlow(l - 5, y + 6, w + 10, h - 10, 14, paint.glow, 0.6, 10);   // full colour, even on a black or white car
     }
     if (has('upSparkle')) {                   // twinkling stars drifting out behind
       for (let i = 0; i < 7; i++) {
@@ -4009,7 +4107,7 @@ window.LD_RULES = (() => {
         ctx.fillStyle = 'rgba(255,255,255,.14)';                                         // tread
         for (let ty = wy + 2; ty < wy + wh - 1; ty += 3) ctx.fillRect(tx + 1, ty, ww - 2, 1);
         const outer = tx < x ? tx + 0.8 : tx + ww - 3.3;                                  // rim on the outside face
-        if (neonRims) { ctx.save(); ctx.shadowColor = paint.glow; ctx.shadowBlur = 8; ctx.fillStyle = paint.glow; roundRect(outer - 0.5, wy + wh * 0.12, 3.5, wh * 0.76, 1.5); ctx.fill(); ctx.restore(); }
+        if (neonRims) { ctx.save(); ctx.fillStyle = paint.glow; ctx.globalAlpha = 0.35; roundRect(outer - 2.5, wy + wh * 0.04, 7.5, wh * 0.92, 3); ctx.fill(); ctx.globalAlpha = 1; roundRect(outer - 0.5, wy + wh * 0.12, 3.5, wh * 0.76, 1.5); ctx.fill(); ctx.restore(); }
         ctx.fillStyle = rim; roundRect(outer, wy + wh * 0.18, 2.5, wh * 0.64, 1.2); ctx.fill();
         if (chrome) { ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.fillRect(outer + 0.5, wy + wh * 0.22, 1, wh * 0.2); }   // shine
         ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(outer + 0.6, wy + wh * 0.45, 1.3, wh * 0.1);   // hub
@@ -4028,7 +4126,7 @@ window.LD_RULES = (() => {
     }
     ctx.fillStyle = color;
     roundRect(l, y, w, h, Math.min(w * 0.32, 16)); ctx.fill();
-    if (paint.fin) drawFinish(paint, l, y, w, h, tNow);
+    if (paint.fin) drawPaintFinish(paint, l, y, w, h, tNow);
     if (has('upLegend')) {                    // gold flake: glitter that catches the light
       for (let i = 0; i < 14; i++) {
         const fx = l + 3 + hash(i * 3.1) * (w - 6), fy = y + 3 + hash(i * 7.7) * (h - 6);
@@ -4632,7 +4730,7 @@ window.LD_RULES = (() => {
   // Lock-on brackets round the drone: yellow = you can fire, green = a rocket is on it,
   // red = no rockets. With a shot ready, a dashed aim line runs from your car to it.
   function drawLockOn(d) {
-    const ready = wallet >= ROCKET_COST, locked = chased(d);
+    const ready = wallet >= ROCKET_COST || odPhase === 'burst', locked = chased(d);
     const color = locked ? '#68d391' : ready ? '#FFD700' : '#f56565';
     if (ready && !locked && d === target()) {                  // aim line only to the next one you'd hit
       ctx.save();
@@ -4680,10 +4778,10 @@ window.LD_RULES = (() => {
     const k = (performance.now() % 900) / 900;
     ctx.strokeStyle = `rgba(245,101,101,${(0.7 * (1 - k)).toFixed(3)})`; ctx.lineWidth = 3;
     ctx.beginPath(); ctx.arc(cx, cy, r * (1.1 + k * 1.1), 0, Math.PI * 2); ctx.stroke();
-    ctx.save();
-    ctx.shadowColor = '#f56565'; ctx.shadowBlur = 18;
+    const hg = ctx.createRadialGradient(cx, cy, r * 0.3, cx, cy, r * 1.5);   // soft red glow behind it
+    hg.addColorStop(0, 'rgba(245,101,101,.55)'); hg.addColorStop(1, 'rgba(245,101,101,0)');
+    ctx.fillStyle = hg; ctx.fillRect(cx - r * 1.5, cy - r * 1.5, r * 3, r * 3);
     ctx.fillStyle = '#f56565'; heart(); ctx.fill();
-    ctx.restore();
     ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 2; heart(); ctx.stroke();
     ctx.fillStyle = 'rgba(255,255,255,.55)';
     ctx.beginPath(); ctx.ellipse(cx - s * 0.42, cy - s * 0.42, s * 0.2, s * 0.13, -0.6, 0, Math.PI * 2); ctx.fill();
@@ -4888,19 +4986,32 @@ window.LD_RULES = (() => {
     }
   }
   // Northern lights: green and violet curtains waving across the sky at the top of the screen.
+  // Rendered small (a quarter of the screen size), redrawn every 4th frame and stretched into
+  // place: it drifts slowly, and drawing hundreds of strips every frame was the heaviest thing in
+  // the game.
+  let auroraCv = null, auroraWait = 0;
   function drawAurora(f) {
-    const t2 = performance.now() / 1000;
-    ctx.save(); ctx.globalCompositeOperation = 'lighter';
-    for (const [col, k, base] of [['60,255,160', 0, 0.2], ['170,110,255', 2.1, 0.3]]) {
-      for (let x2 = 0; x2 <= W; x2 += 4) {
-        const yb = H * (base + 0.06 * Math.sin(x2 * 0.011 + t2 * 0.6 + k) + 0.03 * Math.sin(x2 * 0.029 - t2 * 1.2 + k));
-        const a = (0.55 + 0.45 * Math.sin(x2 * 0.045 + t2 * 1.8 + k * 3)) * f;
-        const len = 80 + 45 * Math.sin(x2 * 0.017 + k + t2 * 0.3);
-        ctx.fillStyle = `rgba(${col},${(0.05 * a).toFixed(3)})`; ctx.fillRect(x2, yb - len, 3, len);
-        ctx.fillStyle = `rgba(${col},${(0.07 * a).toFixed(3)})`; ctx.fillRect(x2, yb - len * 0.45, 3, len * 0.45);
-        ctx.fillStyle = `rgba(${col},${(0.12 * a).toFixed(3)})`; ctx.fillRect(x2, yb - 8, 3, 8);
+    const SC = 4, cw = Math.ceil(W / SC), ch = Math.ceil(H * 0.42 / SC);
+    if (!auroraCv) auroraCv = document.createElement('canvas');
+    if (auroraCv.width !== cw || auroraCv.height !== ch) { auroraCv.width = cw; auroraCv.height = ch; auroraWait = 0; }
+    if (--auroraWait <= 0) {
+      auroraWait = 4;
+      const c = auroraCv.getContext('2d'), t2 = performance.now() / 1000;
+      c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cw, ch);
+      c.setTransform(1 / SC, 0, 0, 1 / SC, 0, 0); c.globalCompositeOperation = 'lighter';
+      for (const [col, k, base] of [['60,255,160', 0, 0.2], ['170,110,255', 2.1, 0.3]]) {
+        for (let x2 = 0; x2 <= W; x2 += 8) {
+          const yb = H * (base + 0.06 * Math.sin(x2 * 0.011 + t2 * 0.6 + k) + 0.03 * Math.sin(x2 * 0.029 - t2 * 1.2 + k));
+          const a = 0.55 + 0.45 * Math.sin(x2 * 0.045 + t2 * 1.8 + k * 3);
+          const len = 80 + 45 * Math.sin(x2 * 0.017 + k + t2 * 0.3);
+          c.fillStyle = `rgba(${col},${(0.05 * a).toFixed(3)})`; c.fillRect(x2, yb - len, 8, len);
+          c.fillStyle = `rgba(${col},${(0.07 * a).toFixed(3)})`; c.fillRect(x2, yb - len * 0.45, 8, len * 0.45);
+          c.fillStyle = `rgba(${col},${(0.12 * a).toFixed(3)})`; c.fillRect(x2, yb - 8, 8, 8);
+        }
       }
     }
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = f;
+    ctx.drawImage(auroraCv, 0, 0, cw * SC, ch * SC);
     ctx.restore();
   }
   function updateWeather(dt, roadV) {
@@ -5027,7 +5138,7 @@ window.LD_RULES = (() => {
       ctx.save();
       if (blink) ctx.globalAlpha = 0.45;
       if (lean) { const cy = player.y + player.h / 2; ctx.translate(player.x, cy); ctx.rotate(lean); ctx.translate(-player.x, -cy); }
-      if (odPhase) { ctx.shadowColor = `hsl(${trailHue(1)},100%,60%)`; ctx.shadowBlur = 26; }
+      if (odPhase) softGlow(player.x - player.w / 2, player.y, player.w, player.h, 14, `hsl(${trailHue(1)},100%,60%)`, 0.55, 14);
       drawCar(player.x, player.y, player.w, player.h, carPaint(carHue, carShade), level,
               { loaded: Math.min(MAX_ROCKETS, Math.floor(wallet / ROCKET_COST)), kick: launcherKick }, carNo);
       ctx.shadowBlur = 0;
@@ -5064,11 +5175,15 @@ window.LD_RULES = (() => {
     for (const f of floats) {
       ctx.globalAlpha = Math.min(1, f.life / 0.4);
       ctx.fillStyle = f.color;
-      if (f.big) {                            // combo tier: pops in large, then floats off
+      if (f.big) {                            // combo tier: pops in large, then floats off (scaled, not re-sized: new font sizes are slow)
         const pop = 1 + Math.max(0, f.life - 0.8) * 3;
-        ctx.font = '900 ' + Math.round(34 * pop) + 'px system-ui, sans-serif';
-        ctx.strokeStyle = 'rgba(10,14,32,.8)'; ctx.lineWidth = 5; ctx.strokeText(f.text, f.x, f.y);
-      } else ctx.font = '800 16px system-ui, sans-serif';
+        ctx.save(); ctx.translate(f.x, f.y); ctx.scale(pop, pop);
+        ctx.font = '900 34px system-ui, sans-serif';
+        ctx.strokeStyle = 'rgba(10,14,32,.8)'; ctx.lineWidth = 5; ctx.strokeText(f.text, 0, 0); ctx.fillText(f.text, 0, 0);
+        ctx.restore();
+        continue;
+      }
+      ctx.font = '800 16px system-ui, sans-serif';
       ctx.fillText(f.text, f.x, f.y);
     }
     ctx.globalAlpha = 1;
@@ -5115,13 +5230,10 @@ window.LD_RULES = (() => {
   function drawOverdrive() {
     const tNow = performance.now() / 1000, hue = trailHue(0), hue2 = trailHue(3);
     const a = calm ? 0.7 : 0.55 + 0.35 * Math.sin(tNow * 14);
-    ctx.save();
-    ctx.shadowBlur = 24;
     for (const [x, hh] of [[vergeW, hue], [W - vergeW, hue2]]) {
-      ctx.shadowColor = ctx.fillStyle = `hsla(${hh % 360},100%,60%,${a.toFixed(3)})`;
-      ctx.fillRect(x - 5, 0, 10, H);
+      ctx.fillStyle = `hsla(${hh % 360},100%,60%,${(a * 0.3).toFixed(3)})`; ctx.fillRect(x - 14, 0, 28, H);   // glow
+      ctx.fillStyle = `hsla(${hh % 360},100%,60%,${a.toFixed(3)})`; ctx.fillRect(x - 5, 0, 10, H);
     }
-    ctx.restore();
     const y0 = player.y + player.h * 0.55, len = 190;
     const g = ctx.createLinearGradient(0, y0, 0, y0 + len);
     g.addColorStop(0, `hsla(${hue},100%,65%,.9)`); g.addColorStop(0.5, `hsla(${hue2},100%,60%,.45)`); g.addColorStop(1, 'rgba(0,0,0,0)');
@@ -5141,7 +5253,7 @@ window.LD_RULES = (() => {
     // Idle on the start line during 3-2-1, then the engine follows road speed.
     sfx.engine(state === 'play' || state === 'stall' || state === 'countdown', state === 'countdown' ? 0 : speed * odBoost);
     sfx.buzz(state === 'play' && (drones.length > 0 || !!boss));
-    sfx.music(state === 'home' || state === 'garage' || state === 'records' || (state === 'menu' && helpFrom !== 'pause'));
+    sfx.music(state === 'home' || state === 'garage' || state === 'records' || state === 'upgrades' || (state === 'menu' && helpFrom !== 'pause'));
     requestAnimationFrame(loop);
   }
 
@@ -5171,7 +5283,7 @@ window.LD_RULES = (() => {
   canvas.addEventListener('pointerdown', e => {
     // Tapping a Shahed fires a rocket at it instead of steering.
     if (state === 'play' && DRONES() && drones.length) {
-      const r = canvas.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+      const r = canvas.getBoundingClientRect(), x = (e.clientX - r.left) / viewK, y = (e.clientY - r.top) / viewK;
       if (drones.some(d => Math.hypot(d.x - x, d.y - y) < 55) && fire()) return;
     }
     dragging = true;
@@ -5270,11 +5382,12 @@ window.LD_RULES = (() => {
   autoChip.addEventListener('click', () => { toggleAutoFire(); autoChip.blur(); });
   I18N.onChange(paintAutoFire);
   paintAutoFire();
-  $('exitBtn').addEventListener('click', exitGame);
   $('garageBtn').addEventListener('click', openGarage);
   $('recordsBtn').addEventListener('click', openRecords);
   $('garageDone').addEventListener('click', goHome);
   $('recBack').addEventListener('click', goHome);
+  $('upBtn').addEventListener('click', openUpgrades);
+  $('upBack').addEventListener('click', goHome);
   $('homeBtn').addEventListener('click', goHome);
   $('byeBack').addEventListener('click', () => { sfx.ensure(); goHome(); });
 
