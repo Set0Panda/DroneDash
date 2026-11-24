@@ -223,6 +223,11 @@
     background: transparent; box-shadow: inset 0 0 0 2px var(--ua-blue-lt);
   }
   #installHint { font-size: 13px; }
+  /* iPhone / iPad: numbered steps, since Safari's Share button can be tucked away under ⋯ */
+  #installHint .st { display: grid; grid-template-columns: 22px 1fr; gap: 8px; align-items: start; text-align: left; margin: 6px auto 0; max-width: 290px; }
+  #installHint .st b { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; font-size: 12px; color: #0f1220; background: var(--ua-yellow); }
+  #installHint .st span { padding-top: 2px; }
+  #installHint .arrow { display: block; text-align: center; font-size: 22px; margin-top: 4px; animation: hintBounce .6s ease-in-out infinite alternate; }
   .privacy { font-size: 11px; opacity: .7; text-wrap: balance; margin-top: -6px !important; }
   #updateBtn { color: var(--ua-yellow, #FFD500); box-shadow: inset 0 0 0 2px var(--ua-yellow, #FFD500); }
   [hidden] { display: none !important; }
@@ -868,7 +873,14 @@ window.I18N = (() => {
       ms_tKills: "Shoot down {n} Shaheds in total", ms_tDaily: "Play {n} daily challenges", finishLabel: "Finish", trailLabel: "Overdrive trail",
       fin_gloss: "Gloss", fin_metallic: "Metallic", fin_pearl: "Pearl", fin_matte: "Matte",
       fin_chrome: "Chrome", fin_neon: "Neon", fin_candy: "Candy", trail_rainbow: "Rainbow",
-      trail_fire: "Fire", trail_ice: "Ice", trail_gold: "Gold"
+      trail_fire: "Fire", trail_ice: "Ice", trail_gold: "Gold",
+      iosStep1: "Tap the Share button ⬆️ in Safari's toolbar (on newer iPhones, tap ⋯ first, then Share)",
+      iosStep2: "Scroll down and tap “Add to Home Screen” ➕",
+      iosStep3: "Tap “Add”, then open Drone Dash from your home screen",
+      ms_tDaily_1: "Play a daily challenge",
+      ms_kills_1: "Shoot down a Shahed in one run",
+      ms_barrier_1: "Blow up a barrier with a rocket",
+      ms_clean_1: "A whole level without a scratch"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -927,7 +939,14 @@ window.I18N = (() => {
       ms_tKills: "Derriba {n} Shaheds en total", ms_tDaily: "Juega {n} desafíos diarios", finishLabel: "Acabado", trailLabel: "Estela de Overdrive",
       fin_gloss: "Brillo", fin_metallic: "Metalizado", fin_pearl: "Perla", fin_matte: "Mate",
       fin_chrome: "Cromo", fin_neon: "Neón", fin_candy: "Caramelo", trail_rainbow: "Arcoíris",
-      trail_fire: "Fuego", trail_ice: "Hielo", trail_gold: "Oro"
+      trail_fire: "Fuego", trail_ice: "Hielo", trail_gold: "Oro",
+      iosStep1: "Toca el botón Compartir ⬆️ de Safari (en iPhones recientes, toca primero ⋯ y luego Compartir)",
+      iosStep2: "Desliza hacia abajo y toca «Añadir a pantalla de inicio» ➕",
+      iosStep3: "Toca «Añadir» y abre Drone Dash desde tu pantalla de inicio",
+      ms_tDaily_1: "Juega un desafío diario",
+      ms_kills_1: "Derriba un Shahed en una partida",
+      ms_barrier_1: "Vuela una barrera con un cohete",
+      ms_clean_1: "Un nivel entero sin un rasguño"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -986,7 +1005,14 @@ window.I18N = (() => {
       ms_tKills: "Abats {n} Shaheds au total", ms_tDaily: "Joue {n} défis du jour", finishLabel: "Finition", trailLabel: "Traînée d’Overdrive",
       fin_gloss: "Brillant", fin_metallic: "Métallisé", fin_pearl: "Nacré", fin_matte: "Mat",
       fin_chrome: "Chrome", fin_neon: "Néon", fin_candy: "Bonbon", trail_rainbow: "Arc-en-ciel",
-      trail_fire: "Feu", trail_ice: "Glace", trail_gold: "Or"
+      trail_fire: "Feu", trail_ice: "Glace", trail_gold: "Or",
+      iosStep1: "Touche le bouton Partager ⬆️ de Safari (sur les iPhone récents, touche d’abord ⋯, puis Partager)",
+      iosStep2: "Fais défiler et touche « Sur l’écran d’accueil » ➕",
+      iosStep3: "Touche « Ajouter », puis ouvre Drone Dash depuis l’écran d’accueil",
+      ms_tDaily_1: "Joue un défi du jour",
+      ms_kills_1: "Abats un Shahed en une partie",
+      ms_barrier_1: "Fais sauter une barrière à la roquette",
+      ms_clean_1: "Un niveau entier sans une égratignure"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -1045,7 +1071,14 @@ window.I18N = (() => {
       ms_tKills: "Schieß insgesamt {n} Shaheds ab", ms_tDaily: "Spiel {n} Tages-Challenges", finishLabel: "Lackart", trailLabel: "Overdrive-Spur",
       fin_gloss: "Glanz", fin_metallic: "Metallic", fin_pearl: "Perlmutt", fin_matte: "Matt",
       fin_chrome: "Chrom", fin_neon: "Neon", fin_candy: "Candy", trail_rainbow: "Regenbogen",
-      trail_fire: "Feuer", trail_ice: "Eis", trail_gold: "Gold"
+      trail_fire: "Feuer", trail_ice: "Eis", trail_gold: "Gold",
+      iosStep1: "Tippe in Safari auf Teilen ⬆️ (auf neueren iPhones zuerst auf ⋯, dann auf Teilen)",
+      iosStep2: "Scrolle nach unten und tippe auf „Zum Home-Bildschirm“ ➕",
+      iosStep3: "Tippe auf „Hinzufügen“ und öffne Drone Dash vom Home-Bildschirm",
+      ms_tDaily_1: "Spiel eine Tages-Challenge",
+      ms_kills_1: "Schieß in einer Runde eine Shahed ab",
+      ms_barrier_1: "Spreng eine Barriere mit einer Rakete",
+      ms_clean_1: "Ein ganzes Level ohne Kratzer"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -1104,7 +1137,14 @@ window.I18N = (() => {
       ms_tKills: "Derrube {n} Shaheds no total", ms_tDaily: "Jogue {n} desafios diários", finishLabel: "Acabamento", trailLabel: "Rastro do Overdrive",
       fin_gloss: "Brilho", fin_metallic: "Metálico", fin_pearl: "Pérola", fin_matte: "Fosco",
       fin_chrome: "Cromado", fin_neon: "Neon", fin_candy: "Doce", trail_rainbow: "Arco-íris",
-      trail_fire: "Fogo", trail_ice: "Gelo", trail_gold: "Ouro"
+      trail_fire: "Fogo", trail_ice: "Gelo", trail_gold: "Ouro",
+      iosStep1: "Toque no botão Compartilhar ⬆️ do Safari (nos iPhones mais novos, toque primeiro em ⋯ e depois em Compartilhar)",
+      iosStep2: "Role para baixo e toque em “Adicionar à Tela de Início” ➕",
+      iosStep3: "Toque em “Adicionar” e abra o Drone Dash pela tela de início",
+      ms_tDaily_1: "Jogue um desafio diário",
+      ms_kills_1: "Derrube um Shahed numa partida",
+      ms_barrier_1: "Exploda uma barreira com um foguete",
+      ms_clean_1: "Um nível inteiro sem um arranhão"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -1163,7 +1203,14 @@ window.I18N = (() => {
       ms_tKills: "Abbatti {n} Shahed in totale", ms_tDaily: "Gioca {n} sfide del giorno", finishLabel: "Finitura", trailLabel: "Scia Overdrive",
       fin_gloss: "Lucida", fin_metallic: "Metallizzata", fin_pearl: "Perla", fin_matte: "Opaca",
       fin_chrome: "Cromata", fin_neon: "Neon", fin_candy: "Candy", trail_rainbow: "Arcobaleno",
-      trail_fire: "Fuoco", trail_ice: "Ghiaccio", trail_gold: "Oro"
+      trail_fire: "Fuoco", trail_ice: "Ghiaccio", trail_gold: "Oro",
+      iosStep1: "Tocca il pulsante Condividi ⬆️ di Safari (sugli iPhone recenti tocca prima ⋯, poi Condividi)",
+      iosStep2: "Scorri in basso e tocca “Aggiungi alla schermata Home” ➕",
+      iosStep3: "Tocca “Aggiungi”, poi apri Drone Dash dalla schermata Home",
+      ms_tDaily_1: "Gioca una sfida del giorno",
+      ms_kills_1: "Abbatti uno Shahed in una partita",
+      ms_barrier_1: "Fai saltare una barriera con un razzo",
+      ms_clean_1: "Un livello intero senza un graffio"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -1222,7 +1269,14 @@ window.I18N = (() => {
       ms_tKills: "累計シャヘド{n}機撃墜", ms_tDaily: "デイリーチャレンジを{n}回プレイ", finishLabel: "塗装の仕上げ", trailLabel: "OVERDRIVEの軌跡",
       fin_gloss: "グロス", fin_metallic: "メタリック", fin_pearl: "パール", fin_matte: "マット",
       fin_chrome: "クローム", fin_neon: "ネオン", fin_candy: "キャンディ", trail_rainbow: "レインボー",
-      trail_fire: "ファイア", trail_ice: "アイス", trail_gold: "ゴールド"
+      trail_fire: "ファイア", trail_ice: "アイス", trail_gold: "ゴールド",
+      iosStep1: "Safari の共有ボタン ⬆️ をタップ（新しい iPhone では先に ⋯ をタップしてから共有）",
+      iosStep2: "下にスクロールして「ホーム画面に追加」➕ をタップ",
+      iosStep3: "「追加」をタップして、ホーム画面から Drone Dash を開く",
+      ms_tDaily_1: "デイリーチャレンジを1回プレイ",
+      ms_kills_1: "1回の走行でシャヘドを1機撃墜",
+      ms_barrier_1: "ロケットでバリアを1個破壊",
+      ms_clean_1: "無傷で1レベルを走りきる"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -1281,7 +1335,14 @@ window.I18N = (() => {
       ms_tKills: "累计击落 {n} 架沙赫德", ms_tDaily: "玩 {n} 次每日挑战", finishLabel: "漆面", trailLabel: "OVERDRIVE 尾迹",
       fin_gloss: "亮光", fin_metallic: "金属漆", fin_pearl: "珠光", fin_matte: "哑光",
       fin_chrome: "镀铬", fin_neon: "霓虹", fin_candy: "糖果漆", trail_rainbow: "彩虹",
-      trail_fire: "火焰", trail_ice: "冰霜", trail_gold: "黄金"
+      trail_fire: "火焰", trail_ice: "冰霜", trail_gold: "黄金",
+      iosStep1: "点按 Safari 的“分享”按钮 ⬆️（较新的 iPhone 上先点 ⋯，再点“分享”）",
+      iosStep2: "向下滚动，点按“添加到主屏幕”➕",
+      iosStep3: "点按“添加”，然后从主屏幕打开 Drone Dash",
+      ms_tDaily_1: "玩一次每日挑战",
+      ms_kills_1: "一局内击落一架沙赫德",
+      ms_barrier_1: "用火箭炸毁一个路障",
+      ms_clean_1: "一整关毫发无损"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -1340,7 +1401,14 @@ window.I18N = (() => {
       ms_tKills: "샤헤드 총 {n}대 격추", ms_tDaily: "일일 챌린지 {n}번 플레이", finishLabel: "도장 마감", trailLabel: "OVERDRIVE 궤적",
       fin_gloss: "유광", fin_metallic: "메탈릭", fin_pearl: "펄", fin_matte: "무광",
       fin_chrome: "크롬", fin_neon: "네온", fin_candy: "캔디", trail_rainbow: "무지개",
-      trail_fire: "불꽃", trail_ice: "얼음", trail_gold: "황금"
+      trail_fire: "불꽃", trail_ice: "얼음", trail_gold: "황금",
+      iosStep1: "Safari의 공유 버튼 ⬆️을 탭하세요 (최신 iPhone에서는 먼저 ⋯을 탭한 뒤 공유)",
+      iosStep2: "아래로 스크롤해 ‘홈 화면에 추가’ ➕를 탭하세요",
+      iosStep3: "‘추가’를 탭한 뒤 홈 화면에서 Drone Dash를 여세요",
+      ms_tDaily_1: "일일 챌린지 한 번 플레이",
+      ms_kills_1: "한 판에 샤헤드 한 대 격추",
+      ms_barrier_1: "로켓으로 바리케이드 하나 폭파",
+      ms_clean_1: "한 레벨을 무사고로"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -1399,7 +1467,14 @@ window.I18N = (() => {
       ms_tKills: "कुल {n} शाहेद गिराओ", ms_tDaily: "{n} रोज़ाना चुनौतियाँ खेलो", finishLabel: "फ़िनिश", trailLabel: "OVERDRIVE ट्रेल",
       fin_gloss: "ग्लॉस", fin_metallic: "मेटैलिक", fin_pearl: "मोती", fin_matte: "मैट",
       fin_chrome: "क्रोम", fin_neon: "नियॉन", fin_candy: "कैंडी", trail_rainbow: "इंद्रधनुष",
-      trail_fire: "आग", trail_ice: "बर्फ़", trail_gold: "सोना"
+      trail_fire: "आग", trail_ice: "बर्फ़", trail_gold: "सोना",
+      iosStep1: "Safari में शेयर बटन ⬆️ पर टैप करें (नए iPhone पर पहले ⋯, फिर शेयर)",
+      iosStep2: "नीचे स्क्रॉल करें और “होम स्क्रीन पर जोड़ें” ➕ पर टैप करें",
+      iosStep3: "“जोड़ें” पर टैप करें, फिर होम स्क्रीन से Drone Dash खोलें",
+      ms_tDaily_1: "एक रोज़ाना चुनौती खेलो",
+      ms_kills_1: "एक दौड़ में एक शाहेद गिराओ",
+      ms_barrier_1: "रॉकेट से एक बैरियर उड़ाओ",
+      ms_clean_1: "एक पूरा लेवल बिना खरोंच"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -1460,7 +1535,14 @@ window.I18N = (() => {
       ms_tKills: "Збий загалом {n} шахедів", ms_tDaily: "Зіграй {n} щоденних викликів", finishLabel: "Покриття", trailLabel: "Слід OVERDRIVE",
       fin_gloss: "Глянець", fin_metallic: "Металік", fin_pearl: "Перламутр", fin_matte: "Матове",
       fin_chrome: "Хром", fin_neon: "Неон", fin_candy: "Цукерка", trail_rainbow: "Веселка",
-      trail_fire: "Вогонь", trail_ice: "Лід", trail_gold: "Золото"
+      trail_fire: "Вогонь", trail_ice: "Лід", trail_gold: "Золото",
+      iosStep1: "Натисни «Поділитися» ⬆️ у Safari (на нових iPhone спершу натисни ⋯, потім «Поділитися»)",
+      iosStep2: "Прокрути вниз і натисни «На початковий екран» ➕",
+      iosStep3: "Натисни «Додати» й відкрий Drone Dash з початкового екрана",
+      ms_tDaily_1: "Зіграй щоденний виклик",
+      ms_kills_1: "Збий шахед за заїзд",
+      ms_barrier_1: "Підірви бар'єр ракетою",
+      ms_clean_1: "Цілий рівень без подряпини"
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -1519,7 +1601,14 @@ window.I18N = (() => {
       ms_tKills: "სულ ჩამოაგდე {n} შაჰედი", ms_tDaily: "ითამაშე {n} დღის გამოწვევა", finishLabel: "საღებავის ტიპი", trailLabel: "OVERDRIVE-ის კვალი",
       fin_gloss: "პრიალა", fin_metallic: "მეტალიკი", fin_pearl: "მარგალიტი", fin_matte: "მქრქალი",
       fin_chrome: "ქრომი", fin_neon: "ნეონი", fin_candy: "კანფეტი", trail_rainbow: "ცისარტყელა",
-      trail_fire: "ცეცხლი", trail_ice: "ყინული", trail_gold: "ოქრო"
+      trail_fire: "ცეცხლი", trail_ice: "ყინული", trail_gold: "ოქრო",
+      iosStep1: "შეეხე Safari-ს გაზიარების ღილაკს ⬆️ (ახალ iPhone-ებზე ჯერ ⋯-ს, შემდეგ გაზიარებას)",
+      iosStep2: "ჩამოსქროლე და შეეხე „მთავარ ეკრანზე დამატებას“ ➕",
+      iosStep3: "შეეხე „დამატებას“ და გახსენი Drone Dash მთავარი ეკრანიდან",
+      ms_tDaily_1: "ითამაშე დღის გამოწვევა",
+      ms_kills_1: "ერთ რბოლაში ჩამოაგდე შაჰედი",
+      ms_barrier_1: "რაკეტით ააფეთქე ბარიერი",
+      ms_clean_1: "მთელი დონე ნაკაწრის გარეშე"
     }
   };
   const NAMES = {
@@ -3155,7 +3244,8 @@ window.LD_RULES = (() => {
     if (d.total) return (m.base || 0) + (msRunOn ? d.total() : 0);
     return Math.max(m.have || 0, msRunOn ? d.run() : 0);
   }
-  const msText = m => t('ms_' + m.id, { n: m.goal });
+  const ONE = ['tDaily', 'kills', 'barrier', 'clean'];          // these read differently for a goal of 1
+  const msText = m => t('ms_' + m.id + (m.goal === 1 && ONE.includes(m.id) ? '_1' : ''), { n: m.goal });
   function msStartRun() { msRunOn = true; msStars0 = ms.stars; }
   function msCheck() {
     for (const m of ms.active) {
@@ -4947,7 +5037,20 @@ window.LD_RULES = (() => {
   if (desktopFirefox && !ios) return;
   let deferred = null;
   const hintKey = inApp ? 'installHintInApp' : ios ? 'installHintIos' : 'installHintMenu';
-  const paintHint = () => { hint.textContent = I18N.t(hintKey); };
+  // iPhone / iPad: three numbered steps (iOS can't be asked to install, it has to be done from
+  // Safari's Share menu), with an arrow pointing down at Safari's toolbar.
+  const paintHint = () => {
+    hint.textContent = '';
+    if (!ios || inApp) { hint.textContent = I18N.t(hintKey); return; }
+    for (const [i, k] of ['iosStep1', 'iosStep2', 'iosStep3'].entries()) {
+      const row = document.createElement('span'); row.className = 'st';
+      const n = document.createElement('b'); n.textContent = i + 1;
+      const tx = document.createElement('span'); tx.textContent = I18N.t(k);
+      row.append(n, tx); hint.appendChild(row);
+    }
+    const a = document.createElement('span'); a.className = 'arrow'; a.textContent = '⬇️'; a.setAttribute('aria-hidden', 'true');
+    hint.appendChild(a);
+  };
   paintHint();
   I18N.onChange(paintHint);
   btn.hidden = false;
