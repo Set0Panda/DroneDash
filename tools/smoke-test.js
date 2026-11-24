@@ -62,7 +62,7 @@
   // simple bot: leave the lane if an obstacle is coming, prefer a free neighbour
   function drive() {
     const g = __G(); if (!g.player) return;
-    const danger = lane => g.objects.some(o => (o.type === 'enemy' || o.type === 'hole') && !o.dead && o.lane === lane &&
+    const danger = lane => g.objects.some(o => (o.type === 'enemy' || o.type === 'hole') && !o.dead && !o.used && (o.fx !== undefined ? Math.abs(o.fx - lane) < 0.9 : o.lane === lane) &&
       o.y + o.h > g.player.y - 230 && o.y < g.player.y + g.player.h);
     if (!danger(g.player.lane)) return;
     for (const d of [-1, 1, -2, 2]) {
@@ -86,7 +86,7 @@
     if (window.__errs.length) report.errors.push(...window.__errs.map(m => 'languages: ' + m));
   } catch (e) { err('languages', e); }
 
-  // ---------- 3. Long run, levels 1 to 26 ----------
+  // ---------- 3. Long run, levels 1 to 52 (every area, hazard and car upgrade) ----------
   try {
     await load([...common,
       ["fuel = Math.max(0, fuel - fuelDrain(level) * dt);", "fuel = Math.max(60, fuel - fuelDrain(level) * dt);"],
@@ -95,7 +95,7 @@
     const seen = { areas: new Set(), skins: new Set(), holeSkins: new Set(), paths: new Set(), states: new Set() };
     $('playBtn').click(); if (!$('intro').classList.contains('hidden')) $('startBtn').click();
     let frames = 0, maxLevel = 1;
-    while (frames < 20000 && __G().level < 26) {
+    while (frames < 60000 && __G().level < 52) {
       drive();
       const g = __G();
       if (g.wallet >= 3 && Math.random() < 0.02) $('rocketBtn').click();
@@ -130,9 +130,25 @@
     while (frames < 30000 && $('over').classList.contains('hidden')) { drive(); stepSafe(1); frames++; }
     report.stats.normalRun = { frames, endedWithGameOver: !$('over').classList.contains('hidden'),
       level: __G().level, journeyLine: $('overTrip').textContent, title: $('overTitle').textContent };
+    // Share: no share sheet in a hidden test window, so it copies the text instead
+    try { Object.defineProperty(navigator, 'share', { value: undefined, configurable: true }); Object.defineProperty(navigator, 'canShare', { value: undefined, configurable: true }); } catch (e) {}
+    try { Object.defineProperty(navigator, 'clipboard', { value: { writeText: async t => { window.__copied = t; } }, configurable: true }); } catch (e) {}
+    HTMLAnchorElement.prototype.click = function () {};          // don't download the picture
+    $('over').classList.contains('hidden') || $('shareBtn').click();
     $('retryBtn').click(); stepSafe(60);
     report.checks.retryStartsPlaying = __G().state === 'play';
-    $('pauseBtn').click(); $('pauseHome').click(); $('recordsBtn').click(); await sleep(200);
+    $('pauseBtn').click(); $('pauseHome').click(); stepSafe(5);
+    // Daily challenge: starts with its banner, plays, ends on its own game over line
+    $('dailyBtn').click();
+    if (!$('intro').classList.contains('hidden')) $('startBtn').click();
+    const dailyText = $('banner').textContent;
+    report.checks.dailyBanner = dailyText.includes('\u{1F4C5}') || dailyText;
+    stepSafe(5);
+    let df = 0; while (df < 30000 && $('over').classList.contains('hidden')) { drive(); stepSafe(1); df++; }
+    report.checks.dailyGameOver = !$('over').classList.contains('hidden') && !$('overDaily').hidden;
+    $('shareBtn').click(); await sleep(600);
+    report.checks.shareCopiesText = !!(window.__copied && window.__copied.includes('Drone Dash'));
+    $('homeBtn').click(); $('recordsBtn').click(); await sleep(200);
     report.checks.recordsRows = document.querySelectorAll('#recList li').length;
     $('recBack').click();
     if (window.__errs.length) report.errors.push(...window.__errs.map(m => 'normal run: ' + m));

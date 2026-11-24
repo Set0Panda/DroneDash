@@ -532,6 +532,10 @@
 
   /* ---- Home: colour + records row ---- */
   .menuRow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .dailyBtn { display: grid; gap: 2px; justify-items: center; padding-top: 10px; padding-bottom: 10px; }
+  .dailyBtn small { font-size: 12px; font-weight: 700; opacity: .85; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .overDaily { font-size: 14px; font-weight: 800; color: var(--coin) !important; margin: -4px 0 0 !important; }
+  .shareNote { font-size: 13px; color: var(--text) !important; margin: 0 !important; }
   .menuRow button { font-size: 15px; padding: 12px 6px; display: flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; }
   .swatch { flex: none; width: 14px; height: 14px; border-radius: 50%; background: var(--player); box-shadow: 0 0 0 2px rgba(255,255,255,.35); }
 
@@ -624,8 +628,9 @@
     <p id="homeBest" hidden></p>
     <div class="menuBtns">
       <button id="playBtn">▶ <span data-i18n="play">Play</span></button>
+      <button id="dailyBtn" class="secondary dailyBtn" type="button"><span>📅 <span data-i18n="daily">Daily challenge</span></span><small id="dailySub"></small></button>
       <div class="menuRow">
-        <button id="garageBtn" class="secondary" type="button"><i class="swatch"></i><span data-i18n="colourBtn">Colour</span></button>
+        <button id="garageBtn" class="secondary" type="button"><i class="swatch"></i><span data-i18n="colourBtn">Paint</span></button>
         <button id="recordsBtn" class="secondary" type="button">🏆 <span data-i18n="records">Records</span></button>
       </div>
       <button id="exitBtn" class="secondary" data-i18n="exit">Exit</button>
@@ -719,12 +724,15 @@
         <div><i class="si" aria-hidden="true">🪙</i><b id="statCoins">0</b><span data-i18n="coins">Coins</span></div>
         <div id="statKillsTile" hidden><i class="si" aria-hidden="true">🎯</i><b id="statKills">0</b><span data-i18n="shotDownStat">Shot down</span></div>
       </div>
+      <p id="overDaily" class="overDaily" hidden></p>
       <p id="overTrip" class="overTrip"></p>
       <p id="bestLine"></p>
       <div class="overBtns">
         <button id="retryBtn" data-i18n="retry">Retry</button>
+        <button id="shareBtn" class="secondary" type="button">📤 <span data-i18n="share">Share</span></button>
         <button id="homeBtn" class="ghost" data-i18n="home">Home</button>
       </div>
+      <p id="shareNote" class="shareNote" role="status" hidden></p>
     </div>
   </div>
 </div>
@@ -763,7 +771,7 @@ window.I18N = (() => {
       scoreLabel: "Score", newBest: "New best!",
       unlocked: "Unlocked: {item}", upStripes: "Racing stripes", upSpoiler: "Spoiler", upNumber: "Racing number", upFlames: "Exhaust flames", upGlow: "Neon glow", upGold: "Gold trim",
       upLivery: "Ukrainian livery", upLightbar: "Roof light bar", upChrome: "Chrome rims", upTrail: "Light trail", upGoldPod: "Gold launcher", upChains: "Snow chains", upFlag: "Ukrainian flag",
-      garageTitle: "Your car", garageHint: "Drag around the wheel to pick a colour", colourBtn: "Colour",
+      garageTitle: "Your car", garageHint: "Drag around the wheel to pick a colour", colourBtn: "Paint",
       records: "Records", noRuns: "No runs yet. Go play!", done: "Done", shade: "Shade: black to white",
       // the journey: areas the road passes through
       area0: "Wheat fields", area1: "Sunflower fields", area2: "City lights", area3: "Pine forest", area4: "Snowy mountains",
@@ -771,7 +779,18 @@ window.I18N = (() => {
       // Shahed drones and rockets
       shahedBanner: "SHAHED!", shahedSub: "Tap FIRE or the drone · 🚀 = {n} coins", shotDown: "SHOT DOWN!", smashed: "SMASHED!", close: "CLOSE!", missed: "MISS!", autoFireOn: "Auto-fire at Shaheds: On", autoFireOff: "Auto-fire at Shaheds: Off", fireSideLeft: "FIRE button: left", fireSideRight: "FIRE button: right", settings: "Settings", soundOn: "Sound: On", soundOff: "Sound: Off", dodged: "DODGED!", shotDownStat: "Shot down",
       rocketTitle: "Rocket: {n} coins (Space)", launch: "FIRE", droneAlert: "SHAHED! Tap FIRE", droneNoRocket: "SHAHED! Dodge!",
-      language: 'Language', auto: 'Auto'
+      language: 'Language', auto: 'Auto',
+      // daily challenge, sharing, levels 26-50
+      daily: "Daily challenge", dailyNum: "Daily #{n}", dailyBest: "Today's best: {best}", streak: "{n}-day streak",
+      twCity: "Start in the city (level 10)", twSwarm: "Drone swarm: twice the Shaheds", twFog: "Sea fog all the way", twRush: "Coin Rush after every checkpoint",
+      twDesert: "Start in the desert (level 25)", twOneLife: "One heart only", twSliders: "Sliding barriers from the start", twNight: "Night drive all the way",
+      twOil: "Oil slicks everywhere", twWorks: "Roadworks from the start", share: "Share", shareLine: "I scored {score} in Drone Dash, level {level}",
+      copied: "Result copied: paste it anywhere", shareFailed: "Couldn't share on this device", slippery: "SLIPPERY!", hzSliders: "Sliding barriers",
+      hzOil: "Oil slicks", hzWorks: "Roadworks", area5: "Desert", area6: "Coast bridge",
+      area7: "Autumn hills", area8: "Industrial port", area9: "Northern lights", upBolt: "Lightning decals",
+      upArches: "Wide arches", upNeonRims: "Neon rims", upCarbon: "Carbon bonnet", upWing: "GT wing",
+      upSparkle: "Star trail", upStrobes: "Roof strobes", upHolo: "Holo paint", upJet: "Jet flames",
+      upRainbow: "Rainbow trail", upLaurel: "Laurel wreath", upLegend: "Legend gold"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -799,7 +818,7 @@ window.I18N = (() => {
       scoreLabel: "Puntos", newBest: "¡Nuevo récord!",
       unlocked: "Desbloqueado: {item}", upStripes: "Franjas de carreras", upSpoiler: "Alerón", upNumber: "Número de carreras", upFlames: "Llamas de escape", upGlow: "Luz de neón", upGold: "Detalles dorados",
       upLivery: "Decoración ucraniana", upLightbar: "Barra de luces", upChrome: "Llantas cromadas", upTrail: "Estela de luz", upGoldPod: "Lanzador dorado", upChains: "Cadenas para nieve", upFlag: "Bandera ucraniana",
-      garageTitle: "Tu coche", garageHint: "Desliza por la rueda para elegir un color", colourBtn: "Color",
+      garageTitle: "Tu coche", garageHint: "Desliza por la rueda para elegir un color", colourBtn: "Pintura",
       records: "Récords", noRuns: "Aún no hay partidas. ¡A jugar!", done: "Listo", shade: "Tono: de negro a blanco",
       // the journey: areas the road passes through
       area0: "Campos de trigo", area1: "Campos de girasoles", area2: "Luces de la ciudad", area3: "Bosque de pinos", area4: "Montañas nevadas",
@@ -807,7 +826,18 @@ window.I18N = (() => {
       // Shahed drones and rockets
       shahedBanner: "¡SHAHED!", shahedSub: "Toca DISPARAR o el dron · 🚀 = {n} monedas", shotDown: "¡DERRIBADO!", smashed: "¡DESTROZADA!", close: "¡CASI!", missed: "¡FALLÓ!", autoFireOn: "Disparo automático a Shaheds: Sí", autoFireOff: "Disparo automático a Shaheds: No", fireSideLeft: "Botón DISPARAR: izquierda", fireSideRight: "Botón DISPARAR: derecha", settings: "Ajustes", soundOn: "Sonido: Sí", soundOff: "Sonido: No", dodged: "¡ESQUIVADO!", shotDownStat: "Derribados",
       rocketTitle: "Cohete: {n} monedas (Espacio)", launch: "DISPARAR", droneAlert: "¡SHAHED! Toca DISPARAR", droneNoRocket: "¡SHAHED! ¡Esquívalo!",
-      language: 'Idioma', auto: 'Automático'
+      language: 'Idioma', auto: 'Automático',
+      // daily challenge, sharing, levels 26-50
+      daily: "Desafío diario", dailyNum: "Diario n.º {n}", dailyBest: "Mejor de hoy: {best}", streak: "Racha de {n} días",
+      twCity: "Empieza en la ciudad (nivel 10)", twSwarm: "Enjambre: el doble de Shaheds", twFog: "Niebla marina todo el camino", twRush: "Lluvia de monedas en cada control",
+      twDesert: "Empieza en el desierto (nivel 25)", twOneLife: "Un solo corazón", twSliders: "Barreras móviles desde el inicio", twNight: "Conducción nocturna",
+      twOil: "Manchas de aceite por todas partes", twWorks: "Obras desde el inicio", share: "Compartir", shareLine: "Hice {score} puntos en Drone Dash, nivel {level}",
+      copied: "Resultado copiado: pégalo donde quieras", shareFailed: "No se pudo compartir en este dispositivo", slippery: "¡RESBALA!", hzSliders: "Barreras móviles",
+      hzOil: "Manchas de aceite", hzWorks: "Obras en la vía", area5: "Desierto", area6: "Puente costero",
+      area7: "Colinas otoñales", area8: "Puerto industrial", area9: "Auroras boreales", upBolt: "Rayos decorativos",
+      upArches: "Pasos de rueda anchos", upNeonRims: "Llantas de neón", upCarbon: "Capó de carbono", upWing: "Alerón GT",
+      upSparkle: "Estela de estrellas", upStrobes: "Luces estroboscópicas", upHolo: "Pintura holográfica", upJet: "Llamas de reactor",
+      upRainbow: "Estela arcoíris", upLaurel: "Corona de laurel", upLegend: "Oro de leyenda"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -835,7 +865,7 @@ window.I18N = (() => {
       scoreLabel: "Score", newBest: `Nouveau record${NB}!`,
       unlocked: `Débloqué${NB}: {item}`, upStripes: "Bandes de course", upSpoiler: "Aileron", upNumber: "Numéro de course", upFlames: "Flammes d'échappement", upGlow: "Néons", upGold: "Finitions dorées",
       upLivery: "Livrée ukrainienne", upLightbar: "Rampe de phares", upChrome: "Jantes chromées", upTrail: "Traînée lumineuse", upGoldPod: "Lance-roquettes doré", upChains: "Chaînes à neige", upFlag: "Drapeau ukrainien",
-      garageTitle: "Ta voiture", garageHint: "Fais glisser autour de la roue pour choisir une couleur", colourBtn: "Couleur",
+      garageTitle: "Ta voiture", garageHint: "Fais glisser autour de la roue pour choisir une couleur", colourBtn: "Peinture",
       records: "Records", noRuns: `Aucune partie pour l'instant. À toi de jouer${NB}!`, done: "OK", shade: `Nuance${NB}: du noir au blanc`,
       // the journey: areas the road passes through
       area0: "Champs de blé", area1: "Champs de tournesols", area2: "Lumières de la ville", area3: "Forêt de pins", area4: "Montagnes enneigées",
@@ -843,7 +873,18 @@ window.I18N = (() => {
       // Shahed drones and rockets
       shahedBanner: `SHAHED${NB}!`, shahedSub: "Touche FEU ou le drone · 🚀 = {n} pièces", shotDown: `ABATTU${NB}!`, smashed: `PULVÉRISÉE${NB}!`, close: `JUSTE${NB}!`, missed: `RATÉ${NB}!`, autoFireOn: `Tir auto sur les Shaheds${NB}: oui`, autoFireOff: `Tir auto sur les Shaheds${NB}: non`, fireSideLeft: `Bouton FEU${NB}: à gauche`, fireSideRight: `Bouton FEU${NB}: à droite`, settings: "Réglages", soundOn: `Son${NB}: oui`, soundOff: `Son${NB}: non`, dodged: `ÉVITÉ${NB}!`, shotDownStat: "Abattus",
       rocketTitle: `Roquette${NB}: {n} pièces (Espace)`, launch: "FEU", droneAlert: `SHAHED${NB}! Touche FEU`, droneNoRocket: `SHAHED${NB}! Esquive${NB}!`,
-      language: 'Langue', auto: 'Auto'
+      language: 'Langue', auto: 'Auto',
+      // daily challenge, sharing, levels 26-50
+      daily: "Défi du jour", dailyNum: "Défi n° {n}", dailyBest: "Meilleur du jour : {best}", streak: "Série de {n} jours",
+      twCity: "Départ en ville (niveau 10)", twSwarm: "Essaim : deux fois plus de Shaheds", twFog: "Brouillard marin tout du long", twRush: "Pluie de pièces à chaque checkpoint",
+      twDesert: "Départ dans le désert (niveau 25)", twOneLife: "Un seul cœur", twSliders: "Barrières mobiles dès le départ", twNight: "Conduite de nuit",
+      twOil: "Taches d'huile partout", twWorks: "Travaux dès le départ", share: "Partager", shareLine: "J'ai fait {score} points à Drone Dash, niveau {level}",
+      copied: "Résultat copié : colle-le où tu veux", shareFailed: "Partage impossible sur cet appareil", slippery: "ÇA GLISSE !", hzSliders: "Barrières mobiles",
+      hzOil: "Taches d'huile", hzWorks: "Travaux", area5: "Désert", area6: "Pont côtier",
+      area7: "Collines d'automne", area8: "Port industriel", area9: "Aurores boréales", upBolt: "Éclairs décoratifs",
+      upArches: "Ailes élargies", upNeonRims: "Jantes néon", upCarbon: "Capot carbone", upWing: "Aileron GT",
+      upSparkle: "Traînée d'étoiles", upStrobes: "Gyrophares", upHolo: "Peinture holographique", upJet: "Flammes de réacteur",
+      upRainbow: "Traînée arc-en-ciel", upLaurel: "Couronne de laurier", upLegend: "Or légendaire"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -871,7 +912,7 @@ window.I18N = (() => {
       scoreLabel: "Punkte", newBest: "Neuer Rekord!",
       unlocked: "Freigeschaltet: {item}", upStripes: "Rennstreifen", upSpoiler: "Heckspoiler", upNumber: "Startnummer", upFlames: "Auspuffflammen", upGlow: "Neonlicht", upGold: "Goldene Akzente",
       upLivery: "Ukrainisches Design", upLightbar: "Dachlichtleiste", upChrome: "Chromfelgen", upTrail: "Lichtspur", upGoldPod: "Goldener Werfer", upChains: "Schneeketten", upFlag: "Ukrainische Flagge",
-      garageTitle: "Dein Auto", garageHint: "Am Farbkreis ziehen, um eine Farbe zu wählen", colourBtn: "Farbe",
+      garageTitle: "Dein Auto", garageHint: "Am Farbkreis ziehen, um eine Farbe zu wählen", colourBtn: "Lack",
       records: "Rekorde", noRuns: "Noch keine Fahrten. Los geht’s!", done: "Fertig", shade: "Helligkeit: Schwarz bis Weiß",
       // the journey: areas the road passes through
       area0: "Weizenfelder", area1: "Sonnenblumenfelder", area2: "Lichter der Stadt", area3: "Kiefernwald", area4: "Verschneite Berge",
@@ -879,7 +920,18 @@ window.I18N = (() => {
       // Shahed drones and rockets
       shahedBanner: "SHAHED!", shahedSub: "Tippe FEUER oder die Drohne · 🚀 = {n} Münzen", shotDown: "ABGESCHOSSEN!", smashed: "GESPRENGT!", close: "KNAPP!", missed: "DANEBEN!", autoFireOn: "Auto-Feuer auf Shaheds: An", autoFireOff: "Auto-Feuer auf Shaheds: Aus", fireSideLeft: "FEUER-Taste: links", fireSideRight: "FEUER-Taste: rechts", settings: "Einstellungen", soundOn: "Ton: An", soundOff: "Ton: Aus", dodged: "AUSGEWICHEN!", shotDownStat: "Abgeschossen",
       rocketTitle: "Rakete: {n} Münzen (Leertaste)", launch: "FEUER", droneAlert: "SHAHED! Tippe FEUER", droneNoRocket: "SHAHED! Ausweichen!",
-      language: 'Sprache', auto: 'Automatisch'
+      language: 'Sprache', auto: 'Automatisch',
+      // daily challenge, sharing, levels 26-50
+      daily: "Tages-Challenge", dailyNum: "Tages-Challenge #{n}", dailyBest: "Heute bester: {best}", streak: "{n} Tage in Folge",
+      twCity: "Start in der Stadt (Level 10)", twSwarm: "Drohnenschwarm: doppelt so viele Shaheds", twFog: "Seenebel auf der ganzen Strecke", twRush: "Münzregen nach jedem Checkpoint",
+      twDesert: "Start in der Wüste (Level 25)", twOneLife: "Nur ein Herz", twSliders: "Schiebende Sperren von Anfang an", twNight: "Nachtfahrt",
+      twOil: "Ölflecken überall", twWorks: "Baustellen von Anfang an", share: "Teilen", shareLine: "Ich habe {score} Punkte in Drone Dash geschafft, Level {level}",
+      copied: "Ergebnis kopiert: überall einfügen", shareFailed: "Teilen ist auf diesem Gerät nicht möglich", slippery: "RUTSCHIG!", hzSliders: "Schiebende Sperren",
+      hzOil: "Ölflecken", hzWorks: "Baustellen", area5: "Wüste", area6: "Küstenbrücke",
+      area7: "Herbsthügel", area8: "Industriehafen", area9: "Nordlichter", upBolt: "Blitz-Dekor",
+      upArches: "Breite Kotflügel", upNeonRims: "Neon-Felgen", upCarbon: "Carbon-Motorhaube", upWing: "GT-Flügel",
+      upSparkle: "Sternenspur", upStrobes: "Dach-Blitzer", upHolo: "Holo-Lack", upJet: "Düsenflammen",
+      upRainbow: "Regenbogenspur", upLaurel: "Lorbeerkranz", upLegend: "Legendengold"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -907,7 +959,7 @@ window.I18N = (() => {
       scoreLabel: "Pontos", newBest: "Novo recorde!",
       unlocked: "Desbloqueado: {item}", upStripes: "Faixas de corrida", upSpoiler: "Aerofólio", upNumber: "Número de corrida", upFlames: "Chamas no escapamento", upGlow: "Luz neon", upGold: "Detalhes dourados",
       upLivery: "Pintura ucraniana", upLightbar: "Barra de luzes", upChrome: "Rodas cromadas", upTrail: "Rastro de luz", upGoldPod: "Lançador dourado", upChains: "Correntes de neve", upFlag: "Bandeira ucraniana",
-      garageTitle: "Seu carro", garageHint: "Arraste pela roda para escolher uma cor", colourBtn: "Cor",
+      garageTitle: "Seu carro", garageHint: "Arraste pela roda para escolher uma cor", colourBtn: "Pintura",
       records: "Recordes", noRuns: "Nenhuma partida ainda. Bora jogar!", done: "Pronto", shade: "Tom: do preto ao branco",
       // the journey: areas the road passes through
       area0: "Campos de trigo", area1: "Campos de girassóis", area2: "Luzes da cidade", area3: "Floresta de pinheiros", area4: "Montanhas nevadas",
@@ -915,7 +967,18 @@ window.I18N = (() => {
       // Shahed drones and rockets
       shahedBanner: "SHAHED!", shahedSub: "Toque em DISPARAR ou no drone · 🚀 = {n} moedas", shotDown: "ABATIDO!", smashed: "DESTRUÍDA!", close: "POR POUCO!", missed: "ERROU!", autoFireOn: "Disparo automático nos Shaheds: Ligado", autoFireOff: "Disparo automático nos Shaheds: Desligado", fireSideLeft: "Botão DISPARAR: esquerda", fireSideRight: "Botão DISPARAR: direita", settings: "Configurações", soundOn: "Som: Ligado", soundOff: "Som: Desligado", dodged: "DESVIOU!", shotDownStat: "Abatidos",
       rocketTitle: "Foguete: {n} moedas (Espaço)", launch: "DISPARAR", droneAlert: "SHAHED! Toque em DISPARAR", droneNoRocket: "SHAHED! Desvie!",
-      language: 'Idioma', auto: 'Automático'
+      language: 'Idioma', auto: 'Automático',
+      // daily challenge, sharing, levels 26-50
+      daily: "Desafio diário", dailyNum: "Diário n.º {n}", dailyBest: "Melhor de hoje: {best}", streak: "Sequência de {n} dias",
+      twCity: "Comece na cidade (nível 10)", twSwarm: "Enxame: o dobro de Shaheds", twFog: "Neblina marítima o caminho todo", twRush: "Chuva de moedas a cada checkpoint",
+      twDesert: "Comece no deserto (nível 25)", twOneLife: "Só um coração", twSliders: "Barreiras móveis desde o início", twNight: "Corrida noturna",
+      twOil: "Manchas de óleo por todo lado", twWorks: "Obras desde o início", share: "Compartilhar", shareLine: "Fiz {score} pontos no Drone Dash, nível {level}",
+      copied: "Resultado copiado: cole onde quiser", shareFailed: "Não foi possível compartilhar neste aparelho", slippery: "ESCORREGA!", hzSliders: "Barreiras móveis",
+      hzOil: "Manchas de óleo", hzWorks: "Obras na pista", area5: "Deserto", area6: "Ponte costeira",
+      area7: "Colinas de outono", area8: "Porto industrial", area9: "Auroras boreais", upBolt: "Raios decorativos",
+      upArches: "Para-lamas largos", upNeonRims: "Rodas neon", upCarbon: "Capô de carbono", upWing: "Aerofólio GT",
+      upSparkle: "Rastro de estrelas", upStrobes: "Luzes estroboscópicas", upHolo: "Pintura holográfica", upJet: "Chamas a jato",
+      upRainbow: "Rastro arco-íris", upLaurel: "Coroa de louros", upLegend: "Ouro lendário"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -943,7 +1006,7 @@ window.I18N = (() => {
       scoreLabel: "Punti", newBest: "Nuovo record!",
       unlocked: "Sbloccato: {item}", upStripes: "Strisce da corsa", upSpoiler: "Alettone", upNumber: "Numero di gara", upFlames: "Fiamme di scarico", upGlow: "Luci al neon", upGold: "Finiture dorate",
       upLivery: "Livrea ucraina", upLightbar: "Barra luci sul tetto", upChrome: "Cerchi cromati", upTrail: "Scia luminosa", upGoldPod: "Lanciarazzi dorato", upChains: "Catene da neve", upFlag: "Bandiera ucraina",
-      garageTitle: "La tua auto", garageHint: "Trascina lungo la ruota per scegliere un colore", colourBtn: "Colore",
+      garageTitle: "La tua auto", garageHint: "Trascina lungo la ruota per scegliere un colore", colourBtn: "Vernice",
       records: "Record", noRuns: "Ancora nessuna partita. Gioca!", done: "Fatto", shade: "Tonalità: dal nero al bianco",
       // the journey: areas the road passes through
       area0: "Campi di grano", area1: "Campi di girasoli", area2: "Luci della città", area3: "Pineta", area4: "Montagne innevate",
@@ -951,7 +1014,18 @@ window.I18N = (() => {
       // Shahed drones and rockets
       shahedBanner: "SHAHED!", shahedSub: "Tocca FUOCO o il drone · 🚀 = {n} monete", shotDown: "ABBATTUTO!", smashed: "DISTRUTTA!", close: "PER UN PELO!", missed: "MANCATO!", autoFireOn: "Fuoco automatico sugli Shahed: Sì", autoFireOff: "Fuoco automatico sugli Shahed: No", fireSideLeft: "Tasto FUOCO: a sinistra", fireSideRight: "Tasto FUOCO: a destra", settings: "Impostazioni", soundOn: "Audio: Sì", soundOff: "Audio: No", dodged: "SCHIVATO!", shotDownStat: "Abbattuti",
       rocketTitle: "Razzo: {n} monete (Spazio)", launch: "FUOCO", droneAlert: "SHAHED! Tocca FUOCO", droneNoRocket: "SHAHED! Schivalo!",
-      language: 'Lingua', auto: 'Automatica'
+      language: 'Lingua', auto: 'Automatica',
+      // daily challenge, sharing, levels 26-50
+      daily: "Sfida del giorno", dailyNum: "Sfida n. {n}", dailyBest: "Migliore di oggi: {best}", streak: "Serie di {n} giorni",
+      twCity: "Parti in città (livello 10)", twSwarm: "Sciame: il doppio degli Shahed", twFog: "Nebbia marina per tutto il viaggio", twRush: "Pioggia di monete a ogni checkpoint",
+      twDesert: "Parti nel deserto (livello 25)", twOneLife: "Un solo cuore", twSliders: "Barriere mobili fin dall'inizio", twNight: "Guida notturna",
+      twOil: "Macchie d'olio ovunque", twWorks: "Lavori in corso fin dall'inizio", share: "Condividi", shareLine: "Ho fatto {score} punti a Drone Dash, livello {level}",
+      copied: "Risultato copiato: incollalo dove vuoi", shareFailed: "Impossibile condividere su questo dispositivo", slippery: "SCIVOLA!", hzSliders: "Barriere mobili",
+      hzOil: "Macchie d'olio", hzWorks: "Lavori in corso", area5: "Deserto", area6: "Ponte sulla costa",
+      area7: "Colline d'autunno", area8: "Porto industriale", area9: "Aurora boreale", upBolt: "Decalcomanie fulmine",
+      upArches: "Passaruota allargati", upNeonRims: "Cerchi al neon", upCarbon: "Cofano in carbonio", upWing: "Alettone GT",
+      upSparkle: "Scia di stelle", upStrobes: "Lampeggianti sul tetto", upHolo: "Vernice olografica", upJet: "Fiamme a getto",
+      upRainbow: "Scia arcobaleno", upLaurel: "Corona d'alloro", upLegend: "Oro leggendario"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -979,7 +1053,7 @@ window.I18N = (() => {
       scoreLabel: "スコア", newBest: "ベスト更新！",
       unlocked: "解放：{item}", upStripes: "レーシングストライプ", upSpoiler: "スポイラー", upNumber: "ゼッケン", upFlames: "マフラーの炎", upGlow: "ネオンライト", upGold: "ゴールドトリム",
       upLivery: "ウクライナ柄", upLightbar: "ルーフライトバー", upChrome: "クロームホイール", upTrail: "光の軌跡", upGoldPod: "金のランチャー", upChains: "スノーチェーン", upFlag: "ウクライナ国旗",
-      garageTitle: "あなたの車", garageHint: "ホイールをなぞって色を選ぼう", colourBtn: "カラー",
+      garageTitle: "あなたの車", garageHint: "ホイールをなぞって色を選ぼう", colourBtn: "塗装",
       records: "記録", noRuns: "まだ記録がありません。さあ走ろう！", done: "完了", shade: "明るさ：黒から白",
       // the journey: areas the road passes through
       area0: "小麦畑", area1: "ひまわり畑", area2: "街の灯り", area3: "松の森", area4: "雪山",
@@ -987,7 +1061,18 @@ window.I18N = (() => {
       // Shahed drones and rockets
       shahedBanner: "シャヘド！", shahedSub: "「発射」かドローンをタップ · 🚀 = コイン{n}枚", shotDown: "撃墜！", smashed: "粉砕！", close: "ギリギリ！", missed: "ミス！", autoFireOn: "シャヘド自動発射：オン", autoFireOff: "シャヘド自動発射：オフ", fireSideLeft: "発射ボタン：左", fireSideRight: "発射ボタン：右", settings: "設定", soundOn: "サウンド：オン", soundOff: "サウンド：オフ", dodged: "回避！", shotDownStat: "撃墜",
       rocketTitle: "ロケット：コイン{n}枚（スペース）", launch: "発射", droneAlert: "シャヘド！「発射」をタップ", droneNoRocket: "シャヘド！よけろ！",
-      language: '言語', auto: '自動'
+      language: '言語', auto: '自動',
+      // daily challenge, sharing, levels 26-50
+      daily: "デイリーチャレンジ", dailyNum: "デイリー #{n}", dailyBest: "今日のベスト：{best}", streak: "{n}日連続",
+      twCity: "街からスタート（レベル10）", twSwarm: "ドローンの群れ：シャヘドが2倍", twFog: "ずっと海霧", twRush: "チェックポイントごとにコインラッシュ",
+      twDesert: "砂漠からスタート（レベル25）", twOneLife: "ハートは1つだけ", twSliders: "最初から動くバリア", twNight: "ずっと夜のドライブ",
+      twOil: "オイルだらけ", twWorks: "最初から道路工事", share: "シェア", shareLine: "Drone Dashで{score}点、レベル{level}を記録！",
+      copied: "結果をコピーしました：どこにでも貼り付けられます", shareFailed: "この端末ではシェアできません", slippery: "スリップ！", hzSliders: "動くバリア",
+      hzOil: "オイル", hzWorks: "道路工事", area5: "砂漠", area6: "海岸の橋",
+      area7: "秋の丘", area8: "工業港", area9: "オーロラ", upBolt: "稲妻デカール",
+      upArches: "ワイドフェンダー", upNeonRims: "ネオンリム", upCarbon: "カーボンボンネット", upWing: "GTウイング",
+      upSparkle: "星のトレイル", upStrobes: "ルーフストロボ", upHolo: "ホログラム塗装", upJet: "ジェットフレイム",
+      upRainbow: "虹のトレイル", upLaurel: "月桂冠", upLegend: "レジェンドゴールド"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -1015,7 +1100,7 @@ window.I18N = (() => {
       scoreLabel: "得分", newBest: "新纪录！",
       unlocked: "解锁：{item}", upStripes: "赛车条纹", upSpoiler: "尾翼", upNumber: "赛车号码", upFlames: "排气火焰", upGlow: "霓虹底灯", upGold: "金色饰边",
       upLivery: "乌克兰涂装", upLightbar: "车顶灯排", upChrome: "镀铬轮毂", upTrail: "光之尾迹", upGoldPod: "金色发射器", upChains: "防滑链", upFlag: "乌克兰国旗",
-      garageTitle: "你的赛车", garageHint: "沿色环拖动来选择颜色", colourBtn: "颜色",
+      garageTitle: "你的赛车", garageHint: "沿色环拖动来选择颜色", colourBtn: "车漆",
       records: "记录", noRuns: "还没有记录，快去玩吧！", done: "完成", shade: "明暗：从黑到白",
       // the journey: areas the road passes through
       area0: "麦田", area1: "向日葵田", area2: "城市灯火", area3: "松林", area4: "雪山",
@@ -1023,7 +1108,18 @@ window.I18N = (() => {
       // Shahed drones and rockets
       shahedBanner: "沙赫德！", shahedSub: "点「发射」或无人机 · 🚀 = {n} 枚金币", shotDown: "击落！", smashed: "炸毁！", close: "好险！", missed: "没打中！", autoFireOn: "自动射击沙赫德：开", autoFireOff: "自动射击沙赫德：关", fireSideLeft: "发射按钮：左侧", fireSideRight: "发射按钮：右侧", settings: "设置", soundOn: "声音：开", soundOff: "声音：关", dodged: "躲开了！", shotDownStat: "击落",
       rocketTitle: "火箭：{n} 枚金币（空格键）", launch: "发射", droneAlert: "沙赫德！点「发射」", droneNoRocket: "沙赫德！快躲开！",
-      language: '语言', auto: '自动'
+      language: '语言', auto: '自动',
+      // daily challenge, sharing, levels 26-50
+      daily: "每日挑战", dailyNum: "每日挑战 #{n}", dailyBest: "今日最佳：{best}", streak: "连续 {n} 天",
+      twCity: "从城市出发（第 10 关）", twSwarm: "无人机群：沙赫德翻倍", twFog: "一路海雾", twRush: "每个检查点后都有金币雨",
+      twDesert: "从沙漠出发（第 25 关）", twOneLife: "只有一颗心", twSliders: "一开始就有移动路障", twNight: "全程夜间驾驶",
+      twOil: "到处都是油渍", twWorks: "一开始就有道路施工", share: "分享", shareLine: "我在 Drone Dash 中得了 {score} 分，第 {level} 关",
+      copied: "结果已复制：可粘贴到任何地方", shareFailed: "此设备无法分享", slippery: "打滑！", hzSliders: "移动路障",
+      hzOil: "油渍", hzWorks: "道路施工", area5: "沙漠", area6: "海岸大桥",
+      area7: "秋日山丘", area8: "工业港口", area9: "北极光", upBolt: "闪电贴花",
+      upArches: "宽体轮拱", upNeonRims: "霓虹轮圈", upCarbon: "碳纤维引擎盖", upWing: "GT 尾翼",
+      upSparkle: "星光尾迹", upStrobes: "车顶爆闪灯", upHolo: "全息车漆", upJet: "喷射火焰",
+      upRainbow: "彩虹尾迹", upLaurel: "月桂花环", upLegend: "传奇金"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -1051,7 +1147,7 @@ window.I18N = (() => {
       scoreLabel: "점수", newBest: "최고 기록!",
       unlocked: "잠금 해제: {item}", upStripes: "레이싱 스트라이프", upSpoiler: "스포일러", upNumber: "레이싱 넘버", upFlames: "배기 불꽃", upGlow: "네온 라이트", upGold: "골드 트림",
       upLivery: "우크라이나 리버리", upLightbar: "루프 라이트 바", upChrome: "크롬 휠", upTrail: "빛의 궤적", upGoldPod: "황금 발사기", upChains: "스노 체인", upFlag: "우크라이나 국기",
-      garageTitle: "내 자동차", garageHint: "휠을 따라 드래그해서 색을 고르세요", colourBtn: "색상",
+      garageTitle: "내 자동차", garageHint: "휠을 따라 드래그해서 색을 고르세요", colourBtn: "도색",
       records: "기록", noRuns: "아직 기록이 없어요. 플레이해 보세요!", done: "완료", shade: "밝기: 검정에서 흰색까지",
       // the journey: areas the road passes through
       area0: "밀밭", area1: "해바라기 밭", area2: "도시의 불빛", area3: "소나무 숲", area4: "설산",
@@ -1059,7 +1155,18 @@ window.I18N = (() => {
       // Shahed drones and rockets
       shahedBanner: "샤헤드!", shahedSub: "발사 또는 드론을 탭 · 🚀 = 코인 {n}개", shotDown: "격추!", smashed: "파괴!", close: "아슬아슬!", missed: "빗나감!", autoFireOn: "샤헤드 자동 발사: 켜짐", autoFireOff: "샤헤드 자동 발사: 꺼짐", fireSideLeft: "발사 버튼: 왼쪽", fireSideRight: "발사 버튼: 오른쪽", settings: "설정", soundOn: "소리: 켜짐", soundOff: "소리: 꺼짐", dodged: "회피!", shotDownStat: "격추",
       rocketTitle: "로켓: 코인 {n}개 (스페이스)", launch: "발사", droneAlert: "샤헤드! 발사를 탭", droneNoRocket: "샤헤드! 피하세요!",
-      language: '언어', auto: '자동'
+      language: '언어', auto: '자동',
+      // daily challenge, sharing, levels 26-50
+      daily: "일일 챌린지", dailyNum: "일일 챌린지 #{n}", dailyBest: "오늘 최고: {best}", streak: "{n}일 연속",
+      twCity: "도시에서 시작 (레벨 10)", twSwarm: "드론 떼: 샤헤드 두 배", twFog: "끝까지 바다 안개", twRush: "체크포인트마다 코인 러시",
+      twDesert: "사막에서 시작 (레벨 25)", twOneLife: "하트 하나뿐", twSliders: "처음부터 움직이는 바리케이드", twNight: "끝까지 야간 주행",
+      twOil: "곳곳에 기름", twWorks: "처음부터 도로 공사", share: "공유", shareLine: "Drone Dash에서 {score}점, 레벨 {level} 달성!",
+      copied: "결과 복사됨: 어디든 붙여넣으세요", shareFailed: "이 기기에서는 공유할 수 없습니다", slippery: "미끄러워요!", hzSliders: "움직이는 바리케이드",
+      hzOil: "기름 웅덩이", hzWorks: "도로 공사", area5: "사막", area6: "해안 다리",
+      area7: "가을 언덕", area8: "산업 항구", area9: "오로라", upBolt: "번개 데칼",
+      upArches: "와이드 펜더", upNeonRims: "네온 휠", upCarbon: "카본 보닛", upWing: "GT 윙",
+      upSparkle: "별빛 궤적", upStrobes: "루프 스트로브", upHolo: "홀로그램 도색", upJet: "제트 불꽃",
+      upRainbow: "무지개 궤적", upLaurel: "월계관", upLegend: "전설의 골드"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -1087,7 +1194,7 @@ window.I18N = (() => {
       scoreLabel: "स्कोर", newBest: "नया रिकॉर्ड!",
       unlocked: "अनलॉक: {item}", upStripes: "रेसिंग धारियाँ", upSpoiler: "स्पॉइलर", upNumber: "रेसिंग नंबर", upFlames: "एग्ज़ॉस्ट की लपटें", upGlow: "नियॉन रोशनी", upGold: "सुनहरी ट्रिम",
       upLivery: "यूक्रेनी डिज़ाइन", upLightbar: "छत की लाइट बार", upChrome: "क्रोम रिम", upTrail: "रोशनी की लकीर", upGoldPod: "सुनहरा लॉन्चर", upChains: "बर्फ़ की चेन", upFlag: "यूक्रेन का झंडा",
-      garageTitle: "आपकी कार", garageHint: "रंग चुनने के लिए पहिये पर उंगली घुमाएँ", colourBtn: "रंग",
+      garageTitle: "आपकी कार", garageHint: "रंग चुनने के लिए पहिये पर उंगली घुमाएँ", colourBtn: "पेंट",
       records: "रिकॉर्ड", noRuns: "अभी तक कोई रन नहीं। खेलना शुरू करें!", done: "हो गया", shade: "शेड: काले से सफ़ेद तक",
       // the journey: areas the road passes through
       area0: "गेहूँ के खेत", area1: "सूरजमुखी के खेत", area2: "शहर की रोशनी", area3: "चीड़ का जंगल", area4: "बर्फ़ीले पहाड़",
@@ -1095,7 +1202,18 @@ window.I18N = (() => {
       // Shahed drones and rockets
       shahedBanner: "शाहेद!", shahedSub: "फ़ायर या ड्रोन पर टैप करें · 🚀 = {n} सिक्के", shotDown: "मार गिराया!", smashed: "तोड़ दिया!", close: "बाल-बाल!", missed: "चूक गया!", autoFireOn: "शाहेद पर ऑटो-फ़ायर: चालू", autoFireOff: "शाहेद पर ऑटो-फ़ायर: बंद", fireSideLeft: "फ़ायर बटन: बाएँ", fireSideRight: "फ़ायर बटन: दाएँ", settings: "सेटिंग्स", soundOn: "आवाज़: चालू", soundOff: "आवाज़: बंद", dodged: "बच निकले!", shotDownStat: "मार गिराए",
       rocketTitle: "रॉकेट: {n} सिक्के (स्पेस)", launch: "फ़ायर", droneAlert: "शाहेद! फ़ायर दबाएँ", droneNoRocket: "शाहेद! बचो!",
-      language: 'भाषा', auto: 'स्वचालित'
+      language: 'भाषा', auto: 'स्वचालित',
+      // daily challenge, sharing, levels 26-50
+      daily: "रोज़ाना चुनौती", dailyNum: "रोज़ाना #{n}", dailyBest: "आज का सर्वश्रेष्ठ: {best}", streak: "लगातार {n} दिन",
+      twCity: "शहर से शुरू (लेवल 10)", twSwarm: "ड्रोन झुंड: दोगुने शाहेद", twFog: "पूरे रास्ते समुद्री कोहरा", twRush: "हर चेकपॉइंट के बाद सिक्कों की बारिश",
+      twDesert: "रेगिस्तान से शुरू (लेवल 25)", twOneLife: "सिर्फ़ एक दिल", twSliders: "शुरू से खिसकते बैरियर", twNight: "पूरे रास्ते रात की ड्राइव",
+      twOil: "हर जगह तेल के धब्बे", twWorks: "शुरू से सड़क निर्माण", share: "शेयर करें", shareLine: "मैंने Drone Dash में {score} अंक बनाए, लेवल {level}",
+      copied: "नतीजा कॉपी हो गया: कहीं भी पेस्ट करें", shareFailed: "इस डिवाइस पर शेयर नहीं हो सका", slippery: "फिसलन!", hzSliders: "खिसकते बैरियर",
+      hzOil: "तेल के धब्बे", hzWorks: "सड़क निर्माण", area5: "रेगिस्तान", area6: "तटीय पुल",
+      area7: "पतझड़ की पहाड़ियाँ", area8: "औद्योगिक बंदरगाह", area9: "ध्रुवीय ज्योति", upBolt: "बिजली डिकल",
+      upArches: "चौड़े आर्च", upNeonRims: "नियॉन रिम", upCarbon: "कार्बन बोनट", upWing: "GT विंग",
+      upSparkle: "सितारों की लकीर", upStrobes: "छत की स्ट्रोब लाइटें", upHolo: "होलो पेंट", upJet: "जेट लपटें",
+      upRainbow: "इंद्रधनुषी लकीर", upLaurel: "विजय माला", upLegend: "लीजेंड गोल्ड"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -1123,7 +1241,7 @@ window.I18N = (() => {
       scoreLabel: 'Рахунок', newBest: 'Новий рекорд!',
       unlocked: "Відкрито: {item}", upStripes: "Гоночні смуги", upSpoiler: "Спойлер", upNumber: "Гоночний номер", upFlames: "Полум'я з вихлопу", upGlow: "Неонове підсвічування", upGold: "Золоте оздоблення",
       upLivery: "Українська ліврея", upLightbar: "Фари на даху", upChrome: "Хромовані диски", upTrail: "Світловий шлейф", upGoldPod: "Золота ракетниця", upChains: "Ланцюги на колеса", upFlag: "Прапор України",
-      garageTitle: "Твоя машина", garageHint: "Веди по колу, щоб вибрати колір", colourBtn: "Колір",
+      garageTitle: "Твоя машина", garageHint: "Веди по колу, щоб вибрати колір", colourBtn: "Фарба",
       records: "Рекорди", noRuns: "Ще немає заїздів. Час грати!", done: "Готово", shade: "Відтінок: від чорного до білого",
       // the journey: areas the road passes through
       area0: "Пшеничні поля", area1: "Соняшникові поля", area2: "Вогні міста", area3: "Сосновий ліс", area4: "Засніжені Карпати",
@@ -1133,7 +1251,18 @@ window.I18N = (() => {
       shotDown: 'ЗБИТО!', smashed: "РОЗБИТО!", close: "НА ВОЛОСИНІ!", missed: "ПРОМАХ!", autoFireOn: "Автопуск по шахедах: Увімк.", autoFireOff: "Автопуск по шахедах: Вимк.", fireSideLeft: "Кнопка ПУСК: ліворуч", fireSideRight: "Кнопка ПУСК: праворуч", settings: "Налаштування", soundOn: "Звук: Увімк.", soundOff: "Звук: Вимк.", dodged: 'УХИЛИВСЯ!', shotDownStat: 'Збито', rocketTitle: 'Ракета: {n} монети (пробіл)',
       launch: 'ПУСК', droneAlert: 'ШАХЕД! Тисни ПУСК',
       droneNoRocket: 'ШАХЕД! Ухиляйся!',
-      language: 'Мова', auto: 'Авто'
+      language: 'Мова', auto: 'Авто',
+      // daily challenge, sharing, levels 26-50
+      daily: "Щоденний виклик", dailyNum: "Щоденний #{n}", dailyBest: "Найкраще сьогодні: {best}", streak: "{n} дн. поспіль",
+      twCity: "Старт у місті (рівень 10)", twSwarm: "Рій дронів: удвічі більше Шахедів", twFog: "Морський туман усю дорогу", twRush: "Монетний дощ після кожного чекпоінта",
+      twDesert: "Старт у пустелі (рівень 25)", twOneLife: "Лише одне серце", twSliders: "Рухомі бар'єри від старту", twNight: "Нічна їзда",
+      twOil: "Масляні плями всюди", twWorks: "Ремонт дороги від старту", share: "Поділитися", shareLine: "Я набрав {score} очок у Drone Dash, рівень {level}",
+      copied: "Результат скопійовано: встав куди завгодно", shareFailed: "Не вдалося поділитися на цьому пристрої", slippery: "СЛИЗЬКО!", hzSliders: "Рухомі бар'єри",
+      hzOil: "Масляні плями", hzWorks: "Ремонт дороги", area5: "Пустеля", area6: "Прибережний міст",
+      area7: "Осінні пагорби", area8: "Промисловий порт", area9: "Північне сяйво", upBolt: "Блискавки на бортах",
+      upArches: "Широкі арки", upNeonRims: "Неонові диски", upCarbon: "Карбоновий капот", upWing: "GT-антикрило",
+      upSparkle: "Зоряний слід", upStrobes: "Стробоскопи на даху", upHolo: "Голографічна фарба", upJet: "Реактивне полум'я",
+      upRainbow: "Райдужний слід", upLaurel: "Лавровий вінок", upLegend: "Легендарне золото"
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -1161,7 +1290,7 @@ window.I18N = (() => {
       scoreLabel: 'ქულა', newBest: 'ახალი რეკორდი!',
       unlocked: "გაიხსნა: {item}", upStripes: "სარბოლო ზოლები", upSpoiler: "სპოილერი", upNumber: "სარბოლო ნომერი", upFlames: "გამონაბოლქვის ალი", upGlow: "ნეონის განათება", upGold: "ოქროსფერი დეტალები",
       upLivery: "უკრაინული დიზაინი", upLightbar: "სახურავის ფარები", upChrome: "ქრომის დისკები", upTrail: "სინათლის კვალი", upGoldPod: "ოქროს გამშვები", upChains: "თოვლის ჯაჭვები", upFlag: "უკრაინის დროშა",
-      garageTitle: "შენი მანქანა", garageHint: "გადაატარე წრეზე ფერის ასარჩევად", colourBtn: "ფერი",
+      garageTitle: "შენი მანქანა", garageHint: "გადაატარე წრეზე ფერის ასარჩევად", colourBtn: "საღებავი",
       records: "რეკორდები", noRuns: "ჯერ არცერთი თამაში არ გაქვს. წადი ითამაშე!", done: "მზადაა", shade: "ტონი: შავიდან თეთრამდე",
       // the journey: areas the road passes through
       area0: "ხორბლის ველები", area1: "მზესუმზირის ველები", area2: "ქალაქის შუქები", area3: "ფიჭვნარი", area4: "თოვლიანი მთები",
@@ -1169,7 +1298,18 @@ window.I18N = (() => {
       // Shahed drones and rockets
       shahedBanner: "შაჰედი!", shahedSub: "შეეხე გასროლას ან დრონს · 🚀 = {n} მონეტა", shotDown: "ჩამოგდებულია!", smashed: "დაიმსხვრა!", close: "ძლივს!", missed: "აცდა!", autoFireOn: "შაჰედებზე ავტოგასროლა: ჩართ.", autoFireOff: "შაჰედებზე ავტოგასროლა: გამორთ.", fireSideLeft: "გასროლის ღილაკი: მარცხნივ", fireSideRight: "გასროლის ღილაკი: მარჯვნივ", settings: "პარამეტრები", soundOn: "ხმა: ჩართ.", soundOff: "ხმა: გამორთ.", dodged: "აიცილე!", shotDownStat: "ჩამოგდებული",
       rocketTitle: "რაკეტა: {n} მონეტა (Space)", launch: "გასროლა", droneAlert: "შაჰედი! შეეხე გასროლას", droneNoRocket: "შაჰედი! აიცილე!",
-      language: 'ენა', auto: 'ავტო'
+      language: 'ენა', auto: 'ავტო',
+      // daily challenge, sharing, levels 26-50
+      daily: "დღის გამოწვევა", dailyNum: "დღის გამოწვევა #{n}", dailyBest: "დღევანდელი საუკეთესო: {best}", streak: "{n} დღე ზედიზედ",
+      twCity: "დაწყება ქალაქში (დონე 10)", twSwarm: "დრონების გუნდი: ორჯერ მეტი შაჰედი", twFog: "ზღვის ნისლი მთელ გზაზე", twRush: "მონეტების წვიმა ყოველი საკონტროლო წერტილის შემდეგ",
+      twDesert: "დაწყება უდაბნოში (დონე 25)", twOneLife: "მხოლოდ ერთი გული", twSliders: "მოძრავი ბარიერები თავიდანვე", twNight: "ღამის მგზავრობა",
+      twOil: "ზეთის ლაქები ყველგან", twWorks: "საგზაო სამუშაოები თავიდანვე", share: "გაზიარება", shareLine: "Drone Dash-ში {score} ქულა დავაგროვე, დონე {level}",
+      copied: "შედეგი დაკოპირდა: ჩასვი სადაც გინდა", shareFailed: "ამ მოწყობილობაზე გაზიარება ვერ მოხერხდა", slippery: "სრიალებს!", hzSliders: "მოძრავი ბარიერები",
+      hzOil: "ზეთის ლაქები", hzWorks: "საგზაო სამუშაოები", area5: "უდაბნო", area6: "სანაპირო ხიდი",
+      area7: "შემოდგომის ბორცვები", area8: "სამრეწველო პორტი", area9: "ჩრდილოეთის ციალი", upBolt: "ელვის სტიკერები",
+      upArches: "განიერი თაღები", upNeonRims: "ნეონის დისკები", upCarbon: "კარბონის კაპოტი", upWing: "GT ფრთა",
+      upSparkle: "ვარსკვლავების კვალი", upStrobes: "სახურავის სტრობები", upHolo: "ჰოლოგრაფიული საღებავი", upJet: "რეაქტიული ალი",
+      upRainbow: "ცისარტყელას კვალი", upLaurel: "დაფნის გვირგვინი", upLegend: "ლეგენდარული ოქრო"
     }
   };
   const NAMES = {
@@ -1352,50 +1492,91 @@ window.LD_RULES = (() => {
     doubleChance: L => Math.min(0.25 + 0.06 * (L - 1), 0.6),       // rows with 2 barriers
     rowPothole:   L => Math.min(0.2 + 0.08 * (L - 1), 0.6),        // pothole in a row's spare lane
     gapPothole:   L => L < 2 ? 0 : Math.min(0.15 + 0.07 * (L - 2), 0.55), // pothole between two rows
+    // New hazards on the way to level 50 (a daily twist can bring them in earlier):
+    slideChance:  L => L < 26 ? 0 : Math.min(0.2 + 0.03 * (L - 26), 0.45),   // single barrier sliding between the two blocked lanes
+    oilChance:    L => L < 30 ? 0 : Math.min(0.35 + 0.02 * (L - 30), 0.6),   // share of potholes that are oil slicks
+    worksChance:  L => L < 35 ? 0 : Math.min(0.08 + 0.01 * (L - 35), 0.15),  // roadworks closing an edge lane for a few rows
+    WORKS_ROWS: 4, WORKS_RANDOM: 4, WORKS_COOLDOWN: 6,
     // Car size (px): also used by the fairness simulator
     carW: laneW => Math.min(laneW * 0.37, 40), CAR_H: 66   // ~0.6 as wide as long, like a real car from above
   };
 
   // The planner decides each row's clear lane one row ahead, so a pothole in the gap
   // can be kept off the path between this row's clear lane and the next one's.
-  R.newPlanner = rand => ({ next: Math.floor(rand() * R.LANES), dry: 0 });
+  R.newPlanner = rand => ({ next: Math.floor(rand() * R.LANES), dry: 0, works: -1, worksRows: 0, worksWait: 0 });
 
   // Plan one obstacle row. Guarantees:
   //  - `clear` has no barrier and no pothole, and holds the coin (if any);
   //  - a gap pothole is never in any lane from `clear` to `nextClear` inclusive,
-  //    so the straight route row → coin → next row is always free.
-  R.planRow = (p, level, fuel, rand) => {
+  //    so the straight route row → coin → next row is always free;
+  //  - a sliding barrier only moves between the two lanes that aren't clear (and they're side by side);
+  //  - roadworks close an edge lane for a few rows; the clear lane is never in it, and the two
+  //    lanes left open are side by side, so you never have to cross the closed one.
+  // Every row uses the same number of random numbers whatever happens (the daily challenge
+  // relies on that to give everyone the same road).
+  // mods (daily twists): { slide, works, oil } = minimum chances from level 1.
+  R.planRow = (p, level, fuel, rand, mods) => {
+    const m = mods || {};
+    const rn = [];
+    for (let i = 0; i < 12; i++) rn.push(rand());
+    const [rNext, rRev, rDouble, rPot, rCoin, rGap, rGapP, rGapLane, rGapAt, rSlide, rWorks, rWorksLen] = rn;
     const clear = p.next;
-    const nextClear = Math.floor(rand() * R.LANES);
-    p.next = nextClear;
-    const others = [];
-    for (let l = 0; l < R.LANES; l++) if (l !== clear) others.push(l);
-    if (rand() < 0.5) others.reverse();
 
-    const barriers = [others[0]], potholes = [];
-    if (rand() < R.doubleChance(level)) barriers.push(others[1]);
-    else if (rand() < R.rowPothole(level)) potholes.push(others[1]);
+    // roadworks: is this row inside a closure, and does one start with the next row?
+    const works = p.worksRows > 0 ? p.works : -1;
+    if (works >= 0) p.worksRows--;
+    else if (p.worksWait > 0) p.worksWait--;
+    if (p.worksRows === 0 && works >= 0) p.worksWait = R.WORKS_COOLDOWN;
+    let worksNext = p.worksRows > 0 ? p.works : -1;
+    if (works < 0 && worksNext < 0 && p.worksWait === 0 && rWorks < Math.max(R.worksChance(level), m.works || 0)) {
+      const c = clear === 0 ? 2 : clear === 2 ? 0 : (rWorksLen < 0.5 ? 0 : 2);   // close an edge lane we're not routed through
+      p.works = c; p.worksRows = R.WORKS_ROWS + Math.floor(rWorksLen * R.WORKS_RANDOM);
+      worksNext = c;
+    }
+    let nextClear;
+    if (worksNext >= 0) { const open = [0, 1, 2].filter(l => l !== worksNext); nextClear = open[Math.floor(rNext * 2)]; }
+    else nextClear = Math.floor(rNext * R.LANES);
+    p.next = nextClear;
+
+    const others = [];
+    for (let l = 0; l < R.LANES; l++) if (l !== clear && l !== works) others.push(l);
+    if (rRev < 0.5) others.reverse();
+
+    const barriers = [], potholes = [];
+    let slide = false;
+    if (works >= 0) {
+      barriers.push(works);                                         // the closed lane (drawn as roadworks)
+      if (rDouble < R.doubleChance(level)) barriers.push(others[0]);
+      else if (rPot < R.rowPothole(level)) potholes.push(others[0]);
+    } else {
+      barriers.push(others[0]);
+      if (rDouble < R.doubleChance(level)) barriers.push(others[1]);
+      else if (clear !== 1 && rSlide < Math.max(R.slideChance(level), m.slide || 0)) slide = true;
+      else if (rPot < R.rowPothole(level)) potholes.push(others[1]);
+    }
 
     // A little mercy: coins are more common when fuel is low, and there are no long
     // empty stretches: after MAX_DRY_ROWS rows without one, the next row always has a coin.
     // Running low? Then a coin at least every other row.
     const maxDry = fuel < 25 ? 1 : R.MAX_DRY_ROWS;
-    const coin = p.dry >= maxDry || rand() < R.COIN_CHANCE + (fuel < 30 ? 0.25 : 0);
+    const coin = p.dry >= maxDry || rCoin < R.COIN_CHANCE + (fuel < 30 ? 0.25 : 0);
     p.dry = coin ? 0 : p.dry + 1;
 
-    const gap = R.MIN_GAP + rand() * R.GAP_RANDOM;
+    const gap = R.MIN_GAP + rGap * R.GAP_RANDOM;
     let gapLane = -1, gapAt = 0;
-    if (rand() < R.gapPothole(level)) {
+    if (rGapP < R.gapPothole(level)) {
       const lo = Math.min(clear, nextClear), hi = Math.max(clear, nextClear);
       const allowed = [];
-      for (let l = 0; l < R.LANES; l++) if (l < lo || l > hi) allowed.push(l);
+      for (let l = 0; l < R.LANES; l++) if ((l < lo || l > hi) && !(l === works && worksNext === works)) allowed.push(l);
       if (allowed.length) {
-        gapLane = allowed[Math.floor(rand() * allowed.length)];
+        gapLane = allowed[Math.floor(rGapLane * allowed.length)];
         // between the coin and the next row
-        gapAt = R.COIN_AHEAD + 50 + rand() * (gap - R.COIN_AHEAD - 50 - R.POTHOLE_H - 60);
+        gapAt = R.COIN_AHEAD + 50 + rGapAt * (gap - R.COIN_AHEAD - 50 - R.POTHOLE_H - 60);
       }
     }
-    return { clear, nextClear, barriers, potholes, coin, gap, gapLane, gapAt };
+    // the closed lane's cones carry on up to the next row while the closure lasts
+    return { clear, nextClear, barriers, potholes, coin, gap, gapLane, gapAt, slide,
+             works, worksOn: works >= 0 && worksNext === works };
   };
   return R;
 })();
@@ -1406,7 +1587,7 @@ window.LD_RULES = (() => {
   const R = LD_RULES;
   const { LANES, MIN_GAP, BARRIER_H, POTHOLE_H, PX_PER_M, COINS_PER_REFUEL, REFUEL, CHECKPOINT_FUEL,
           POTHOLE_FUEL, POTHOLE_SLOW, levelLength, levelSpeed, fuelDrain } = R;
-  const MAX_LIVES = 3;
+  let MAX_LIVES = 3;        // 1 on the daily 'one heart' twist
   const t = I18N.t, num = I18N.num;
   const FLASH_TIME = 0.5;   // car blinks after a hit (visual only – every hit counts)
   const COUNTDOWN = 3;
@@ -1439,8 +1620,15 @@ window.LD_RULES = (() => {
     { key: 'area2', icon: '🏙️', road: '#11141f', line: '#4b557c', ground: '#2a2f40', look: 'night' },  // city, night
     { key: 'area3', icon: '🌲', road: '#162030', line: '#56698c', ground: '#1d4631', look: 'rain' },   // pine forest, rain
     { key: 'area4', icon: '🏔️', road: '#272e3f', line: '#9aa6c9', ground: '#e4eaf4', look: 'snow' },   // snowy mountains
+    { key: 'area5', icon: '🏜️', road: '#2e2620', line: '#a8916e', ground: '#d8b46a', look: 'heat' },   // desert, heat haze
+    { key: 'area6', icon: '🌊', road: '#1d2733', line: '#8296b0', ground: '#2c6c96', look: 'fog' },    // coast bridge, sea fog
+    { key: 'area7', icon: '🍂', road: '#2a2226', line: '#a0846c', ground: '#86702f', look: 'autumn' }, // autumn hills, falling leaves
+    { key: 'area8', icon: '🏭', road: '#141418', line: '#625c52', ground: '#29282c', look: 'night', lights: true }, // industrial port, night
+    { key: 'area9', icon: '🌌', road: '#1a2033', line: '#8fa3c8', ground: '#cfdaec', look: 'aurora', lights: true }, // northern lights
   ];
-  // Levels 1-4 wheat, 5-9 sunflowers, 10-14 city, 15-19 forest, 20-24 mountains, then the
+  AREAS[2].lights = true;
+  // Levels 1-4 wheat, 5-9 sunflowers, 10-14 city, 15-19 forest, 20-24 mountains, 25-29 desert,
+  // 30-34 coast, 35-39 autumn hills, 40-44 industrial port, 45-49 northern lights; then the
   // journey carries on from the sunflowers again.
   const areaFor = L => { const i = Math.floor(L / 5); return i < AREAS.length ? i : 1 + (i - 1) % (AREAS.length - 1); };
   const SEG = 64;              // scenery is laid out in 64 px slices of road
@@ -1465,6 +1653,59 @@ window.LD_RULES = (() => {
   // Chance an automatic shot misses: 45% with no coin streak, 7% less per streak step, 10% at x5.
   // Shots you fire yourself never miss.
   const autoMiss = () => Math.max(0.1, 0.45 - streak * 0.07);
+  // ---- Daily challenge: the same road for everyone each day, plus one twist ----
+  // The road's random numbers come from a seed made from the date, so everyone drives the
+  // same rows of obstacles, coins and drone waves (spawns are spaced by distance, so a run's
+  // road doesn't depend on how fast you drive it). Daily #1 was 24 Nov 2026.
+  const mulberry32 = a => () => {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let q = Math.imul(a ^ a >>> 15, 1 | a);
+    q = q + Math.imul(q ^ q >>> 7, 61 | q) ^ q;
+    return ((q ^ q >>> 14) >>> 0) / 4294967296;
+  };
+  const TWISTS = [
+    { key: 'twCity', start: 10 },            // start in the city at level 10
+    { key: 'twSwarm', swarm: true },         // Shahed waves come twice as often
+    { key: 'twFog', look: 'fog' },           // sea fog the whole way
+    { key: 'twRush', rushEvery: true },      // a Coin Rush after every checkpoint
+    { key: 'twDesert', start: 25 },          // start in the desert at level 25
+    { key: 'twOneLife', lives: 1 },          // one heart, no second chances
+    { key: 'twSliders', mods: { slide: 0.3 } },   // sliding barriers from the start
+    { key: 'twNight', look: 'night' },       // night drive all the way
+    { key: 'twOil', mods: { oil: 0.6 } },    // most potholes are oil slicks
+    { key: 'twWorks', mods: { works: 0.1 } },     // roadworks from the start
+  ];
+  const NO_TWIST = {};
+  function dayInfo(now = new Date()) {
+    const n = Math.round((Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - Date.UTC(2026, 10, 24)) / 864e5) + 1;
+    const i = ((n * 7) % TWISTS.length + TWISTS.length) % TWISTS.length;   // all 10 in turn, never twice in a row
+    return { n, twist: TWISTS[i], seed: Math.imul(n + 977, 2654435761) >>> 0 };
+  }
+  let mode = 'normal';                 // 'normal' | 'daily'
+  let runDay = null, twist = NO_TWIST;  // the day and twist of the run being played
+  let roadRand = Math.random, droneRand = Math.random;
+  const DAILY_KEY = 'ddDaily';         // { n: day, best, level, tries, streak, last: last day played }
+  function loadDaily() { try { const d = JSON.parse(localStorage.getItem(DAILY_KEY) || '{}'); return d && typeof d === 'object' ? d : {}; } catch { return {}; } }
+  function dailyNow() {
+    const d = loadDaily(), { n } = dayInfo(), today = d.n === n;
+    return { best: today ? d.best || 0 : 0, level: today ? d.level || 0 : 0,
+             streak: d.last === n || d.last === n - 1 ? d.streak || 0 : 0 };
+  }
+  function recordDaily(n, s, lv) {
+    const d = loadDaily();
+    if (d.n !== n) { d.n = n; d.best = 0; d.level = 0; d.tries = 0; }
+    const newBest = s > (d.best || 0);
+    if (newBest) { d.best = s; d.level = lv; }
+    d.tries = (d.tries || 0) + 1;
+    if (d.last !== n) d.streak = d.last === n - 1 ? (d.streak || 0) + 1 : 1;
+    d.last = Math.max(d.last || 0, n);
+    try { localStorage.setItem(DAILY_KEY, JSON.stringify(d)); } catch {}
+    return { newBest, best: d.best, level: d.level, streak: d.streak };
+  }
+  // Oil slicks: steering goes soft for a moment (slower lane changes), no fuel lost.
+  let slip = 0;
+  const SLIP_TIME = 1.2, SLIP_EASE = 12;
+
   let carNo = 7;          // racing number on the bonnet, picked at random for each run   // roof launcher recoil after firing, eases back to 0
   let runTime = 0;        // seconds of actual driving this run (not paused, not counting down)   // the 3-2-1 after Resume: road held still until GO, like everything else
   // Shahed drones dive at your lane; spend coins on rockets to shoot them down.
@@ -1476,10 +1717,10 @@ window.LD_RULES = (() => {
   // shown (red strip down that lane) from the moment it appears, so it can always be read.
   const DRONE = {
     // seconds between waves; past level 14 it keeps shrinking slowly, to 3.2 s at level 24
-    gap:   L => Math.max(L > 14 ? Math.max(3.2, 4.5 - 0.13 * (L - 14)) : 4.5, 13 - 0.9 * (L - 1)) + Math.random() * 4,
+    gap:   L => (Math.max(L > 14 ? Math.max(3.2, 4.5 - 0.13 * (L - 14)) : 4.5, 13 - 0.9 * (L - 1)) + droneRand() * 4) * (twist.swarm ? 0.5 : 1),
     extra: L => Math.min(120 + 15 * (L - 1), 260),                      // px/s faster than the road
     size(L) {                                                            // drones per wave
-      const r = Math.random();
+      const r = droneRand();
       if (L >= 14 && r < 0.35) return 3;       // more 3-drone salvos past the plateau
       if (L >= 9 && r < 0.2) return 3;
       if (L >= 6 && r < 0.45) return 2;
@@ -1487,7 +1728,7 @@ window.LD_RULES = (() => {
       return 1;
     },
     path(L) {                                  // straight dive, diagonal from aside, late swerve, zig-zag
-      const r = Math.random();
+      const r = droneRand();
       if (L >= 12 && r < 0.22) return 'zigzag';
       if (L >= 5 && r < 0.3) return 'swerve';
       if (L >= 2 && r < 0.6) return 'diag';
@@ -1718,12 +1959,18 @@ window.LD_RULES = (() => {
   function reset() {
     player = { lane: 1, x: laneX(1), y: H - 100, w: R.carW(laneW), h: R.CAR_H };
     objects = []; particles = []; floats = [];
-    lives = MAX_LIVES; level = 1; speed = levelSpeed(1);
-    spawnDist = 200; flash = 0; roadOffset = 0; shake = 0; planner = R.newPlanner(Math.random);
+    runDay = mode === 'daily' ? dayInfo() : null;
+    twist = runDay ? runDay.twist : NO_TWIST;
+    roadRand = runDay ? mulberry32(runDay.seed) : Math.random;
+    droneRand = runDay ? mulberry32(runDay.seed ^ 0x5bd1e995) : Math.random;
+    MAX_LIVES = twist.lives || 3;
+    lives = MAX_LIVES; level = twist.start || 1; speed = levelSpeed(level); slip = 0;
+    spawnDist = 200; flash = 0; roadOffset = 0; shake = 0; planner = R.newPlanner(roadRand);
     levelDist = 0; distance = 0; bonus = 0; fuel = 100; coins = 0; coinMeter = 0; streak = 0; lowFuelT = 0; finishSpawned = false;
-    drones = []; rockets = []; booms = []; wallet = 0; droneT = 7; droneSeen = false; kills = 0; killCombo = 0; droneQueue = []; resuming = false; runTime = 0; carNo = 1 + Math.floor(Math.random() * 99);
+    drones = []; rockets = []; booms = []; wallet = 0; droneT = twist.swarm ? 4 : 7; droneSeen = false; kills = 0; killCombo = 0; droneQueue = []; resuming = false; runTime = 0; carNo = 1 + Math.floor(Math.random() * 99);
     lastLeftLane = -1; lastLaneChangeT = -9; lastCloseT = -9; closeChain = 0; speedLines = []; closeBurst = 0; heartProgress = 0; heartsEarned = 0;
-    areaBounds = [{ k: -Infinity, a: 0 }]; lookArea = 0; lookFade = 1; rushRows = 0;
+    areaBounds = [{ k: -Infinity, a: areaFor(level) }]; lookArea = areaFor(level); lookFade = 1; rushRows = 0;
+    worksPrev = -1;
     el.banner.innerHTML = '';
     updateHud();
   }
@@ -1805,14 +2052,14 @@ window.LD_RULES = (() => {
   function barrierAhead() {
     let best = null;
     for (const o of objects) {
-      if (o.type !== 'enemy' || o.dead || o.lane !== player.lane) continue;
+      if (o.type !== 'enemy' || o.dead || o.works || o.lane !== player.lane) continue;
       if (o.y + o.h > player.y - 10 || o.y < -o.h || rockets.some(r => r.target === o)) continue;
       if (!best || o.y > best.y) best = o;
     }
     return best;
   }
   // Where a rocket should aim: a drone's position, or the middle of a barrier.
-  const aimAt = tg => tg.type === 'enemy' ? { x: laneX(tg.lane), y: tg.y + tg.h / 2 } : { x: tg.x, y: tg.y };
+  const aimAt = tg => tg.type === 'enemy' ? { x: objX(tg), y: tg.y + tg.h / 2 } : { x: tg.x, y: tg.y };
   // fire(): FIRE button / Space / tapping a drone. fire(drone, true): auto-fire at that drone.
   function fire(at, auto = false) {
     if (state !== 'play' || !DRONES() || wallet < ROCKET_COST) return false;
@@ -1857,7 +2104,7 @@ window.LD_RULES = (() => {
     if (droneT <= 0 && !drones.length && !droneQueue.length) {
       droneT = DRONE.gap(level);
       // A wave: the first drone targets your lane, the others different lanes, launched a moment apart.
-      const lanes = [player.lane, ...[0, 1, 2].filter(l => l !== player.lane).sort(() => Math.random() - 0.5)];
+      const lanes = [player.lane, ...(droneRand() < 0.5 ? [0, 1, 2] : [2, 1, 0]).filter(l => l !== player.lane)];
       const n = DRONE.size(level);
       for (let i = 0; i < n; i++) droneQueue.push({ at: i * DRONE.stagger, lane: lanes[i], path: DRONE.path(level), hunter: i === 0 });
       if (!droneSeen) {
@@ -1999,13 +2246,29 @@ window.LD_RULES = (() => {
   }
 
   // Spawn one planned row just above the screen; returns the distance to the next row.
+  let worksPrev = -1;     // the lane the previous row closed for roadworks (-1: none)
   function spawn() {
-    const r = R.planRow(planner, level, fuel, Math.random);
+    const r = R.planRow(planner, level, fuel, roadRand, twist.mods);
+    const skinRoll = roadRand(), phase = roadRand(), oilA = roadRand(), oilB = roadRand();   // always 4, for the daily road
     const h = BARRIER_H;
     const rowArea = areaAtK(kAtY(-h)), skins = OBSTACLE_SKINS[rowArea];
-    const skin = skins[Math.floor(Math.random() * skins.length)];   // one look per row, so a row reads as one thing
-    for (const l of r.barriers) objects.push({ type: 'enemy', lane: l, y: -h, w: laneW * 0.8, h, skin, seed: Math.random() * 100 });
-    for (const l of r.potholes) objects.push(pothole(l, -h + (h - POTHOLE_H) / 2));
+    const skin = skins[Math.floor(skinRoll * skins.length)];   // one look per row, so a row reads as one thing
+    const oil = Math.max(R.oilChance(level), (twist.mods && twist.mods.oil) || 0);
+    for (const l of r.barriers) {
+      if (l === r.works) {
+        // Roadworks: a line of cones closing the lane, carried on up to the next row while it lasts.
+        const len = r.worksOn ? r.gap : h;
+        objects.push({ type: 'enemy', works: true, first: worksPrev !== l, lane: l, y: -len, w: laneW * 0.8, h: len, skin: 'works', seed: Math.random() * 100 });
+        continue;
+      }
+      const o = { type: 'enemy', lane: l, y: -h, w: laneW * 0.8, h, skin, seed: Math.random() * 100 };
+      if (r.slide) {           // slides to and fro between the two lanes that aren't clear
+        o.skin = 'slider'; o.from = l; o.to = [0, 1, 2].find(k => k !== l && k !== r.clear); o.ph = phase * Math.PI * 2; o.fx = l;
+      }
+      objects.push(o);
+    }
+    worksPrev = r.worksOn ? r.works : -1;
+    for (const l of r.potholes) objects.push(pothole(l, -h + (h - POTHOLE_H) / 2, oilA < oil));
     const rush = rushRows > 0;
     if (rush) { rushRows--; r.coin = true; }                  // Coin Rush: a coin on every row
     if (r.coin) objects.push({ type: 'coin', lane: r.clear, y: -h - R.COIN_AHEAD, w: 28, h: 28, rush });
@@ -2014,13 +2277,15 @@ window.LD_RULES = (() => {
       heartsEarned--;
       objects.push({ type: 'life', lane: r.clear, y: -h - R.COIN_AHEAD - 80, w: 40, h: 38 });
     }
-    if (r.gapLane >= 0) objects.push(pothole(r.gapLane, -h - r.gapAt));
+    if (r.gapLane >= 0) objects.push(pothole(r.gapLane, -h - r.gapAt, oilB < oil));
     return r.gap;
   }
-  function pothole(lane, y) {
+  function pothole(lane, y, oil) {
     return { type: 'hole', lane, y, w: Math.min(laneW * 0.5, 64), h: POTHOLE_H, seed: Math.random() * 100,
-             skin: HOLE_SKINS[areaAtK(kAtY(y))] };
+             skin: oil ? 'oil' : HOLE_SKINS[areaAtK(kAtY(y))] };
   }
+  const SLIDE_PERIOD = 1.7;   // seconds for a sliding barrier to go across and back
+  const objX = o => laneX(o.fx !== undefined ? o.fx : o.lane);
 
   function burst(x, y, color, n) {
     for (let i = 0; i < n; i++) {
@@ -2047,13 +2312,17 @@ window.LD_RULES = (() => {
 
   // ---- Car upgrades: every few levels the car gets something new for the rest of the run ----
   const UPGRADES = [
-    // Three quick ones to start, then one every 2 levels right through to level 25,
+    // Three quick ones to start, then one every 2 levels right through to level 50,
     // so there's always a next reward within reach.
     { level: 2, key: 'upStripes' },   { level: 3, key: 'upSpoiler' },  { level: 4, key: 'upNumber' },
     { level: 6, key: 'upFlames' },    { level: 8, key: 'upGlow' },     { level: 10, key: 'upLivery' },
     { level: 12, key: 'upLightbar' }, { level: 14, key: 'upChrome' },  { level: 16, key: 'upGold' },
     { level: 18, key: 'upTrail' },    { level: 20, key: 'upChains' },  { level: 23, key: 'upGoldPod' },
-    { level: 25, key: 'upFlag' }
+    { level: 25, key: 'upFlag' },
+    { level: 27, key: 'upBolt' },     { level: 29, key: 'upArches' },  { level: 31, key: 'upNeonRims' },
+    { level: 33, key: 'upCarbon' },   { level: 35, key: 'upWing' },    { level: 37, key: 'upSparkle' },
+    { level: 39, key: 'upStrobes' },  { level: 41, key: 'upHolo' },    { level: 43, key: 'upJet' },
+    { level: 45, key: 'upRainbow' },  { level: 47, key: 'upLaurel' },  { level: 50, key: 'upLegend' }
   ];
   const UP_AT = Object.fromEntries(UPGRADES.map(u => [u.key, u.level]));
 
@@ -2139,6 +2408,13 @@ window.LD_RULES = (() => {
       el.lives.classList.remove('gain'); void el.lives.offsetWidth; el.lives.classList.add('gain');
       return;
     }
+    if (o.skin === 'oil') {        // oil slick: no fuel lost, but the steering goes soft for a moment
+      o.used = true; slip = SLIP_TIME; shake = 0.15; streak = 0;
+      speed *= 0.92;
+      sfx.pothole();
+      floatText(player.x, player.y - 24, t('slippery'), '#c9b6ff');
+      return;
+    }
     if (o.type === 'hole') {
       // Not a crash: a jolt that costs fuel, speed and your coin streak.
       o.used = true;
@@ -2151,7 +2427,8 @@ window.LD_RULES = (() => {
       if (navigator.vibrate) navigator.vibrate(50);
       return;
     }
-    o.dead = true;
+    if (o.works) o.used = true;     // drive through the cones: one crash, the rest of the line stays put
+    else o.dead = true;
     lives--; flash = FLASH_TIME; shake = 0.35; streak = 0; closeChain = 0;
     sfx.crash();
     for (const c of DEBRIS[o.skin] || DEBRIS.barrier) burst(player.x, player.y + player.h / 2, c, 12);
@@ -2168,6 +2445,8 @@ window.LD_RULES = (() => {
     sfx.whoosh();
     closeBurst = 0.4;
   }
+  // New hazards are announced on the checkpoint banner of the level they start at.
+  const HAZARD_AT = { 26: 'hzSliders', 30: 'hzOil', 35: 'hzWorks' };
   function levelUp() {
     levelDist -= levelLength(level) * PX_PER_M;
     level++;
@@ -2180,11 +2459,12 @@ window.LD_RULES = (() => {
     const up = UPGRADES.find(u => u.level === level);
     const newArea = areaFor(level) !== areaFor(level - 1);
     if (newArea) { lookArea = areaFor(level); lookFade = 0; }      // its light and weather fade in now
-    if (level % 5 === 0) rushRows = RUSH_ROWS;
+    if (level % 5 === 0 || twist.rushEvery) rushRows = RUSH_ROWS;
     const extras = [
       newArea ? AREAS[areaFor(level)].icon + ' ' + t(AREAS[areaFor(level)].key) : '',
       up ? '🎁 ' + t('unlocked', { item: t(up.key) }) : '',
-      level % 5 === 0 ? '🪙 ×2' : '',
+      level % 5 === 0 || twist.rushEvery ? '🪙 ×2' : '',
+      HAZARD_AT[level] ? '⚠️ ' + t(HAZARD_AT[level]) : '',
     ].filter(Boolean).join(' · ');
     showBanner(t('levelBanner', { n: level }), t('levelSub', { pts, fuel: CHECKPOINT_FUEL }), false, extras);
     for (let i = 0; i < LANES; i++) burst(laneX(i), player.y - 30, [getVar('--accent'), getVar('--coin'), '#f4f4f8'][i], 14);
@@ -2194,18 +2474,29 @@ window.LD_RULES = (() => {
     state = 'over';
     sfx.gameOver();
     const s = score();
-    const prevBest = readNum('laneDodgerBest');
-    const best = Math.max(prevBest, s);
-    const bestLevel = Math.max(readNum('laneDodgerBestLevel'), level);
-    writeNum('laneDodgerBest', best);
-    writeNum('laneDodgerBestLevel', bestLevel);
-    if (s > 0) {
+    lastRun = { s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, k: kills, tm: Math.round(runTime), a: areaFor(level),
+                h: carHue, v: carShade, no: carNo, day: runDay ? runDay.n : 0, tw: runDay ? twist.key : '' };
+    $('shareNote').hidden = true;
+    $('overDaily').hidden = !runDay;
+    { const run = lastRun; shareCard(run).toBlob(b => { run.blob = b; }, 'image/png'); }   // ready before Share is tapped
+    if (runDay) {
+      // Daily runs have their own best and streak; they don't touch the normal records.
+      const d = recordDaily(runDay.n, s, level);
+      $('overDaily').textContent = '📅 ' + t('dailyNum', { n: runDay.n }) + ' · ' + t(twist.key);
+      $('newBest').hidden = !(d.newBest && s > 0);
+      $('bestLine').textContent = t('dailyBest', { best: d.best }) + (d.streak ? ' · 🔥 ' + t('streak', { n: d.streak }) : '');
+    }
+    const prevBest = runDay ? Infinity : readNum('laneDodgerBest');
+    const best = runDay ? 0 : Math.max(prevBest, s);
+    const bestLevel = runDay ? 0 : Math.max(readNum('laneDodgerBestLevel'), level);
+    if (!runDay) { writeNum('laneDodgerBest', best); writeNum('laneDodgerBestLevel', bestLevel); }
+    if (s > 0 && !runDay) {
       const run = { s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, h: carHue, v: carShade, k: kills, a: areaFor(level), tm: Math.round(runTime), no: carNo, t: Date.now() };
       if (saveRun(run)) latestRunT = run.t;
     }
     el.over.classList.toggle('fuel', reason === 'fuel');
     $('overTitle').textContent = t(reason === 'fuel' ? 'outOfFuel' : 'crashed');
-    $('newBest').hidden = !(s > prevBest && s > 0);
+    if (!runDay) $('newBest').hidden = !(s > prevBest && s > 0);
     countUp($('finalScore'), s);
     $('statLevel').textContent = num(level);
     $('statDist').textContent = t('meters', { n: Math.floor(distance / PX_PER_M) });
@@ -2215,9 +2506,84 @@ window.LD_RULES = (() => {
     $('statKills').textContent = num(kills);
     const A = AREAS[areaFor(level)];
     $('overTrip').textContent = A.icon + ' ' + t(A.key) + ' · ⏱ ' + fmtTime(runTime);
-    $('bestLine').textContent = t('bestLine', { best, level: bestLevel });
+    if (!runDay) $('bestLine').textContent = t('bestLine', { best, level: bestLevel });
     el.over.classList.remove('hidden');
     fitStats();
+  }
+  // ---- Share: a picture of the result plus a line of text, through the phone's share sheet ----
+  let lastRun = null;
+  const GAME_URL = 'https://set0panda.github.io/DroneDash/';
+  function shareText(r) {
+    const A = AREAS[r.a];
+    const head = r.day ? '📅 ' + t('dailyNum', { n: r.day }) + ' (' + t(r.tw) + ') · ' : '';
+    return head + t('shareLine', { score: r.s, level: r.l }) + ' · ' + A.icon + ' ' + t(A.key) + (r.k ? ' · 🎯 ' + num(r.k) : '');
+  }
+  function shareCard(r) {
+    const cv = document.createElement('canvas'), CW = 1080, CH = 1350;
+    cv.width = CW; cv.height = CH;
+    const c = cv.getContext('2d'), A = AREAS[r.a], saved = ctx;
+    // the road of the area you reached, with its roadside
+    c.fillStyle = A.road; c.fillRect(0, 0, CW, CH);
+    c.fillStyle = A.ground; c.fillRect(0, 0, 130, CH); c.fillRect(CW - 130, 0, 130, CH);
+    c.fillStyle = 'rgba(0,0,0,.25)'; c.fillRect(127, 0, 6, CH); c.fillRect(CW - 133, 0, 6, CH);
+    c.fillStyle = A.line;
+    for (const lx of [130 + (CW - 260) / 3, 130 + (CW - 260) * 2 / 3]) for (let y = -40; y < CH; y += 120) c.fillRect(lx - 5, y, 10, 64);
+    const shade = c.createLinearGradient(0, 0, 0, CH);
+    shade.addColorStop(0, 'rgba(8,12,30,.82)'); shade.addColorStop(0.45, 'rgba(8,12,30,.35)'); shade.addColorStop(1, 'rgba(8,12,30,.85)');
+    c.fillStyle = shade; c.fillRect(0, 0, CW, CH);
+    c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+    const font = (wgt, px) => wgt + ' ' + px + 'px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+    // title
+    c.font = font(900, 92); c.fillStyle = '#ffffff';
+    const w1 = c.measureText('DRONE').width, w2 = c.measureText('DASH').width, gap = 26, x0 = CW / 2 - (w1 + gap + w2) / 2;
+    c.textAlign = 'left'; c.fillText('DRONE', x0, 150); c.fillStyle = '#FFD500'; c.fillText('DASH', x0 + w1 + gap, 150); c.textAlign = 'center';
+    c.fillStyle = '#0057B7'; c.fillRect(CW / 2 - 140, 178, 140, 10); c.fillStyle = '#FFD500'; c.fillRect(CW / 2, 178, 140, 10);
+    if (r.day) {                              // daily badge
+      c.font = font(800, 42);
+      const txt = '📅 ' + t('dailyNum', { n: r.day }) + ' · ' + t(r.tw), tw = Math.min(CW - 120, c.measureText(txt).width + 60);
+      c.fillStyle = 'rgba(255,213,0,.16)'; c.beginPath(); c.roundRect ? c.roundRect(CW / 2 - tw / 2, 222, tw, 70, 35) : c.rect(CW / 2 - tw / 2, 222, tw, 70); c.fill();
+      c.fillStyle = '#FFD500'; c.fillText(txt, CW / 2, 272, CW - 160);
+    }
+    // the car, big, with the upgrades it had earned
+    ctx = c;
+    try {
+      c.save(); c.translate(CW / 2, 330); c.scale(4.4, 4.4);
+      drawCar(0, 0, 39, R.CAR_H, carPaint(r.h, r.v), r.l, { loaded: 3, kick: 0 }, r.no);
+      c.restore();
+    } finally { ctx = saved; }
+    // score and where you got to
+    c.fillStyle = '#ffd84a'; c.font = font(900, 150); c.fillText(num(r.s), CW / 2, 880, CW - 120);
+    c.fillStyle = '#cfd6ea'; c.font = font(700, 40); c.fillText(t('scoreLabel').toUpperCase(), CW / 2, 930);
+    c.fillStyle = '#ffffff'; c.font = font(800, 58); c.fillText(t('lv', { n: r.l }) + ' · ' + A.icon + ' ' + t(A.key), CW / 2, 1030, CW - 120);
+    c.font = font(700, 44); c.fillStyle = '#e6eaf5';
+    c.fillText(['🛣️ ' + t('meters', { n: r.d }), '🪙 ' + num(r.c), r.k ? '🎯 ' + num(r.k) : '', '⏱ ' + fmtTime(r.tm)].filter(Boolean).join('   '), CW / 2, 1110, CW - 100);
+    c.fillStyle = '#9fb3d9'; c.font = font(700, 36); c.fillText(GAME_URL.replace(/^https:\/\//, ''), CW / 2, 1270);
+    return cv;
+  }
+  async function shareRun() {
+    const r = lastRun; if (!r) return;
+    const text = shareText(r), note = $('shareNote');
+    const say = k => { note.textContent = t(k); note.hidden = false; };
+    try {
+      const blob = r.blob || await new Promise(res => shareCard(r).toBlob(res, 'image/png'));
+      const file = blob && new File([blob], 'drone-dash.png', { type: 'image/png' });
+      if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], text: text + '\n' + GAME_URL });
+        return;
+      }
+      if (navigator.share) { await navigator.share({ text, url: GAME_URL }); return; }
+      // Desktop without a share sheet: copy the text, and save the picture.
+      try { await navigator.clipboard.writeText(text + '\n' + GAME_URL); say('copied'); } catch { say('shareFailed'); }
+      if (blob) {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob); a.download = 'drone-dash.png';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      }
+    } catch (e) {
+      if (e && e.name === 'AbortError') return;   // closed the share sheet
+      try { await navigator.clipboard.writeText(text + '\n' + GAME_URL); say('copied'); } catch { say('shareFailed'); }
+    }
   }
   // Long numbers ("123.456 m") and long labels ("ABGESCHOSSEN") shrink to fit their
   // tile instead of spilling out or being cut off.
@@ -2260,8 +2626,12 @@ window.LD_RULES = (() => {
   }
 
   // Closing the popup: fresh run, then 3-2-1-GO.
+  function dailyBanner() {
+    if (runDay) showBanner('📅 ' + t('dailyNum', { n: runDay.n }), t(twist.key));
+  }
   function beginCountdown() {
     reset();
+    dailyBanner();
     show(null); // hide every overlay (home, popup, game over)
     state = 'countdown';
     countT = COUNTDOWN;
@@ -2348,6 +2718,7 @@ window.LD_RULES = (() => {
   }
   function openRecords() { state = 'records'; renderRecords(); show('records'); }
   function goHome() {
+    mode = 'normal';
     reset();
     state = 'home';
     el.count.innerHTML = '';
@@ -2355,6 +2726,8 @@ window.LD_RULES = (() => {
     show('home');
   }
   function paintHomeBest() {
+    const { n, twist: tw } = dayInfo(), d = dailyNow();
+    $('dailySub').textContent = ['#' + n + ' · ' + t(tw.key), d.best ? '🏆 ' + num(d.best) : '', d.streak ? '🔥 ' + num(d.streak) : ''].filter(Boolean).join(' · ');
     const best = readNum('laneDodgerBest');
     const hb = $('homeBest');
     hb.hidden = !best;
@@ -2392,6 +2765,7 @@ window.LD_RULES = (() => {
   // Retry: no countdown, just a quick GO! and straight back in.
   function restart() {
     reset();
+    dailyBanner();
     show(null); // hides game over or the pause menu
     state = 'play';
     showCount('GO!');
@@ -2425,7 +2799,8 @@ window.LD_RULES = (() => {
   }
 
   function slidePlayer(dt) {
-    player.x += (laneX(player.lane) - player.x) * ease(28, dt);
+    slip = Math.max(0, slip - dt);
+    player.x += (laneX(player.lane) - player.x) * ease(slip > 0 ? SLIP_EASE : 28, dt);
     player.y = H - 100;
   }
 
@@ -2517,8 +2892,13 @@ window.LD_RULES = (() => {
     const px = player.x - player.w / 2, py = player.y;
     for (const o of objects) {
       o.y += step;
+      if (o.skin === 'slider') {
+        o.ph += dt * Math.PI * 2 / SLIDE_PERIOD;
+        o.fx = o.from + (o.to - o.from) * (0.5 - 0.5 * Math.cos(o.ph));
+        o.lane = Math.round(o.fx);
+      }
       if (o.type === 'finish' || o.type === 'scorch' || o.dead || o.used) continue;   // scorch marks are harmless
-      const ox = laneX(o.lane) - o.w / 2;
+      const ox = objX(o) - o.w / 2;
       const ins = o.type === 'hole' ? 10 : 6; // potholes are round: a slightly kinder hitbox
       if (ox < px + player.w - ins && ox + o.w > px + ins && o.y < py + player.h - ins && o.y + o.h > py + ins) {
         hit(o);
@@ -2564,10 +2944,19 @@ window.LD_RULES = (() => {
     const l = x - w / 2, r = x + w / 2;
     const has = key => lv >= UP_AT[key];
     const gold = has('upGold');
-    if (has('upTrail')) {                     // light trail streaming out behind the car
+    const tNow = performance.now() / 1000;
+    if (has('upLegend')) {                    // legend: a slow golden aura around the whole car
+      ctx.save(); ctx.globalAlpha = 0.35 + 0.15 * Math.sin(tNow * 3);
+      ctx.shadowColor = '#ffd84a'; ctx.shadowBlur = 30; ctx.fillStyle = '#ffd84a';
+      roundRect(l - 7, y - 6, w + 14, h + 12, 18); ctx.fill(); ctx.restore();
+    }
+    if (has('upTrail')) {                     // light trail streaming out behind the car (rainbow from L45)
       const g = ctx.createLinearGradient(0, y + h * 0.6, 0, y + h + 80);
-      g.addColorStop(0, paint.glow); g.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.save(); ctx.globalAlpha = 0.45; ctx.fillStyle = g;
+      if (has('upRainbow')) {
+        const hue = (tNow * 120) % 360;
+        g.addColorStop(0, `hsla(${hue},90%,60%,.95)`); g.addColorStop(0.35, `hsla(${hue + 120},90%,60%,.6)`); g.addColorStop(0.7, `hsla(${hue + 240},90%,60%,.3)`); g.addColorStop(1, 'rgba(0,0,0,0)');
+      } else { g.addColorStop(0, paint.glow); g.addColorStop(1, 'rgba(0,0,0,0)'); }
+      ctx.save(); ctx.globalAlpha = has('upRainbow') ? 0.6 : 0.45; ctx.fillStyle = g;
       ctx.beginPath(); ctx.moveTo(l + 4, y + h * 0.6); ctx.lineTo(r - 4, y + h * 0.6);
       ctx.lineTo(x + w * 0.18, y + h + 80); ctx.lineTo(x - w * 0.18, y + h + 80); ctx.closePath(); ctx.fill();
       ctx.restore();
@@ -2579,17 +2968,27 @@ window.LD_RULES = (() => {
       roundRect(l - 5, y + 6, w + 10, h - 10, 14); ctx.fill();
       ctx.restore();
     }
-    if (has('upFlames')) {                    // flickering exhaust flames
+    if (has('upSparkle')) {                   // twinkling stars drifting out behind
+      for (let i = 0; i < 7; i++) {
+        const k = (tNow * 0.9 + i / 7) % 1, sx = x + Math.sin(i * 2.4 + tNow) * w * 0.45 * k, sy = y + h + 6 + k * 90;
+        const r2 = 2.6 * (1 - k);
+        ctx.fillStyle = `rgba(255,250,215,${(1 - k).toFixed(2)})`;
+        poly([[sx, sy - r2 * 2], [sx + r2 * 0.6, sy], [sx, sy + r2 * 2], [sx - r2 * 0.6, sy]]);
+        poly([[sx - r2 * 2, sy], [sx, sy + r2 * 0.6], [sx + r2 * 2, sy], [sx, sy - r2 * 0.6]]);
+      }
+    }
+    if (has('upFlames')) {                    // flickering exhaust flames (blue jet flames from L43)
+      const jet = has('upJet');
       for (const fx of [x - w * 0.22, x + w * 0.22]) {
-        const len = 10 + Math.random() * 14;
-        ctx.fillStyle = '#f6ad55';
+        const len = (jet ? 22 : 10) + Math.random() * (jet ? 18 : 14);
+        ctx.fillStyle = jet ? '#4f9dff' : '#f6ad55';
         poly([[fx - 4, y + h - 2], [fx + 4, y + h - 2], [fx, y + h + len]]);
-        ctx.fillStyle = '#fefcbf';
+        ctx.fillStyle = jet ? '#e6f4ff' : '#fefcbf';
         poly([[fx - 2, y + h - 2], [fx + 2, y + h - 2], [fx, y + h + len * 0.55]]);
       }
     }
     // Tyres: stick out past the body, with tread lines and a rim (silver, or gold with the gold trim).
-    const chrome = has('upChrome'), chains = has('upChains');
+    const chrome = has('upChrome'), chains = has('upChains'), neonRims = has('upNeonRims');
     const ww = chrome ? 9 : 8, wh = h * 0.21, rim = gold ? '#f6c945' : chrome ? '#eef2fa' : '#c3cad8';
     for (const wy of [y + h * 0.12, y + h * 0.66]) {
       for (const tx of [l - 4.5, r - ww + 4.5]) {
@@ -2597,6 +2996,7 @@ window.LD_RULES = (() => {
         ctx.fillStyle = 'rgba(255,255,255,.14)';                                         // tread
         for (let ty = wy + 2; ty < wy + wh - 1; ty += 3) ctx.fillRect(tx + 1, ty, ww - 2, 1);
         const outer = tx < x ? tx + 0.8 : tx + ww - 3.3;                                  // rim on the outside face
+        if (neonRims) { ctx.save(); ctx.shadowColor = paint.glow; ctx.shadowBlur = 8; ctx.fillStyle = paint.glow; roundRect(outer - 0.5, wy + wh * 0.12, 3.5, wh * 0.76, 1.5); ctx.fill(); ctx.restore(); }
         ctx.fillStyle = rim; roundRect(outer, wy + wh * 0.18, 2.5, wh * 0.64, 1.2); ctx.fill();
         if (chrome) { ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.fillRect(outer + 0.5, wy + wh * 0.22, 1, wh * 0.2); }   // shine
         ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(outer + 0.6, wy + wh * 0.45, 1.3, wh * 0.1);   // hub
@@ -2607,8 +3007,44 @@ window.LD_RULES = (() => {
         }
       }
     }
+    if (has('upArches')) {                    // wide-body arches flaring out over the wheels
+      ctx.fillStyle = color;
+      for (const wy of [y + h * 0.1, y + h * 0.64]) { roundRect(l - 3.5, wy, w + 7, h * 0.25, 6); ctx.fill(); }
+      ctx.fillStyle = 'rgba(0,0,0,.25)';
+      for (const wy of [y + h * 0.1, y + h * 0.64]) { ctx.fillRect(l - 3.5, wy + h * 0.25 - 2, w + 7, 2); }
+    }
     ctx.fillStyle = color;
     roundRect(l, y, w, h, Math.min(w * 0.32, 16)); ctx.fill();
+    if (has('upLegend')) {                    // gold flake: glitter that catches the light
+      for (let i = 0; i < 14; i++) {
+        const fx = l + 3 + hash(i * 3.1) * (w - 6), fy = y + 3 + hash(i * 7.7) * (h - 6);
+        const on = Math.sin(tNow * 5 + i * 1.7) > 0.4;
+        ctx.fillStyle = on ? 'rgba(255,236,150,.95)' : 'rgba(255,215,90,.35)'; ctx.fillRect(fx, fy, 1.6, 1.6);
+      }
+    }
+    if (has('upHolo')) {                      // holographic sheen sweeping across the paint
+      ctx.save(); roundRect(l, y, w, h, Math.min(w * 0.32, 16)); ctx.clip();
+      const sx = l - w + ((tNow * 0.6) % 1) * (w * 3);
+      const g = ctx.createLinearGradient(sx, y, sx + w, y + h);
+      g.addColorStop(0, 'rgba(255,0,180,0)'); g.addColorStop(0.3, 'rgba(255,90,200,.28)'); g.addColorStop(0.5, 'rgba(90,240,255,.32)');
+      g.addColorStop(0.7, 'rgba(255,240,90,.26)'); g.addColorStop(1, 'rgba(255,0,180,0)');
+      ctx.fillStyle = g; ctx.fillRect(l, y, w, h); ctx.restore();
+    }
+    if (has('upCarbon')) {                    // carbon-fibre bonnet
+      ctx.save(); roundRect(l + 2, y + 2, w - 4, h * 0.26, Math.min(w * 0.3, 14)); ctx.clip();
+      ctx.fillStyle = '#16181f'; ctx.fillRect(l, y, w, h * 0.3);
+      ctx.fillStyle = '#2a2d38';
+      for (let cy2 = y; cy2 < y + h * 0.3; cy2 += 4) for (let cx2 = l + ((cy2 - y) / 4 % 2) * 2; cx2 < r; cx2 += 4) ctx.fillRect(cx2, cy2, 2, 2);
+      ctx.restore();
+    }
+    if (has('upBolt')) {                      // lightning-bolt decals down both sides
+      ctx.fillStyle = gold ? '#f6c945' : '#ffd500';
+      for (const sgn of [-1, 1]) {
+        const bx = x + sgn * w * 0.36, by = y + h * 0.5;
+        poly([[bx - sgn * 1, by - h * 0.2], [bx + sgn * 3, by - h * 0.2], [bx + sgn * 0.5, by - h * 0.02], [bx + sgn * 3.5, by - h * 0.02],
+              [bx - sgn * 2, by + h * 0.22], [bx - sgn * 0.5, by + h * 0.04], [bx - sgn * 3.5, by + h * 0.04]]);
+      }
+    }
     if (paint.dark && !gold) {                // dark paint: a soft light rim so it stands out on the road
       ctx.strokeStyle = 'rgba(232,236,248,.45)'; ctx.lineWidth = 1.5;
       roundRect(l + 0.75, y + 0.75, w - 1.5, h - 1.5, Math.min(w * 0.31, 15.5)); ctx.stroke();
@@ -2638,6 +3074,13 @@ window.LD_RULES = (() => {
     roundRect(x - w * 0.33, y + h * 0.46, w * 0.66, h * 0.22, 5); ctx.fill();
     if (has('upNumber')) {                    // racing number: a big roundel filling the bonnet
       const cy = y + h * 0.165, rr = Math.min(w * 0.27, h * 0.12);
+      if (has('upLaurel')) {                  // gold laurel wreath round the number
+        ctx.fillStyle = '#e8b93a';
+        for (const sgn of [-1, 1]) for (let i = 0; i < 5; i++) {
+          const a = Math.PI / 2 + sgn * (0.5 + i * 0.42);
+          ctx.beginPath(); ctx.ellipse(x + Math.cos(a) * (rr + 3.5), cy + Math.sin(a) * (rr + 3.5), 2.6, 1.3, a + Math.PI / 2, 0, 6.29); ctx.fill();
+        }
+      }
       ctx.fillStyle = '#f4f4f8';
       ctx.beginPath(); ctx.arc(x, cy, rr, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = gold ? '#f6c945' : '#0b0d17'; ctx.lineWidth = 1.6; ctx.stroke();
@@ -2659,7 +3102,13 @@ window.LD_RULES = (() => {
     ctx.fillStyle = '#c53030';
     roundRect(l + 5, y + h - 7, w * 0.2, 4, 2); ctx.fill();
     roundRect(r - 5 - w * 0.2, y + h - 7, w * 0.2, 4, 2); ctx.fill();
-    if (has('upSpoiler')) {                   // rear wing, a little wider than the car
+    if (has('upWing')) {                      // GT wing: wider and taller, with end plates
+      ctx.fillStyle = '#0b0d17';
+      ctx.fillRect(x - w * 0.25, y + h - 9, 3, 8); ctx.fillRect(x + w * 0.25 - 3, y + h - 9, 3, 8);
+      roundRect(l - 8, y + h - 3, w + 16, 8, 2); ctx.fill();
+      ctx.fillStyle = gold ? '#f6c945' : color; ctx.fillRect(l - 8, y + h - 5, 3, 12); ctx.fillRect(r + 5, y + h - 5, 3, 12);
+      ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(l - 6, y + h - 2, w + 12, 1.5);
+    } else if (has('upSpoiler')) {            // rear wing, a little wider than the car
       ctx.fillStyle = '#0b0d17';
       ctx.fillRect(x - w * 0.3, y + h - 6, 3, 5);
       ctx.fillRect(x + w * 0.3 - 3, y + h - 6, 3, 5);
@@ -2671,6 +3120,13 @@ window.LD_RULES = (() => {
       for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.arc(x - w * 0.27 + i * w * 0.18, y + h * 0.265 + 2, 1.6, 0, Math.PI * 2); ctx.fill(); }
     }
     drawLauncher(x, y, w, h, { ...launcher, gold: has('upGoldPod') });
+    if (has('upStrobes')) {                   // blue and yellow strobes flashing on the roof corners
+      const ph = Math.floor(tNow * 6) % 4;
+      for (const [sx, sy, col, on] of [[l + 4, y + h * 0.3, '0,87,183', ph < 2], [r - 4, y + h * 0.3, '255,213,0', ph >= 2]]) {
+        if (on) { const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, 16); g.addColorStop(0, `rgba(${col},.85)`); g.addColorStop(1, `rgba(${col},0)`); ctx.fillStyle = g; ctx.fillRect(sx - 16, sy - 16, 32, 32); }
+        ctx.fillStyle = `rgba(${col},${on ? 1 : 0.45})`; ctx.beginPath(); ctx.arc(sx, sy, 2.4, 0, 6.29); ctx.fill();
+      }
+    }
     if (has('upFlag')) {                      // Ukrainian flag fluttering on a rear antenna
       const ax = r - w * 0.2, ay = y + h * 0.86, wave = Math.sin(performance.now() / 120) * 1.5;
       ctx.fillStyle = '#14161e'; ctx.beginPath(); ctx.arc(ax, ay, 1.6, 0, Math.PI * 2); ctx.fill();
@@ -2744,13 +3200,21 @@ window.LD_RULES = (() => {
     ['cones', 'jersey', 'barrier'],     // city
     ['log', 'rocks', 'barrier'],        // pine forest
     ['drift', 'ice', 'snowbarrier'],    // snowy mountains
+    ['sandbags', 'tyres', 'barrels'],   // desert
+    ['buoys', 'barrels', 'jersey'],     // coast bridge
+    ['leaves', 'pumpkins', 'fence'],    // autumn hills
+    ['barrels', 'tyres', 'cones'],      // industrial port
+    ['snowman', 'ice', 'drift'],        // northern lights
   ];
-  const HOLE_SKINS = ['hole', 'hole', 'manhole', 'puddle', 'frost'];
+  const HOLE_SKINS = ['hole', 'hole', 'manhole', 'puddle', 'frost', 'sand', 'puddle', 'hole', 'manhole', 'frost'];
   const DEBRIS = {
     barrier: ['#f4f4f8', '#f56565'], snowbarrier: ['#f4f4f8', '#f56565', '#ffffff'],
     hay: ['#a8843a', '#5a4214'], fence: ['#9a6533', '#6b4220'], crates: ['#8a5a2b', '#4f3216'],
     cones: ['#ff7a1a', '#f4f4f8'], jersey: ['#a3a9b8', '#f6c945'], log: ['#8a5a2b', '#5e3b1a'],
     rocks: ['#8f97a8', '#5c6373'], drift: ['#ffffff', '#cfe0f5'], ice: ['#bfe6ff', '#ffffff'],
+    sandbags: ['#c9ad7a', '#8f7444'], tyres: ['#1b1d24', '#4a4f5e'], barrels: ['#c53030', '#2b6cb0', '#d9dee8'],
+    buoys: ['#ff7a1a', '#f4f4f8'], leaves: ['#e0712a', '#c4352b', '#e9b23a'], pumpkins: ['#f0862a', '#4f7a2a'],
+    snowman: ['#ffffff', '#ff7a1a', '#1b1d24'], slider: ['#f4f4f8', '#f56565', '#ffb020'], works: ['#ff7a1a', '#f4f4f8'],
   };
   // Blinking amber warning lamps at both ends: the same cue on every obstacle, whatever it's made of.
   function warningLamps(x, y, w, seed) {
@@ -2767,6 +3231,7 @@ window.LD_RULES = (() => {
   }
   function drawObstacle(o, cx) {
     const { w, h } = o, x = cx - w / 2, y = o.y;
+    if (o.skin === 'works') { drawWorks(o, cx, x, y, w, h); return; }
     if (o.skin && o.skin !== 'barrier' && o.skin !== 'snowbarrier') {
       drawObstacleBody(o, cx, x, y, w, h);
       warningLamps(x, y + 2, w, o.seed || 0);
@@ -2876,7 +3341,126 @@ window.LD_RULES = (() => {
         ctx.beginPath(); ctx.ellipse(x + w * 0.3, y - 3, w * 0.14, 4, 0, 0, 6.29); ctx.fill();
         break;
       }
+      case 'sandbags': {                    // two rows of sandbags
+        for (let row = 0; row < 2; row++) for (let i = 0; i < 3 - row; i++) {
+          const bw = w * 0.31, bh = h * 0.42, bx = x + w * 0.02 + i * w * 0.33 + row * w * 0.165, by = y + h * 0.5 - row * h * 0.36;
+          ctx.fillStyle = 'rgba(0,0,0,.28)'; roundRect(bx + 2, by + 3, bw, bh, 6); ctx.fill();
+          ctx.fillStyle = row ? '#d8bf8c' : '#c9ad7a'; roundRect(bx, by, bw, bh, 6); ctx.fill();
+          ctx.strokeStyle = '#8f7444'; ctx.lineWidth = 1.2; roundRect(bx + 0.6, by + 0.6, bw - 1.2, bh - 1.2, 6); ctx.stroke();
+          ctx.fillStyle = 'rgba(110,85,40,.45)'; ctx.fillRect(bx + bw * 0.15, by + bh * 0.48, bw * 0.7, 1.2);
+        }
+        break;
+      }
+      case 'tyres': {                       // a row of old tyres
+        const r = Math.min(w * 0.17, h * 0.6);
+        for (const i of [-1, 0, 1]) {
+          const tx = cx + i * w * 0.33, ty = y + h / 2;
+          ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.arc(tx + 2, ty + 3, r, 0, 6.29); ctx.fill();
+          ctx.fillStyle = '#1b1d24'; ctx.beginPath(); ctx.arc(tx, ty, r, 0, 6.29); ctx.fill();
+          ctx.strokeStyle = '#e4e7ef'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(tx, ty, r * 0.74, 0, 6.29); ctx.stroke();   // painted white, to be seen at night
+          ctx.fillStyle = '#0b0c10'; ctx.beginPath(); ctx.arc(tx, ty, r * 0.42, 0, 6.29); ctx.fill();
+        }
+        break;
+      }
+      case 'barrels': {                     // oil drums seen from above, with rims and a hazard band
+        const r = Math.min(w * 0.17, h * 0.58);
+        const cols = ['#c53030', '#2b6cb0', '#c53030'];
+        [-1, 0, 1].forEach((i, k) => {
+          const bx = cx + i * w * 0.33, by = y + h / 2;
+          ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.arc(bx + 2, by + 3, r, 0, 6.29); ctx.fill();
+          ctx.fillStyle = cols[k]; ctx.beginPath(); ctx.arc(bx, by, r, 0, 6.29); ctx.fill();
+          ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(bx, by, r * 0.8, 0, 6.29); ctx.stroke();
+          ctx.fillStyle = '#d9dee8'; ctx.beginPath(); ctx.arc(bx + r * 0.35, by - r * 0.3, r * 0.16, 0, 6.29); ctx.fill();   // bung
+        });
+        break;
+      }
+      case 'buoys': {                       // red-and-white buoys strung on a rope
+        const r = Math.min(w * 0.15, h * 0.5);
+        ctx.strokeStyle = '#d9c9a0'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x + 2, y + h / 2); ctx.lineTo(x + w - 2, y + h / 2); ctx.stroke();
+        for (const i of [-1, 0, 1]) {
+          const bx = cx + i * w * 0.33, by = y + h / 2;
+          ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.arc(bx + 2, by + 3, r, 0, 6.29); ctx.fill();
+          ctx.fillStyle = '#f4f4f8'; ctx.beginPath(); ctx.arc(bx, by, r, 0, 6.29); ctx.fill();
+          ctx.fillStyle = '#e8432e';
+          ctx.beginPath(); ctx.arc(bx, by, r, -Math.PI / 2, 0); ctx.lineTo(bx, by); ctx.fill();
+          ctx.beginPath(); ctx.arc(bx, by, r, Math.PI / 2, Math.PI); ctx.lineTo(bx, by); ctx.fill();
+          ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.beginPath(); ctx.arc(bx - r * 0.35, by - r * 0.35, r * 0.2, 0, 6.29); ctx.fill();
+        }
+        break;
+      }
+      case 'leaves': {                      // a heap of fallen leaves
+        const cs = ['#e0712a', '#c4352b', '#e9b23a', '#a8501f'];
+        ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(cx + 3, y + h * 0.6, w * 0.5, h * 0.45, 0, 0, 6.29); ctx.fill();
+        for (let i = 0; i < 16; i++) {
+          const a = hash(o.seed + i) * 6.29, rr = hash(o.seed + i * 1.7) * 0.85;
+          const lx = cx + Math.cos(a) * w * 0.45 * rr, ly = y + h * 0.5 + Math.sin(a) * h * 0.42 * rr;
+          ctx.fillStyle = cs[i % 4]; ctx.beginPath(); ctx.ellipse(lx, ly, 7, 4, a, 0, 6.29); ctx.fill();
+        }
+        break;
+      }
+      case 'pumpkins': {                    // three pumpkins
+        const r = Math.min(w * 0.15, h * 0.52);
+        for (const i of [-1, 0, 1]) {
+          const px = cx + i * w * 0.33, py = y + h / 2 + (i === 0 ? -2 : 2);
+          ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(px + 2, py + 3, r * 1.1, r, 0, 0, 6.29); ctx.fill();
+          ctx.fillStyle = '#f0862a'; ctx.beginPath(); ctx.ellipse(px, py, r * 1.1, r, 0, 0, 6.29); ctx.fill();
+          ctx.strokeStyle = '#c4621a'; ctx.lineWidth = 1.3; ctx.beginPath();
+          for (const k of [-0.5, 0, 0.5]) { ctx.moveTo(px + k * r, py - r * 0.9); ctx.quadraticCurveTo(px + k * r * 1.6, py, px + k * r, py + r * 0.9); }
+          ctx.stroke();
+          ctx.fillStyle = '#4f7a2a'; ctx.fillRect(px - 1.5, py - r - 3, 3, 5);
+        }
+        break;
+      }
+      case 'snowman': {                     // a snowman by the side of the lane... in the lane
+        ctx.fillStyle = 'rgba(40,60,100,.35)'; ctx.beginPath(); ctx.ellipse(cx + 3, y + h * 0.7, w * 0.3, h * 0.35, 0, 0, 6.29); ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.arc(cx - w * 0.08, y + h * 0.55, h * 0.48, 0, 6.29); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx + w * 0.16, y + h * 0.42, h * 0.34, 0, 6.29); ctx.fill();
+        ctx.fillStyle = '#1b1d24'; ctx.fillRect(cx + w * 0.16 - h * 0.3, y + h * 0.42 - h * 0.62, h * 0.6, h * 0.14);   // hat brim
+        ctx.fillRect(cx + w * 0.16 - h * 0.2, y + h * 0.42 - h * 0.9, h * 0.4, h * 0.3);
+        ctx.fillStyle = '#ff7a1a'; poly([[cx + w * 0.16, y + h * 0.4], [cx + w * 0.16, y + h * 0.48], [cx + w * 0.16 + h * 0.4, y + h * 0.45]]);
+        ctx.fillStyle = '#d6332e'; ctx.fillRect(cx - w * 0.02, y + h * 0.62, w * 0.2, h * 0.1);                         // scarf
+        break;
+      }
+      case 'slider': {                      // a barrier on castors that slides between lanes
+        drawBarrier(cx, y, w, h);
+        ctx.fillStyle = '#1b1d24';
+        for (const wx of [x + 10, x + w - 16, x + w / 2 - 3]) { ctx.beginPath(); ctx.arc(wx + 3, y + h + 1, 3, 0, 6.29); ctx.fill(); }
+        const k = Math.floor(performance.now() / 260) % 2 ? 1 : 0.55;              // blinking arrows both ways
+        ctx.fillStyle = `rgba(255,213,0,${k})`;
+        poly([[x - 4, y + h * 0.31 - 7], [x - 4, y + h * 0.31 + 7], [x - 13, y + h * 0.31]]);
+        poly([[x + w + 4, y + h * 0.31 - 7], [x + w + 4, y + h * 0.31 + 7], [x + w + 13, y + h * 0.31]]);
+        break;
+      }
       default: drawBarrier(cx, y, w, h);
+    }
+  }
+  // Roadworks: an orange-striped strip down the closed lane, lined with cones, and a
+  // "keep left/right" sign where it begins.
+  function drawWorks(o, cx, x, y, w, h) {
+    const bw = w * 0.9, bx = cx - bw / 2;
+    ctx.save(); ctx.beginPath(); ctx.rect(bx, y, bw, h); ctx.clip();
+    ctx.fillStyle = 'rgba(255,122,26,.18)'; ctx.fillRect(bx, y, bw, h);
+    ctx.fillStyle = 'rgba(255,122,26,.55)';
+    for (let s2 = Math.floor((y - 400) / 26) * 26; s2 < y + h + 30; s2 += 26) poly([[bx, s2], [bx + 8, s2], [bx + 8, s2 + 13], [bx, s2 + 13]]);
+    for (let s2 = Math.floor((y - 400) / 26) * 26; s2 < y + h + 30; s2 += 26) poly([[bx + bw - 8, s2 + 13], [bx + bw, s2 + 13], [bx + bw, s2 + 26], [bx + bw - 8, s2 + 26]]);
+    ctx.restore();
+    const r = Math.min(w * 0.13, 12);
+    let i = 0;
+    for (let cy = y + h - r - 2; cy > y + r - 2; cy -= 30, i++) {
+      const ccx = cx + (i % 2 ? -1 : 1) * bw * 0.18;
+      ctx.fillStyle = '#2b2f3d'; ctx.fillRect(ccx - r, cy - r, r * 2, r * 2);
+      ctx.fillStyle = '#ff7a1a'; ctx.beginPath(); ctx.arc(ccx, cy, r * 0.85, 0, 6.29); ctx.fill();
+      ctx.fillStyle = '#f4f4f8'; ctx.beginPath(); ctx.arc(ccx, cy, r * 0.55, 0, 6.29); ctx.fill();
+      ctx.fillStyle = '#ff7a1a'; ctx.beginPath(); ctx.arc(ccx, cy, r * 0.3, 0, 6.29); ctx.fill();
+    }
+    if (o.first) {                          // sign at the start of the closure, pointing to the open lanes
+      const sy = y + h + 8, dir = o.lane === 0 ? 1 : -1;
+      ctx.fillStyle = '#ffd500'; roundRect(cx - 16, sy - 16, 32, 32, 6); ctx.fill();
+      ctx.strokeStyle = '#1b1d24'; ctx.lineWidth = 2; roundRect(cx - 14, sy - 14, 28, 28, 5); ctx.stroke();
+      ctx.fillStyle = '#1b1d24';
+      ctx.fillRect(cx - 8 * dir - (dir < 0 ? 0 : 0) - 1, sy - 2.5, 14 * dir, 5);
+      poly([[cx + 9 * dir, sy], [cx + 2 * dir, sy - 8], [cx + 2 * dir, sy + 8]]);
     }
   }
   // Pothole looks: open manhole in the city, puddle in the rain, frosted hole in the snow.
@@ -2893,6 +3477,15 @@ window.LD_RULES = (() => {
       const k = (performance.now() / 700 + o.seed) % 1;                                   // a ripple from the rain
       ctx.strokeStyle = `rgba(200,220,245,${(0.6 * (1 - k)).toFixed(2)})`; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.ellipse(cx + rx * 0.2, cy, 2 + k * rx * 0.7, 1 + k * ry * 0.6, 0, 0, 6.29); ctx.stroke();
+    } else if (o.skin === 'oil') {        // oil slick: glossy black with a rainbow sheen
+      ctx.fillStyle = 'rgba(8,8,14,.92)'; blob(cx, cy, rx * 1.2, ry * 1.05, o.seed, 2);
+      const g = ctx.createLinearGradient(cx - rx, cy - ry, cx + rx, cy + ry);
+      g.addColorStop(0, 'rgba(120,80,255,.45)'); g.addColorStop(0.5, 'rgba(60,220,200,.35)'); g.addColorStop(1, 'rgba(255,120,200,.4)');
+      ctx.fillStyle = g; blob(cx - rx * 0.15, cy - ry * 0.2, rx * 0.65, ry * 0.45, o.seed + 2, 0);
+      ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.ellipse(cx + rx * 0.35, cy - ry * 0.3, rx * 0.15, ry * 0.12, 0, 0, 6.29); ctx.fill();
+    } else if (o.skin === 'sand') {        // desert: a hole with sand blown into its rim
+      drawPothole(cx, cy, rx, ry, o.seed);
+      ctx.strokeStyle = 'rgba(216,180,106,.9)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(cx, cy, rx + 3, ry + 3, 0, 0.4, 2.6); ctx.stroke();
     } else if (o.skin === 'frost') {
       drawPothole(cx, cy, rx, ry, o.seed);
       ctx.strokeStyle = 'rgba(235,245,255,.85)'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.ellipse(cx, cy, rx + 4, ry + 4, 0, 0, 6.29); ctx.stroke();
@@ -3120,7 +3713,7 @@ window.LD_RULES = (() => {
         ctx.fillStyle = '#185238'; ctx.beginPath(); ctx.moveTo(tx, ty + 4); ctx.lineTo(tx + 6, ty + 16); ctx.lineTo(tx - 6, ty + 16); ctx.closePath(); ctx.fill();
       }
       if (r3 < 0.25) { ctx.fillStyle = 'rgba(140,170,210,.35)'; ctx.beginPath(); ctx.ellipse(x + w / 2, y + SEG * 0.85, w * 0.3, 4, 0, 0, 6.29); ctx.fill(); }
-    } else {                           // snowy mountains: snow-capped pines and rocks
+    } else if (a === 4) {              // snowy mountains: snow-capped pines and rocks
       if (lights) return;
       if (r2 < 0.6) {
         const tx = x + 8 + r1 * (w - 16), ty = y + 8 + r3 * 10;
@@ -3130,24 +3723,85 @@ window.LD_RULES = (() => {
         ctx.fillStyle = '#9aa4b8'; ctx.beginPath(); ctx.ellipse(x + w / 2, y + SEG / 2, 8, 5, 0, 0, 6.29); ctx.fill();
         ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.ellipse(x + w / 2, y + SEG / 2 - 3, 6, 2.5, 0, 0, 6.29); ctx.fill();
       }
+    } else if (a === 5) {              // desert: cacti, stones and ripples in the sand
+      if (lights) return;
+      ctx.strokeStyle = 'rgba(150,110,50,.35)'; ctx.lineWidth = 1.5;
+      for (let i = 0; i < 2; i++) { ctx.beginPath(); ctx.moveTo(x, y + i * SEG / 2 + r1 * 10); ctx.quadraticCurveTo(x + w / 2, y + i * SEG / 2 + r1 * 10 - 6, x + w, y + i * SEG / 2 + r1 * 10); ctx.stroke(); }
+      if (r2 < 0.4) {                  // saguaro cactus
+        const cx2 = x + 8 + r3 * (w - 16), cy2 = y + 10 + r1 * 20;
+        ctx.fillStyle = '#3f7a3a'; roundRect(cx2 - 3, cy2, 6, 26, 3); ctx.fill();
+        roundRect(cx2 - 10, cy2 + 6, 5, 12, 2.5); ctx.fill(); roundRect(cx2 - 10, cy2 + 14, 9, 4, 2); ctx.fill();
+        roundRect(cx2 + 5, cy2 + 3, 5, 10, 2.5); ctx.fill(); roundRect(cx2 + 1, cy2 + 10, 9, 4, 2); ctx.fill();
+      } else if (r2 < 0.6) { ctx.fillStyle = '#a07a48'; ctx.beginPath(); ctx.ellipse(x + w / 2, y + SEG / 2, 6, 4, 0, 0, 6.29); ctx.fill(); }
+    } else if (a === 6) {              // coast bridge: the sea, waves, and the bridge railing
+      if (lights) return;
+      ctx.strokeStyle = 'rgba(220,240,255,.55)'; ctx.lineWidth = 1.5;
+      for (let i = 0; i < 2; i++) {
+        const wx = x + 6 + hash(n + i * 0.7) * (w - 18), wy = y + 10 + i * SEG / 2 + r2 * 8;
+        ctx.beginPath(); ctx.moveTo(wx, wy); ctx.quadraticCurveTo(wx + 5, wy - 4, wx + 10, wy); ctx.stroke();
+      }
+      if (r3 < 0.08) { ctx.fillStyle = '#f4f4f8'; poly([[x + w / 2, y + 12], [x + w / 2 + 9, y + 30], [x + w / 2 - 2, y + 30]]); ctx.fillStyle = '#7a4d24'; ctx.fillRect(x + w / 2 - 8, y + 30, 18, 5); }
+      const rx2 = x === 0 ? w - 6 : x;                 // railing along the road edge
+      ctx.fillStyle = '#9aa6bd'; ctx.fillRect(rx2, y, 6, SEG);
+      ctx.fillStyle = '#5c6880'; for (let k = 0; k < SEG; k += 16) ctx.fillRect(rx2, y + k, 6, 3);
+    } else if (a === 7) {              // autumn hills: round trees in orange, red and gold
+      if (lights) return;
+      const cs = ['#d9622b', '#b8322b', '#e0a72f', '#9c5a24'];
+      for (let i = 0; i < 2; i++) {
+        const tx = x + 9 + hash(n + i * 0.37) * (w - 18), ty = y + 10 + i * SEG / 2 + r1 * 6;
+        ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.beginPath(); ctx.arc(tx + 3, ty + 3, 10, 0, 6.29); ctx.fill();
+        ctx.fillStyle = cs[Math.floor(hash(n * 3 + i) * 4)]; ctx.beginPath(); ctx.arc(tx, ty, 10, 0, 6.29); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,.15)'; ctx.beginPath(); ctx.arc(tx - 3, ty - 3, 4, 0, 6.29); ctx.fill();
+      }
+    } else if (a === 8) {              // industrial port: shipping containers, warning lights
+      const cs = ['#a8432f', '#2f6f8f', '#c28a2a', '#4d7a3a'], bx = x + 3, bw = w - 6;
+      if (!lights) {
+        for (let i = 0; i < 2; i++) {
+          const cy2 = y + 4 + i * SEG / 2;
+          ctx.fillStyle = cs[Math.floor(hash(n * 5 + i) * 4)]; ctx.fillRect(bx, cy2, bw, SEG / 2 - 6);
+          ctx.fillStyle = 'rgba(0,0,0,.25)'; for (let k = 4; k < bw; k += 5) ctx.fillRect(bx + k, cy2, 1.5, SEG / 2 - 6);
+        }
+        return;
+      }
+      if (r2 < 0.35) {                 // sodium lamps by the road, red lights on the stacks
+        const lx = x === 0 ? w - 4 : x + 4, ly = y + SEG / 2;
+        const g = ctx.createRadialGradient(lx, ly, 0, lx, ly, 30);
+        g.addColorStop(0, 'rgba(255,170,60,.6)'); g.addColorStop(1, 'rgba(255,170,60,0)');
+        ctx.fillStyle = g; ctx.fillRect(lx - 30, ly - 30, 60, 60);
+      }
+      if (r3 < 0.3 && Math.floor(performance.now() / 600 + n) % 2) { ctx.fillStyle = '#ff4040'; ctx.beginPath(); ctx.arc(bx + bw * r1, y + 6, 2.2, 0, 6.29); ctx.fill(); }
+    } else {                           // northern lights: snowy pines, cabins with lit windows
+      if (!lights) {
+        if (r2 < 0.55) {
+          const tx = x + 8 + r1 * (w - 16), ty = y + 8 + r3 * 10;
+          ctx.fillStyle = '#20382f'; ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(tx + 10, ty + 24); ctx.lineTo(tx - 10, ty + 24); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(tx + 4, ty + 9); ctx.lineTo(tx - 4, ty + 9); ctx.closePath(); ctx.fill();
+        } else if (r2 < 0.7) {
+          ctx.fillStyle = '#5a3a24'; ctx.fillRect(x + w / 2 - 10, y + 22, 20, 16);
+          ctx.fillStyle = '#ffffff'; poly([[x + w / 2 - 13, y + 23], [x + w / 2 + 13, y + 23], [x + w / 2, y + 12]]);
+        }
+        return;
+      }
+      if (r2 >= 0.55 && r2 < 0.7) { ctx.fillStyle = 'rgba(255,214,120,.95)'; ctx.fillRect(x + w / 2 - 3, y + 27, 6, 5); }
     }
   }
   // Light and weather of the area you're in. 'under' is drawn on the ground before obstacles,
   // so obstacles always stay at full contrast; 'over' is rain/snow falling over everything.
   function drawLook(layer) {
-    const look = AREAS[lookArea].look, f = lookFade;
+    const look = twist.look || AREAS[lookArea].look, f = twist.look ? 1 : lookFade;
     if (!look) return;
     if (layer === 'under') {
       if (look === 'sunset') {
         const g = ctx.createLinearGradient(0, 0, 0, H);
         g.addColorStop(0, `rgba(255,140,60,${0.22 * f})`); g.addColorStop(1, `rgba(120,40,120,${0.12 * f})`);
         ctx.fillStyle = g; ctx.fillRect(-10, -10, W + 20, H + 20);
-      } else if (look === 'night') {
-        ctx.fillStyle = `rgba(3,5,14,${0.5 * f})`; ctx.fillRect(-10, -10, W + 20, H + 20);
+      } else if (look === 'night' || look === 'aurora') {
+        ctx.fillStyle = `rgba(3,5,14,${(look === 'night' ? 0.5 : 0.42) * f})`; ctx.fillRect(-10, -10, W + 20, H + 20);
+        if (look === 'aurora') drawAurora(f);
         // lit windows and street lamps glow through the dark
         const kTop = Math.ceil(kAtY(-SEG)), kBot = Math.floor(kAtY(H + SEG));
         ctx.globalAlpha = f;
-        for (let k = kBot; k <= kTop; k++) if (areaAtK(k) === 2) for (const side of [0, 1]) drawScenery(2, side ? W - vergeW : 0, scroll - k * SEG - SEG, k * 2 + side, true);
+        for (let k = kBot; k <= kTop; k++) { const a = areaAtK(k); if (AREAS[a].lights) for (const side of [0, 1]) drawScenery(a, side ? W - vergeW : 0, scroll - k * SEG - SEG, k * 2 + side, true); }
         ctx.globalAlpha = 1;
         // headlights: two soft beams up the lane ahead of the car
         // headlights; with the roof light bar, two more beams and a wider spread
@@ -3163,25 +3817,75 @@ window.LD_RULES = (() => {
         ctx.fillStyle = `rgba(40,70,120,${0.14 * f})`; ctx.fillRect(-10, -10, W + 20, H + 20);
       } else if (look === 'snow') {
         ctx.fillStyle = `rgba(220,232,255,${0.06 * f})`; ctx.fillRect(-10, -10, W + 20, H + 20);
+      } else if (look === 'heat') {          // desert sun: warm light and shimmering haze up the road
+        ctx.fillStyle = `rgba(255,170,60,${0.1 * f})`; ctx.fillRect(-10, -10, W + 20, H + 20);
+        const t2 = performance.now() / 1000;
+        ctx.strokeStyle = `rgba(255,240,210,${0.13 * f})`; ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+          const hy = (i * 61 + t2 * 30) % (H * 0.45);
+          for (let hx = 0; hx <= W; hx += 12) { const yy = hy + Math.sin(hx * 0.06 + t2 * 4 + i) * 2; hx ? ctx.lineTo(hx, yy) : ctx.moveTo(hx, yy); }
+        }
+        ctx.stroke();
+      } else if (look === 'autumn') {
+        ctx.fillStyle = `rgba(255,140,40,${0.08 * f})`; ctx.fillRect(-10, -10, W + 20, H + 20);
+      } else if (look === 'fog') {
+        ctx.fillStyle = `rgba(200,210,222,${0.08 * f})`; ctx.fillRect(-10, -10, W + 20, H + 20);
       }
+      return;
+    }
+    if (look === 'fog') {                    // sea fog: thick far up the road, thin near the car
+      const g = ctx.createLinearGradient(0, 0, 0, H * 0.4);
+      g.addColorStop(0, `rgba(205,214,226,${0.72 * f})`); g.addColorStop(1, 'rgba(205,214,226,0)');
+      ctx.fillStyle = g; ctx.fillRect(-10, -10, W + 20, H * 0.4 + 10);
+      for (const d of weather) {
+        const gg = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, 120);
+        gg.addColorStop(0, `rgba(215,222,232,${0.07 * f})`); gg.addColorStop(1, 'rgba(215,222,232,0)');
+        ctx.fillStyle = gg; ctx.fillRect(d.x - 120, d.y - 120, 240, 240);
+      }
+      return;
+    }
+    if (look === 'autumn') {                 // falling leaves
+      const cs = ['#e0712a', '#c4352b', '#e9b23a'];
+      weather.forEach((d, i) => { ctx.fillStyle = cs[i % 3]; ctx.globalAlpha = 0.85 * f; ctx.beginPath(); ctx.ellipse(d.x, d.y, 4, 2.2, d.ph, 0, 6.29); ctx.fill(); });
+      ctx.globalAlpha = 1;
       return;
     }
     if (look === 'rain') {
       ctx.strokeStyle = `rgba(185,205,235,${0.4 * f})`; ctx.lineWidth = 1.2; ctx.beginPath();
       for (const d of weather) { ctx.moveTo(d.x, d.y); ctx.lineTo(d.x - 3, d.y + 14); }
       ctx.stroke();
-    } else if (look === 'snow') {
+    } else if (look === 'snow' || look === 'aurora') {
       ctx.fillStyle = `rgba(255,255,255,${0.85 * f})`;
       for (const d of weather) { ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, 6.29); ctx.fill(); }
     }
   }
+  // Northern lights: green and violet curtains waving across the sky at the top of the screen.
+  function drawAurora(f) {
+    const t2 = performance.now() / 1000;
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    for (const [col, k, base] of [['60,255,160', 0, 0.2], ['170,110,255', 2.1, 0.3]]) {
+      for (let x2 = 0; x2 <= W; x2 += 4) {
+        const yb = H * (base + 0.06 * Math.sin(x2 * 0.011 + t2 * 0.6 + k) + 0.03 * Math.sin(x2 * 0.029 - t2 * 1.2 + k));
+        const a = (0.55 + 0.45 * Math.sin(x2 * 0.045 + t2 * 1.8 + k * 3)) * f;
+        const len = 80 + 45 * Math.sin(x2 * 0.017 + k + t2 * 0.3);
+        ctx.fillStyle = `rgba(${col},${(0.05 * a).toFixed(3)})`; ctx.fillRect(x2, yb - len, 3, len);
+        ctx.fillStyle = `rgba(${col},${(0.07 * a).toFixed(3)})`; ctx.fillRect(x2, yb - len * 0.45, 3, len * 0.45);
+        ctx.fillStyle = `rgba(${col},${(0.12 * a).toFixed(3)})`; ctx.fillRect(x2, yb - 8, 3, 8);
+      }
+    }
+    ctx.restore();
+  }
   function updateWeather(dt, roadV) {
-    const look = AREAS[lookArea].look;
-    if (look !== 'rain' && look !== 'snow') { weather.length = 0; return; }
-    const want = look === 'rain' ? 70 : 55;
+    const look = twist.look || AREAS[lookArea].look;
+    if (!['rain', 'snow', 'aurora', 'autumn', 'fog'].includes(look)) { weather.length = 0; return; }
+    const want = { rain: 70, snow: 55, aurora: 40, autumn: 26, fog: 6 }[look];
+    if (weather.length > want) weather.length = want;
     while (weather.length < want) weather.push({ x: Math.random() * W, y: Math.random() * H, r: 1.2 + Math.random() * 1.6, ph: Math.random() * 6 });
     for (const d of weather) {
       if (look === 'rain') { d.y += (900 + roadV * 0.6) * dt; d.x -= 200 * dt; }
+      else if (look === 'fog') { d.y += roadV * 0.35 * dt; d.x += 12 * dt; }
+      else if (look === 'autumn') { d.y += (70 + roadV * 0.55) * dt; d.ph += dt * 3; d.x += Math.sin(d.ph) * 40 * dt; }
       else { d.y += (60 + roadV * 0.5) * dt; d.ph += dt * 2; d.x += Math.sin(d.ph) * 20 * dt; }
       if (d.y > H + 20) { d.y = -20; d.x = Math.random() * (W + 60); }
       if (d.x < -20) d.x += W + 40;
@@ -3257,7 +3961,7 @@ window.LD_RULES = (() => {
       else if (o.type === 'scorch') drawScorch(laneX(o.lane), o.y + o.h / 2, o.w / 2, o.h / 2, o.seed);
     }
     for (const o of objects) {
-      const cx = laneX(o.lane);
+      const cx = objX(o);
       if (o.type === 'enemy') drawObstacle(o, cx);
       else if (o.type === 'coin') { if (o.rush) drawRushGlow(cx, o.y + o.h / 2); drawCoin(cx, o.y + o.h / 2, o.w / 2); }
       else if (o.type === 'life') drawHeart(cx, o.y + o.h / 2, 19);
@@ -3384,7 +4088,9 @@ window.LD_RULES = (() => {
   rocketBtn.addEventListener('click', () => { fire(); rocketBtn.blur(); });
   I18N.onChange(() => { rocketBtn.title = t('rocketTitle', { n: ROCKET_COST }); rocketBtn.setAttribute('aria-label', rocketBtn.title); layoutEgg(); fitFire(); });
   window.addEventListener('resize', fitFire);
-  $('playBtn').addEventListener('click', startPlay);
+  $('playBtn').addEventListener('click', () => { mode = 'normal'; startPlay(); });
+  $('dailyBtn').addEventListener('click', () => { mode = 'daily'; startPlay(); });
+  $('shareBtn').addEventListener('click', shareRun);
   $('helpBtn').addEventListener('click', () => openHelp('home'));
   $('pauseHelp').addEventListener('click', () => openHelp('pause'));
   const autoFireBtn = $('autoFireBtn');
