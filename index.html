@@ -70,11 +70,25 @@
   }
   .hrow { display: flex; align-items: center; gap: 10px; }
   #score { font-weight: 800; font-size: 22px; font-variant-numeric: tabular-nums; }
+  #score.bump { animation: coinBump .25s ease-out; }
+  /* Combo badge: xN in the tier's colour, with a thin bar filling towards the next tier
+     (at x5: towards Overdrive; during Overdrive: the time left) */
   #streak {
-    font-weight: 800; font-size: 14px; color: #0f1220; background: var(--coin); border-radius: 6px;
-    padding: 1px 6px; visibility: hidden;
+    position: relative; font-weight: 800; font-size: 14px; color: #0f1220; background: var(--tc, #e6eaf5);
+    border-radius: 6px; padding: 1px 7px 3px; visibility: hidden; transition: background-color .2s;
+  }
+  #streak::after {
+    content: ''; position: absolute; left: 3px; bottom: 1px; height: 2px; border-radius: 1px;
+    width: calc((100% - 6px) * var(--p, 0)); background: rgba(15,18,32,.55);
   }
   #streak.on { visibility: visible; }
+  #streak.bump { animation: comboBump .25s ease-out; }
+  @keyframes comboBump { 40% { transform: scale(1.2); } }
+  #streak.drain { animation: comboDrain .5s steps(2) infinite; }
+  @keyframes comboDrain { 50% { opacity: .45; } }
+  #streak.od { animation: odGlow .6s linear infinite; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.5); }
+  @keyframes odGlow { 0% { background: #ff4d4d; } 25% { background: #ffd500; } 50% { background: #36d399; } 75% { background: #4f9dff; } 100% { background: #b46bff; } }
+  .calm #streak.od, .calm #streak.drain { animation: none; }
   /* coins collected this run */
   .coinChip { display: flex; align-items: center; gap: 5px; font-weight: 800; font-size: 15px; color: var(--coin); font-variant-numeric: tabular-nums; }
   .coinChip i { width: 14px; height: 14px; border-radius: 50%; background: var(--coin); box-shadow: inset 0 0 0 3px rgba(0,0,0,.2); }
@@ -150,7 +164,7 @@
   #eggBar.fire-left .fireHint::after { right: auto; left: 26px; }
   #eggBar.fire-left #rocketBtn b { right: auto; left: -9px; }
   /* auto-fire switch: a block button left of FIRE, same height; shows auto-fire's current accuracy
-     (better with a coin streak), or ✕ when off */
+     (better with a combo), or ✕ when off */
   .autoBlock {
     flex: none; width: 46px; min-height: 54px; margin: 0; padding: 4px 2px; border-radius: 14px;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
@@ -534,7 +548,7 @@
   /* ---- Home: colour + records row ---- */
   .menuRow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .dailyBtn { display: grid; gap: 2px; justify-items: center; padding-top: 10px; padding-bottom: 10px; }
-  .dailyBtn small { font-size: 12px; font-weight: 700; opacity: .85; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dailyBtn small { font-size: 12px; font-weight: 700; opacity: .85; max-width: 100%; white-space: pre-line; line-height: 1.35; text-wrap: balance; }
   .overDaily { font-size: 14px; font-weight: 800; color: var(--coin) !important; margin: -4px 0 0 !important; }
   .shareNote { font-size: 13px; color: var(--text) !important; margin: 0 !important; }
   .menuRow button { font-size: 15px; padding: 12px 6px; display: flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; }
@@ -686,6 +700,7 @@
           <button id="soundBtn" class="secondary autoFireBtn" type="button" aria-pressed="true"></button>
           <button id="autoFireBtn" class="secondary autoFireBtn" type="button" aria-pressed="false"></button>
           <button id="fireSideBtn" class="secondary autoFireBtn" type="button"></button>
+          <button id="calmBtn" class="secondary autoFireBtn" type="button" aria-pressed="false"></button>
         </div>
         <button id="pauseRetry" class="secondary" data-i18n="retry">Retry</button>
         <button id="pauseHome" class="ghost" data-i18n="home">Home</button>
@@ -704,7 +719,8 @@
         <li><span class="ico"><span class="ico block"></span></span><span data-i18n="rule4" data-rich><b>3 crashes</b> = out · <b>10 coins</b> = a <b>♥</b></span></li>
         <li><span class="ico"><span class="ico hole"></span></span><span data-i18n="rule5" data-rich><b>Potholes</b> = −8% fuel</span></li>
         <li><span class="ico"><span class="ico drone"></span></span><span data-i18n="rule6" data-rich><b>FIRE</b> (3 coins) shoots <b>Shaheds</b> and barriers</span></li>
-        <li><span class="ico autoIco">🤖</span><span data-i18n="ruleAuto" data-rich><b>Auto-fire</b>: aims for you, better with a coin streak</span></li>
+        <li><span class="ico autoIco">🔥</span><span data-i18n="ruleCombo" data-rich><b>Combo</b>: coins, near misses and drones fill it · <b>max = OVERDRIVE</b></span></li>
+        <li><span class="ico autoIco">🤖</span><span data-i18n="ruleAuto" data-rich><b>Auto-fire</b>: aims for you, better with a combo</span></li>
       </ul>
       <p class="keys" data-i18n="keys">Keyboard: ← → or A / D · Space fire · P pause · M mute</p>
       <p class="privacy" data-i18n="privacyNote">No ads, no cookies. Only anonymous play counts.</p>
@@ -760,7 +776,8 @@ window.I18N = (() => {
       rule4: "**3 crashes** = out · **10 coins** = a **♥**",
       rule5: "**Potholes** = −8% fuel",
       rule6: "**FIRE** (3 coins) shoots **Shaheds** and barriers",
-      ruleAuto: "**Auto-fire**: aims for you, better with a coin streak",
+      ruleCombo: "**Combo**: coins, near misses and drones fill it · **max = OVERDRIVE**",
+      ruleAuto: "**Auto-fire**: aims for you, better with a combo",
       keys: "Keyboard: ← → or A / D · Space fire · P pause · M mute", gotIt: 'Got it!',
       crashed: 'Crashed!', outOfFuel: 'Out of fuel!', score: 'Score: {n}',
       level: 'Level', distance: 'Distance', coins: 'Coins',
@@ -793,7 +810,8 @@ window.I18N = (() => {
       upArches: "Wide arches", upNeonRims: "Neon rims", upCarbon: "Carbon bonnet", upWing: "GT wing",
       upSparkle: "Star trail", upStrobes: "Roof strobes", upHolo: "Holo paint", upJet: "Jet flames",
       upRainbow: "Rainbow trail", upLaurel: "Laurel wreath", upLegend: "Legend gold",
-      privacyNote: "No ads, no cookies. Only anonymous play counts."
+      privacyNote: "No ads, no cookies. Only anonymous play counts.",
+      comboTip: "COMBO ×2!", comboTipSub: "Coins, near misses and drones keep it going", comboFade: "Keep it going or it fades!", overdrive: "OVERDRIVE!", odSub: "Smash everything!", calmOn: "Reduce motion: On", calmOff: "Reduce motion: Off"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -808,7 +826,8 @@ window.I18N = (() => {
       rule4: "**3 choques** = fuera · **10 monedas** = un **♥**",
       rule5: "**Baches** = −8% combustible",
       rule6: "**DISPARAR** (3 monedas) derriba **Shaheds** y barreras",
-      ruleAuto: "**Disparo automático**: apunta por ti, mejor con racha de monedas",
+      ruleCombo: "**Combo**: monedas, roces y drones lo llenan · **al máximo = OVERDRIVE**",
+      ruleAuto: "**Disparo automático**: apunta por ti, mejor con combo",
       keys: "Teclado: ← → o A / D · Espacio dispara · P pausa · M silencio", gotIt: '¡Entendido!',
       crashed: '¡Choque!', outOfFuel: '¡Sin combustible!', score: 'Puntos: {n}',
       level: 'Nivel', distance: 'Distancia', coins: 'Monedas',
@@ -841,7 +860,8 @@ window.I18N = (() => {
       upArches: "Pasos de rueda anchos", upNeonRims: "Llantas de neón", upCarbon: "Capó de carbono", upWing: "Alerón GT",
       upSparkle: "Estela de estrellas", upStrobes: "Luces estroboscópicas", upHolo: "Pintura holográfica", upJet: "Llamas de reactor",
       upRainbow: "Estela arcoíris", upLaurel: "Corona de laurel", upLegend: "Oro de leyenda",
-      privacyNote: "Sin anuncios ni cookies. Solo recuentos anónimos de partidas."
+      privacyNote: "Sin anuncios ni cookies. Solo recuentos anónimos de partidas.",
+      comboTip: "¡COMBO ×2!", comboTipSub: "Monedas, roces y drones lo mantienen", comboFade: "¡Sigue o se apaga!", overdrive: "¡OVERDRIVE!", odSub: "¡Arrasa con todo!", calmOn: "Reducir movimiento: Sí", calmOff: "Reducir movimiento: No"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -856,7 +876,8 @@ window.I18N = (() => {
       rule4: "**3 accidents** = fini · **10 pièces** = un **♥**",
       rule5: `**Nids-de-poule** = −8${NB}% d'essence`,
       rule6: "**FEU** (3 pièces) abat les **Shaheds** et les barrières",
-      ruleAuto: `**Tir auto**${NB}: vise pour toi, mieux avec une série de pièces`,
+      ruleCombo: "**Combo** : pièces, frôlements et drones le remplissent · **au max = OVERDRIVE**",
+      ruleAuto: "**Tir auto** : vise pour toi, mieux avec un combo",
       keys: `Clavier${NB}: ← → ou A / D · Espace tir · P pause · M son`, gotIt: `C'est parti${NB}!`,
       crashed: `Accident${NB}!`, outOfFuel: `Panne d'essence${NB}!`, score: `Score${NB}: {n}`,
       level: 'Niveau', distance: 'Distance', coins: 'Pièces',
@@ -889,7 +910,8 @@ window.I18N = (() => {
       upArches: "Ailes élargies", upNeonRims: "Jantes néon", upCarbon: "Capot carbone", upWing: "Aileron GT",
       upSparkle: "Traînée d'étoiles", upStrobes: "Gyrophares", upHolo: "Peinture holographique", upJet: "Flammes de réacteur",
       upRainbow: "Traînée arc-en-ciel", upLaurel: "Couronne de laurier", upLegend: "Or légendaire",
-      privacyNote: "Sans pub ni cookies. Seulement des comptages anonymes de parties."
+      privacyNote: "Sans pub ni cookies. Seulement des comptages anonymes de parties.",
+      comboTip: "COMBO ×2 !", comboTipSub: "Pièces, frôlements et drones l’entretiennent", comboFade: "Continue ou il s’éteint !", overdrive: "OVERDRIVE !", odSub: "Fonce dans le tas !", calmOn: "Réduire les animations : oui", calmOff: "Réduire les animations : non"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -904,7 +926,8 @@ window.I18N = (() => {
       rule4: "**3 Unfälle** = raus · **10 Münzen** = ein **♥**",
       rule5: "**Schlaglöcher** = −8 % Sprit",
       rule6: "**FEUER** (3 Münzen) schießt **Shaheds** und Barrieren ab",
-      ruleAuto: "**Auto-Feuer**: zielt für dich, besser mit Münzserie",
+      ruleCombo: "**Combo**: Münzen, knappe Manöver und Drohnen füllen ihn · **voll = OVERDRIVE**",
+      ruleAuto: "**Auto-Feuer**: zielt für dich, besser mit Combo",
       keys: "Tastatur: ← → oder A / D · Leertaste Feuer · P Pause · M Ton aus", gotIt: 'Verstanden!',
       crashed: 'Unfall!', outOfFuel: 'Tank leer!', score: 'Punkte: {n}',
       level: 'Level', distance: 'Strecke', coins: 'Münzen',
@@ -937,7 +960,8 @@ window.I18N = (() => {
       upArches: "Breite Kotflügel", upNeonRims: "Neon-Felgen", upCarbon: "Carbon-Motorhaube", upWing: "GT-Flügel",
       upSparkle: "Sternenspur", upStrobes: "Dach-Blitzer", upHolo: "Holo-Lack", upJet: "Düsenflammen",
       upRainbow: "Regenbogenspur", upLaurel: "Lorbeerkranz", upLegend: "Legendengold",
-      privacyNote: "Keine Werbung, keine Cookies. Nur anonyme Spielzählungen."
+      privacyNote: "Keine Werbung, keine Cookies. Nur anonyme Spielzählungen.",
+      comboTip: "COMBO ×2!", comboTipSub: "Münzen, knappe Manöver und Drohnen halten ihn am Laufen", comboFade: "Weitermachen, sonst verblasst er!", overdrive: "OVERDRIVE!", odSub: "Mach alles platt!", calmOn: "Weniger Bewegung: An", calmOff: "Weniger Bewegung: Aus"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -952,7 +976,8 @@ window.I18N = (() => {
       rule4: "**3 batidas** = fim · **10 moedas** = um **♥**",
       rule5: "**Buracos** = −8% combustível",
       rule6: "**DISPARAR** (3 moedas) derruba **Shaheds** e barreiras",
-      ruleAuto: "**Disparo automático**: mira por você, melhor com sequência de moedas",
+      ruleCombo: "**Combo**: moedas, quase-batidas e drones enchem · **no máximo = OVERDRIVE**",
+      ruleAuto: "**Disparo automático**: mira por você, melhor com combo",
       keys: "Teclado: ← → ou A / D · Espaço dispara · P pausa · M som", gotIt: 'Entendi!',
       crashed: 'Bateu!', outOfFuel: 'Sem combustível!', score: 'Pontos: {n}',
       level: 'Nível', distance: 'Distância', coins: 'Moedas',
@@ -985,7 +1010,8 @@ window.I18N = (() => {
       upArches: "Para-lamas largos", upNeonRims: "Rodas neon", upCarbon: "Capô de carbono", upWing: "Aerofólio GT",
       upSparkle: "Rastro de estrelas", upStrobes: "Luzes estroboscópicas", upHolo: "Pintura holográfica", upJet: "Chamas a jato",
       upRainbow: "Rastro arco-íris", upLaurel: "Coroa de louros", upLegend: "Ouro lendário",
-      privacyNote: "Sem anúncios nem cookies. Só contagens anônimas de partidas."
+      privacyNote: "Sem anúncios nem cookies. Só contagens anônimas de partidas.",
+      comboTip: "COMBO ×2!", comboTipSub: "Moedas, quase-batidas e drones mantêm o combo", comboFade: "Continue ou ele some!", overdrive: "OVERDRIVE!", odSub: "Destrua tudo!", calmOn: "Reduzir movimento: Ligado", calmOff: "Reduzir movimento: Desligado"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -1000,7 +1026,8 @@ window.I18N = (() => {
       rule4: "**3 incidenti** = fuori · **10 monete** = un **♥**",
       rule5: "**Buche** = −8% carburante",
       rule6: "**FUOCO** (3 monete) abbatte **Shahed** e barriere",
-      ruleAuto: "**Fuoco automatico**: mira per te, meglio con una serie di monete",
+      ruleCombo: "**Combo**: monete, sorpassi al pelo e droni lo riempiono · **al massimo = OVERDRIVE**",
+      ruleAuto: "**Fuoco automatico**: mira per te, meglio con una combo",
       keys: "Tastiera: ← → o A / D · Spazio fuoco · P pausa · M audio", gotIt: 'Ho capito!',
       crashed: 'Incidente!', outOfFuel: 'A secco!', score: 'Punti: {n}',
       level: 'Livello', distance: 'Distanza', coins: 'Monete',
@@ -1033,7 +1060,8 @@ window.I18N = (() => {
       upArches: "Passaruota allargati", upNeonRims: "Cerchi al neon", upCarbon: "Cofano in carbonio", upWing: "Alettone GT",
       upSparkle: "Scia di stelle", upStrobes: "Lampeggianti sul tetto", upHolo: "Vernice olografica", upJet: "Fiamme a getto",
       upRainbow: "Scia arcobaleno", upLaurel: "Corona d'alloro", upLegend: "Oro leggendario",
-      privacyNote: "Niente pubblicità né cookie. Solo conteggi anonimi delle partite."
+      privacyNote: "Niente pubblicità né cookie. Solo conteggi anonimi delle partite.",
+      comboTip: "COMBO ×2!", comboTipSub: "Monete, sorpassi al pelo e droni la tengono viva", comboFade: "Continua o si spegne!", overdrive: "OVERDRIVE!", odSub: "Spacca tutto!", calmOn: "Riduci movimento: Sì", calmOff: "Riduci movimento: No"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -1048,7 +1076,8 @@ window.I18N = (() => {
       rule4: "**3回クラッシュ**で終了・**コイン10枚**で**♥**",
       rule5: "**穴ぼこ**は燃料−8%",
       rule6: "**発射**（コイン3枚）で**シャヘド**もバリアも撃破",
-      ruleAuto: "**自動発射**：自動で狙う。コイン連続で命中率アップ",
+      ruleCombo: "**コンボ**：コイン・ギリギリ回避・ドローン撃墜でたまる · **満タンでOVERDRIVE**",
+      ruleAuto: "**自動発射**：自動で狙う。コンボ中は命中率アップ",
       keys: "キーボード：← → または A / D・スペースで発射・P で一時停止・M でミュート", gotIt: 'OK！',
       crashed: 'クラッシュ！', outOfFuel: '燃料切れ！', score: 'スコア：{n}',
       level: 'レベル', distance: '距離', coins: 'コイン',
@@ -1081,7 +1110,8 @@ window.I18N = (() => {
       upArches: "ワイドフェンダー", upNeonRims: "ネオンリム", upCarbon: "カーボンボンネット", upWing: "GTウイング",
       upSparkle: "星のトレイル", upStrobes: "ルーフストロボ", upHolo: "ホログラム塗装", upJet: "ジェットフレイム",
       upRainbow: "虹のトレイル", upLaurel: "月桂冠", upLegend: "レジェンドゴールド",
-      privacyNote: "広告なし・Cookieなし。匿名のプレイ回数のみ集計します。"
+      privacyNote: "広告なし・Cookieなし。匿名のプレイ回数のみ集計します。",
+      comboTip: "コンボ ×2！", comboTipSub: "コイン・ギリギリ回避・撃墜でつなごう", comboFade: "続けないと消えていく！", overdrive: "OVERDRIVE！", odSub: "全部ぶっ壊せ！", calmOn: "動きを減らす：オン", calmOff: "動きを減らす：オフ"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -1096,7 +1126,8 @@ window.I18N = (() => {
       rule4: "**撞3次**出局 · **10 枚金币** = 一颗 **♥**",
       rule5: "**坑洞**扣 8% 燃油",
       rule6: "**发射**（3 枚金币）击落**沙赫德**、炸毁路障",
-      ruleAuto: "**自动射击**：替你瞄准，连续吃金币命中更高",
+      ruleCombo: "**连击**：金币、擦身而过和击落无人机都能攒 · **满了 = OVERDRIVE**",
+      ruleAuto: "**自动射击**：替你瞄准，连击越高越准",
       keys: "键盘：← → 或 A / D · 空格 发射 · P 暂停 · M 静音", gotIt: '知道了！',
       crashed: '撞车了！', outOfFuel: '没油了！', score: '得分：{n}',
       level: '关卡', distance: '距离', coins: '金币',
@@ -1129,7 +1160,8 @@ window.I18N = (() => {
       upArches: "宽体轮拱", upNeonRims: "霓虹轮圈", upCarbon: "碳纤维引擎盖", upWing: "GT 尾翼",
       upSparkle: "星光尾迹", upStrobes: "车顶爆闪灯", upHolo: "全息车漆", upJet: "喷射火焰",
       upRainbow: "彩虹尾迹", upLaurel: "月桂花环", upLegend: "传奇金",
-      privacyNote: "无广告，无 Cookie。仅统计匿名游玩次数。"
+      privacyNote: "无广告，无 Cookie。仅统计匿名游玩次数。",
+      comboTip: "连击 ×2！", comboTipSub: "金币、擦身而过和击落都能续上", comboFade: "继续，不然会消退！", overdrive: "OVERDRIVE！", odSub: "全部撞飞！", calmOn: "减少动效：开", calmOff: "减少动效：关"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -1144,7 +1176,8 @@ window.I18N = (() => {
       rule4: "**3번 충돌**하면 끝 · **코인 10개** = **♥** 하나",
       rule5: "**포트홀**은 연료 −8%",
       rule6: "**발사** (코인 3개)로 **샤헤드**와 바리케이드 파괴",
-      ruleAuto: "**자동 발사**: 대신 조준, 코인 연속일수록 정확",
+      ruleCombo: "**콤보**: 코인, 아슬아슬 회피, 드론 격추로 채워짐 · **가득 = OVERDRIVE**",
+      ruleAuto: "**자동 발사**: 대신 조준, 콤보가 높을수록 정확",
       keys: "키보드: ← → 또는 A / D · 스페이스 발사 · P 일시 정지 · M 음소거", gotIt: '알겠어요!',
       crashed: '충돌!', outOfFuel: '연료 고갈!', score: '점수: {n}',
       level: '레벨', distance: '거리', coins: '코인',
@@ -1177,7 +1210,8 @@ window.I18N = (() => {
       upArches: "와이드 펜더", upNeonRims: "네온 휠", upCarbon: "카본 보닛", upWing: "GT 윙",
       upSparkle: "별빛 궤적", upStrobes: "루프 스트로브", upHolo: "홀로그램 도색", upJet: "제트 불꽃",
       upRainbow: "무지개 궤적", upLaurel: "월계관", upLegend: "전설의 골드",
-      privacyNote: "광고 없음, 쿠키 없음. 익명 플레이 횟수만 집계합니다."
+      privacyNote: "광고 없음, 쿠키 없음. 익명 플레이 횟수만 집계합니다.",
+      comboTip: "콤보 ×2!", comboTipSub: "코인, 아슬아슬 회피, 격추로 이어가세요", comboFade: "계속하지 않으면 사라져요!", overdrive: "OVERDRIVE!", odSub: "전부 부숴버려!", calmOn: "움직임 줄이기: 켜짐", calmOff: "움직임 줄이기: 꺼짐"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -1192,7 +1226,8 @@ window.I18N = (() => {
       rule4: "**3 टक्कर** = बाहर · **10 सिक्के** = एक **♥**",
       rule5: "**गड्ढे** = −8% ईंधन",
       rule6: "**फ़ायर** (3 सिक्के) से **शाहेद** और बैरियर तोड़ो",
-      ruleAuto: "**ऑटो-फ़ायर**: आपके लिए निशाना, सिक्कों की लड़ी से बेहतर",
+      ruleCombo: "**कॉम्बो**: सिक्के, बाल-बाल बचना और ड्रोन इसे भरते हैं · **पूरा = OVERDRIVE**",
+      ruleAuto: "**ऑटो-फ़ायर**: आपके लिए निशाना, कॉम्बो से बेहतर",
       keys: "कीबोर्ड: ← → या A / D · स्पेस फ़ायर · P रोकें · M म्यूट", gotIt: 'समझ गया!',
       crashed: 'टक्कर!', outOfFuel: 'ईंधन ख़त्म!', score: 'स्कोर: {n}',
       level: 'लेवल', distance: 'दूरी', coins: 'सिक्के',
@@ -1225,7 +1260,8 @@ window.I18N = (() => {
       upArches: "चौड़े आर्च", upNeonRims: "नियॉन रिम", upCarbon: "कार्बन बोनट", upWing: "GT विंग",
       upSparkle: "सितारों की लकीर", upStrobes: "छत की स्ट्रोब लाइटें", upHolo: "होलो पेंट", upJet: "जेट लपटें",
       upRainbow: "इंद्रधनुषी लकीर", upLaurel: "विजय माला", upLegend: "लीजेंड गोल्ड",
-      privacyNote: "कोई विज्ञापन नहीं, कोई कुकी नहीं। सिर्फ़ गुमनाम खेल गिनती।"
+      privacyNote: "कोई विज्ञापन नहीं, कोई कुकी नहीं। सिर्फ़ गुमनाम खेल गिनती।",
+      comboTip: "कॉम्बो ×2!", comboTipSub: "सिक्के, बाल-बाल बचना और ड्रोन इसे चालू रखते हैं", comboFade: "चलते रहो, वरना यह घट जाएगा!", overdrive: "OVERDRIVE!", odSub: "सब तोड़ डालो!", calmOn: "कम मोशन: चालू", calmOff: "कम मोशन: बंद"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -1240,7 +1276,8 @@ window.I18N = (() => {
       rule4: "**3 аварії** — кінець · **10 монет** = **♥**",
       rule5: "**Ями** = −8% пального",
       rule6: "**ПУСК** (3 монети) збиває **шахеди** й бар'єри",
-      ruleAuto: "**Автопуск**: цілиться за тебе, точніше з серією монет",
+      ruleCombo: "**Комбо**: монети, проїзд на волосині й дрони заповнюють його · **максимум = OVERDRIVE**",
+      ruleAuto: "**Автопуск**: цілиться за тебе, точніше з комбо",
       keys: "Клавіатура: ← → або A / D · Пробіл — пуск · P — пауза · M — звук", gotIt: 'Зрозуміло!',
       crashed: 'Аварія!', outOfFuel: 'Пальне скінчилося!', score: 'Рахунок: {n}',
       level: 'Рівень', distance: 'Відстань', coins: 'Монети',
@@ -1275,7 +1312,8 @@ window.I18N = (() => {
       upArches: "Широкі арки", upNeonRims: "Неонові диски", upCarbon: "Карбоновий капот", upWing: "GT-антикрило",
       upSparkle: "Зоряний слід", upStrobes: "Стробоскопи на даху", upHolo: "Голографічна фарба", upJet: "Реактивне полум'я",
       upRainbow: "Райдужний слід", upLaurel: "Лавровий вінок", upLegend: "Легендарне золото",
-      privacyNote: "Без реклами й cookie. Лише анонімний підрахунок ігор."
+      privacyNote: "Без реклами й cookie. Лише анонімний підрахунок ігор.",
+      comboTip: "КОМБО ×2!", comboTipSub: "Монети, проїзд на волосині й дрони підтримують його", comboFade: "Не зупиняйся, бо згасне!", overdrive: "OVERDRIVE!", odSub: "Розноси все!", calmOn: "Менше руху: Увімк.", calmOff: "Менше руху: Вимк."
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -1290,7 +1328,8 @@ window.I18N = (() => {
       rule4: "**3 ავარია** = დასასრული · **10 მონეტა** = **♥**",
       rule5: "**ორმოები** = −8% საწვავი",
       rule6: "**გასროლა** (3 მონეტა) ჩამოაგდებს **შაჰედებს** და ბარიერებს",
-      ruleAuto: "**ავტოგასროლა**: შენ მაგივრად უმიზნებს, მონეტების სერიით უკეთესად",
+      ruleCombo: "**კომბო**: მონეტები, ძლივს აცილება და დრონები ავსებს · **სავსე = OVERDRIVE**",
+      ruleAuto: "**ავტოგასროლა**: შენ მაგივრად უმიზნებს, კომბოთი უკეთესად",
       keys: "კლავიატურა: ← → ან A / D · Space გასროლა · P პაუზა · M ხმა", gotIt: 'გასაგებია!',
       crashed: 'ავარია!', outOfFuel: 'საწვავი გათავდა!', score: 'ქულა: {n}',
       level: 'დონე', distance: 'მანძილი', coins: 'მონეტები',
@@ -1323,7 +1362,8 @@ window.I18N = (() => {
       upArches: "განიერი თაღები", upNeonRims: "ნეონის დისკები", upCarbon: "კარბონის კაპოტი", upWing: "GT ფრთა",
       upSparkle: "ვარსკვლავების კვალი", upStrobes: "სახურავის სტრობები", upHolo: "ჰოლოგრაფიული საღებავი", upJet: "რეაქტიული ალი",
       upRainbow: "ცისარტყელას კვალი", upLaurel: "დაფნის გვირგვინი", upLegend: "ლეგენდარული ოქრო",
-      privacyNote: "რეკლამისა და cookie-ების გარეშე. მხოლოდ ანონიმური თამაშების დათვლა."
+      privacyNote: "რეკლამისა და cookie-ების გარეშე. მხოლოდ ანონიმური თამაშების დათვლა.",
+      comboTip: "კომბო ×2!", comboTipSub: "მონეტები, ძლივს აცილება და დრონები ინარჩუნებს", comboFade: "განაგრძე, თორემ ჩაქრება!", overdrive: "OVERDRIVE!", odSub: "ყველაფერი დაამსხვრიე!", calmOn: "ნაკლები მოძრაობა: ჩართ.", calmOff: "ნაკლები მოძრაობა: გამორთ."
     }
   };
   const NAMES = {
@@ -1627,8 +1667,7 @@ window.LD_RULES = (() => {
   const t = I18N.t, num = I18N.num;
   const FLASH_TIME = 0.5;   // car blinks after a hit (visual only – every hit counts)
   const COUNTDOWN = 3;
-  const MAX_STREAK = 5;
-  const coinValue = (L, streak) => 10 * L * streak;
+  const coinValue = (L, mult) => 10 * L * mult;
 
   const $ = id => document.getElementById(id);
   const canvas = $('game');
@@ -1643,7 +1682,7 @@ window.LD_RULES = (() => {
   let state = 'home'; // home | menu (how-to-play) | countdown | play | stall | over | bye
   let player, objects, particles, floats, lives, speed, spawnDist, flash, roadOffset, shake, last;
   let planner; // row planner state (see LD_RULES.planRow)
-  let level, levelDist, distance, bonus, fuel, coins, coinMeter, streak, finishSpawned, stallT, lowFuelT = 0;
+  let level, levelDist, distance, bonus, fuel, coins, coinMeter, finishSpawned, stallT, lowFuelT = 0;
   let countT = 0, shownCount = null;
 
   // ---- The journey: every 5 levels the road passes into a new area of the country ----
@@ -1686,9 +1725,9 @@ window.LD_RULES = (() => {
     return !!(window.matchMedia && matchMedia('(pointer: coarse)').matches); })();
   let autoFireCool = 0;
   const AUTO_RELOAD = 1.2;  // seconds between automatic shots
-  // Chance an automatic shot misses: 45% with no coin streak, 7% less per streak step, 10% at x5.
+  // Chance an automatic shot misses: 45% at x1, down to 10% at a x5 combo.
   // Shots you fire yourself never miss.
-  const autoMiss = () => Math.max(0.1, 0.45 - streak * 0.07);
+  const autoMiss = () => Math.max(0.1, 0.45 - (comboMult() - 1) * 0.0875);
   // ---- Daily challenge: the same road for everyone each day, plus one twist ----
   // The road's random numbers come from a seed made from the date, so everyone drives the
   // same rows of obstacles, coins and drone waves (spawns are spaced by distance, so a run's
@@ -1780,14 +1819,41 @@ window.LD_RULES = (() => {
   };
   let droneQueue = [];                         // drones of the current wave still to launch
   let drones = [], rockets = [], booms = [], wallet = 0, droneT = 0, droneSeen = false;
-  // Shahed score: kills this run, and a combo of kills in a row (reset when one hits you).
-  let kills = 0, killCombo = 0;
-  const KILL_PTS = 150, DODGE_PTS = 50, MAX_COMBO = 5;
+  // Shahed score: kills this run.
+  let kills = 0;
+  const KILL_PTS = 150, DODGE_PTS = 50;
   const SMASH_PTS = 25;                          // a rocket blowing up a barrier, x level
   // Close calls: leave a lane less than CLOSE_WINDOW s before a barrier in it reaches you.
-  // Close calls within CLOSE_CHAIN_S s of each other chain (x2 .. x5); any hit resets the chain.
-  const CLOSE_WINDOW = 0.4, CLOSE_PTS = 20, CLOSE_CHAIN_S = 5;
-  let lastLeftLane = -1, lastLaneChangeT = -9, lastCloseT = -9, closeChain = 0;
+  // Under CLOSE_SLOWMO s is a really close one: a blink of slow motion and sparks.
+  const CLOSE_WINDOW = 0.4, CLOSE_PTS = 20, CLOSE_SLOWMO = 0.2;
+  let lastLeftLane = -1, lastLaneChangeT = -9;
+
+  // ---- Combo: one meter, fed by coins, close calls and Shaheds shot down ----
+  // The multiplier (x1..x5) applies to every bonus you score. A crash empties the meter; a
+  // pothole, oil slick or Shahed blast drops it one tier; 4 s without a gain and it drains.
+  const COMBO_AT = [0, 8, 20, 40, 65];        // meter needed for x1, x2, x3, x4, x5
+  const OD_AT = 90;                            // full meter at x5: OVERDRIVE
+  const GAIN = { coin: 1, close: 2, kill: 3, autoKill: 1, level: 5 };   // level: a checkpoint reached without a hit
+  const COMBO_IDLE = 4, COMBO_DRAIN = 6;       // drains COMBO_DRAIN a second after COMBO_IDLE s without a gain
+  const TIER_COLORS = ['#e6eaf5', '#FFD500', '#ff9f1c', '#ff5a5a', '#c08bff'];
+  let combo = 0, comboIdle = 0, cleanLevel = true;
+  const comboMult = () => COMBO_AT.filter(a => combo >= a).length;
+  // ---- Overdrive: a short slow-motion build-up, then a few seconds fast and unstoppable ----
+  const OD_BUILD = 0.5, OD_SLOW = 0.2;          // build-up: real seconds, at this fraction of normal speed
+  const OD_TIME = 6, OD_WIND = 1.5, OD_BOOST = 1.6, OD_AFTER = 2;   // burst length, warning at the end, speed, combo tier after
+  let odPhase = '', odT = 0, odBoost = 1, overdrives = 0, odTick = 0;
+  // Slow motion: game time runs at warpK for warpT more real seconds.
+  let warpT = 0, warpK = 1, realDt = 0;
+  let calm = (() => { try { const v = localStorage.getItem('ddCalm'); if (v === '1' || v === '0') return v === '1'; } catch {}
+    return !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches); })();
+  function slowmo(dur, k) {
+    if (calm) return;
+    warpK = warpT > 0 ? Math.min(warpK, k) : k;
+    warpT = Math.max(warpT, dur);
+  }
+  let hurtT = 0;            // red glow round the screen edges after losing a life
+  let flyers = [];          // coins flying up into the score
+  const tip = k => { if (readNum(k)) return false; writeNum(k, 1); return true; };   // one-time callouts
   let speedLines = [], closeBurst = 0;   // roadside speed streaks; a short flare after a close call
   // Coin Rush: after every 5th checkpoint, the next RUSH_ROWS rows all carry a coin worth double.
   const RUSH_ROWS = 10;
@@ -1848,6 +1914,7 @@ window.LD_RULES = (() => {
     let muted = readNum('laneDodgerMuted') === 1;
     const VOL = 0.6;
 
+    let muffle = null, enginePitch = 1;
     function ensure() {
       if (!ac) {
         const AC = window.AudioContext || window.webkitAudioContext;
@@ -1855,7 +1922,8 @@ window.LD_RULES = (() => {
         ac = new AC();
         master = ac.createGain();
         master.gain.value = muted ? 0 : VOL;
-        master.connect(ac.destination);
+        muffle = ac.createBiquadFilter(); muffle.type = 'lowpass'; muffle.frequency.value = 20000;   // closes for a moment when you're hit
+        master.connect(muffle).connect(ac.destination);
         noiseBuf = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
         const d = noiseBuf.getChannelData(0);
         for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
@@ -1910,7 +1978,7 @@ window.LD_RULES = (() => {
       go()        { tone(880, 0.4, { type: 'square', vol: 0.13 }); tone(1320, 0.4, { type: 'square', vol: 0.07, delay: 0.03 }); },
       whoosh()    { noise(0.28, { vol: 0.22, from: 500, to: 5000 }); tone(500, 0.2, { type: 'triangle', vol: 0.06, slide: 2.2 }); },
       lane()      { tone(260, 0.07, { type: 'triangle', vol: 0.07, slide: 1.8 }); },
-      // pitch climbs with the streak, so chains sound rewarding
+      // pitch climbs with the combo, so chains sound rewarding
       coin(s)     { const b = 880 * Math.pow(1.122, s - 1); tone(b, 0.07, { type: 'square', vol: 0.09 }); tone(b * 1.5, 0.18, { type: 'square', vol: 0.09, delay: 0.06 }); },
       refuel()    { arp([523, 659, 784, 1047], 0.07, { type: 'triangle', vol: 0.2, dur: 0.2 }); noise(0.35, { vol: 0.08, from: 600, to: 3000 }); },
       crash()     { noise(0.5, { vol: 0.55, from: 2500, to: 120 }); tone(130, 0.45, { type: 'sawtooth', vol: 0.25, slide: 0.35 }); },
@@ -1921,6 +1989,14 @@ window.LD_RULES = (() => {
       gameOver()  { arp([392, 330, 262, 196], 0.16, { type: 'triangle', vol: 0.18, dur: 0.32, delay: 0.35 }); },
       launch()    { noise(0.45, { vol: 0.25, from: 4000, to: 700 }); tone(280, 0.35, { type: 'sawtooth', vol: 0.08, slide: 3 }); },
       boom()      { noise(0.8, { vol: 0.6, from: 1800, to: 60 }); tone(70, 0.6, { vol: 0.45, slide: 0.4 }); },
+      // combo tier up: a quick rising run, one note longer per tier
+      tier(m)     { arp([523, 659, 784, 1047, 1319].slice(0, m), 0.05, { type: 'square', vol: 0.08, dur: 0.14 }); },
+      odBuild()   { tone(58, 0.7, { vol: 0.55, slide: 0.55 }); noise(0.6, { vol: 0.25, from: 300, to: 60 }); },
+      odGo()      { arp([392, 523, 659, 784, 1047, 1319], 0.04, { type: 'sawtooth', vol: 0.06, dur: 0.18 }); noise(0.5, { vol: 0.3, from: 600, to: 6000 }); },
+      smash()     { noise(0.22, { vol: 0.35, from: 3200, to: 260 }); tone(150, 0.14, { type: 'square', vol: 0.1, slide: 0.5 }); },
+      tick()      { tone(1400, 0.03, { type: 'square', vol: 0.05 }); },
+      hurt()      { if (!muffle) return; const t = ac.currentTime; muffle.frequency.cancelScheduledValues(t); muffle.frequency.setValueAtTime(450, t); muffle.frequency.setTargetAtTime(20000, t + 0.25, 0.3); },
+      pitch(k)    { enginePitch = k; },
       // The Shahed's moped-like two-stroke buzz, while one is on screen.
       buzz(on) {
         if (!ac) return;
@@ -1964,6 +2040,7 @@ window.LD_RULES = (() => {
         const lo = GEARS[g], hi = GEARS[g + 1];
         let rpm = spd < 40 ? IDLE_RPM : 2300 + Math.min(1, Math.max(0, (spd - lo) / (hi - lo))) * 3500;
         if (t < engine.revUntil) rpm *= 1.18;
+        rpm *= enginePitch;                             // Overdrive: the engine screams
         engine.set(rpm, t, k);
         engine.level(0.1 + Math.min(rpm, 6000) / 6000 * 0.06, t);
       },
@@ -2002,10 +2079,11 @@ window.LD_RULES = (() => {
     MAX_LIVES = twist.lives || 3;
     lives = MAX_LIVES; level = twist.start || 1; speed = levelSpeed(level); slip = 0;
     spawnDist = 200; flash = 0; roadOffset = 0; shake = 0; planner = R.newPlanner(roadRand);
-    levelDist = 0; distance = 0; bonus = 0; fuel = 100; coins = 0; coinMeter = 0; streak = 0; lowFuelT = 0; finishSpawned = false;
+    levelDist = 0; distance = 0; bonus = 0; fuel = 100; coins = 0; coinMeter = 0; lowFuelT = 0; finishSpawned = false;
+    combo = 0; comboIdle = 0; cleanLevel = true; odPhase = ''; odT = 0; odBoost = 1; overdrives = 0; warpT = 0; hurtT = 0; flyers = []; sfx.pitch(1);
     // One rocket loaded from the start, so the first Shahed (7 s in, before 3 coins are usually collected) can be shot down.
-    drones = []; rockets = []; booms = []; wallet = ROCKET_COST; droneT = twist.swarm ? 4 : 7; droneSeen = false; kills = 0; killCombo = 0; droneQueue = []; resuming = false; runTime = 0; carNo = 1 + Math.floor(Math.random() * 99);
-    lastLeftLane = -1; lastLaneChangeT = -9; lastCloseT = -9; closeChain = 0; speedLines = []; closeBurst = 0; heartProgress = 0; heartsEarned = 0;
+    drones = []; rockets = []; booms = []; wallet = ROCKET_COST; droneT = twist.swarm ? 4 : 7; droneSeen = false; kills = 0; droneQueue = []; resuming = false; runTime = 0; carNo = 1 + Math.floor(Math.random() * 99);
+    lastLeftLane = -1; lastLaneChangeT = -9; speedLines = []; closeBurst = 0; heartProgress = 0; heartsEarned = 0;
     areaBounds = [{ k: -Infinity, a: areaFor(level) }]; lookArea = areaFor(level); lookFade = 1; rushRows = 0;
     worksPrev = -1;
     el.banner.innerHTML = '';
@@ -2014,8 +2092,7 @@ window.LD_RULES = (() => {
 
   function updateHud() {
     el.score.textContent = num(score());
-    el.streak.textContent = '×' + streak;
-    el.streak.classList.toggle('on', streak > 1);
+    paintCombo();
     el.lives.textContent = '♥'.repeat(lives) + '♡'.repeat(MAX_LIVES - lives);
     const cc = el.coinCount.lastChild;
     if (cc.textContent !== num(coins)) cc.textContent = num(coins);
@@ -2035,6 +2112,92 @@ window.LD_RULES = (() => {
     el.fuelRow.classList.toggle('low', fuel <= 25);
     [...el.pips.children].forEach((p, i) => p.classList.toggle('on', i < coinMeter));
     if (DRONES()) paintEggBar();
+  }
+  // The combo badge next to the score.
+  let comboShown = '';
+  function paintCombo() {
+    const m = comboMult(), hi = m < 5 ? COMBO_AT[m] : OD_AT, lo = COMBO_AT[m - 1];
+    const p = odPhase ? (odPhase === 'build' ? 1 : Math.max(0, odT / OD_TIME)) : Math.min(1, (combo - lo) / (hi - lo));
+    const txt = odPhase ? '⚡×5' : '×' + m;
+    const key = txt + '|' + p.toFixed(2) + '|' + (combo > 0 || !!odPhase) + '|' + (comboIdle > COMBO_IDLE && combo > 0) + '|' + !!odPhase;
+    if (key === comboShown) return;
+    comboShown = key;
+    const b = el.streak;
+    if (b.textContent !== txt) b.textContent = txt;
+    b.style.setProperty('--p', p.toFixed(3));
+    b.style.setProperty('--tc', TIER_COLORS[m - 1]);
+    b.classList.toggle('on', combo > 0 || !!odPhase);
+    b.classList.toggle('drain', !odPhase && comboIdle > COMBO_IDLE && combo > 0);
+    b.classList.toggle('od', !!odPhase);
+  }
+  function bumpCombo() { const b = el.streak; b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump'); }
+  // Add to the meter; a new tier pops up over the car, a full meter at x5 starts Overdrive.
+  function addCombo(n) {
+    if (odPhase || state !== 'play') return;
+    const before = comboMult();
+    combo = Math.min(OD_AT, combo + n); comboIdle = 0;
+    bumpCombo();
+    const m = comboMult();
+    if (m > before) {
+      bigText(player.x, player.y - 60, '×' + m + '!', TIER_COLORS[m - 1]);
+      sfx.tier(m);
+      if (navigator.vibrate) navigator.vibrate(25);
+      if (m === 2 && tip('ddTipCombo')) showBanner(t('comboTip'), t('comboTipSub'));
+    }
+    if (combo >= OD_AT) startOverdrive();
+  }
+  // A jolt (pothole, oil, Shahed blast): down one tier. A crash: back to nothing.
+  function dropTier() { const m = comboMult(); combo = m >= 2 ? COMBO_AT[m - 2] : 0; comboIdle = 0; cleanLevel = false; }
+  function breakCombo() { combo = 0; comboIdle = 0; cleanLevel = false; }
+
+  function startOverdrive() {
+    odPhase = 'build'; odT = OD_BUILD; overdrives++;
+    warpT = 0; slowmo(OD_BUILD, OD_SLOW);
+    sfx.odBuild();
+    showBanner(t('overdrive'), tip('ddTipOD') ? t('odSub') : '');
+    if (navigator.vibrate) navigator.vibrate([30, 60, 80]);
+  }
+  function updateOverdrive(dt) {
+    if (odPhase === 'build') {
+      odT -= realDt;
+      if (odT <= 0) { odPhase = 'burst'; odT = OD_TIME; sfx.odGo(); sfx.pitch(1.22); shake = Math.max(shake, 0.2); }
+      return;
+    }
+    odT -= dt;
+    odBoost += (OD_BOOST - odBoost) * ease(6, dt);
+    if (odT < OD_WIND && (odTick -= dt) <= 0) { sfx.tick(); odTick = 0.25; }
+    if (odT <= 0) endOverdrive();
+  }
+  // Overdrive ends: the road just ahead is cleared and any Shahed still in the air blows up, so
+  // dropping back to normal speed never lands you in a crash you couldn't avoid.
+  function endOverdrive() {
+    odPhase = ''; odBoost = 1; odTick = 0; sfx.pitch(1);
+    const reach = player.y - speed * 1.2;
+    for (const o of objects) {
+      if ((o.type !== 'enemy' && o.type !== 'hole') || o.dead || o.used) continue;
+      if (o.y + o.h > reach && o.y < player.y + player.h) {
+        if (o.works) o.used = true; else o.dead = true;
+        for (const c of DEBRIS[o.skin] || DEBRIS.barrier) burst(objX(o), o.y + o.h / 2, c, 6);
+      }
+    }
+    for (const d of drones) if (!d.dead) { d.dead = true; explode(d.x, d.y); kills++; }
+    droneQueue = []; droneT = Math.max(droneT, 2.5);
+    combo = COMBO_AT[OD_AFTER]; comboIdle = 0;
+    slowmo(0.15, 0.4);
+    sfx.whoosh();
+  }
+  // Overdrive: whatever you drive into goes flying.
+  function odSmash(o) {
+    if (o.works) o.used = true; else o.dead = true;
+    const x = objX(o), y = o.y + o.h / 2;
+    for (const c of DEBRIS[o.skin] || DEBRIS.barrier) burst(x, y, c, 10);
+    burst(x, y, '#fff', 6);
+    const pts = SMASH_PTS * level * comboMult();
+    bonus += pts;
+    floatText(x, o.y - 6, t('smashed') + ' +' + num(pts), '#FFD700');
+    shake = Math.max(shake, 0.12);
+    sfx.smash();
+    if (navigator.vibrate) navigator.vibrate(20);
   }
   const autoChip = $('autoChip'), autoPct = $('autoPct');
   // FIRE shares its column with the auto block: if the label doesn't fit, drop the 🚀 icon, then
@@ -2061,7 +2224,7 @@ window.LD_RULES = (() => {
     const incoming = drones.some(d => !d.dead && !rockets.some(r => r.target === d)); // not already being shot at
     const set = (node, v) => { if (node.textContent !== v) node.textContent = v; };
     set(rocketN, String(n));
-    set(el.eggKills, '🎯 ' + num(kills) + (killCombo > 1 ? '  ×' + Math.min(killCombo, MAX_COMBO) : ''));
+    set(el.eggKills, '🎯 ' + num(kills));
     rocketBtn.disabled = n === 0;
     rocketBtn.classList.toggle('ready', n > 0 && !!target());
     eggPips.forEach((p, i) => p.classList.toggle('on', i < part));
@@ -2138,7 +2301,7 @@ window.LD_RULES = (() => {
   function ease(rate, dt) { return 1 - Math.pow(1 - Math.min(1, rate / 60), dt * 60); }
   function updateDrones(dt) {
     droneT -= dt;
-    if (droneT <= 0 && !drones.length && !droneQueue.length) {
+    if (droneT <= 0 && !drones.length && !droneQueue.length && !odPhase) {   // no new waves during Overdrive
       droneT = DRONE.gap(level);
       // A wave: the first drone targets your lane, the others different lanes, launched a moment apart.
       const lanes = [player.lane, ...(droneRand() < 0.5 ? [0, 1, 2] : [2, 1, 0]).filter(l => l !== player.lane)];
@@ -2197,13 +2360,19 @@ window.LD_RULES = (() => {
         // It strikes the road level with your car, in its lane, and always explodes there.
         d.dead = true;
         const lx = laneX(d.lane);
+        if (odPhase) {                                  // Overdrive: it blows up before it reaches you
+          explode(d.x, impactY - 40); kills++;
+          const pts = KILL_PTS * level * comboMult(); bonus += pts;
+          floatText(d.x, impactY - 60, t('shotDown') + ' +' + num(pts), '#FFD700');
+          continue;
+        }
         explode(lx, impactY, true);
         objects.push({ type: 'scorch', lane: d.lane, y: impactY - 22, w: laneW * 0.7, h: 44, seed: Math.random() * 100 });
         const off = Math.abs(player.x - lx) / laneW;                         // 0 = same lane, ~1 = next lane
         if (off < 0.5) {
           // Direct hit: a blast that costs fuel and speed, not a life.
           fuel = Math.max(0, fuel - DRONE_FUEL);
-          speed *= POTHOLE_SLOW; shake = 0.45; streak = 0; killCombo = 0; closeChain = 0;
+          speed *= POTHOLE_SLOW; shake = 0.45; dropTier();
           floatText(player.x, player.y - 24, t('fuelFloat', { n: '−' + DRONE_FUEL }), getVar('--enemy'));
           if (navigator.vibrate) navigator.vibrate(150);
         } else if (off < 1.5) {
@@ -2215,7 +2384,7 @@ window.LD_RULES = (() => {
         } else {
           // Two lanes away: clean dodge.
           shake = Math.max(shake, 0.15);
-          const pts = DODGE_PTS * level;
+          const pts = DODGE_PTS * level * comboMult();
           bonus += pts;
           floatText(lx, impactY - 40, t('dodged') + ' +' + num(pts), getVar('--ua-blue-lt'));
         }
@@ -2239,7 +2408,7 @@ window.LD_RULES = (() => {
           tg.dead = r.dead = true;
           explode(at.x, at.y);
           for (const c of DEBRIS[tg.skin] || DEBRIS.barrier) burst(at.x, at.y, c, 10);
-          const pts = SMASH_PTS * level;
+          const pts = SMASH_PTS * level * comboMult();
           bonus += pts;
           floatText(at.x, at.y - 10, t('smashed') + ' +' + num(pts), '#FFD700');
           continue;
@@ -2248,11 +2417,11 @@ window.LD_RULES = (() => {
           tg.dead = r.dead = true;
           explode(tg.x, tg.y);
           kills++;
-          if (!r.auto) killCombo++;                         // automatic kills don't build the combo...
-          const mult = r.auto ? 1 : Math.min(killCombo, MAX_COMBO);
-          const pts = Math.round(KILL_PTS * level * mult * (r.auto ? 0.5 : 1));   // ...and score half
+          const pts = Math.round(KILL_PTS * level * comboMult() * (r.auto ? 0.5 : 1));   // automatic kills score half...
           bonus += pts;
-          floatText(tg.x, tg.y - 10, t('shotDown') + (mult > 1 ? ' ×' + mult : '') + ' +' + num(pts), '#FFD700');
+          floatText(tg.x, tg.y - 10, t('shotDown') + ' +' + num(pts), '#FFD700');
+          addCombo(r.auto ? GAIN.autoKill : GAIN.kill);                                 // ...and add less to the combo
+          if (!r.auto) { slowmo(0.06, 0.05); shake = Math.max(shake, 0.12); }           // a beat of hit-stop
           el.eggKills.classList.remove('bump'); void el.eggKills.offsetWidth; el.eggKills.classList.add('bump');
           continue;
         }
@@ -2334,6 +2503,7 @@ window.LD_RULES = (() => {
   function floatText(x, y, text, color) {
     floats.push({ x, y, text, color, life: 0.9 });
   }
+  function bigText(x, y, text, color) { floats.push({ x, y, text, color, life: 1, big: true }); }
 
   function showBanner(title, sub, warn, reward) {
     el.banner.classList.toggle('warn', !!warn);
@@ -2418,13 +2588,14 @@ window.LD_RULES = (() => {
         heartProgress = 0;
         if (heartsEarned < 1) { heartsEarned = 1; floatText(player.x, player.y - 52, '♥ ✓', getVar('--enemy')); }
       }
-      streak = Math.min(MAX_STREAK, streak + 1);
-      const pts = coinValue(level, streak) * (o.rush ? 2 : 1);   // Coin Rush coins are worth double
+      const ox = objX(o), pts = coinValue(level, comboMult()) * (o.rush ? 2 : 1);   // Coin Rush coins are worth double
       bonus += pts;
-      burst(cx, o.y + o.h / 2, getVar('--coin'), 12);
-      floatText(cx, o.y, '+' + num(pts) + (streak > 1 ? '  ×' + streak : ''), getVar('--coin'));
+      burst(ox, o.y + o.h / 2, getVar('--coin'), 12);
+      floatText(ox, o.y, '+' + num(pts), getVar('--coin'));
+      flyers.push({ x: ox, y: o.y + o.h / 2, t: 0 });
       coinMeter++;
-      sfx.coin(streak);
+      sfx.coin(comboMult());
+      addCombo(GAIN.coin);
       if (coinMeter >= COINS_PER_REFUEL) {
         coinMeter = 0;
         sfx.refuel();
@@ -2445,19 +2616,20 @@ window.LD_RULES = (() => {
       el.lives.classList.remove('gain'); void el.lives.offsetWidth; el.lives.classList.add('gain');
       return;
     }
+    if (odPhase) { odSmash(o); return; }   // Overdrive: nothing can hurt you
     if (o.skin === 'oil') {        // oil slick: no fuel lost, but the steering goes soft for a moment
-      o.used = true; slip = SLIP_TIME; shake = 0.15; streak = 0;
+      o.used = true; slip = SLIP_TIME; shake = 0.15; dropTier();
       speed *= 0.92;
       sfx.pothole();
       floatText(player.x, player.y - 24, t('slippery'), '#c9b6ff');
       return;
     }
     if (o.type === 'hole') {
-      // Not a crash: a jolt that costs fuel, speed and your coin streak.
+      // Not a crash: a jolt that costs fuel, speed and a combo tier.
       o.used = true;
       fuel = Math.max(0, fuel - POTHOLE_FUEL);
       speed *= POTHOLE_SLOW;
-      shake = 0.22; streak = 0; closeChain = 0;
+      shake = 0.22; dropTier();
       sfx.pothole();
       burst(player.x, player.y + 8, '#8b93b5', 10);
       floatText(player.x, player.y - 24, t('fuelFloat', { n: '−' + POTHOLE_FUEL }), getVar('--enemy'));
@@ -2466,21 +2638,25 @@ window.LD_RULES = (() => {
     }
     if (o.works) o.used = true;     // drive through the cones: one crash, the rest of the line stays put
     else o.dead = true;
-    lives--; flash = FLASH_TIME; shake = 0.35; streak = 0; closeChain = 0;
-    sfx.crash();
+    lives--; flash = FLASH_TIME; shake = 0.35; breakCombo(); hurtT = 0.7;
+    sfx.crash(); sfx.hurt();
     for (const c of DEBRIS[o.skin] || DEBRIS.barrier) burst(player.x, player.y + player.h / 2, c, 12);
     if (navigator.vibrate) navigator.vibrate(120);
     if (lives <= 0) gameOver('crash');
   }
 
   function closeCall(o) {
-    closeChain = runTime - lastCloseT <= CLOSE_CHAIN_S ? closeChain + 1 : 1;
-    lastCloseT = runTime;
-    const mult = Math.min(closeChain, 5), pts = CLOSE_PTS * level * mult;
+    const pts = CLOSE_PTS * level * comboMult();
     bonus += pts;
-    floatText(laneX(o.lane), player.y - 6, t('close') + (mult > 1 ? ' ×' + mult : '') + ' +' + num(pts), '#7fe3ff');
+    floatText(laneX(o.lane), player.y - 6, t('close') + ' +' + num(pts), '#7fe3ff');
     sfx.whoosh();
     closeBurst = 0.4;
+    if (runTime - lastLaneChangeT <= CLOSE_SLOWMO) {     // a really close one: sparks off its side and a blink of slow-mo
+      const sx = (laneX(o.lane) + player.x) / 2;
+      burst(sx, player.y, '#ffd27a', 10); burst(sx, player.y, '#fff', 5);
+      slowmo(0.12, 0.4);
+    }
+    addCombo(GAIN.close);
   }
   // New hazards are announced on the checkpoint banner of the level they start at.
   const HAZARD_AT = { 26: 'hzSliders', 30: 'hzOil', 35: 'hzWorks' };
@@ -2491,6 +2667,8 @@ window.LD_RULES = (() => {
     fuel = Math.min(100, fuel + CHECKPOINT_FUEL);
     const pts = 100 * (level - 1);
     bonus += pts;
+    if (cleanLevel) addCombo(GAIN.level);  // a whole level without a scratch
+    cleanLevel = true;
     spawnDist = Math.max(spawnDist, 260); // short breather after the line
     sfx.levelUp();
     if (level === 10 || level === 25 || level === 50) ddTrack('reached-level-' + level, 'Reached level ' + level);
@@ -2512,7 +2690,9 @@ window.LD_RULES = (() => {
     state = 'over';
     sfx.gameOver();
     const s = score();
-    lastRun = { s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, k: kills, tm: Math.round(runTime), a: areaFor(level),
+    if (odPhase) { odPhase = ''; sfx.pitch(1); }
+    warpT = 0;
+    lastRun = { s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, k: kills, o: overdrives, tm: Math.round(runTime), a: areaFor(level),
                 h: carHue, v: carShade, no: carNo, day: runDay ? runDay.n : 0, tw: runDay ? twist.key : '' };
     $('shareNote').hidden = true;
     $('overDaily').hidden = !runDay;
@@ -2529,7 +2709,7 @@ window.LD_RULES = (() => {
     const bestLevel = runDay ? 0 : Math.max(readNum('laneDodgerBestLevel'), level);
     if (!runDay) { writeNum('laneDodgerBest', best); writeNum('laneDodgerBestLevel', bestLevel); }
     if (s > 0 && !runDay) {
-      const run = { s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, h: carHue, v: carShade, k: kills, a: areaFor(level), tm: Math.round(runTime), no: carNo, t: Date.now() };
+      const run = { s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, h: carHue, v: carShade, k: kills, o: overdrives, a: areaFor(level), tm: Math.round(runTime), no: carNo, t: Date.now() };
       if (saveRun(run)) latestRunT = run.t;
     }
     el.over.classList.toggle('fuel', reason === 'fuel');
@@ -2543,7 +2723,7 @@ window.LD_RULES = (() => {
     $('statKillsTile').hidden = !egg;
     $('statKills').textContent = num(kills);
     const A = AREAS[areaFor(level)];
-    $('overTrip').textContent = A.icon + ' ' + t(A.key) + ' · ⏱ ' + fmtTime(runTime);
+    $('overTrip').textContent = A.icon + ' ' + t(A.key) + ' · ⏱ ' + fmtTime(runTime) + (overdrives ? ' · ⚡ ' + num(overdrives) : '');
     if (!runDay) $('bestLine').textContent = t('bestLine', { best, level: bestLevel });
     el.over.classList.remove('hidden');
     fitStats();
@@ -2602,7 +2782,7 @@ window.LD_RULES = (() => {
     c.fillStyle = '#ffd84a'; c.font = font(900, 140); c.fillText(num(r.s), CW / 2, 940, CW - 220);
     c.fillStyle = '#ffffff'; c.font = font(800, 54); c.fillText(t('lv', { n: r.l }) + ' · ' + A.icon + ' ' + t(A.key), CW / 2, 1050, CW - 220);
     c.font = font(700, 42); c.fillStyle = '#e6eaf5';
-    c.fillText(['🛣️ ' + t('meters', { n: r.d }), '🪙 ' + num(r.c), r.k ? '🎯 ' + num(r.k) : '', '⏱ ' + fmtTime(r.tm)].filter(Boolean).join('   '), CW / 2, 1140, CW - 220);
+    c.fillText(['🛣️ ' + t('meters', { n: r.d }), '🪙 ' + num(r.c), r.k ? '🎯 ' + num(r.k) : '', r.o ? '⚡ ' + num(r.o) : '', '⏱ ' + fmtTime(r.tm)].filter(Boolean).join('   '), CW / 2, 1140, CW - 220);
     c.fillStyle = '#9fb3d9'; c.font = font(700, 36); c.fillText(GAME_URL.replace(/^https:\/\//, ''), CW / 2, 1290);
     return cv;
   }
@@ -2756,7 +2936,7 @@ window.LD_RULES = (() => {
       const A = AREAS[r.a ?? areaFor(r.l)];                       // older runs: work the area out from the level
       where.className = 'where';
       where.textContent = A.icon + ' ' + t(A.key) + ' · ' + t('lv', { n: r.l });
-      trip.textContent = [t('meters', { n: r.d }), r.tm ? '⏱ ' + fmtTime(r.tm) : '', r.k > 0 ? '🎯 ' + num(r.k) : '', df.format(r.t)]
+      trip.textContent = [t('meters', { n: r.d }), r.tm ? '⏱ ' + fmtTime(r.tm) : '', r.k > 0 ? '🎯 ' + num(r.k) : '', r.o > 0 ? '⚡ ' + num(r.o) : '', df.format(r.t)]
         .filter(Boolean).join(' · ');
       info.append(b, where, trip);
       li.append(rank, cv, info);
@@ -2775,7 +2955,9 @@ window.LD_RULES = (() => {
   }
   function paintHomeBest() {
     const { n, twist: tw } = dayInfo(), d = dailyNow();
-    $('dailySub').textContent = ['#' + n + ' · ' + t(tw.key), d.best ? '🏆 ' + num(d.best) : '', d.streak ? '🔥 ' + num(d.streak) : ''].filter(Boolean).join(' · ');
+    // today's twist on one line, your best and streak (once you have them) on the next
+    const mine = [d.best ? '🏆 ' + num(d.best) : '', d.streak ? '🔥 ' + num(d.streak) : ''].filter(Boolean).join(' · ');
+    $('dailySub').textContent = '#' + n + ' · ' + t(tw.key) + (mine ? '\n' + mine : '');
     const best = readNum('laneDodgerBest');
     const hb = $('homeBest');
     hb.hidden = !best;
@@ -2866,12 +3048,15 @@ window.LD_RULES = (() => {
     lookFade = Math.min(1, lookFade + dt / 1.5);
     updateWeather(dt, roadV);
     closeBurst = Math.max(0, closeBurst - dt);
-    updateSpeedLines(dt, moving ? speed : 0);
+    updateSpeedLines(dt, moving ? speed * odBoost : 0);
     particles.forEach(p => { p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt; });
     particles = particles.filter(p => p.life > 0);
     floats.forEach(f => { f.y -= 50 * dt; f.life -= dt; });
     floats = floats.filter(f => f.life > 0);
     if (shake > 0) shake -= dt;
+    hurtT = Math.max(0, hurtT - realDt);
+    for (const f of flyers) f.t += realDt / 0.45;
+    if (flyers.length && flyers[0].t >= 1) { flyers = flyers.filter(f => f.t < 1); el.score.classList.remove('bump'); void el.score.offsetWidth; el.score.classList.add('bump'); }
 
     if (state === 'countdown') {
       slidePlayer(dt);
@@ -2904,21 +3089,27 @@ window.LD_RULES = (() => {
     const target = levelSpeed(level) + (levelSpeed(level + 1) - levelSpeed(level)) * 0.6 * Math.min(1, levelDist / lenPx);
     speed += (target - speed) * ease(1.5, dt);
 
-    const step = speed * dt;
+    if (odPhase) updateOverdrive(dt);
+    const step = speed * odBoost * dt;
     distance += step;
     runTime += dt;
     levelDist += step;
     flash = Math.max(0, flash - dt);
     slidePlayer(dt);
 
-    fuel = Math.max(0, fuel - fuelDrain(level) * dt);
+    if (!odPhase) fuel = Math.max(0, fuel - fuelDrain(level) * dt);   // Overdrive burns no fuel
+    // The combo drains once nothing has added to it for a while.
+    if (!odPhase && combo > 0 && (comboIdle += dt) > COMBO_IDLE) {
+      combo = Math.max(0, combo - COMBO_DRAIN * dt);
+      if (tip('ddTipFade')) floatText(player.x, player.y - 70, t('comboFade'), '#cfd6ea');
+    }
     // Warning beeps while low, faster when nearly empty.
     if (fuel <= 25) {
       lowFuelT -= dt;
       if (lowFuelT <= 0) { sfx.lowFuel(); lowFuelT = fuel <= 10 ? 0.8 : 1.6; }
     } else lowFuelT = 0;
     if (fuel <= 0) {
-      state = 'stall'; stallT = 1.4; streak = 0;
+      state = 'stall'; stallT = 1.4; breakCombo();
       sfx.outOfFuel();
       showBanner(t('outBanner'), t('outSub'), true);
       updateHud();
@@ -2946,6 +3137,10 @@ window.LD_RULES = (() => {
         o.fx = o.from + (o.to - o.from) * (0.5 - 0.5 * Math.cos(o.ph));
         o.lane = Math.round(o.fx);
       }
+      if (odPhase === 'burst' && o.type === 'coin' && o.y > -80 && o.y < player.y + 30) {   // Overdrive: coins are pulled in
+        const from = o.fx !== undefined ? o.fx : o.lane, to = (player.x - vergeW) / laneW - 0.5;
+        o.fx = from + (to - from) * ease(6, dt);
+      }
       if (o.type === 'finish' || o.type === 'scorch' || o.dead || o.used) continue;   // scorch marks are harmless
       const ox = objX(o) - o.w / 2;
       const ins = o.type === 'hole' ? 10 : 6; // potholes are round: a slightly kinder hitbox
@@ -2962,7 +3157,6 @@ window.LD_RULES = (() => {
     objects = objects.filter(o => {
       if (o.dead) return false;
       if (o.y < H + 50) return true;
-      if (o.type === 'coin') streak = 0; // missed a coin: streak broken
       return false;
     });
     if (DRONES() && state === 'play') updateDrones(dt);
@@ -3942,7 +4136,7 @@ window.LD_RULES = (() => {
   }
   // Speed lines: white streaks rushing past along the roadside and road edges (never across
   // the middle of the lanes). They fade in from ~520 px/s, and flare briefly after a close call.
-  const speedK = v => Math.max(closeBurst > 0 ? 0.9 : 0, Math.min(1, (v - 520) / 300));
+  const speedK = v => odPhase === 'burst' ? 1 : Math.max(closeBurst > 0 ? 0.9 : 0, Math.min(1, (v - 520) / 300));
   function newSpeedLine(anywhere) {
     const band = vergeW + laneW * 0.14, left = Math.random() < 0.5;
     return { x: left ? Math.random() * band : W - Math.random() * band,
@@ -3998,7 +4192,12 @@ window.LD_RULES = (() => {
 
   function draw() {
     ctx.save();
-    if (shake > 0) ctx.translate((Math.random() - 0.5) * 12, (Math.random() - 0.5) * 12);
+    if (shake > 0 && !calm) ctx.translate((Math.random() - 0.5) * 12, (Math.random() - 0.5) * 12);
+    const build = odPhase === 'build' ? 1 - Math.max(0, odT) / OD_BUILD : 0;   // 0..1 through the build-up
+    if (build && !calm) {                     // the camera pushes in on the car
+      const z = 1 + 0.07 * Math.sin(build * Math.PI / 2);
+      ctx.translate(player.x, player.y); ctx.scale(z, z); ctx.translate(-player.x, -player.y);
+    }
 
     drawLandscape();                         // roadside scenery and the road surface, area by area
     drawRoadMarkings();
@@ -4021,9 +4220,21 @@ window.LD_RULES = (() => {
     // Shahed warning, under the car: a pulsing red strip down its lane and a target where it will hit.
     for (const d of drones) if (d.y < player.y) drawDroneWarning(d);
 
+    if (build) {                              // build-up: everything dims, only the car stays lit
+      ctx.fillStyle = `rgba(4,6,16,${(0.6 * build).toFixed(3)})`; ctx.fillRect(-W, -H, W * 3, H * 3);
+    }
+    if (odPhase === 'burst') drawOverdrive();
+    const blink = odPhase === 'burst' && odT < OD_WIND && Math.floor(odT * 8) % 2 === 0;   // ending soon
     if (!(flash > 0 && Math.floor(flash * 16) % 2 === 0)) {
+      // the car leans into a lane change and settles back as it arrives
+      const lean = Math.max(-1, Math.min(1, (laneX(player.lane) - player.x) / laneW)) * 0.2;
+      ctx.save();
+      if (blink) ctx.globalAlpha = 0.45;
+      if (lean) { const cy = player.y + player.h / 2; ctx.translate(player.x, cy); ctx.rotate(lean); ctx.translate(-player.x, -cy); }
+      if (odPhase) { ctx.shadowColor = `hsl(${(performance.now() / 4) % 360},100%,60%)`; ctx.shadowBlur = 26; }
       drawCar(player.x, player.y, player.w, player.h, carPaint(carHue, carShade), level,
               { loaded: Math.min(MAX_ROCKETS, Math.floor(wallet / ROCKET_COST)), kick: launcherKick }, carNo);
+      ctx.restore();
     }
 
     for (const d of drones) drawShahed(d.x, d.y, d.t, d.ang);
@@ -4050,24 +4261,65 @@ window.LD_RULES = (() => {
       ctx.fillStyle = p.color;
       ctx.fillRect(p.x - 3, p.y - 3, 6, 6);
     }
-    ctx.font = '800 16px system-ui, sans-serif';
     ctx.textAlign = 'center';
     for (const f of floats) {
       ctx.globalAlpha = Math.min(1, f.life / 0.4);
       ctx.fillStyle = f.color;
+      if (f.big) {                            // combo tier: pops in large, then floats off
+        const pop = 1 + Math.max(0, f.life - 0.8) * 3;
+        ctx.font = '900 ' + Math.round(34 * pop) + 'px system-ui, sans-serif';
+        ctx.strokeStyle = 'rgba(10,14,32,.8)'; ctx.lineWidth = 5; ctx.strokeText(f.text, f.x, f.y);
+      } else ctx.font = '800 16px system-ui, sans-serif';
       ctx.fillText(f.text, f.x, f.y);
     }
     ctx.globalAlpha = 1;
     ctx.restore();
+    if (hurtT > 0) {                          // lost a life: red glow round the edges
+      const g = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75);
+      g.addColorStop(0, 'rgba(255,40,40,0)'); g.addColorStop(1, `rgba(255,40,40,${(0.55 * hurtT / 0.7).toFixed(3)})`);
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    }
+    if (flyers.length) {                      // coins flying up into the score
+      const cr = canvas.getBoundingClientRect(), sr = el.score.getBoundingClientRect();
+      const tx = sr.left - cr.left + sr.width / 2, ty = sr.top - cr.top + sr.height / 2;
+      for (const f of flyers) {
+        const k = Math.min(1, f.t), e = k * k * (3 - 2 * k);
+        const x = f.x + (tx - f.x) * e, y = f.y + (ty - f.y) * e - Math.sin(k * Math.PI) * 40;
+        ctx.globalAlpha = 1 - 0.4 * k;
+        drawCoin(x, y, 7 - 3 * k);
+      }
+      ctx.globalAlpha = 1;
+    }
+  }
+  // Overdrive: road edges pulsing in shifting colours and a bright trail streaming off the car.
+  function drawOverdrive() {
+    const tNow = performance.now() / 1000, hue = (tNow * 240) % 360;
+    const a = calm ? 0.7 : 0.55 + 0.35 * Math.sin(tNow * 14);
+    ctx.save();
+    ctx.shadowBlur = 24;
+    for (const [x, hh] of [[vergeW, hue], [W - vergeW, hue + 180]]) {
+      ctx.shadowColor = ctx.fillStyle = `hsla(${hh % 360},100%,60%,${a.toFixed(3)})`;
+      ctx.fillRect(x - 5, 0, 10, H);
+    }
+    ctx.restore();
+    const y0 = player.y + player.h * 0.55, len = 190;
+    const g = ctx.createLinearGradient(0, y0, 0, y0 + len);
+    g.addColorStop(0, `hsla(${hue},100%,65%,.9)`); g.addColorStop(0.5, `hsla(${(hue + 120) % 360},100%,60%,.45)`); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.moveTo(player.x - player.w * 0.45, y0); ctx.lineTo(player.x + player.w * 0.45, y0);
+    ctx.lineTo(player.x + player.w * 0.15, y0 + len); ctx.lineTo(player.x - player.w * 0.15, y0 + len); ctx.closePath(); ctx.fill();
   }
 
   function loop(t) {
     const dt = Math.max(0, Math.min(0.05, (t - (last || t)) / 1000));
     last = t;
-    update(dt);
+    realDt = dt;
+    let k = 1;                                // slow motion
+    if (warpT > 0) { k = warpK; warpT -= dt; }
+    update(dt * k);
     draw();
     // Idle on the start line during 3-2-1, then the engine follows road speed.
-    sfx.engine(state === 'play' || state === 'stall' || state === 'countdown', state === 'countdown' ? 0 : speed);
+    sfx.engine(state === 'play' || state === 'stall' || state === 'countdown', state === 'countdown' ? 0 : speed * odBoost);
     sfx.buzz(state === 'play' && drones.length > 0);
     requestAnimationFrame(loop);
   }
@@ -4176,6 +4428,20 @@ window.LD_RULES = (() => {
   });
   I18N.onChange(paintFireSide);
   paintFireSide();
+  // Reduce motion: no screen shake, slow motion, camera push or pulsing.
+  const calmBtn = $('calmBtn');
+  function paintCalm() {
+    calmBtn.textContent = '🎬 ' + t(calm ? 'calmOn' : 'calmOff');
+    calmBtn.setAttribute('aria-pressed', String(calm)); calmBtn.classList.toggle('on', calm);
+    document.documentElement.classList.toggle('calm', calm);
+  }
+  calmBtn.addEventListener('click', () => {
+    calm = !calm; if (calm) warpT = 0;
+    try { localStorage.setItem('ddCalm', calm ? '1' : '0'); } catch {}
+    paintCalm();
+  });
+  I18N.onChange(paintCalm);
+  paintCalm();
   autoChip.addEventListener('click', () => { toggleAutoFire(); autoChip.blur(); });
   I18N.onChange(paintAutoFire);
   paintAutoFire();

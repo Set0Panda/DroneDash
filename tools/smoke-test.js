@@ -47,7 +47,7 @@
   }
   const common = [
     // a hook to read game state
-    ["let carNo = 7;", "let carNo = 7; window.__G = () => ({ state, level, lives, fuel, wallet, kills, coins, objects, drones, rockets, player, laneW, lookArea, streak });"],
+    ["let carNo = 7;", "let carNo = 7; window.__G = () => ({ state, level, lives, fuel, wallet, kills, coins, objects, drones, rockets, player, laneW, lookArea, combo, mult: comboMult(), odPhase, overdrives });"],
     // translations table, for the language check
     ["const STR = {", "const STR = window.__STR = {"],
     // count what happened, by the floating texts the game shows
@@ -94,7 +94,7 @@
       ["function saveRun(run) {", "function saveRun(run) { return false;"]]);
     const seen = { areas: new Set(), skins: new Set(), holeSkins: new Set(), paths: new Set(), states: new Set() };
     $('playBtn').click(); if (!$('intro').classList.contains('hidden')) $('startBtn').click();
-    let frames = 0, maxLevel = 1;
+    let frames = 0, maxLevel = 1, maxMult = 1, odFrames = 0;
     while (frames < 60000 && __G().level < 52) {
       drive();
       const g = __G();
@@ -109,7 +109,7 @@
       seen.areas.add(g.lookArea); seen.states.add(g.state);
       for (const o of g.objects) { if (o.type === 'enemy') seen.skins.add(o.skin); if (o.type === 'hole') seen.holeSkins.add(o.skin); }
       for (const d of g.drones) seen.paths.add(d.path);
-      maxLevel = Math.max(maxLevel, g.level);
+      maxLevel = Math.max(maxLevel, g.level); maxMult = Math.max(maxMult, g.mult); if (g.odPhase) odFrames++;
     }
     const f = window.__floats || [];
     const count = s => f.filter(x => x.includes(s)).length;
@@ -118,6 +118,7 @@
       potholeLooks: [...seen.holeSkins].sort().join(','), dronePaths: [...seen.paths].sort().join(','),
       shotDown: count('SHOT DOWN'), missed: count('MISS'), smashed: count('SMASHED'), closeCalls: count('CLOSE'),
       dodged: count('DODGED'), heartsGrabbed: count('+1 ♥'), kills: __G().kills, coins: __G().coins,
+      maxCombo: 'x' + maxMult, overdrives: __G().overdrives, overdriveFrames: odFrames,
     };
     if (window.__errs.length) report.errors.push(...window.__errs.map(m => 'long run: ' + m));
   } catch (e) { err('long run', e); }
