@@ -4358,7 +4358,16 @@ window.LD_RULES = (() => {
     const j = (i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length;
     recTab = tabs[j].dataset.tab; paintRecTab(); tabs[j].focus(); e.preventDefault();
   });
-  function openRecords() { state = 'records'; show('records'); paintRecTab(); }
+  function openRecords() {
+    state = 'records'; show('records');
+    // Size the card for the tallest tab, so the tabs stay put when you switch between them.
+    const pane = $('recPane'), card = pane.closest('.card'), keep = recTab;
+    pane.style.minHeight = ''; card.style.zoom = ''; card.style.maxHeight = '';
+    let h = 0;
+    for (const tab of ['runs', 'raid', 'daily']) { recTab = tab; paintRecTab(); h = Math.max(h, pane.offsetHeight); }
+    pane.style.minHeight = h + 'px'; pane.style.alignContent = 'start';
+    recTab = keep; paintRecTab();
+  }
   // Upgrades: all 25, each on a little copy of your car as it looks at that level. Unlocked once
   // you've reached its level in any run; the next one to get is outlined.
   function openUpgrades() {
