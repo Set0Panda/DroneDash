@@ -47,7 +47,7 @@
   }
   const common = [
     // a hook to read game state
-    ["let carNo = 7;", "let carNo = 7; window.__G = () => ({ state, level, lives, fuel, wallet, kills, coins, objects, drones, rockets, player, laneW, lookArea, combo, mult: comboMult(), odPhase, overdrives });"],
+    ["let carNo = 7;", "let carNo = 7; window.__G = () => ({ state, level, lives, fuel, wallet, kills, coins, objects, drones, rockets, player, laneW, lookArea, combo, mult: comboMult(), odPhase, overdrives, bossesRun, bossLane: boss ? Math.max(0, Math.min(2, Math.round((boss.x - vergeW - laneW / 2) / laneW))) : -1 });"],
     // translations table, for the language check
     ["const STR = {", "const STR = window.__STR = {"],
     // count what happened, by the floating texts the game shows
@@ -64,7 +64,14 @@
     const g = __G(); if (!g.player) return;
     const danger = lane => g.objects.some(o => (o.type === 'enemy' || o.type === 'hole') && !o.dead && !o.used && (o.fx !== undefined ? Math.abs(o.fx - lane) < 0.9 : o.lane === lane) &&
       o.y + o.h > g.player.y - 230 && o.y < g.player.y + g.player.h);
-    if (!danger(g.player.lane)) return;
+    if (!danger(g.player.lane)) {
+      // giant Shahed: slide under it when the way is clear, and fire once lined up
+      if (g.bossLane >= 0) {
+        if (g.bossLane === g.player.lane) { if (g.wallet >= 3) $('rocketBtn').click(); }
+        else { const d = g.bossLane < g.player.lane ? -1 : 1; if (!danger(g.player.lane + d)) key(d < 0 ? 'ArrowLeft' : 'ArrowRight'); }
+      }
+      return;
+    }
     for (const d of [-1, 1, -2, 2]) {
       const l = g.player.lane + d;
       if (l >= 0 && l <= 2 && !danger(l)) { key(d < 0 ? 'ArrowLeft' : 'ArrowRight'); if (Math.abs(d) === 2) key(d < 0 ? 'ArrowLeft' : 'ArrowRight'); return; }
@@ -118,7 +125,7 @@
       potholeLooks: [...seen.holeSkins].sort().join(','), dronePaths: [...seen.paths].sort().join(','),
       shotDown: count('SHOT DOWN'), missed: count('MISS'), smashed: count('SMASHED'), closeCalls: count('CLOSE'),
       dodged: count('DODGED'), heartsGrabbed: count('+1 ♥'), kills: __G().kills, coins: __G().coins,
-      maxCombo: 'x' + maxMult, overdrives: __G().overdrives, overdriveFrames: odFrames,
+      maxCombo: 'x' + maxMult, overdrives: __G().overdrives, overdriveFrames: odFrames, giantShahedsDown: __G().bossesRun,
     };
     if (window.__errs.length) report.errors.push(...window.__errs.map(m => 'long run: ' + m));
   } catch (e) { err('long run', e); }
