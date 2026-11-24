@@ -4215,6 +4215,10 @@ window.LD_RULES = (() => {
     navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController && Date.now() - loadedAt > 15000) upd.hidden = false; });
     upd.addEventListener('click', () => location.reload());
   }
+  // Ask the browser to keep the saved records, best scores and settings: without this they're
+  // "best effort" and Android can clear them when the phone tidies up storage. Chrome grants it
+  // without asking for an installed app (or a site played often), so there's no popup.
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persisted().then(p => p || navigator.storage.persist()).catch(() => {}); } catch {}
 
   const btn = document.getElementById('installBtn');
   const hint = document.getElementById('installHint');
