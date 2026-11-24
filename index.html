@@ -3400,11 +3400,14 @@ window.LD_RULES = (() => {
   // Where a rocket should aim: a drone's position, or the middle of a barrier.
   const aimAt = tg => tg.type === 'enemy' ? { x: objX(tg), y: tg.y + tg.h / 2 } : { x: tg.x, y: tg.y };
   // fire(): FIRE button / Space / tapping a drone. fire(drone, true): auto-fire at that drone.
+  const EMPTY_COST = 1;                          // coins for a rocket fired at nothing (aimed ones cost ROCKET_COST)
   function fire(at, auto = false) {
     const cost = odPhase === 'burst' ? 0 : ROCKET_COST;   // Overdrive: rockets are free...
-    if (state !== 'play' || !DRONES() || wallet < cost) return false;
+    const emptyCost = cost === 0 ? 0 : EMPTY_COST;        // a shot with nothing to aim at is cheaper
+    if (state !== 'play' || !DRONES() || wallet < emptyCost) return false;
     if (cost === 0) { if (freeCool > 0) return false; freeCool = FREE_RELOAD; }   // ...but one every FREE_RELOAD s
     if (boss && !at) {                            // giant Shahed: FIRE sends a rocket straight up your lane
+      if (wallet < cost) return false;
       wallet -= cost;
       const my = player.y + player.h * 0.41 - 6;
       rockets.push({ x: player.x, y: my, vx: 0, vy: -ROCKET_V * 1.6, boss: true });   // quick, so a steady aim pays off
@@ -3414,7 +3417,8 @@ window.LD_RULES = (() => {
       return true;
     }
     const tg = at || target() || barrierAhead();  // drones first, then a barrier blocking your lane
-    if (!tg && cost === 0) {                      // Overdrive, nothing to aim at: a free rocket straight up your lane anyway
+    if (!tg) {                                    // nothing to aim at: a rocket straight up your lane anyway, cheaper
+      wallet -= emptyCost;
       const my = player.y + player.h * 0.41 - 6;
       rockets.push({ x: player.x, y: my, vx: 0, vy: -ROCKET_V * 1.6, straight: true });
       launcherKick = 1;
@@ -3422,7 +3426,7 @@ window.LD_RULES = (() => {
       sfx.launch();
       return true;
     }
-    if (!tg) return false;
+    if (!tg || wallet < cost) return false;
     wallet -= cost;
     const my = player.y + player.h * 0.41 - 6;              // the launcher's muzzle on the roof
     const miss = auto && Math.random() < autoMiss();
