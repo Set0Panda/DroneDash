@@ -4190,6 +4190,12 @@ window.LD_RULES = (() => {
     ctx.fillRect(vergeW + 3, -10, 3, H + 20);                           // edge lines
     ctx.fillRect(W - vergeW - 6, -10, 3, H + 20);
     ctx.globalAlpha = 1;
+    if (calm) {                                  // Reduce motion: solid lane lines, nothing flicking past
+      ctx.globalAlpha = 0.4;
+      for (let i = 1; i < LANES; i++) ctx.fillRect(vergeW + laneW * i - 2, -10, 4, H + 20);
+      ctx.globalAlpha = 1;
+      return;
+    }
     for (let i = 1; i < LANES; i++) {
       for (let y = -160 + roadOffset; y < H; y += 80) ctx.fillRect(vergeW + laneW * i - 3, y, 6, 44);
     }
@@ -4527,7 +4533,7 @@ window.LD_RULES = (() => {
   function updateWeather(dt, roadV) {
     const look = twist.look || AREAS[lookArea].look;
     if (!['rain', 'snow', 'aurora', 'autumn', 'fog'].includes(look)) { weather.length = 0; return; }
-    const want = { rain: 70, snow: 55, aurora: 40, autumn: 26, fog: 6 }[look];
+    const want = Math.round({ rain: 70, snow: 55, aurora: 40, autumn: 26, fog: 6 }[look] * (calm ? 0.35 : 1));   // Reduce motion: lighter weather
     if (weather.length > want) weather.length = want;
     while (weather.length < want) weather.push({ x: Math.random() * W, y: Math.random() * H, r: 1.2 + Math.random() * 1.6, ph: Math.random() * 6 });
     for (const d of weather) {
@@ -4541,7 +4547,7 @@ window.LD_RULES = (() => {
   }
   // Speed lines: white streaks rushing past along the roadside and road edges (never across
   // the middle of the lanes). They fade in from ~520 px/s, and flare briefly after a close call.
-  const speedK = v => odPhase === 'burst' ? 1 : Math.max(closeBurst > 0 ? 0.9 : 0, Math.min(1, (v - 520) / 300));
+  const speedK = v => calm ? 0 : odPhase === 'burst' ? 1 : Math.max(closeBurst > 0 ? 0.9 : 0, Math.min(1, (v - 520) / 300));
   function newSpeedLine(anywhere) {
     const band = vergeW + laneW * 0.14, left = Math.random() < 0.5;
     return { x: left ? Math.random() * band : W - Math.random() * band,
@@ -4605,6 +4611,10 @@ window.LD_RULES = (() => {
     }
 
     drawLandscape();                         // roadside scenery and the road surface, area by area
+    if (calm) {                               // Reduce motion: soften the roadside so it doesn't pull the eye
+      ctx.fillStyle = 'rgba(8,11,22,.45)';
+      ctx.fillRect(-20, -20, vergeW + 20, H + 40); ctx.fillRect(W - vergeW, -20, vergeW + 20, H + 40);
+    }
     drawRoadMarkings();
     drawLook('under');                       // sunset glow / night darkness / rain tint on the ground
     drawSpeedLines();                        // streaks along the roadside as the pace builds
