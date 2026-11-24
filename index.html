@@ -789,8 +789,7 @@
   .upTile b { font-size: 10px; line-height: 1.15; text-align: center; overflow-wrap: break-word; hyphens: auto;
                display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; max-width: 100%; }
   .upTile small { font-size: 10px; color: var(--muted); }
-  .upTile.locked canvas { display: none; }   /* locked: just the name and level; tap to see it on your car */
-  .upTile.locked { padding-top: 7px; }
+  .upTile.locked canvas { filter: grayscale(1); opacity: .22; transform: scale(.8); }
   .upTile.locked { background: rgba(255,255,255,.03); }
   .upTile.locked b { color: var(--muted); font-weight: 700; }
   .upTile.next { box-shadow: inset 0 0 0 2px var(--ua-yellow); }
