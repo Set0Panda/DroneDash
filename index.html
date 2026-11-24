@@ -129,21 +129,24 @@
   /* Launch bar under the road: coin progress on the left, a big fire button on the right */
   #eggBar {
     /* two equal halves: FIRE + auto-fire on one side, coin info on the other */
-    flex: none; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 10px; padding: 8px 12px;
+    flex: none; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 10px; padding: 12px 12px 14px;
     background: linear-gradient(#141831, #0f1220); border-top: 3px solid; border-image: linear-gradient(90deg, #0057B7 50%, #FFD700 50%) 1;
   }
   #wrap.at-home #eggBar { visibility: hidden; }
+  /* FIRE's side gets the bigger share of the bar (the coin counters need less) */
+  #eggBar { grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr); }
+  #eggBar.fire-left { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); }
   .eggInfo { flex: 1; min-width: 0; display: grid; gap: 5px; }
   .eggTop { display: flex; align-items: center; gap: 11px; }
-  .eggTop .coinChip { font-size: 18px; gap: 6px; }
-  .eggTop .coinChip i { width: 17px; height: 17px; }
-  .eggKills { font-size: 18px; font-weight: 900; color: #FFD700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .eggTop .coinChip { font-size: 21px; gap: 6px; }
+  .eggTop .coinChip i { width: 19px; height: 19px; }
+  .eggKills { font-size: 21px; font-weight: 900; color: #FFD700; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .eggKills.bump { animation: killBump .5s cubic-bezier(.2,1.6,.4,1); }
   @keyframes killBump { 30% { transform: scale(1.5); } }
   /* coins towards the next rocket: a small rocket in front so they don't read as more coins */
   .eggCoins { display: flex; align-items: center; gap: 4px; }
   .eggCoins::before { content: '🚀'; font-size: 14px; margin-right: 1px; }
-  .eggCoins i { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--coin); opacity: .4; }
+  .eggCoins i { width: 17px; height: 17px; border-radius: 50%; border: 2px solid var(--coin); opacity: .4; }
   .eggCoins i.on { background: var(--coin); opacity: 1; }
   .eggSub { display: flex; align-items: center; gap: 6px; min-height: 18px; }
   #eggBar.alert .eggCoins { display: none; }          /* the alert takes the whole line */
@@ -167,25 +170,27 @@
   /* auto-fire switch: a block button left of FIRE, same height; shows auto-fire's current accuracy
      (better with a combo), or ✕ when off */
   .autoBlock {
-    flex: none; width: 46px; min-height: 54px; margin: 0; padding: 4px 2px; border-radius: 14px;
+    flex: none; width: 56px; min-height: 70px; margin: 0; padding: 4px 2px; border-radius: 15px;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
-    font-size: 19px; line-height: 1; color: var(--muted);
+    font-size: 24px; line-height: 1; color: var(--muted);
     background: #262d4a; box-shadow: 0 5px 0 rgba(0,0,0,.4);
   }
-  .autoBlock small { font-size: 11px; font-weight: 900; letter-spacing: .3px; }
+  .autoBlock small { font-size: 12px; font-weight: 900; letter-spacing: .3px; }
   .autoBlock.on { background: var(--ua-blue); color: var(--ua-yellow); box-shadow: 0 5px 0 #003a7a, inset 0 0 0 2px var(--ua-yellow); }
   .autoBlock:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,.4); }
-  /* FIRE slims down to sit beside it: smaller icon; long labels drop the icon or shrink (fitFire) */
+  /* FIRE sits beside it */
   #rocketBtn .fireLabel { white-space: nowrap; }
-  #rocketBtn.compact .rk { display: none; }
-  #eggNext { font-size: 14px; line-height: 1.25; font-weight: 800; color: var(--muted); overflow-wrap: anywhere; }
+
+  #eggNext { font-size: 16px; line-height: 1.25; font-weight: 800; color: var(--muted); overflow-wrap: anywhere; }
   #rocketBtn {
-    position: relative; margin: 0; padding: 10px 10px; min-width: 0; flex: 1 1 auto; min-height: 54px;
+    position: relative; margin: 0; padding: 10px; min-width: 0; flex: 1 1 auto; min-height: 70px;
     display: flex; align-items: center; justify-content: center; gap: 6px;
-    font-size: 16px; font-weight: 900; letter-spacing: 1px; line-height: 1;
+    font-size: 23px; font-weight: 900; letter-spacing: 1.5px; line-height: 1;
     color: #0f1220; background: #FFD700; border-radius: 14px; box-shadow: 0 5px 0 #b38f00;
   }
-  #rocketBtn .rk { font-size: 20px; }
+  #rocketBtn .rk { font-size: 34px; line-height: 1; }
+  #rocketBtn .fireLabel { display: none; }   /* just the rocket: FIRE is explained in How to Play, and the button keeps its spoken name */
+
   #rocketBtn b {
     position: absolute; top: -9px; right: -9px; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 13px;
     background: #0057B7; color: #fff; font-size: 15px; line-height: 26px; box-shadow: 0 0 0 2px #0f1220;
@@ -244,6 +249,12 @@
   button:active { transform: translateY(4px); box-shadow: 0 2px 0 #b39500; }
 
   /* ---- Home screen ---- */
+  /* Centred while it fits; once it's taller than the screen it scrolls instead of being cut off at
+     the top (the spacers do the centring), and it always starts below the corner buttons. */
+  #home { justify-content: flex-start; overflow-y: auto; padding-top: calc(60px + env(safe-area-inset-top, 0px)); }
+  #home::before, #home::after { content: ''; flex: 1 0 0; }
+  /* everything but the corner buttons; scaled down as a whole when the screen is too short (fitHome) */
+  .homeStack { display: flex; flex-direction: column; align-items: center; gap: inherit; flex: none; width: 100%; }
   #home {
     gap: 10px;
     background:
@@ -272,7 +283,7 @@
   .tagline { max-width: 300px; text-wrap: balance; animation: fadeUp .5s .25s both; }
   #homeBest { font-size: 14px; color: var(--coin) !important; font-weight: 700; animation: fadeUp .5s .3s both; }
   @keyframes fadeUp { from { transform: translateY(14px); opacity: 0; } }
-  .menuBtns { display: grid; gap: 14px; width: 250px; margin-top: 18px; animation: fadeUp .5s .35s both; }
+  .menuBtns { display: grid; gap: 14px; width: min(272px, 92vw); margin-top: 18px; animation: fadeUp .5s .35s both; }
   .menuBtns button { width: 100%; margin: 0; }
   button.secondary {
     background: rgba(0,87,183,.45); color: var(--text); box-shadow: 0 6px 0 rgba(0,0,0,.35);
@@ -335,7 +346,7 @@
   /* ---- How-to-play popup ---- */
   #intro { background: rgba(9, 14, 32, .72); }
   .card {
-    width: 100%; max-width: 340px; max-height: 100%; overflow-y: auto; border-radius: 20px;
+    width: 100%; max-width: 340px; max-height: 100%; overflow-y: auto; overflow-x: hidden; border-radius: 20px;
     /* thin blue-and-yellow flag strip along the top edge */
     background: linear-gradient(90deg, var(--ua-blue) 50%, var(--ua-yellow) 50%) top / 100% 4px no-repeat, var(--card);
     padding: 22px 20px 20px; display: flex; flex-direction: column; align-items: center; gap: 12px;
@@ -600,10 +611,36 @@
   .chips button.on { background: var(--ua-yellow); color: #0f1220; }
   .chips button.locked { opacity: .55; }
   .chips button.peek { opacity: 1; box-shadow: inset 0 0 0 2px var(--ua-yellow); }
-  @media (max-height: 860px) { .logo { width: 96px; height: 96px; border-radius: 22px; } .title { font-size: 40px; margin-top: 6px; } .menuBtns { gap: 10px; margin-top: 10px; } }
-  @media (max-height: 740px) { .logo { width: 72px; height: 72px; border-radius: 18px; } .tagline { display: none; } }
-  .dailyBtn { display: grid; gap: 2px; justify-items: center; padding-top: 10px; padding-bottom: 10px; }
-  .dailyBtn small { font-size: 12px; font-weight: 700; opacity: .85; max-width: 100%; white-space: pre-line; line-height: 1.35; text-wrap: balance; }
+  /* Phones: everything on one screen, no scrolling. Shorter screens get a smaller logo and title,
+     tighter gaps and one-line missions; very short ones drop the logo (the title stays). */
+  @media (max-height: 860px) {
+    #home { gap: 6px; padding-top: calc(52px + env(safe-area-inset-top, 0px)); padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)); }
+    .logo { width: 48px; height: 48px; border-radius: 12px; }
+    .title { font-size: 34px; margin-top: 2px; }
+    .tagline { display: none; }
+    .menuBtns { gap: 8px; margin-top: 4px; }
+    .startPick { gap: 5px; }
+    .missions { padding: 7px 10px 6px; gap: 3px; }
+    .msRow .mt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #installBtn { margin-top: 0; padding-top: 7px; padding-bottom: 7px; }
+    .title { font-size: 30px; }
+    #home #playBtn { padding-top: 8px; padding-bottom: 8px; }
+    .dailyBtn { padding-top: 7px; padding-bottom: 7px; }
+    .raidBtn { padding-top: 6px; padding-bottom: 6px; }
+    #homeMissions .msNext { display: none; }
+  }
+  @media (max-height: 740px) {
+    .logo, .uaStripe { display: none; }
+    .title { font-size: 30px; }
+    .title span { display: inline; margin-left: .25em; }      /* DRONE DASH on one line */
+    .menuBtns { gap: 7px; }
+    #homeBest { font-size: 12px; }
+  }
+  /* The main action: a big ▶ on the left, "Play" large and centred in the button */
+  #playBtn { position: relative; font-size: 30px; font-weight: 900; letter-spacing: .5px; padding: 12px 56px; text-align: center; }
+  #playBtn .playIco { position: absolute; left: 20px; top: 50%; transform: translateY(-52%); font-size: 30px; line-height: 1; }
+  .dailyBtn { display: grid; gap: 2px; justify-items: center; padding: 10px 10px; font-size: 22px; line-height: 1.15; }
+  .dailyBtn small { font-size: 13px; font-weight: 700; opacity: .85; max-width: 100%; white-space: pre-line; line-height: 1.35; text-wrap: balance; }
   .overDaily { font-size: 14px; font-weight: 800; color: var(--coin) !important; margin: -4px 0 0 !important; }
   .shareNote { font-size: 13px; color: var(--text) !important; margin: 0 !important; }
   .menuRow button { font-size: 15px; padding: 12px 6px; display: flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; }
@@ -653,15 +690,41 @@
   .menuRow.three { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
   /* How to Play: the combo badge as it looks next to the score */
   .comboIco { font-style: normal; font-weight: 800; font-size: 11px; color: #0f1220; background: var(--ua-yellow); border-radius: 5px; padding: 1px 4px; }
-  /* Start from an area you've reached */
-  .startPick { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 5px; margin-top: -4px; }
-  .startPick span { font-size: 12px; font-weight: 800; color: var(--muted); margin-right: 2px; }
-  .startPick button { margin: 0; width: 30px; height: 30px; min-height: 0; padding: 0; border-radius: 9px; font-size: 16px; line-height: 1;
-                      background: rgba(255,255,255,.08); box-shadow: none; }
-  .startPick button.on { background: var(--ua-yellow); }
-  .startPick small { flex-basis: 100%; text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); }
-  .raidBtn { display: grid; gap: 1px; justify-items: center; padding-top: 7px; padding-bottom: 7px; font-size: 15px; }
-  .raidBtn small { font-size: 11px; font-weight: 700; opacity: .8; }
+  /* Under Play: start area and difficulty, one labelled row each. Same look as the other secondary
+     buttons; the chosen one gets the yellow ring the game uses for "current" (auto-fire on, next upgrade). */
+  .startPick { display: grid; gap: 8px; margin-top: 2px; }
+  .startPick .pickRow2 { display: grid; justify-items: center; gap: 5px; min-width: 0; }
+  .startPick .pickRow2 > span { font-size: 11px; font-weight: 800; letter-spacing: .4px; color: var(--muted); }
+  .startPick .pickBtns { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+  /* the Start areas: one swipeable strip of all ten, fading out at the edges to show there's more */
+  .startPick .pickBtns.strip { flex-wrap: nowrap; justify-content: flex-start; max-width: 100%; overflow-x: auto; padding: 4px 10px 8px;
+                               scroll-snap-type: x proximity; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+                               -webkit-mask-image: linear-gradient(90deg, transparent, #000 14px, #000 calc(100% - 14px), transparent);
+                               mask-image: linear-gradient(90deg, transparent, #000 14px, #000 calc(100% - 14px), transparent); }
+  .startPick .pickBtns.strip::-webkit-scrollbar { display: none; }
+  .startPick .stripWrap { display: flex; align-items: center; gap: 2px; max-width: 100%; min-width: 0; }
+  .startPick .stripWrap .strip { flex: 1; min-width: 0; cursor: grab; }
+  .startPick button.stripArrow { flex: none; width: 22px; height: 36px; border-radius: 8px; font-size: 20px; font-weight: 800; color: var(--text);
+                                 background: rgba(255,255,255,.06); box-shadow: none; }
+  .startPick button.stripArrow:disabled { opacity: .25; }
+  .startPick button:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }   /* keyboard: where you are */
+  .startPick .pickBtns.strip button { flex: none; scroll-snap-align: center; }
+  .startPick .pickRow2 { width: 100%; }
+  .startPick button { margin: 0; width: 36px; height: 36px; min-height: 0; padding: 0; border-radius: 10px; font-size: 18px; line-height: 1;
+                      background: rgba(0,87,183,.45); box-shadow: 0 4px 0 rgba(0,0,0,.35); }
+  .startPick button:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.35); }
+  .startPick button.on { background: var(--ua-blue); box-shadow: 0 4px 0 #003a7a, inset 0 0 0 2px var(--ua-yellow); }
+  .startPick button.locked { opacity: .4; filter: grayscale(1); position: relative; }
+  .startPick button.locked::after { content: '🔒'; position: absolute; right: -5px; bottom: -5px; font-size: 11px; filter: none; }
+  .startPick small.areaName { text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); }
+
+  .raidBtn { display: grid; gap: 1px; justify-items: center; padding: 8px 10px; font-size: 21px; line-height: 1.15; }
+  .raidBtn small { font-size: 13px; font-weight: 700; opacity: .8; }
+  /* Daily and raid buttons: the icon on its own at the left, the words centred (like Play) */
+  #shareBtn { position: relative; padding-left: 44px; padding-right: 44px; font-size: 22px; font-weight: 800; }
+  #shareBtn .btnIco { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 24px; line-height: 1; }
+  .dailyBtn, .raidBtn { position: relative; padding-left: 42px !important; padding-right: 42px !important; }
+  .dailyBtn .btnIco, .raidBtn .btnIco { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 28px; line-height: 1; }
   .raidBtn { position: relative; overflow: visible; }
   .raidBtn .limited { position: absolute; top: -9px; right: -6px; padding: 2px 8px; border-radius: 9px; font-size: 10px; font-weight: 900;
                       letter-spacing: .3px; color: #0f1220; background: var(--ua-yellow); box-shadow: 0 2px 8px rgba(0,0,0,.4);
@@ -714,7 +777,7 @@
   </div>
 
   <div id="hud">
-    <div class="hrow"><span id="score">0</span><span id="streak">×2</span><span class="livesBox"><span id="lives"></span><span id="heartProg" hidden></span></span><button id="pauseBtn" type="button" data-i18n-title="pause" data-i18n-aria="pause" aria-label="Pause">⏸</button></div>
+    <div class="hrow"><span id="score">0</span><span id="streak">×2</span><span class="livesBox"><span id="lives" role="img"></span><span id="heartProg" hidden></span></span><button id="pauseBtn" type="button" data-i18n-title="pause" data-i18n-aria="pause" aria-label="Pause">⏸</button></div>
     <div class="hrow"><span class="tag" id="level">LV 1</span><div class="bar"><div id="prog"></div></div><span class="small" id="togo">400 m</span></div>
     <div class="hrow" id="fuelRow"><span class="tag" data-i18n="fuel">FUEL</span><div class="bar"><div id="fuel"></div></div><span id="pips" data-i18n-title="pipsTitle" title="Coins until next fuel top-up"><i></i><i></i><i></i><i></i><i></i></span></div>
   </div>
@@ -724,26 +787,28 @@
   <div id="msToast" class="msToast" hidden></div>
 
   <div id="home" class="overlay">
+    <div id="homeStack" class="homeStack">
     <img class="logo" src="icons/icon-512.png" alt="" width="132" height="132">
     <h1 class="title">DRONE<span>DASH</span></h1>
     <div class="uaStripe" aria-hidden="true"></div>
     <p class="tagline" data-i18n="tagline">Dodge obstacles. Shoot down drones.</p>
     <p id="homeBest" hidden></p>
     <div class="menuBtns">
-      <button id="playBtn">▶ <span data-i18n="play">Play</span></button>
+      <button id="playBtn"><span class="playIco" aria-hidden="true">▶</span><span data-i18n="play">Play</span></button>
       <div id="startPick" class="startPick" hidden></div>
-      <button id="dailyBtn" class="secondary dailyBtn" type="button"><span>📅 <span data-i18n="daily">Daily challenge</span></span><small id="dailySub"></small></button>
-      <button id="raidBtn" class="secondary raidBtn" type="button"><b class="limited" data-i18n="limited">🆕 New</b><span>🛸 <span data-i18n="raidBtn">Shahed Raid</span></span><small data-i18n="raidSub">All the giant Shaheds, back to back</small></button>
+      <button id="dailyBtn" class="secondary dailyBtn" type="button"><span class="btnIco" aria-hidden="true">📅</span><span data-i18n="daily">Daily challenge</span><small id="dailySub"></small></button>
+      <button id="raidBtn" class="secondary raidBtn" type="button"><b class="limited" data-i18n="limited">🆕 New</b><span class="btnIco" aria-hidden="true">🛸</span><span data-i18n="raidBtn">Shahed Raid</span><small data-i18n="raidSub">All the giant Shaheds, back to back</small></button>
       <div id="homeMissions" class="missions"></div>
       <div class="menuRow three">
         <button id="garageBtn" class="secondary" type="button"><i class="swatch"></i><span data-i18n="colourBtn">Paint</span></button>
-        <button id="upBtn" class="secondary" type="button">🎁 <span data-i18n="upgradesBtn">Upgrades</span></button>
-        <button id="recordsBtn" class="secondary" type="button">🏆 <span data-i18n="records">Records</span></button>
+        <button id="upBtn" class="secondary" type="button"><span aria-hidden="true">🎁</span> <span data-i18n="upgradesBtn">Upgrades</span></button>
+        <button id="recordsBtn" class="secondary" type="button"><span aria-hidden="true">🏆</span> <span data-i18n="records">Records</span></button>
       </div>
     </div>
-    <button id="updateBtn" class="ghost" type="button" hidden>🔄 <span data-i18n="updateReady">New version ready · tap to update</span></button>
-    <button id="installBtn" class="ghost" hidden>📲 <span data-i18n="installApp">Install app</span></button>
+    <button id="updateBtn" class="ghost" type="button" hidden><span aria-hidden="true">🔄</span> <span data-i18n="updateReady">New version ready · tap to update</span></button>
+    <button id="installBtn" class="ghost" hidden><span aria-hidden="true">📲</span> <span data-i18n="installApp">Install app</span></button>
     <p id="installHint" hidden></p>
+    </div>
     <button id="helpBtn" type="button" data-i18n-title="howToPlay" data-i18n-aria="howToPlay" title="How to play" aria-label="How to play">?</button>
     <button id="homeSound" type="button" aria-pressed="true"></button>
     <button id="homeSet" type="button" data-i18n-title="settings" data-i18n-aria="settings" title="Settings" aria-label="Settings">⚙️</button>
@@ -808,10 +873,10 @@
       <p id="pauseNext"></p>
       <div id="pauseMissions" class="missions"></div>
       <div class="overBtns">
-        <button id="resumeBtn">▶ <span data-i18n="resume">Resume</span></button>
+        <button id="resumeBtn"><span aria-hidden="true">▶</span> <span data-i18n="resume">Resume</span></button>
         <button id="pauseHelp" class="secondary" data-i18n="howToPlay">How to Play</button>
         <!-- Settings drop-down: sound, auto-fire and which side FIRE sits on -->
-        <button id="setBtn" class="secondary setBtn" type="button" aria-expanded="false" aria-controls="setPanel">⚙️ <span data-i18n="settings">Settings</span> <i class="caret">▾</i></button>
+        <button id="setBtn" class="secondary setBtn" type="button" aria-expanded="false" aria-controls="setPanel"><span aria-hidden="true">⚙️</span> <span data-i18n="settings">Settings</span> <i class="caret" aria-hidden="true">▾</i></button>
         <div id="setPanel" class="setPanel" hidden>
           <button id="soundBtn" class="secondary autoFireBtn" type="button" aria-pressed="true"></button>
           <button id="autoFireBtn" class="secondary autoFireBtn" type="button" aria-pressed="false"></button>
@@ -882,7 +947,7 @@
       <div id="overMissions" class="missions" hidden></div>
       <div class="overBtns">
         <button id="retryBtn" data-i18n="retry">Retry</button>
-        <button id="shareBtn" class="secondary" type="button">📤 <span data-i18n="share">Share</span></button>
+        <button id="shareBtn" class="secondary" type="button"><span class="btnIco" aria-hidden="true">📤</span><span data-i18n="share">Share</span></button>
         <button id="homeBtn" class="ghost" data-i18n="home">Home</button>
       </div>
       <p id="shareNote" class="shareNote" role="status" hidden></p>
@@ -982,7 +1047,12 @@ window.I18N = (() => {
       limited: "🆕 New",
       vibeOn: "Vibration: On", vibeOff: "Vibration: Off", startFrom: "Start:", fromArea: "from {area}", bestMark: "BEST",
       killMarks: "{n}/{total} kill marks", ruleBoss: "**Area end** = giant Shahed · get under it and **FIRE**",
-      saverOn: "Battery saver: On", saverOff: "Battery saver: Off"
+      saverOn: "Battery saver: On", saverOff: "Battery saver: Off",
+      diffLabel: "Difficulty: {name}", diffEasy: "Learner", diffCareer: "Career Driver", diffExpert: "Getaway Expert",
+      diffTitle: "Difficulty:",
+      startLocked: "Unlocks at LV {n}",
+      scrollPrev: "Show earlier areas", scrollNext: "Show more areas",
+      livesAria: "{n} of {max} lives"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -1068,7 +1138,12 @@ window.I18N = (() => {
       limited: "🆕 Nuevo",
       vibeOn: "Vibración: Sí", vibeOff: "Vibración: No", startFrom: "Empezar:", fromArea: "desde {area}", bestMark: "RÉCORD",
       killMarks: "{n}/{total} marcas de derribo", ruleBoss: "**Fin de zona** = Shahed gigante · ponte debajo y **DISPARA**",
-      saverOn: "Ahorro de batería: Sí", saverOff: "Ahorro de batería: No"
+      saverOn: "Ahorro de batería: Sí", saverOff: "Ahorro de batería: No",
+      diffLabel: "Dificultad: {name}", diffEasy: "Aprendiz", diffCareer: "Piloto profesional", diffExpert: "Experto en fugas",
+      diffTitle: "Dificultad:",
+      startLocked: "Se desbloquea en el NV {n}",
+      scrollPrev: "Ver zonas anteriores", scrollNext: "Ver más zonas",
+      livesAria: "{n} de {max} vidas"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -1154,7 +1229,12 @@ window.I18N = (() => {
       limited: "🆕 Nouveau",
       vibeOn: "Vibration : oui", vibeOff: "Vibration : non", startFrom: "Départ :", fromArea: "depuis {area}", bestMark: "RECORD",
       killMarks: "{n}/{total} marques de victoire", ruleBoss: "**Fin de zone** = Shahed géant · place-toi dessous et **FEU**",
-      saverOn: "Économie de batterie : oui", saverOff: "Économie de batterie : non"
+      saverOn: "Économie de batterie : oui", saverOff: "Économie de batterie : non",
+      diffLabel: "Difficulté : {name}", diffEasy: "Apprenti conducteur", diffCareer: "Pilote de carrière", diffExpert: "Expert de la fuite",
+      diffTitle: "Difficulté :",
+      startLocked: "Débloqué au NIV {n}",
+      scrollPrev: "Voir les zones précédentes", scrollNext: "Voir plus de zones",
+      livesAria: "{n} vies sur {max}"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -1240,7 +1320,12 @@ window.I18N = (() => {
       limited: "🆕 Neu",
       vibeOn: "Vibration: An", vibeOff: "Vibration: Aus", startFrom: "Start:", fromArea: "ab {area}", bestMark: "REKORD",
       killMarks: "{n}/{total} Abschussmarken", ruleBoss: "**Gebietsende** = Riesen-Shahed · darunter stellen und **FEUER**",
-      saverOn: "Akku sparen: An", saverOff: "Akku sparen: Aus"
+      saverOn: "Akku sparen: An", saverOff: "Akku sparen: Aus",
+      diffLabel: "Schwierigkeit: {name}", diffEasy: "Fahrschüler", diffCareer: "Profifahrer", diffExpert: "Fluchtexperte",
+      diffTitle: "Schwierigkeit:",
+      startLocked: "Ab Level {n}",
+      scrollPrev: "Vorherige Gebiete zeigen", scrollNext: "Weitere Gebiete zeigen",
+      livesAria: "{n} von {max} Leben"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -1326,7 +1411,12 @@ window.I18N = (() => {
       limited: "🆕 Novo",
       vibeOn: "Vibração: Ligada", vibeOff: "Vibração: Desligada", startFrom: "Começar:", fromArea: "desde {area}", bestMark: "RECORDE",
       killMarks: "{n}/{total} marcas de abate", ruleBoss: "**Fim da área** = Shahed gigante · fique embaixo e **DISPARE**",
-      saverOn: "Economia de bateria: Ligada", saverOff: "Economia de bateria: Desligada"
+      saverOn: "Economia de bateria: Ligada", saverOff: "Economia de bateria: Desligada",
+      diffLabel: "Dificuldade: {name}", diffEasy: "Aprendiz", diffCareer: "Piloto de carreira", diffExpert: "Especialista em fugas",
+      diffTitle: "Dificuldade:",
+      startLocked: "Desbloqueia no NV {n}",
+      scrollPrev: "Ver áreas anteriores", scrollNext: "Ver mais áreas",
+      livesAria: "{n} de {max} vidas"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -1412,7 +1502,12 @@ window.I18N = (() => {
       limited: "🆕 Nuovo",
       vibeOn: "Vibrazione: Sì", vibeOff: "Vibrazione: No", startFrom: "Parti da:", fromArea: "da {area}", bestMark: "RECORD",
       killMarks: "{n}/{total} segni di abbattimento", ruleBoss: "**Fine zona** = Shahed gigante · mettiti sotto e **FUOCO**",
-      saverOn: "Risparmio batteria: Sì", saverOff: "Risparmio batteria: No"
+      saverOn: "Risparmio batteria: Sì", saverOff: "Risparmio batteria: No",
+      diffLabel: "Difficoltà: {name}", diffEasy: "Foglio rosa", diffCareer: "Pilota di carriera", diffExpert: "Esperto di fughe",
+      diffTitle: "Difficoltà:",
+      startLocked: "Si sblocca al LV {n}",
+      scrollPrev: "Mostra zone precedenti", scrollNext: "Mostra altre zone",
+      livesAria: "{n} vite su {max}"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -1498,7 +1593,12 @@ window.I18N = (() => {
       limited: "🆕 新登場",
       vibeOn: "振動：オン", vibeOff: "振動：オフ", startFrom: "スタート：", fromArea: "{area}から", bestMark: "ベスト",
       killMarks: "撃墜マーク {n}/{total}", ruleBoss: "**エリアの最後**＝巨大シャヘド · 真下で**発射**",
-      saverOn: "省電力：オン", saverOff: "省電力：オフ"
+      saverOn: "省電力：オン", saverOff: "省電力：オフ",
+      diffLabel: "難易度：{name}", diffEasy: "仮免許", diffCareer: "キャリアドライバー", diffExpert: "逃走エキスパート",
+      diffTitle: "難易度：",
+      startLocked: "レベル{n}で解放",
+      scrollPrev: "前のエリアを表示", scrollNext: "ほかのエリアを表示",
+      livesAria: "ライフ {n}/{max}"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -1584,7 +1684,12 @@ window.I18N = (() => {
       limited: "🆕 新",
       vibeOn: "振动：开", vibeOff: "振动：关", startFrom: "起点：", fromArea: "从{area}出发", bestMark: "最佳",
       killMarks: "击落标记 {n}/{total}", ruleBoss: "**区域尽头**＝巨型沙赫德 · 开到它下方**发射**",
-      saverOn: "省电模式：开", saverOff: "省电模式：关"
+      saverOn: "省电模式：开", saverOff: "省电模式：关",
+      diffLabel: "难度：{name}", diffEasy: "新手司机", diffCareer: "职业车手", diffExpert: "飙车专家",
+      diffTitle: "难度：",
+      startLocked: "第 {n} 关解锁",
+      scrollPrev: "查看前面的区域", scrollNext: "查看更多区域",
+      livesAria: "生命 {n}/{max}"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -1670,7 +1775,12 @@ window.I18N = (() => {
       limited: "🆕 신규",
       vibeOn: "진동: 켜짐", vibeOff: "진동: 꺼짐", startFrom: "시작:", fromArea: "{area}부터", bestMark: "최고",
       killMarks: "격추 마크 {n}/{total}", ruleBoss: "**구역 끝** = 거대 샤헤드 · 밑으로 가서 **발사**",
-      saverOn: "배터리 절약: 켜짐", saverOff: "배터리 절약: 꺼짐"
+      saverOn: "배터리 절약: 켜짐", saverOff: "배터리 절약: 꺼짐",
+      diffLabel: "난이도: {name}", diffEasy: "초보 운전", diffCareer: "커리어 드라이버", diffExpert: "도주 전문가",
+      diffTitle: "난이도:",
+      startLocked: "레벨 {n}에서 해제",
+      scrollPrev: "이전 구역 보기", scrollNext: "구역 더 보기",
+      livesAria: "생명 {n}/{max}"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -1756,7 +1866,12 @@ window.I18N = (() => {
       limited: "🆕 नया",
       vibeOn: "कंपन: चालू", vibeOff: "कंपन: बंद", startFrom: "शुरुआत:", fromArea: "{area} से", bestMark: "सर्वश्रेष्ठ",
       killMarks: "{n}/{total} किल मार्क", ruleBoss: "**इलाके का अंत** = विशाल शाहेद · नीचे आकर **फ़ायर**",
-      saverOn: "बैटरी सेवर: चालू", saverOff: "बैटरी सेवर: बंद"
+      saverOn: "बैटरी सेवर: चालू", saverOff: "बैटरी सेवर: बंद",
+      diffLabel: "कठिनाई: {name}", diffEasy: "लर्नर ड्राइवर", diffCareer: "करियर ड्राइवर", diffExpert: "गेटअवे एक्सपर्ट",
+      diffTitle: "कठिनाई:",
+      startLocked: "लेवल {n} पर अनलॉक",
+      scrollPrev: "पिछले इलाके दिखाएँ", scrollNext: "और इलाके दिखाएँ",
+      livesAria: "{max} में से {n} जान"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -1844,7 +1959,12 @@ window.I18N = (() => {
       limited: "🆕 Нове",
       vibeOn: "Вібрація: Увімк.", vibeOff: "Вібрація: Вимк.", startFrom: "Старт:", fromArea: "з {area}", bestMark: "РЕКОРД",
       killMarks: "{n}/{total} позначок збиття", ruleBoss: "**Кінець зони** = гігантський шахед · стань під ним і **ПУСК**",
-      saverOn: "Економія батареї: Увімк.", saverOff: "Економія батареї: Вимк."
+      saverOn: "Економія батареї: Увімк.", saverOff: "Економія батареї: Вимк.",
+      diffLabel: "Складність: {name}", diffEasy: "Учень водія", diffCareer: "Професійний водій", diffExpert: "Експерт втечі",
+      diffTitle: "Складність:",
+      startLocked: "Відкривається на рівні {n}",
+      scrollPrev: "Попередні зони", scrollNext: "Більше зон",
+      livesAria: "{n} з {max} життів"
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -1930,7 +2050,12 @@ window.I18N = (() => {
       limited: "🆕 ახალი",
       vibeOn: "ვიბრაცია: ჩართ.", vibeOff: "ვიბრაცია: გამორთ.", startFrom: "დაწყება:", fromArea: "{area}-დან", bestMark: "რეკორდი",
       killMarks: "{n}/{total} ნიშანი", ruleBoss: "**ზონის ბოლო** = გიგანტური შაჰედი · დადექი ქვეშ და **ესროლე**",
-      saverOn: "ბატარეის დაზოგვა: ჩართ.", saverOff: "ბატარეის დაზოგვა: გამორთ."
+      saverOn: "ბატარეის დაზოგვა: ჩართ.", saverOff: "ბატარეის დაზოგვა: გამორთ.",
+      diffLabel: "სირთულე: {name}", diffEasy: "მოსწავლე მძღოლი", diffCareer: "პროფესიონალი მძღოლი", diffExpert: "გაქცევის ექსპერტი",
+      diffTitle: "სირთულე:",
+      startLocked: "იხსნება დონე {n}-ზე",
+      scrollPrev: "წინა ზონების ჩვენება", scrollNext: "მეტი ზონის ჩვენება",
+      livesAria: "{max}-დან {n} სიცოცხლე"
     }
   };
   const NAMES = {
@@ -2324,6 +2449,16 @@ window.LD_RULES = (() => {
     return { n, twist: TWISTS[i], seed: Math.imul(n + 977, 2654435761) >>> 0 };
   }
   let mode = 'normal';                 // 'normal' | 'daily' | 'raid'
+  // Difficulty: road speed and a score multiplier to match. Daily challenges always run at
+  // Career Driver so everyone's scores compare. Rows are spaced out at higher speeds, so the time
+  // between them stays the same (only the reading time gets shorter).
+  const DIFFS = [
+    { key: 'diffEasy', icon: '🟢', speed: 0.75, score: 0.7 },
+    { key: 'diffCareer', icon: '🟡', speed: 0.9, score: 1 },      // the default: a little gentler than the original pace
+    { key: 'diffExpert', icon: '🔴', speed: 1.1, score: 1.3 },
+  ];
+  let diffI = (() => { try { const v = +localStorage.getItem('ddDiff'); return v >= 0 && v <= 2 && localStorage.getItem('ddDiff') !== null ? v : 1; } catch { return 1; } })();
+  let runDiff = DIFFS[1], runDiffI = 1;
   // Shahed Raid: the 9 giant Shaheds back to back (no fuel drain, no levels in between), each in its
   // own area. Its own best; it doesn't touch the normal records.
   let raidOn = false, raidWait = 0, raidAreas = [], raidOD = false;
@@ -2685,7 +2820,7 @@ window.LD_RULES = (() => {
 
   const laneX = lane => vergeW + laneW * lane + laneW / 2;
   const fmtTime = sec => Math.floor(sec / 60) + ':' + String(Math.floor(sec % 60)).padStart(2, '0');
-  const score = () => Math.floor(distance / PX_PER_M) + bonus;
+  const score = () => Math.floor((Math.floor(distance / PX_PER_M) + bonus) * runDiff.score);
 
   function reset() {
     if (msRunOn) msEndRun();          // left a run part-way (Retry / Home): its progress still counts
@@ -2699,7 +2834,8 @@ window.LD_RULES = (() => {
     droneRand = runDay ? mulberry32(runDay.seed ^ 0x5bd1e995) : Math.random;
     MAX_LIVES = twist.lives || 3;
     lives = MAX_LIVES; level = raidOn ? BOSS_FROM : twist.start || (mode === 'normal' ? chosenStart() : 1);
-    startLevel = level; speed = levelSpeed(level) * (raidOn ? RAID_SPEED : 1); slip = 0;
+    runDiffI = mode === 'daily' ? 1 : diffI; runDiff = DIFFS[runDiffI];
+    startLevel = level; speed = levelSpeed(level) * (raidOn ? RAID_SPEED : 1) * runDiff.speed; slip = 0;
     spawnDist = 200; flash = 0; roadOffset = 0; shake = 0; planner = R.newPlanner(roadRand);
     levelDist = 0; distance = 0; bonus = 0; fuel = 100; coins = 0; coinMeter = 0; lowFuelT = 0; finishSpawned = false;
     combo = 0; comboIdle = 0; cleanLevel = true; odPhase = ''; odT = 0; odBoost = 1; overdrives = 0; warpT = 0; hurtT = 0; dents = []; smokeT = 0; rs = newRunStats(); boss = null; bossDoneLevel = 0; bossesRun = 0; whiteT = 0; sfx.pitch(1);
@@ -2718,7 +2854,8 @@ window.LD_RULES = (() => {
   function updateHud() {
     el.score.textContent = num(score());
     paintCombo();
-    el.lives.textContent = '♥'.repeat(lives) + '♡'.repeat(MAX_LIVES - lives);
+    const hearts = '♥'.repeat(lives) + '♡'.repeat(MAX_LIVES - lives);
+    if (el.lives.textContent !== hearts) { el.lives.textContent = hearts; el.lives.setAttribute('aria-label', t('livesAria', { n: lives, max: MAX_LIVES })); }
     const cc = el.coinCount.lastChild;
     if (cc.textContent !== num(coins)) cc.textContent = num(coins);
     // while a life is missing: coins towards the next heart (or ✓ once one is earned)
@@ -3027,21 +3164,7 @@ window.LD_RULES = (() => {
     buzz(20);
   }
   const autoChip = $('autoChip'), autoPct = $('autoPct');
-  // FIRE shares its column with the auto block: if the label doesn't fit, drop the 🚀 icon, then
-  // shrink the text (long labels like DISPARAR on narrow phones).
-  function fitFire() {
-    const b = $('rocketBtn'), lab = b.querySelector('.fireLabel'), rk = b.querySelector('.rk');
-    b.classList.remove('compact'); lab.style.fontSize = '';
-    // measure the contents, not the button (the rocket-count badge sticks out of it on purpose)
-    const over = () => {
-      const cs = getComputedStyle(b), avail = b.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-      const need = lab.scrollWidth + (b.classList.contains('compact') ? 0 : rk.offsetWidth + 6);
-      return need > avail + 0.5;
-    };
-    if (!over()) return;
-    b.classList.add('compact');
-    for (let px = 16; over() && px > 11; px--) lab.style.fontSize = (px - 1) + 'px';
-  }
+  function fitFire() {}   // FIRE is just the rocket now: nothing to fit (kept for the callers)
   const eggBar = $('eggBar'), rocketBtn = $('rocketBtn'), rocketN = $('rocketN'), eggNext = $('eggNext');
   const eggPips = [...$('eggCoins').children];
   // Bottom launch bar: rockets ready, coins towards the next one, and an alert while a Shahed is incoming.
@@ -3632,12 +3755,14 @@ window.LD_RULES = (() => {
     const bestLevel = separate ? 0 : Math.max(readNum('laneDodgerBestLevel'), level);
     if (!separate) { writeNum('laneDodgerBest', best); writeNum('laneDodgerBestLevel', bestLevel); writeNum('ddBestDist', Math.max(readNum('ddBestDist'), Math.floor(distance / PX_PER_M))); }
     if (s > 0 && !separate) {
-      const run = { st: startLevel, s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, h: carHue, v: carShade, k: kills, o: overdrives, a: areaFor(level), tm: Math.round(runTime), no: carNo, f: carFinish, km: bossMarks().length, b: bossesRun, t: Date.now() };
+      const run = { df: runDiffI, st: startLevel, s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, h: carHue, v: carShade, k: kills, o: overdrives, a: areaFor(level), tm: Math.round(runTime), no: carNo, f: carFinish, km: bossMarks().length, b: bossesRun, t: Date.now() };
       if (saveRun(run)) latestRunT = run.t;
     }
     el.over.classList.toggle('fuel', reason === 'fuel');
     $('overTitle').textContent = t(reason === 'raid' ? 'raidDone' : reason === 'fuel' ? 'outOfFuel' : 'crashed');
     if (!separate) $('newBest').hidden = !(s > prevBest && s > 0);
+    // the big score shrinks for very long numbers so it always fits the card
+    $('finalScore').style.fontSize = Math.min(58, Math.floor(300 / (num(s).length * 0.62))) + 'px';
     countUp($('finalScore'), s);
     $('statLevel').textContent = num(level);
     $('statDist').textContent = t('meters', { n: Math.floor(distance / PX_PER_M) });
@@ -3646,7 +3771,7 @@ window.LD_RULES = (() => {
     $('statKillsTile').hidden = !egg;
     $('statKills').textContent = num(kills);
     const A = AREAS[raidOn ? lookArea : areaFor(level)];
-    $('overTrip').textContent = A.icon + ' ' + t(A.key) + ' · ⏱ ' + fmtTime(runTime) + (overdrives ? ' · ⚡ ' + num(overdrives) : '') + (bossesRun ? ' · 🛸 ' + num(bossesRun) : '');
+    $('overTrip').textContent = (runDiffI !== 1 ? runDiff.icon + ' ' : '') + A.icon + ' ' + t(A.key) + ' · ⏱ ' + fmtTime(runTime) + (overdrives ? ' · ⚡ ' + num(overdrives) : '') + (bossesRun ? ' · 🛸 ' + num(bossesRun) : '');
     if (!separate) $('bestLine').textContent = t('bestLine', { best, level: bestLevel });
     paintOverMissions(msEndRun());
     el.over.classList.remove('hidden');
@@ -3759,7 +3884,7 @@ window.LD_RULES = (() => {
     const t0 = performance.now(), dur = 900;
     const tick = now => {
       if (id !== countUpId) return; // a newer game over took over
-      const k = Math.min(1, (now - t0) / dur);
+      const k = Math.max(0, Math.min(1, (now - t0) / dur));   // never below 0, whatever clock the frame time comes from
       node.textContent = num(Math.round(target * (1 - Math.pow(1 - k, 3))));
       if (k < 1) requestAnimationFrame(tick);
     };
@@ -3796,9 +3921,22 @@ window.LD_RULES = (() => {
   const wrapEl = $('wrap');
   function show(id) {
     for (const o of ['home', 'bye', 'intro', 'over', 'garage', 'records', 'pause', 'upgrades', 'raidHelp', 'settingsView']) $(o).classList.toggle('hidden', o !== id);
+    if (id === 'home') { $('home').scrollTop = 0; requestAnimationFrame(fitHome); }
     wrapEl.classList.toggle('at-home', ['home', 'bye', 'garage', 'records', 'upgrades', 'settingsView'].includes(id));
   }
 
+  // Home screen: if everything doesn't fit the screen's height, shrink it evenly until it does, so
+  // the logo is never pushed off the top and nothing needs scrolling.
+  function fitHome() {
+    const h = $('home'), st = $('homeStack');
+    if (h.classList.contains('hidden')) return;
+    st.style.zoom = '';
+    const cs = getComputedStyle(h);
+    const avail = h.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 4;
+    const need = st.offsetHeight;
+    if (need > avail) st.style.zoom = Math.max(0.55, avail / need).toFixed(3);
+  }
+  window.addEventListener('resize', () => requestAnimationFrame(fitHome));
   // ---- Garage: hue wheel around a live preview of the car ----
   const wheel = $('wheel'), knob = $('knob'), preview = $('carPreview'), shadeEl = $('shade');
   shadeEl.addEventListener('input', () => { setShade(+shadeEl.value); paintGarage(); });
@@ -4079,7 +4217,7 @@ window.LD_RULES = (() => {
       const A = AREAS[r.a ?? areaFor(r.l)];                       // older runs: work the area out from the level
       where.className = 'where';
       where.textContent = A.icon + ' ' + t(A.key) + ' · ' + t('lv', { n: r.l });
-      trip.textContent = [r.st > 1 ? t('fromArea', { area: AREAS[areaFor(r.st)].icon }) : '', t('meters', { n: r.d }), r.tm ? '⏱ ' + fmtTime(r.tm) : '', r.k > 0 ? '🎯 ' + num(r.k) : '', r.o > 0 ? '⚡ ' + num(r.o) : '', r.b > 0 ? '🛸 ' + num(r.b) : '', df.format(r.t)]
+      trip.textContent = [r.df !== undefined && r.df !== 1 ? DIFFS[r.df].icon : '', r.st > 1 ? t('fromArea', { area: AREAS[areaFor(r.st)].icon }) : '', t('meters', { n: r.d }), r.tm ? '⏱ ' + fmtTime(r.tm) : '', r.k > 0 ? '🎯 ' + num(r.k) : '', r.o > 0 ? '⚡ ' + num(r.o) : '', r.b > 0 ? '🛸 ' + num(r.b) : '', df.format(r.t)]
         .filter(Boolean).join(' · ');
       info.append(b, where, trip);
       const sh = document.createElement('button');              // share this run
@@ -4125,6 +4263,7 @@ window.LD_RULES = (() => {
     $('dailySub').textContent = '#' + n + ' · ' + t(tw.key) + (mine ? '\n' + mine : '');
     paintMissions($('homeMissions'), true);
     paintStartPick();
+    requestAnimationFrame(fitHome);
     const rb = (() => { try { return JSON.parse(localStorage.getItem(RAID_KEY) || '{}') || {}; } catch { return {}; } })();
     $('raidBtn').querySelector('small').textContent = rb.n ? t('raidBest', { n: rb.n, time: fmtTime(rb.tm || 0) }) : t('raidSub');
     const best = readNum('laneDodgerBest');
@@ -4249,7 +4388,7 @@ window.LD_RULES = (() => {
 
     // Speed eases up through each level towards the next level's speed.
     const lenPx = levelLength(level) * PX_PER_M;
-    const target = (levelSpeed(level) + (levelSpeed(level + 1) - levelSpeed(level)) * 0.6 * Math.min(1, levelDist / lenPx)) * (raidOn || boss ? RAID_SPEED : 1);   // the road eases off while a giant Shahed is up
+    const target = (levelSpeed(level) + (levelSpeed(level + 1) - levelSpeed(level)) * 0.6 * Math.min(1, levelDist / lenPx)) * (raidOn || boss ? RAID_SPEED : 1) * runDiff.speed;   // the road eases off while a giant Shahed is up
     speed += (target - speed) * ease(1.5, dt);
 
     if (odPhase) updateOverdrive(dt);
@@ -4305,7 +4444,7 @@ window.LD_RULES = (() => {
       // the car's distance ahead, its coin and heart further up) starts just past the line instead.
       const rem = levelLength(level) * PX_PER_M - levelDist, far = player.y + BARRIER_H + R.COIN_AHEAD + 130;
       if (rem + CP_CLEAR_AFTER > player.y && rem - CP_CLEAR_BEFORE < far) spawnDist = rem + CP_CLEAR_AFTER - player.y + 5;
-      else spawnDist = spawn();
+      else spawnDist = spawn() * Math.max(1, runDiff.speed);   // faster difficulty: rows further apart, same time between them
     }
 
     const px = player.x - player.w / 2, py = player.y;
@@ -5686,21 +5825,74 @@ window.LD_RULES = (() => {
   window.addEventListener('resize', fitFire);
   $('playBtn').addEventListener('click', () => { mode = 'normal'; startPlay(); });
   // The start picker: one small button per area reached (hidden until there's a second one).
-  function paintStartPick() {
+  // Lets the area strip scroll with a mouse too: ‹ › arrows at its ends, the mouse wheel, and click-and-drag
+  // (touch screens just swipe it).
+  function scrollableStrip(strip) {
+    const wrap = document.createElement('div'); wrap.className = 'stripWrap';
+    strip.parentNode.insertBefore(wrap, strip);
+    const arrow = (txt, dir) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'stripArrow'; b.textContent = txt;
+      b.setAttribute('aria-label', t(dir < 0 ? 'scrollPrev' : 'scrollNext')); b.title = b.getAttribute('aria-label');
+      b.addEventListener('click', () => strip.scrollBy({ left: dir * 132, behavior: 'smooth' }));
+      return b;
+    };
+    const left = arrow('‹', -1), right = arrow('›', 1);
+    wrap.append(left, strip, right);
+    const ends = () => { left.disabled = strip.scrollLeft < 4; right.disabled = strip.scrollLeft > strip.scrollWidth - strip.clientWidth - 4; };
+    strip.addEventListener('scroll', ends, { passive: true });
+    requestAnimationFrame(() => requestAnimationFrame(ends));
+    strip.addEventListener('wheel', e => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { strip.scrollLeft += e.deltaY; e.preventDefault(); }
+    }, { passive: false });
+    let down = null, moved = false;
+    strip.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') { down = { x: e.clientX, s: strip.scrollLeft, id: e.pointerId }; moved = false; } });
+    strip.addEventListener('pointermove', e => {
+      if (!down) return;
+      const dx = e.clientX - down.x;
+      if (!moved && Math.abs(dx) > 5) { moved = true; strip.setPointerCapture(down.id); }   // only a real drag takes the pointer
+      if (moved) strip.scrollLeft = down.s - dx;
+    });
+    const up = () => { down = null; };
+    strip.addEventListener('pointerup', up); strip.addEventListener('pointercancel', up);
+    strip.addEventListener('click', e => { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);   // a drag isn't a tap
+  }
+  // Under Play: where to start and how hard, a labelled row each, with the choice named below.
+  // The Start row lists the areas reached plus the next one, locked, so it's clear there's more.
+  let startHint = '';
+  function paintStartPick(keepScroll) {
     const box = $('startPick'), got = reachedAreas(), cur = areaFor(chosenStart());
-    box.hidden = got.length < 2;
-    if (box.hidden) return;
+    const old = box.querySelector('.strip'), oldScroll = old ? old.scrollLeft : 0;   // after a tap, stay where you'd scrolled to
+    box.hidden = false;
     box.textContent = '';
-    const lab = document.createElement('span'); lab.textContent = t('startFrom'); box.appendChild(lab);
-    for (const a of got) {
-      const b = document.createElement('button'); b.type = 'button'; b.textContent = AREAS[a].icon;
-      b.title = t(AREAS[a].key) + ' · ' + t('lv', { n: areaStart(a) }); b.setAttribute('aria-label', b.title);
-      b.classList.toggle('on', a === cur);
-      b.addEventListener('click', () => { try { localStorage.setItem('ddStartArea', a); } catch {} paintStartPick(); });
-      box.appendChild(b);
-    }
+    const row = (label, items, strip) => {
+      const r = document.createElement('div'); r.className = 'pickRow2';
+      const lab = document.createElement('span'); lab.textContent = label;
+      const btns = document.createElement('div'); btns.className = 'pickBtns' + (strip ? ' strip' : '');
+      for (const it of items) {
+        const b = document.createElement('button'); b.type = 'button'; b.textContent = it.icon;
+        b.title = it.title; b.setAttribute('aria-label', it.title); b.setAttribute('aria-pressed', String(!!it.on));
+        b.classList.toggle('on', !!it.on); b.classList.toggle('locked', !!it.locked);
+        b.addEventListener('click', () => { it.pick(); paintStartPick(true); });
+        btns.appendChild(b);
+      }
+      r.append(lab, btns); box.appendChild(r);
+      return btns;
+    };
+    // Every area, so it's clear how much more there is: the ones not reached yet are greyed with a lock.
+    const strip = row(t('startFrom') + ' ' + got.length + '/' + AREAS.length, [...AREAS.keys()].map(a => got.includes(a)
+      ? { icon: AREAS[a].icon, title: t(AREAS[a].key) + ' · ' + t('lv', { n: areaStart(a) }), on: a === cur,
+          pick: () => { startHint = ''; try { localStorage.setItem('ddStartArea', a); } catch {} } }
+      : { icon: AREAS[a].icon, title: '🔒 ' + t(AREAS[a].key) + ' · ' + t('startLocked', { n: areaStart(a) }), locked: true,
+          pick: () => { startHint = '🔒 ' + t(AREAS[a].key) + ' · ' + t('startLocked', { n: areaStart(a) }); } }), true);
+    scrollableStrip(strip);
+    const sel = strip.querySelector('.on');                         // opening the home screen: the chosen area in view
+    if (keepScroll) strip.scrollLeft = oldScroll;
+    else if (sel) requestAnimationFrame(() => { strip.scrollLeft = sel.offsetLeft - strip.clientWidth / 2 + sel.offsetWidth / 2; });
+    row(t('diffTitle'), DIFFS.map((d, i) => ({ icon: d.icon, title: t(d.key), on: i === diffI,
+      pick: () => { diffI = i; startHint = ''; try { localStorage.setItem('ddDiff', i); } catch {} } })));
     const name = document.createElement('small');                 // icons alone don't say much on a phone
-    name.textContent = AREAS[cur].icon + ' ' + t(AREAS[cur].key) + ' · ' + t('lv', { n: areaStart(cur) });
+    name.className = 'areaName';
+    name.textContent = startHint || (AREAS[cur].icon + ' ' + t(AREAS[cur].key) + ' · ' + t('lv', { n: areaStart(cur) }) + ' · ' + DIFFS[diffI].icon + ' ' + t(DIFFS[diffI].key));
     box.appendChild(name);
   }
   $('dailyBtn').addEventListener('click', () => { mode = 'daily'; startPlay(); });
@@ -5739,6 +5931,13 @@ window.LD_RULES = (() => {
     setBtn.setAttribute('aria-expanded', String(!setPanel.hidden));
   });
   soundBtn.addEventListener('click', () => toggleMute());
+  // The settings switches show "🔊 Sound: On" etc.; screen readers get the words without the emoji.
+  new MutationObserver(() => {
+    for (const b of setPanel.querySelectorAll('button')) {
+      const words = b.textContent.replace(/^\S+\s+/, '');
+      if (b.getAttribute('aria-label') !== words) b.setAttribute('aria-label', words);
+    }
+  }).observe(setPanel, { subtree: true, childList: true, characterData: true });
   // Settings from the home screen: borrow the pause menu's panel (same buttons, same settings).
   $('homeSet').addEventListener('click', () => {
     state = 'settings';
