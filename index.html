@@ -5965,11 +5965,17 @@ window.LD_RULES = (() => {
     }
     ctx.globalAlpha = 1;
     ctx.restore();
-    if (state === 'playing' && fuel <= 25 && !odPhase && !boss && !raidOn) {   // low fuel: red pulse round the edges
+    if (state === 'play' && fuel <= 25 && !odPhase && !boss && !raidOn) {   // low fuel: red pulse round the edges
       const k = (0.5 + 0.5 * Math.sin(performance.now() / (fuel <= 10 ? 110 : 220))) * (calm ? 0.35 : 1);
-      const g = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.45, W / 2, H / 2, Math.max(W, H) * 0.75);
-      g.addColorStop(0, 'rgba(255,40,40,0)'); g.addColorStop(1, `rgba(255,40,40,${(0.12 + 0.18 * k).toFixed(3)})`);
-      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      const a = (0.25 + 0.3 * k).toFixed(3), bw = Math.max(36, W * 0.09);
+      for (const [x0, x1] of [[0, bw], [W, W - bw]]) {                 // left and right edges
+        const g = ctx.createLinearGradient(x0, 0, x1, 0);
+        g.addColorStop(0, `rgba(255,40,40,${a})`); g.addColorStop(1, 'rgba(255,40,40,0)');
+        ctx.fillStyle = g; ctx.fillRect(Math.min(x0, x1), 0, bw, H);
+      }
+      const gb = ctx.createLinearGradient(0, H, 0, H - bw * 1.5);     // and the bottom, by the fuel-hungry car
+      gb.addColorStop(0, `rgba(255,40,40,${a})`); gb.addColorStop(1, 'rgba(255,40,40,0)');
+      ctx.fillStyle = gb; ctx.fillRect(0, H - bw * 1.5, W, bw * 1.5);
     }
     if (whiteT > 0) { ctx.fillStyle = `rgba(255,255,255,${(whiteT / 0.3 * 0.7).toFixed(3)})`; ctx.fillRect(0, 0, W, H); }   // giant Shahed down
     if (hurtT > 0) {                          // lost a life: red glow round the edges
