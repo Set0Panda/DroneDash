@@ -3901,13 +3901,13 @@ window.LD_RULES = (() => {
     } finally { ctx = saved; }
     // score and where you got to
     c.fillStyle = 'rgba(10,14,32,.88)'; c.beginPath();
-    c.roundRect ? c.roundRect(90, 730, CW - 180, 470, 36) : c.rect(90, 730, CW - 180, 470); c.fill();
+    c.roundRect ? c.roundRect(150, 730, CW - 300, 470, 36) : c.rect(150, 730, CW - 300, 470); c.fill();
     c.strokeStyle = 'rgba(255,255,255,.12)'; c.lineWidth = 3; c.stroke();
     c.fillStyle = '#cfd6ea'; c.font = font(800, 38); c.fillText(t('scoreLabel').toUpperCase(), CW / 2, 800);
-    c.fillStyle = '#ffd84a'; c.font = font(900, 140); c.fillText(num(r.s), CW / 2, 940, CW - 220);
-    c.fillStyle = '#ffffff'; c.font = font(800, 54); c.fillText(t('lv', { n: r.l }) + ' · ' + A.icon + ' ' + t(A.key), CW / 2, 1050, CW - 220);
+    c.fillStyle = '#ffd84a'; c.font = font(900, 140); c.fillText(num(r.s), CW / 2, 940, CW - 360);
+    c.fillStyle = '#ffffff'; c.font = font(800, 54); c.fillText(t('lv', { n: r.l }) + ' · ' + A.icon + ' ' + t(A.key), CW / 2, 1050, CW - 360);
     c.font = font(700, 42); c.fillStyle = '#e6eaf5';
-    c.fillText(['🛣️ ' + t('meters', { n: r.d }), '🪙 ' + num(r.c), r.k ? '🎯 ' + num(r.k) : '', r.o ? '⚡ ' + num(r.o) : '', r.b ? '🛸 ' + num(r.b) : '', '⏱ ' + fmtTime(r.tm)].filter(Boolean).join('   '), CW / 2, 1140, CW - 220);
+    c.fillText(['🛣️ ' + t('meters', { n: r.d }), '🪙 ' + num(r.c), r.k ? '🎯 ' + num(r.k) : '', r.o ? '⚡ ' + num(r.o) : '', r.b ? '🛸 ' + num(r.b) : '', '⏱ ' + fmtTime(r.tm)].filter(Boolean).join('   '), CW / 2, 1140, CW - 360);
     c.fillStyle = '#9fb3d9'; c.font = font(700, 36); c.fillText(GAME_URL.replace(/^https:\/\//, ''), CW / 2, 1290);
     return cv;
   }
