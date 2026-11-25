@@ -4041,7 +4041,7 @@ window.LD_RULES = (() => {
       c.font = font(800, 42);
       const txt = r.day ? '📅 ' + t('dailyNum', { n: r.day }) + ' · ' + t(r.tw) : '🛸 ' + t('raidBtn') + ' · ' + t('raidResult', { n: r.raid }), tw = Math.min(CW - 120, c.measureText(txt).width + 60);
       c.fillStyle = 'rgba(255,213,0,.16)'; c.beginPath(); c.roundRect ? c.roundRect(CW / 2 - tw / 2, 222, tw, 70, 35) : c.rect(CW / 2 - tw / 2, 222, tw, 70); c.fill();
-      c.fillStyle = '#FFD500'; c.fillText(txt, CW / 2, 272, CW - 160);
+      c.fillStyle = '#FFD500'; { let px = 42; while (c.measureText(txt).width > CW - 200 && px > 22) { px -= 2; c.font = font(800, px); } c.fillText(txt, CW / 2, 272); }
     }
     // the car, big, with the upgrades it had earned
     ctx = c;
@@ -4055,10 +4055,17 @@ window.LD_RULES = (() => {
     c.roundRect ? c.roundRect(150, 730, CW - 300, 470, 36) : c.rect(150, 730, CW - 300, 470); c.fill();
     c.strokeStyle = 'rgba(255,255,255,.12)'; c.lineWidth = 3; c.stroke();
     c.fillStyle = '#cfd6ea'; c.font = font(800, 38); c.fillText(t('scoreLabel').toUpperCase(), CW / 2, 800);
-    c.fillStyle = '#ffd84a'; c.font = font(900, 140); c.fillText(num(r.s), CW / 2, 940, CW - 360);
-    c.fillStyle = '#ffffff'; c.font = font(800, 54); c.fillText(t('lv', { n: r.l }) + ' · ' + A.icon + ' ' + t(A.key), CW / 2, 1050, CW - 360);
-    c.font = font(700, 42); c.fillStyle = '#e6eaf5';
-    c.fillText(['🛣️ ' + t('meters', { n: r.d }), '🪙 ' + num(r.c), r.k ? '🎯 ' + num(r.k) : '', r.o ? '⚡ ' + num(r.o) : '', r.b ? '🛸 ' + num(r.b) : '', '⏱ ' + fmtTime(r.tm)].filter(Boolean).join('   '), CW / 2, 1140, CW - 360);
+    // Lines are shrunk to fit by font size, never with fillText's maxWidth: Chrome on Android draws
+    // emoji text squeezed that way in the wrong place (off to the right).
+    const fitLine = (text, y, wgt, px, min) => {
+      c.font = font(wgt, px);
+      while (c.measureText(text).width > CW - 360 && px > min) { px -= 2; c.font = font(wgt, px); }
+      c.fillText(text, CW / 2, y);
+    };
+    c.fillStyle = '#ffd84a'; fitLine(num(r.s), 940, 900, 140, 60);
+    c.fillStyle = '#ffffff'; fitLine(t('lv', { n: r.l }) + ' · ' + A.icon + ' ' + t(A.key), 1050, 800, 54, 26);
+    c.fillStyle = '#e6eaf5';
+    fitLine(['🛣️ ' + t('meters', { n: r.d }), '🪙 ' + num(r.c), r.k ? '🎯 ' + num(r.k) : '', r.o ? '⚡ ' + num(r.o) : '', r.b ? '🛸 ' + num(r.b) : '', '⏱ ' + fmtTime(r.tm)].filter(Boolean).join('   '), 1140, 700, 42, 22);
     c.fillStyle = '#9fb3d9'; c.font = font(700, 36); c.fillText(GAME_URL.replace(/^https:\/\//, ''), CW / 2, 1290);
     return cv;
   }
@@ -6061,11 +6068,12 @@ window.LD_RULES = (() => {
       thumbHintT -= 1 / 60;
       const a = Math.min(1, thumbHintT), txt = '👍 ' + t('thumbHint'), y = H * 0.3;
       ctx.save(); ctx.globalAlpha = a;
-      ctx.font = '800 17px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      let hpx = 17; ctx.font = '800 17px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      while (ctx.measureText(txt).width > W - 56 && hpx > 11) { hpx -= 1; ctx.font = '800 ' + hpx + 'px system-ui, sans-serif'; }   // no maxWidth: Android misplaces squeezed emoji text
       const w = Math.min(W - 24, ctx.measureText(txt).width + 32);
       ctx.fillStyle = 'rgba(10,14,32,.82)'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(W / 2 - w / 2, y - 20, w, 40, 20) : ctx.rect(W / 2 - w / 2, y - 20, w, 40); ctx.fill();
       ctx.strokeStyle = 'rgba(255,213,0,.8)'; ctx.lineWidth = 2; ctx.stroke();
-      ctx.fillStyle = '#fff'; ctx.fillText(txt, W / 2, y + 1, W - 40);
+      ctx.fillStyle = '#fff'; ctx.fillText(txt, W / 2, y + 1);
       ctx.restore();
     }
     if (whiteT > 0) { ctx.fillStyle = `rgba(255,255,255,${(whiteT / 0.3 * 0.7).toFixed(3)})`; ctx.fillRect(0, 0, W, H); }   // giant Shahed down
