@@ -50,6 +50,8 @@
     ["let carNo = 7;", "let carNo = 7; window.__G = () => ({ state, level, lives, fuel, wallet, kills, coins, objects, drones, rockets, player, laneW, lookArea, combo, mult: comboMult(), odPhase, overdrives, bossesRun, bossLane: boss ? Math.max(0, Math.min(2, Math.round((boss.x - vergeW - laneW / 2) / laneW))) : -1, bossCharge: boss && boss.charge ? boss.charge.lanes : [] });"],
     // translations table, for the language check
     ["const STR = {", "const STR = window.__STR = {"],
+    // a hook to drive the giant Shahed code directly
+    ["const rocketPower = () =>", "window.__T = { down: () => bossDown(), setRun: n => { bossesRun = n; }, draw: tier => drawGiantShahed(0, 0, 0, tier), finale: () => raidFinale, power: () => rocketPower(), boss: () => !!boss }; const rocketPower = () =>"],
     // count what happened, by the floating texts the game shows
     ["function floatText(x, y, text, color) {", "function floatText(x, y, text, color) { (window.__floats = window.__floats || []).push(text);"],
     // a hidden test window must not pause itself
@@ -226,6 +228,32 @@
   } catch (e) { err('controls', e); }
   try { localStorage.removeItem('ddCtrl'); } catch {}
 
+  // ---------- 6. Giant Shahed looks and the raid finale ----------
+  try {
+    await load(common);
+    const f = {};
+    // every look draws, and how long each takes (a rough guide to cost on slower phones)
+    f.drawMs = {};
+    for (let tier = 0; tier < 4; tier++) {
+      const t0 = performance.now(); for (let i = 0; i < 300; i++) __T.draw(tier);
+      f.drawMs[['grey', 'black', 'jet', 'mothership'][tier]] = +((performance.now() - t0) / 300).toFixed(3);
+    }
+    // the last giant Shahed of a raid: no Overdrive, the car drives off, then "Raid complete"
+    $('raidBtn').click(); $('raidGo').click();
+    let n = 0; while (!__T.boss() && n < 3000) { stepSafe(1); n++; }
+    f.bossArrived = __T.boss();
+    __T.setRun(8); __T.down();
+    f.finaleStarts = __T.finale() > 0 && !G_od();
+    f.power = __T.power();
+    n = 0; while ($('over').classList.contains('hidden') && n < 300) { stepSafe(1); n++; }
+    f.endsInResults = !$('over').classList.contains('hidden') && $('overTitle').textContent === __STR.en.raidDone;
+    f.secondsToResults = +(n / 30).toFixed(1);
+    report.checks.raidFinale = f;
+    for (const k of ['bossArrived', 'finaleStarts', 'endsInResults']) if (!f[k]) report.errors.push('raid finale: ' + k);
+    if (window.__errs.length) report.errors.push(...window.__errs.map(m => 'raid finale: ' + m));
+  } catch (e) { err('raid finale', e); }
+
+  function G_od() { try { return !!__G().odPhase; } catch { return false; } }
   report.result = report.errors.length ? 'ERRORS FOUND: ' + report.errors.length : 'PASS: no errors';
   return JSON.stringify(report, null, 1);
 })()
