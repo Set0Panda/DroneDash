@@ -223,6 +223,9 @@
     font-variant-numeric: tabular-nums;
   }
   #rocketBtn:disabled { background: #3a4166; color: #8b93b5; box-shadow: 0 5px 0 #262b47; cursor: default; }
+  #rocketBtn.cheap { filter: saturate(.45) brightness(.85); }     /* 1-2 coins: a straight shot only */
+  .stick.cheap .stickKnob { filter: saturate(.45) brightness(.85); }
+  #wrap #eggBar.stick .stick.cheap { animation: none; box-shadow: inset 0 0 0 2px rgba(255,213,0,.45); }
   #rocketBtn:disabled b { background: #262b47; color: #8b93b5; }
   #rocketBtn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 #b38f00; }
   #rocketBtn.ready { animation: rocketPulse .45s ease-in-out infinite alternate; }
@@ -1020,7 +1023,7 @@
         <li><span class="ico"><span class="ico block"></span></span><span data-i18n="rule4" data-rich><b>3 crashes</b> = out · <b>10 coins</b> = a <b>♥</b> (fixes the car)</span></li>
         <li><span class="ico"><span class="ico hole"></span></span><span data-i18n="rule5" data-rich><b>Potholes</b> = −8% fuel</span></li>
         <li><span class="ico autoIco">🚀</span><span data-i18n="rule6" data-rich><b>FIRE</b>: 3 coins at a <b>Shahed</b> or barrier · 1 coin straight ahead</span></li>
-        <li><span class="ico autoIco">🛸</span><span data-i18n="ruleBoss" data-rich><b>Area end</b> = giant Shahed · get under it and <b>FIRE</b></span></li>
+        <li><span class="ico autoIco">🛸</span><span data-i18n="ruleBoss" data-rich><b>Near each area's end</b> = giant Shahed · get under it and <b>FIRE</b> · each win = stronger 🚀</span></li>
         <li><span class="ico"><i class="comboIco">×2</i></span><span data-i18n="ruleCombo" data-rich><b>Combo</b>: coins, near misses and drones fill it · <b>max = OVERDRIVE</b></span></li>
         <li><span class="ico autoIco">🤖</span><span data-i18n="ruleAuto" data-rich><b>Auto-fire</b>: aims for you, better with a combo</span></li>
       </ul>
@@ -1168,7 +1171,7 @@ window.I18N = (() => {
       odNext: "Overdrive ready for the next one",
       limited: "🆕 New",
       vibeOn: "Vibration: On", vibeOff: "Vibration: Off", startFrom: "Start:", fromArea: "from {area}", bestMark: "BEST",
-      killMarks: "{n}/{total} kill marks", ruleBoss: "**Area end** = giant Shahed · get under it and **FIRE**",
+      killMarks: "{n}/{total} kill marks", ruleBoss: "**Near each area's end** = giant Shahed · get under it and **FIRE** · each win = stronger 🚀",
       saverOn: "Battery saver: On", saverOff: "Battery saver: Off", diffEasy: "Learner", diffCareer: "Career Driver", diffExpert: "Getaway Expert",
       diffTitle: "Difficulty:",
       startLocked: "Unlocks at LV {n}",
@@ -1183,7 +1186,8 @@ window.I18N = (() => {
       ctrlThumb: "Controls: One thumb", ctrlLane: "Controls: Tap lane", thumbHint: "Drag to steer · Tap to fire",
       leadThumb: "Drag the stick or the road to steer · tap to fire.", ctrlNote: "Change how you steer and fire on touch screens",
       rocketPower: "Rocket power {n}", raidRule6: "**Each win** = stronger rockets (up to **★★★**)",
-      bossName0: "Shahed", bossName1: "Black Shahed", bossName2: "Jet Shahed", bossName3: "Mothership"
+      bossName0: "Shahed", bossName1: "Black Shahed", bossName2: "Jet Shahed", bossName3: "Mothership",
+      swarmTip: "Shoot the small ones!"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -1267,7 +1271,7 @@ window.I18N = (() => {
       odNext: "Overdrive listo para el siguiente",
       limited: "🆕 Nuevo",
       vibeOn: "Vibración: Sí", vibeOff: "Vibración: No", startFrom: "Empezar:", fromArea: "desde {area}", bestMark: "RÉCORD",
-      killMarks: "{n}/{total} marcas de derribo", ruleBoss: "**Fin de zona** = Shahed gigante · ponte debajo y **DISPARA**",
+      killMarks: "{n}/{total} marcas de derribo", ruleBoss: "**Cerca del final de cada zona** = Shahed gigante · ponte debajo y **DISPARA** · cada victoria = 🚀 más fuerte",
       saverOn: "Ahorro de batería: Sí", saverOff: "Ahorro de batería: No", diffEasy: "Aprendiz", diffCareer: "Piloto profesional", diffExpert: "Experto en fugas",
       diffTitle: "Dificultad:",
       startLocked: "Se desbloquea en el NV {n}",
@@ -1282,7 +1286,8 @@ window.I18N = (() => {
       ctrlThumb: "Controles: Un pulgar", ctrlLane: "Controles: Tocar carril", thumbHint: "Arrastra para girar · Toca para disparar",
       leadThumb: "Arrastra el mando o la carretera para girar · toca para disparar.", ctrlNote: "Cambia cómo giras y disparas en pantallas táctiles",
       rocketPower: "Potencia de cohetes {n}", raidRule6: "**Cada victoria** = cohetes más fuertes (hasta **★★★**)",
-      bossName0: "Shahed", bossName1: "Shahed negro", bossName2: "Shahed a reacción", bossName3: "Nave nodriza"
+      bossName0: "Shahed", bossName1: "Shahed negro", bossName2: "Shahed a reacción", bossName3: "Nave nodriza",
+      swarmTip: "¡Derriba a los pequeños!"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -1366,7 +1371,7 @@ window.I18N = (() => {
       odNext: "Overdrive prêt pour le suivant",
       limited: "🆕 Nouveau",
       vibeOn: "Vibration : oui", vibeOff: "Vibration : non", startFrom: "Départ :", fromArea: "depuis {area}", bestMark: "RECORD",
-      killMarks: "{n}/{total} marques de victoire", ruleBoss: "**Fin de zone** = Shahed géant · place-toi dessous et **FEU**",
+      killMarks: "{n}/{total} marques de victoire", ruleBoss: "**Vers la fin de chaque zone** = Shahed géant · place-toi dessous et **FEU** · chaque victoire = 🚀 plus fort",
       saverOn: "Économie de batterie : oui", saverOff: "Économie de batterie : non", diffEasy: "Apprenti conducteur", diffCareer: "Pilote de carrière", diffExpert: "Expert de la fuite",
       diffTitle: "Difficulté :",
       startLocked: "Débloqué au NIV {n}",
@@ -1381,7 +1386,8 @@ window.I18N = (() => {
       ctrlThumb: "Commandes : Un pouce", ctrlLane: "Commandes : Toucher la voie", thumbHint: "Glisse pour tourner · Touche pour tirer",
       leadThumb: "Glisse le joystick ou la route pour tourner · touche pour tirer.", ctrlNote: "Change ta façon de tourner et de tirer sur écran tactile",
       rocketPower: "Puissance des roquettes {n}", raidRule6: "**Chaque victoire** = roquettes plus fortes (jusqu'à **★★★**)",
-      bossName0: "Shahed", bossName1: "Shahed noir", bossName2: "Shahed à réaction", bossName3: "Vaisseau-mère"
+      bossName0: "Shahed", bossName1: "Shahed noir", bossName2: "Shahed à réaction", bossName3: "Vaisseau-mère",
+      swarmTip: "Abats les petits !"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -1465,7 +1471,7 @@ window.I18N = (() => {
       odNext: "Overdrive bereit für den nächsten",
       limited: "🆕 Neu",
       vibeOn: "Vibration: An", vibeOff: "Vibration: Aus", startFrom: "Start:", fromArea: "ab {area}", bestMark: "REKORD",
-      killMarks: "{n}/{total} Abschussmarken", ruleBoss: "**Gebietsende** = Riesen-Shahed · darunter stellen und **FEUER**",
+      killMarks: "{n}/{total} Abschussmarken", ruleBoss: "**Gegen Ende jedes Gebiets** = Riesen-Shahed · darunter stellen und **FEUER** · jeder Sieg = stärkere 🚀",
       saverOn: "Akku sparen: An", saverOff: "Akku sparen: Aus", diffEasy: "Fahrschüler", diffCareer: "Profifahrer", diffExpert: "Fluchtexperte",
       diffTitle: "Schwierigkeit:",
       startLocked: "Ab Level {n}",
@@ -1480,7 +1486,8 @@ window.I18N = (() => {
       ctrlThumb: "Steuerung: Ein Daumen", ctrlLane: "Steuerung: Spur antippen", thumbHint: "Ziehen zum Lenken · Tippen zum Feuern",
       leadThumb: "Stick oder Straße ziehen zum Lenken · tippen zum Feuern.", ctrlNote: "Wie du auf Touchscreens lenkst und feuerst",
       rocketPower: "Raketenkraft {n}", raidRule6: "**Jeder Sieg** = stärkere Raketen (bis **★★★**)",
-      bossName0: "Shahed", bossName1: "Schwarzer Shahed", bossName2: "Jet-Shahed", bossName3: "Mutterschiff"
+      bossName0: "Shahed", bossName1: "Schwarzer Shahed", bossName2: "Jet-Shahed", bossName3: "Mutterschiff",
+      swarmTip: "Schieß die Kleinen ab!"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -1564,7 +1571,7 @@ window.I18N = (() => {
       odNext: "Overdrive pronto para o próximo",
       limited: "🆕 Novo",
       vibeOn: "Vibração: Ligada", vibeOff: "Vibração: Desligada", startFrom: "Começar:", fromArea: "desde {area}", bestMark: "RECORDE",
-      killMarks: "{n}/{total} marcas de abate", ruleBoss: "**Fim da área** = Shahed gigante · fique embaixo e **DISPARE**",
+      killMarks: "{n}/{total} marcas de abate", ruleBoss: "**Perto do fim de cada área** = Shahed gigante · fique embaixo e **DISPARE** · cada vitória = 🚀 mais forte",
       saverOn: "Economia de bateria: Ligada", saverOff: "Economia de bateria: Desligada", diffEasy: "Aprendiz", diffCareer: "Piloto de carreira", diffExpert: "Especialista em fugas",
       diffTitle: "Dificuldade:",
       startLocked: "Desbloqueia no NV {n}",
@@ -1579,7 +1586,8 @@ window.I18N = (() => {
       ctrlThumb: "Controles: Um polegar", ctrlLane: "Controles: Tocar na faixa", thumbHint: "Arraste para virar · Toque para atirar",
       leadThumb: "Arraste o controle ou a estrada para virar · toque para atirar.", ctrlNote: "Mude como você vira e atira em telas sensíveis ao toque",
       rocketPower: "Poder dos foguetes {n}", raidRule6: "**Cada vitória** = foguetes mais fortes (até **★★★**)",
-      bossName0: "Shahed", bossName1: "Shahed preto", bossName2: "Shahed a jato", bossName3: "Nave-mãe"
+      bossName0: "Shahed", bossName1: "Shahed preto", bossName2: "Shahed a jato", bossName3: "Nave-mãe",
+      swarmTip: "Derrube os pequenos!"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -1663,7 +1671,7 @@ window.I18N = (() => {
       odNext: "Overdrive pronto per il prossimo",
       limited: "🆕 Nuovo",
       vibeOn: "Vibrazione: Sì", vibeOff: "Vibrazione: No", startFrom: "Parti da:", fromArea: "da {area}", bestMark: "RECORD",
-      killMarks: "{n}/{total} segni di abbattimento", ruleBoss: "**Fine zona** = Shahed gigante · mettiti sotto e **FUOCO**",
+      killMarks: "{n}/{total} segni di abbattimento", ruleBoss: "**Verso la fine di ogni zona** = Shahed gigante · mettiti sotto e **FUOCO** · ogni vittoria = 🚀 più forte",
       saverOn: "Risparmio batteria: Sì", saverOff: "Risparmio batteria: No", diffEasy: "Foglio rosa", diffCareer: "Pilota di carriera", diffExpert: "Esperto di fughe",
       diffTitle: "Difficoltà:",
       startLocked: "Si sblocca al LV {n}",
@@ -1678,7 +1686,8 @@ window.I18N = (() => {
       ctrlThumb: "Comandi: Un pollice", ctrlLane: "Comandi: Tocca la corsia", thumbHint: "Trascina per sterzare · Tocca per sparare",
       leadThumb: "Trascina la levetta o la strada per sterzare · tocca per sparare.", ctrlNote: "Cambia come sterzi e spari sui touchscreen",
       rocketPower: "Potenza razzi {n}", raidRule6: "**Ogni vittoria** = razzi più forti (fino a **★★★**)",
-      bossName0: "Shahed", bossName1: "Shahed nero", bossName2: "Shahed a reazione", bossName3: "Nave madre"
+      bossName0: "Shahed", bossName1: "Shahed nero", bossName2: "Shahed a reazione", bossName3: "Nave madre",
+      swarmTip: "Abbatti i piccoli!"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -1762,7 +1771,7 @@ window.I18N = (() => {
       odNext: "次の戦いにOVERDRIVEを温存",
       limited: "🆕 新登場",
       vibeOn: "振動：オン", vibeOff: "振動：オフ", startFrom: "スタート：", fromArea: "{area}から", bestMark: "ベスト",
-      killMarks: "撃墜マーク {n}/{total}", ruleBoss: "**エリアの最後**＝巨大シャヘド · 真下で**発射**",
+      killMarks: "撃墜マーク {n}/{total}", ruleBoss: "**各エリアの終盤**＝巨大シャヘド · 真下で**発射** · 勝つたびに🚀強化",
       saverOn: "省電力：オン", saverOff: "省電力：オフ", diffEasy: "仮免許", diffCareer: "キャリアドライバー", diffExpert: "逃走エキスパート",
       diffTitle: "難易度：",
       startLocked: "レベル{n}で解放",
@@ -1777,7 +1786,8 @@ window.I18N = (() => {
       ctrlThumb: "操作：片手（親指）", ctrlLane: "操作：車線をタップ", thumbHint: "ドラッグで移動 · タップで発射",
       leadThumb: "スティックか道路をドラッグで移動 · タップで発射。", ctrlNote: "タッチ画面での移動と発射の方法を変更",
       rocketPower: "ロケット強化 {n}", raidRule6: "**勝つたびに**ロケットが強くなる（最大**★★★**）",
-      bossName0: "シャヘド", bossName1: "黒いシャヘド", bossName2: "ジェットシャヘド", bossName3: "母艦"
+      bossName0: "シャヘド", bossName1: "黒いシャヘド", bossName2: "ジェットシャヘド", bossName3: "母艦",
+      swarmTip: "小さいのを撃ち落とせ！"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -1861,7 +1871,7 @@ window.I18N = (() => {
       odNext: "OVERDRIVE 留给下一架",
       limited: "🆕 新",
       vibeOn: "振动：开", vibeOff: "振动：关", startFrom: "起点：", fromArea: "从{area}出发", bestMark: "最佳",
-      killMarks: "击落标记 {n}/{total}", ruleBoss: "**区域尽头**＝巨型沙赫德 · 开到它下方**发射**",
+      killMarks: "击落标记 {n}/{total}", ruleBoss: "**每个区域快结束时**＝巨型沙赫德 · 开到它下方**发射** · 每次获胜🚀更强",
       saverOn: "省电模式：开", saverOff: "省电模式：关", diffEasy: "新手司机", diffCareer: "职业车手", diffExpert: "飙车专家",
       diffTitle: "难度：",
       startLocked: "第 {n} 关解锁",
@@ -1876,7 +1886,8 @@ window.I18N = (() => {
       ctrlThumb: "操控：单指拇指", ctrlLane: "操控：点击车道", thumbHint: "拖动转向 · 点击开火",
       leadThumb: "拖动摇杆或路面转向 · 点击开火。", ctrlNote: "更改触屏上的转向和开火方式",
       rocketPower: "火箭威力 {n}", raidRule6: "**每次获胜** = 火箭更强（最多 **★★★**）",
-      bossName0: "沙赫德", bossName1: "黑色沙赫德", bossName2: "喷气沙赫德", bossName3: "母舰"
+      bossName0: "沙赫德", bossName1: "黑色沙赫德", bossName2: "喷气沙赫德", bossName3: "母舰",
+      swarmTip: "击落小的！"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -1960,7 +1971,7 @@ window.I18N = (() => {
       odNext: "다음 전투에 OVERDRIVE 준비",
       limited: "🆕 신규",
       vibeOn: "진동: 켜짐", vibeOff: "진동: 꺼짐", startFrom: "시작:", fromArea: "{area}부터", bestMark: "최고",
-      killMarks: "격추 마크 {n}/{total}", ruleBoss: "**구역 끝** = 거대 샤헤드 · 밑으로 가서 **발사**",
+      killMarks: "격추 마크 {n}/{total}", ruleBoss: "**각 구역 끝 무렵** = 거대 샤헤드 · 밑으로 가서 **발사** · 이길 때마다 🚀 강화",
       saverOn: "배터리 절약: 켜짐", saverOff: "배터리 절약: 꺼짐", diffEasy: "초보 운전", diffCareer: "커리어 드라이버", diffExpert: "도주 전문가",
       diffTitle: "난이도:",
       startLocked: "레벨 {n}에서 해제",
@@ -1975,7 +1986,8 @@ window.I18N = (() => {
       ctrlThumb: "조작: 한 손가락", ctrlLane: "조작: 차선 탭", thumbHint: "드래그로 이동 · 탭으로 발사",
       leadThumb: "스틱이나 도로를 드래그해 이동 · 탭해서 발사.", ctrlNote: "터치스크린에서 이동·발사 방식 변경",
       rocketPower: "로켓 위력 {n}", raidRule6: "**이길 때마다** 로켓 강화 (최대 **★★★**)",
-      bossName0: "샤헤드", bossName1: "검은 샤헤드", bossName2: "제트 샤헤드", bossName3: "모선"
+      bossName0: "샤헤드", bossName1: "검은 샤헤드", bossName2: "제트 샤헤드", bossName3: "모선",
+      swarmTip: "작은 것들을 격추하세요!"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -2059,7 +2071,7 @@ window.I18N = (() => {
       odNext: "अगले के लिए OVERDRIVE तैयार",
       limited: "🆕 नया",
       vibeOn: "कंपन: चालू", vibeOff: "कंपन: बंद", startFrom: "शुरुआत:", fromArea: "{area} से", bestMark: "सर्वश्रेष्ठ",
-      killMarks: "{n}/{total} किल मार्क", ruleBoss: "**इलाके का अंत** = विशाल शाहेद · नीचे आकर **फ़ायर**",
+      killMarks: "{n}/{total} किल मार्क", ruleBoss: "**हर इलाके के अंत के पास** = विशाल शाहेद · नीचे आकर **फ़ायर** · हर जीत = और ताक़तवर 🚀",
       saverOn: "बैटरी सेवर: चालू", saverOff: "बैटरी सेवर: बंद", diffEasy: "लर्नर ड्राइवर", diffCareer: "करियर ड्राइवर", diffExpert: "गेटअवे एक्सपर्ट",
       diffTitle: "कठिनाई:",
       startLocked: "लेवल {n} पर अनलॉक",
@@ -2074,7 +2086,8 @@ window.I18N = (() => {
       ctrlThumb: "कंट्रोल: एक अंगूठा", ctrlLane: "कंट्रोल: लेन पर टैप", thumbHint: "मोड़ने के लिए खींचो · चलाने के लिए टैप करो",
       leadThumb: "मोड़ने के लिए स्टिक या सड़क खींचो · चलाने के लिए टैप करो।", ctrlNote: "टच स्क्रीन पर मोड़ने और चलाने का तरीका बदलो",
       rocketPower: "रॉकेट पावर {n}", raidRule6: "**हर जीत** = और ताक़तवर रॉकेट (**★★★** तक)",
-      bossName0: "शाहेद", bossName1: "काला शाहेद", bossName2: "जेट शाहेद", bossName3: "मदरशिप"
+      bossName0: "शाहेद", bossName1: "काला शाहेद", bossName2: "जेट शाहेद", bossName3: "मदरशिप",
+      swarmTip: "छोटों को मार गिराओ!"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -2160,7 +2173,7 @@ window.I18N = (() => {
       odNext: "OVERDRIVE готовий до наступного",
       limited: "🆕 Нове",
       vibeOn: "Вібрація: Увімк.", vibeOff: "Вібрація: Вимк.", startFrom: "Старт:", fromArea: "з {area}", bestMark: "РЕКОРД",
-      killMarks: "{n}/{total} позначок збиття", ruleBoss: "**Кінець зони** = гігантський шахед · стань під ним і **ПУСК**",
+      killMarks: "{n}/{total} позначок збиття", ruleBoss: "**Ближче до кінця зони** = гігантський шахед · стань під ним і **ПУСК** · кожна перемога = сильніші 🚀",
       saverOn: "Економія батареї: Увімк.", saverOff: "Економія батареї: Вимк.", diffEasy: "Учень водія", diffCareer: "Професійний водій", diffExpert: "Експерт втечі",
       diffTitle: "Складність:",
       startLocked: "Відкривається на рівні {n}",
@@ -2175,7 +2188,8 @@ window.I18N = (() => {
       ctrlThumb: "Керування: Один палець", ctrlLane: "Керування: Торкнись смуги", thumbHint: "Тягни, щоб кермувати · Торкнись, щоб стріляти",
       leadThumb: "Тягни джойстик або дорогу, щоб кермувати · торкнись, щоб стріляти.", ctrlNote: "Як кермувати й стріляти на сенсорному екрані",
       rocketPower: "Сила ракет {n}", raidRule6: "**Кожна перемога** = сильніші ракети (до **★★★**)",
-      bossName0: "Шахед", bossName1: "Чорний шахед", bossName2: "Реактивний шахед", bossName3: "Корабель-матка"
+      bossName0: "Шахед", bossName1: "Чорний шахед", bossName2: "Реактивний шахед", bossName3: "Корабель-матка",
+      swarmTip: "Збивай малих!"
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -2259,7 +2273,7 @@ window.I18N = (() => {
       odNext: "OVERDRIVE მზადაა შემდეგისთვის",
       limited: "🆕 ახალი",
       vibeOn: "ვიბრაცია: ჩართ.", vibeOff: "ვიბრაცია: გამორთ.", startFrom: "დაწყება:", fromArea: "{area}-დან", bestMark: "რეკორდი",
-      killMarks: "{n}/{total} ნიშანი", ruleBoss: "**ზონის ბოლო** = გიგანტური შაჰედი · დადექი ქვეშ და **ესროლე**",
+      killMarks: "{n}/{total} ნიშანი", ruleBoss: "**ყოველი ზონის ბოლოსკენ** = გიგანტური შაჰედი · დადექი ქვეშ და **ესროლე** · ყოველი გამარჯვება = ძლიერი 🚀",
       saverOn: "ბატარეის დაზოგვა: ჩართ.", saverOff: "ბატარეის დაზოგვა: გამორთ.", diffEasy: "მოსწავლე მძღოლი", diffCareer: "პროფესიონალი მძღოლი", diffExpert: "გაქცევის ექსპერტი",
       diffTitle: "სირთულე:",
       startLocked: "იხსნება დონე {n}-ზე",
@@ -2274,7 +2288,8 @@ window.I18N = (() => {
       ctrlThumb: "მართვა: ერთი ცერით", ctrlLane: "მართვა: ზოლზე შეხება", thumbHint: "გაასრიალე მოსახვევად · შეეხე სასროლად",
       leadThumb: "მოსახვევად გაასრიალე ჯოისტიკი ან გზა · შეეხე სასროლად.", ctrlNote: "შეცვალე მართვა და სროლა სენსორულ ეკრანზე",
       rocketPower: "რაკეტის ძალა {n}", raidRule6: "**ყოველი გამარჯვება** = უფრო ძლიერი რაკეტები (**★★★**-მდე)",
-      bossName0: "შაჰედი", bossName1: "შავი შაჰედი", bossName2: "რეაქტიული შაჰედი", bossName3: "დედა-ხომალდი"
+      bossName0: "შაჰედი", bossName1: "შავი შაჰედი", bossName2: "რეაქტიული შაჰედი", bossName3: "დედა-ხომალდი",
+      swarmTip: "ჩამოაგდე პატარები!"
     }
   };
   const NAMES = {
@@ -3262,6 +3277,7 @@ window.LD_RULES = (() => {
         b.queue = order.slice(1).map(l => ({ lanes: [l], t: step, max: step }));
         b.dropT += 1.1;
       } else if (move === 'swarm') {                                    // two small Shaheds weaving down at you: shoot or dodge
+        if (tip('ddTipSwarm')) floatText(b.x, b.y + 40 * b.s, '🎯 ' + t('swarmTip'), '#FFD700');
         for (const l of [0, 1, 2].filter(l => l !== lane).slice(0, 2)) {
           launchDrone(l, 'swerve', false);
           const d = drones[drones.length - 1];
@@ -3505,7 +3521,9 @@ window.LD_RULES = (() => {
     set(rocketN, (free ? '∞' : String(n)) + (rocketPower() ? '★'.repeat(rocketPower()) : ''));
     set(el.eggKills, '🎯 ' + num(kills));
     rocketBtn.disabled = n === 0 && !free && wallet < EMPTY_COST;   // 1-2 coins still buys a straight shot
-    set($('stickN'), '🚀 ' + (free ? '∞' : String(n)) + (rocketPower() ? ' ' + '★'.repeat(rocketPower()) : '')); $('stick').classList.toggle('empty', n === 0 && !free);
+    const cheap = n === 0 && !free && wallet >= EMPTY_COST;         // ...shown half-lit: it works, but only straight ahead
+    rocketBtn.classList.toggle('cheap', cheap); $('stick').classList.toggle('cheap', cheap);
+    set($('stickN'), '🚀 ' + (free ? '∞' : String(n)) + (rocketPower() ? ' ' + '★'.repeat(rocketPower()) : '')); $('stick').classList.toggle('empty', n === 0 && !free && wallet < EMPTY_COST);
     const soon = () => { const b = barrierAhead(); return b && b.y + b.h > player.y - speed * 1.3; };   // a barrier about to block your lane
     rocketBtn.classList.toggle('ready', (n > 0 || free) && state === 'play' && (boss ? Math.abs(boss.x - player.x) < laneW * 0.5 : (!!target() || !!soon())));
     eggPips.forEach((p, i) => p.classList.toggle('on', i < part));
