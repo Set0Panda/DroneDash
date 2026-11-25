@@ -4926,7 +4926,7 @@ window.LD_RULES = (() => {
 
   function slidePlayer(dt) {
     slip = Math.max(0, slip - dt);
-    player.x += (laneX(player.lane) - player.x) * ease(slip > 0 ? SLIP_EASE : 28, dt);
+    player.x += (laneX(player.lane) - player.x) * ease(slip > 0 ? SLIP_EASE : 36, dt);
     if (!raidFinale) player.y = H - 100;      // (the raid finale drives it off up the road)
   }
 
@@ -6822,12 +6822,12 @@ window.LD_RULES = (() => {
   });
   stick.addEventListener('pointermove', e => {
     if (!held || e.pointerId !== held.id) return;
-    if (!held.moved && Math.abs(e.clientX - held.x) < 16) return;
-    held.moved = true; stick.classList.add('held');
+    if (Math.abs(e.clientX - held.x) >= 16) held.moved = true;   // (16 px: still counts as a tap below that)
+    stick.classList.add('held');                                     // the knob follows the thumb from the first pixel
     const r = stick.getBoundingClientRect(), span = stickSpan();
     const off = Math.max(-span, Math.min(span, e.clientX - (r.left + r.width / 2)));
     stickKnob.style.transform = `translateX(${off}px)`;
-    if (canSteer()) setLane(Math.round(off / Math.max(1, span)) + 1);     // left, middle or right third
+    if (canSteer() && Math.abs(e.clientX - held.x) >= 10) setLane(Math.round(off / Math.max(1, span)) + 1);   // left, middle or right third (a fire-tap's wobble never steers)
   });
   const letGo = e => {
     if (!held || e.pointerId !== held.id) return;
