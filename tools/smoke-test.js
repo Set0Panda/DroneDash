@@ -101,7 +101,7 @@
   // ---------- 3. Long run, levels 1 to 52 (every area, hazard and car upgrade) ----------
   try {
     await load([...common,
-      ["fuel = Math.max(0, fuel - fuelDrain(level) * fuelEase * dt);", "fuel = Math.max(60, fuel - fuelDrain(level) * fuelEase * dt);"],
+      ["fuel = Math.max(0, fuel - fuelDrain(level) * fuelEase * runDiff.speed * dt);", "fuel = Math.max(60, fuel - fuelDrain(level) * fuelEase * runDiff.speed * dt);"],
       ["if (lives <= 0) gameOver('crash');", "if (lives <= 0) lives = MAX_LIVES;"],
       ["function saveRun(run) {", "function saveRun(run) { return false;"]]);
     const seen = { areas: new Set(), skins: new Set(), holeSkins: new Set(), paths: new Set(), states: new Set() };

@@ -4967,7 +4967,7 @@ window.LD_RULES = (() => {
 
     // first levels burn less (75% at LV 1, full from LV 5), so new players learn the road before fuel bites
     const fuelEase = level < 5 ? 0.75 + 0.0625 * (level - 1) : 1;
-    if (!odPhase && !boss && !raidOn) fuel = Math.max(0, fuel - fuelDrain(level) * fuelEase * dt);   // Overdrive, finales and raids burn no fuel
+    if (!odPhase && !boss && !raidOn) fuel = Math.max(0, fuel - fuelDrain(level) * fuelEase * runDiff.speed * dt);   // per distance: a slower road doesn't cost more fuel per level   // Overdrive, finales and raids burn no fuel
     if (raidFinale > 0) {                                  // the victory drive-off after the last giant Shahed
       raidFinale -= dt; finaleV += 1400 * dt; player.y -= finaleV * dt;
       if (Math.random() < dt * 40) particles.push({ x: player.x + (Math.random() - 0.5) * 10, y: player.y + player.h, vx: (Math.random() - 0.5) * 40, vy: 120, life: 0.4, color: '#f6ad55' });
