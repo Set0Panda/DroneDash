@@ -4992,8 +4992,11 @@ window.LD_RULES = (() => {
     return cssCache[n] || (cssCache[n] = getComputedStyle(document.documentElement).getPropertyValue(n).trim());
   }
 
-  function slidePlayer(dt) {
-    slip = Math.max(0, slip - dt);
+  // The car answers your finger in real time: slow-motion moments (Overdrive starting, a kill's
+  // hit-stop) slow the road, never your steering.
+  function slidePlayer(gameDt) {
+    const dt = realDt || gameDt;
+    slip = Math.max(0, slip - gameDt);
     player.x += (laneX(player.lane) - player.x) * ease(slip > 0 ? SLIP_EASE : 36, dt);
     if (!raidFinale) player.y = H - 100;      // (the raid finale drives it off up the road)
   }
@@ -6644,9 +6647,9 @@ window.LD_RULES = (() => {
   });
   canvas.addEventListener('pointermove', e => {
     if (thumb && e.pointerId === thumb.id) {
-      const dx = e.clientX - thumb.x, step = Math.max(28, laneW * viewK * 0.55);   // about half a lane of thumb per lane
+      const dx = e.clientX - thumb.x, step = Math.max(26, laneW * viewK * 0.45);   // a bit under half a lane of thumb per lane
       if (Math.abs(dx) > 16) thumb.moved = true;
-      if (canSteer()) setLane(thumb.lane + Math.round(dx / step));
+      if (canSteer() && Math.abs(dx) >= 12) setLane(thumb.lane + Math.sign(dx) * Math.floor(Math.abs(dx) / step + 0.65));   // commits a third of the way
       return;
     }
     if (dragging) goToPointerLane(e);
@@ -6895,7 +6898,12 @@ window.LD_RULES = (() => {
     const r = stick.getBoundingClientRect(), span = stickSpan();
     const off = Math.max(-span, Math.min(span, e.clientX - (r.left + r.width / 2)));
     stickKnob.style.transform = `translateX(${off}px)`;
-    if (canSteer() && Math.abs(e.clientX - held.x) >= 10) setLane(Math.round(off / Math.max(1, span)) + 1);   // left, middle or right third (a fire-tap's wobble never steers)
+    if (canSteer() && Math.abs(e.clientX - held.x) >= 10) {      // a fire-tap's wobble never steers
+      let l = player.lane; const sp = Math.max(1, span);
+      while (l < 2 && off > (l - 1) * sp + 0.3 * sp) l++;          // 30% of the way to the next spot is enough
+      while (l > 0 && off < (l - 1) * sp - 0.3 * sp) l--;
+      setLane(l);
+    }
   });
   const letGo = e => {
     if (!held || e.pointerId !== held.id) return;
