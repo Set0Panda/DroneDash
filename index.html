@@ -3382,7 +3382,7 @@ window.LD_RULES = (() => {
     const free = odPhase === 'burst';                     // Overdrive: unlimited rockets
     set(rocketN, free ? '∞' : String(n));
     set(el.eggKills, '🎯 ' + num(kills));
-    rocketBtn.disabled = n === 0 && !free;
+    rocketBtn.disabled = n === 0 && !free && wallet < EMPTY_COST;   // 1-2 coins still buys a straight shot
     set($('stickN'), '🚀 ' + (free ? '∞' : String(n))); $('stick').classList.toggle('empty', n === 0 && !free);
     const soon = () => { const b = barrierAhead(); return b && b.y + b.h > player.y - speed * 1.3; };   // a barrier about to block your lane
     rocketBtn.classList.toggle('ready', (n > 0 || free) && state === 'play' && (boss ? Math.abs(boss.x - player.x) < laneW * 0.5 : (!!target() || !!soon())));

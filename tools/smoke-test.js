@@ -136,6 +136,7 @@
   // ---------- 4. Normal run until game over, then game over and records ----------
   try {
     await load(common);
+    const starsBefore = (() => { try { return JSON.parse(localStorage.getItem('ddMissions') || '{}').stars || 0; } catch { return 0; } })();
     $('playBtn').click(); if (!$('intro').classList.contains('hidden')) $('startBtn').click();
     let frames = 0;
     while (frames < 30000 && $('over').classList.contains('hidden')) { drive(); stepSafe(1); frames++; }
@@ -143,7 +144,11 @@
       level: __G().level, journeyLine: $('overTrip').textContent, title: $('overTitle').textContent };
     // Missions: the runs so far should have finished some and shown them on game over
     try { const m = JSON.parse(localStorage.getItem('ddMissions') || '{}'); report.checks.missionStars = m.stars || 0; report.checks.missionsActive = (m.active || []).length; } catch (e) { err('missions', e); }
-    report.checks.missionsOnGameOver = !$('overMissions').hidden;
+    // the game-over missions box shows exactly when a mission was finished in this run
+    { const after = (() => { try { return JSON.parse(localStorage.getItem('ddMissions') || '{}').stars || 0; } catch { return 0; } })();
+      const shown = !$('overMissions').hidden, finished = after > starsBefore;
+      report.checks.missionsOnGameOver = shown === finished ? (finished ? 'shown, ' + (after - starsBefore) + ' finished' : 'none finished, box hidden') : 'WRONG';
+      if (shown !== finished) report.errors.push('game-over missions box ' + (shown ? 'shown with nothing finished' : 'hidden after finishing a mission')); }
     // Share: no share sheet in a hidden test window, so it copies the text instead
     try { Object.defineProperty(navigator, 'share', { value: undefined, configurable: true }); Object.defineProperty(navigator, 'canShare', { value: undefined, configurable: true }); } catch (e) {}
     try { Object.defineProperty(navigator, 'clipboard', { value: { writeText: async t => { window.__copied = t; } }, configurable: true }); } catch (e) {}
@@ -185,6 +190,41 @@
     $('recBack').click();
     if (window.__errs.length) report.errors.push(...window.__errs.map(m => 'normal run: ' + m));
   } catch (e) { err('normal run', e); }
+
+  // ---------- 5. Touch controls: thumbstick, tap to fire, Controls setting ----------
+  try {
+    localStorage.setItem('ddCtrl', 'thumb');
+    await load(common);
+    const c = {}, G = () => __G();
+    c.stickShown = $('eggBar').classList.contains('stick');
+    $('playBtn').click(); if (!$('intro').classList.contains('hidden')) $('startBtn').click();
+    const st = $('stick'); st.setPointerCapture = () => {};
+    const r = st.getBoundingClientRect(), y = r.top + r.height / 2, cx = r.left + r.width / 2;
+    const pe = (type, x) => st.dispatchEvent(new PointerEvent(type, { clientX: x, clientY: y, pointerId: 5, pointerType: 'touch', bubbles: true, cancelable: true }));
+    const slide = to => { pe('pointerdown', cx); for (let i = 1; i <= 10; i++) { pe('pointermove', cx + (to - cx) * i / 10); stepSafe(1); } pe('pointerup', to); stepSafe(2); };
+    const lane0 = G().player.lane;
+    slide(r.left + 4); c.noSteerInCountdown = G().player.lane === lane0;
+    let n = 0; while (G().state !== 'play' && n < 400) { stepSafe(1); n++; }
+    slide(r.left + 4); c.slideLeft = G().player.lane === 0;
+    slide(r.right - 4); c.slideRight = G().player.lane === 2;
+    c.knobOnLane = /translateX\((\d|[1-9])/.test($('stickKnob').style.transform);     // resting right of centre
+    // tap with nothing to aim at: a straight shot for 1 coin
+    n = 0; while (G().wallet < 3 && n < 4000) { drive(); stepSafe(1); n++; }
+    const shahedUp = () => G().drones.some(d => !d.dead);
+    n = 0; while (shahedUp() && n < 600) { stepSafe(1); n++; }
+    if (!shahedUp()) { const w = G().wallet, k = G().rockets.length; pe('pointerdown', cx); stepSafe(1); pe('pointerup', cx); const rk = G().rockets[G().rockets.length - 1];
+      c.emptyShot = G().rockets.length <= k ? 'did not fire' : (rk.straight ? 'straight' : 'at a barrier') + ', cost ' + (w - G().wallet); }
+    // a Shahed up: touching the stick fires at once
+    n = 0; while (!shahedUp() && G().state === 'play' && n < 6000) { drive(); stepSafe(1); n++; }
+    if (shahedUp() && G().wallet >= 3) { const k = G().rockets.length; pe('pointerdown', cx); c.fireOnTouch = G().rockets.length > k; pe('pointerup', cx); }
+    // switching Controls back to Tap lane brings the FIRE button back
+    $('ctrlBtn').click(); c.tapLaneSwitch = !$('eggBar').classList.contains('stick') && localStorage.getItem('ddCtrl') === 'lane';
+    report.checks.controls = c;
+    for (const [k, v] of Object.entries(c)) if (v === false || v === 'did not fire') report.errors.push('controls: ' + k);
+    if (c.emptyShot && !['straight, cost 1', 'at a barrier, cost 3'].includes(c.emptyShot)) report.errors.push('controls: shot ' + c.emptyShot);
+    if (window.__errs.length) report.errors.push(...window.__errs.map(m => 'controls: ' + m));
+  } catch (e) { err('controls', e); }
+  try { localStorage.removeItem('ddCtrl'); } catch {}
 
   report.result = report.errors.length ? 'ERRORS FOUND: ' + report.errors.length : 'PASS: no errors';
   return JSON.stringify(report, null, 1);
