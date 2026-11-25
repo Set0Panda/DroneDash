@@ -2668,7 +2668,7 @@ window.LD_RULES = (() => {
   let runDiff = DIFFS[1], runDiffI = 1;
   // Shahed Raid: the 9 giant Shaheds back to back (no fuel drain, no levels in between), each in its
   // own area. Its own best; it doesn't touch the normal records.
-  let raidOn = false, raidWait = 0, raidAreas = [], raidOD = false;
+  let raidOn = false, raidWait = 0, raidAreas = [], raidOD = false, raidFinale = 0, finaleV = 0;
   // Area starts: a normal run can begin at the first level of any area you've reached.
   let startLevel = 1;
   const areaStart = a => a === 0 ? 1 : a * 5;
@@ -2796,7 +2796,7 @@ window.LD_RULES = (() => {
   const BOSS_COMBO = 10;
   // Raid difficulty (Rookie / Veteran / Legend): hits each giant Shahed takes, and how spaced out its
   // drops and warnings are (bigger = more time).
-  const RAID_HP = [0.75, 1, 1.25], RAID_BOMBS = [1.25, 1, 0.85];
+  const RAID_HP = [1, 1.4, 1.75], RAID_BOMBS = [1.1, 0.85, 0.72];   // raid giant Shaheds: health, and time between bombs (lower = faster)
   const RAID_OD_TIME = 3.5, FREE_RELOAD = 0.8;   // the raid's opening Overdrive (s); time between free rockets (s)
   let freeCool = 0;                        // combo for each rocket that hits its body
   const BOMB_FUEL = 10;                        // fuel lost to a direct hit from one of its bombs
@@ -3055,7 +3055,7 @@ window.LD_RULES = (() => {
     player = { lane: 1, x: laneX(1), y: H - 100, w: R.carW(laneW), h: R.CAR_H };
     objects = []; particles = []; floats = [];
     runDay = mode === 'daily' ? dayInfo() : null;
-    raidOn = mode === 'raid'; raidWait = RAID_GAP; raidOD = false;
+    raidOn = mode === 'raid'; raidWait = RAID_GAP; raidOD = false; raidFinale = 0; finaleV = 0;
     bestDistPx = Math.max(readNum('ddBestDist'), ...loadRuns().map(r => r.d || 0)) * PX_PER_M;   // older players: from their Records
     twist = runDay ? runDay.twist : NO_TWIST;
     roadRand = runDay ? mulberry32(runDay.seed) : Math.random;
@@ -3300,7 +3300,12 @@ window.LD_RULES = (() => {
     }
     sfx.levelUp();
     buzz([60, 40, 120]);
-    if (raidOn) {
+    if (raidOn && bossesRun >= BOSS_TOTAL) {
+      // The last one: no Overdrive. "Raid complete", the car speeds off up the road, then the results.
+      for (const o of objects) if ((o.type === 'enemy' || o.type === 'hole') && !o.dead) { if (o.works) o.used = true; else o.dead = true; }
+      raidFinale = 2.4; finaleV = 0;
+      showBanner(t('raidDone'), '♥ ⛽ 🚀' + '★'.repeat(rocketPower()), false, '+' + num(pts));
+    } else if (raidOn) {
       // Raid: the road ahead is blown clear (nothing to dodge before the reward), and the Overdrive
       // is saved to start the next fight with free rockets.
       for (const o of objects) {
@@ -3712,7 +3717,7 @@ window.LD_RULES = (() => {
   // Lane changes work during the countdown at the start of a run, so you can line up before
   // GO. Not during the 3-2-1 after Resume: the road is frozen then, so moving would let you
   // pause and dodge for free.
-  const canSteer = () => state === 'play';   // not during the countdown: a parked car sliding between lanes looks wrong
+  const canSteer = () => state === 'play' && !raidFinale;   // not during the countdown: a parked car sliding between lanes looks wrong
 
   function setLane(l) {
     l = Math.max(0, Math.min(LANES - 1, l));
@@ -4761,7 +4766,7 @@ window.LD_RULES = (() => {
   function slidePlayer(dt) {
     slip = Math.max(0, slip - dt);
     player.x += (laneX(player.lane) - player.x) * ease(slip > 0 ? SLIP_EASE : 28, dt);
-    player.y = H - 100;
+    if (!raidFinale) player.y = H - 100;      // (the raid finale drives it off up the road)
   }
 
   function update(dt) {
@@ -4834,7 +4839,11 @@ window.LD_RULES = (() => {
     // first levels burn less (75% at LV 1, full from LV 5), so new players learn the road before fuel bites
     const fuelEase = level < 5 ? 0.75 + 0.0625 * (level - 1) : 1;
     if (!odPhase && !boss && !raidOn) fuel = Math.max(0, fuel - fuelDrain(level) * fuelEase * dt);   // Overdrive, finales and raids burn no fuel
-    if (raidOn) { if (!boss && !odPhase && (raidWait -= dt) <= 0) { if (bossDoneLevel === level) raidNext(); else startBoss(); } }
+    if (raidFinale > 0) {                                  // the victory drive-off after the last giant Shahed
+      raidFinale -= dt; finaleV += 1400 * dt; player.y -= finaleV * dt;
+      if (Math.random() < dt * 40) particles.push({ x: player.x + (Math.random() - 0.5) * 10, y: player.y + player.h, vx: (Math.random() - 0.5) * 40, vy: 120, life: 0.4, color: '#f6ad55' });
+      if (raidFinale <= 0) { raidFinale = 0; gameOver('raid'); return; }
+    } else if (raidOn) { if (!boss && !odPhase && (raidWait -= dt) <= 0) { if (bossDoneLevel === level) raidNext(); else startBoss(); } }
     else if (!boss && level % 5 === 4 && level >= BOSS_FROM && bossDoneLevel !== level && levelDist >= levelLength(level) * PX_PER_M * BOSS_AT) startBoss();
     if (boss) updateBoss(dt);
     whiteT = Math.max(0, whiteT - realDt);
