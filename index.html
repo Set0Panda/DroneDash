@@ -4083,7 +4083,7 @@ window.LD_RULES = (() => {
     if (runTime - lastLaneChangeT <= CLOSE_SLOWMO) {     // a really close one: sparks off its side and a blink of slow-mo
       const sx = (laneX(o.lane) + player.x) / 2;
       burst(sx, player.y, '#ffd27a', 10); burst(sx, player.y, '#fff', 5);
-      slowmo(0.12, 0.4);
+      slowmo(0.05, 0.6);                                   // just a hitch: close calls come often
     }
     addCombo(GAIN.close);
   }
@@ -5036,8 +5036,8 @@ window.LD_RULES = (() => {
         hit(o);
         if (state !== 'play') break;
       }
-      // A barrier reaching the car in the lane you only just left: close call.
-      if (o.type === 'enemy' && !o.nearChecked && !o.dead && o.y + o.h >= py) {
+      // A barrier, pothole or oil patch reaching the car in the lane you only just left: close call.
+      if ((o.type === 'enemy' || o.type === 'hole') && !o.nearChecked && !o.dead && !o.used && o.y + o.h >= py) {
         o.nearChecked = true;
         if (o.lane === lastLeftLane && o.lane !== player.lane && runTime - lastLaneChangeT <= CLOSE_WINDOW) closeCall(o);
       }
