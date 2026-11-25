@@ -132,6 +132,11 @@
       dodged: count('DODGED'), heartsGrabbed: count('+1 ♥'), kills: __G().kills, coins: __G().coins,
       maxCombo: 'x' + maxMult, overdrives: __G().overdrives, overdriveFrames: odFrames, giantShahedsDown: __G().bossesRun,
     };
+    // the long run passes every area: all ten landmarks collected, all nine big Shaheds met
+    { const lm = JSON.parse(localStorage.getItem('ddLandmarks') || '[]'), met = JSON.parse(localStorage.getItem('ddShahedsMet') || '[]');
+      report.stats.longRun.landmarksSeen = lm.length; report.stats.longRun.shahedsMet = met.length;
+      if (lm.length < 9) report.errors.push('long run: only ' + lm.length + ' landmarks seen');
+      if (met.length < 9) report.errors.push('long run: only ' + met.length + ' big Shaheds met'); }
     if (window.__errs.length) report.errors.push(...window.__errs.map(m => 'long run: ' + m));
   } catch (e) { err('long run', e); }
 
