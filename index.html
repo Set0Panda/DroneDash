@@ -2900,9 +2900,10 @@ window.LD_RULES = (() => {
   const KILL_PTS = 150, DODGE_PTS = 50;
   const SMASH_PTS = 25;                          // a rocket blowing up a barrier, x level
   // Close calls: leave a lane less than CLOSE_WINDOW s before a barrier in it reaches you.
-  // Under CLOSE_SLOWMO s is a really close one: a blink of slow motion and sparks.
-  const CLOSE_WINDOW = 0.4, CLOSE_PTS = 20, CLOSE_SLOWMO = 0.2;
-  let lastLeftLane = -1, lastLaneChangeT = -9;
+  // Under CLOSE_SLOWMO s is a really close one: sparks, and (now and then) a blink of slow motion.
+  // Close calls in a quick row (a cluster of barriers and potholes) count, but only the first one shows.
+  const CLOSE_WINDOW = 0.3, CLOSE_PTS = 20, CLOSE_SLOWMO = 0.12, CLOSE_QUIET = 0.6, SLOWMO_GAP = 5;
+  let lastLeftLane = -1, lastLaneChangeT = -9, lastCloseT = -9, lastCloseSlowT = -9;
 
   // ---- Combo: one meter, fed by coins, close calls and Shaheds shot down ----
   // The multiplier (x1..x5) applies to every bonus you score. A crash empties the meter; a
@@ -3226,7 +3227,7 @@ window.LD_RULES = (() => {
     combo = 0; comboIdle = 0; cleanLevel = true; odPhase = ''; odT = 0; odBoost = 1; overdrives = 0; warpT = 0; hurtT = 0; dents = []; smokeT = 0; rs = newRunStats(); boss = null; bossDoneLevel = 0; bossesRun = 0; whiteT = 0; sfx.pitch(1);
     // One rocket loaded from the start, so the first Shahed (7 s in, before 3 coins are usually collected) can be shot down.
     drones = []; rockets = []; booms = []; wallet = ROCKET_COST; droneT = twist.swarm ? 4 : 7; droneSeen = false; kills = 0; droneQueue = []; pendingShot = 0; resuming = false; runTime = 0; carNo = 1 + Math.floor(Math.random() * 99);
-    lastLeftLane = -1; lastLaneChangeT = -9; speedLines = []; closeBurst = 0; heartProgress = 0; heartsEarned = 0;
+    lastLeftLane = -1; lastLaneChangeT = -9; lastCloseT = -9; lastCloseSlowT = -9; speedLines = []; closeBurst = 0; heartProgress = 0; heartsEarned = 0;
     // a raid tours the areas in a random order (the fights still get harder one by one)
     raidAreas = raidOn ? [...AREAS.keys()].sort(() => Math.random() - 0.5).slice(0, BOSS_TOTAL) : [];
     const startArea = raidOn ? raidAreas[0] : areaFor(level);
@@ -4237,15 +4238,17 @@ window.LD_RULES = (() => {
     rs.close++;
     const pts = CLOSE_PTS * level * comboMult();
     bonus += pts;
+    addCombo(GAIN.close);
+    const quiet = runTime - lastCloseT < CLOSE_QUIET; lastCloseT = runTime;
+    if (quiet) return;                                     // part of the same squeeze: counted, not shown again
     floatText(laneX(o.lane), player.y - 6, t('close') + ' +' + num(pts), '#7fe3ff');
     sfx.whoosh();
-    closeBurst = 0.4;
-    if (runTime - lastLaneChangeT <= CLOSE_SLOWMO) {     // a really close one: sparks off its side and a blink of slow-mo
+    closeBurst = 0.25;
+    if (runTime - lastLaneChangeT <= CLOSE_SLOWMO) {     // a really close one: sparks off its side
       const sx = (laneX(o.lane) + player.x) / 2;
-      burst(sx, player.y, '#ffd27a', 10); burst(sx, player.y, '#fff', 5);
-      slowmo(0.05, 0.6);                                   // just a hitch: close calls come often
+      burst(sx, player.y, '#ffd27a', 8); burst(sx, player.y, '#fff', 4);
+      if (runTime - lastCloseSlowT > SLOWMO_GAP) { lastCloseSlowT = runTime; slowmo(0.05, 0.7); }   // a hitch, now and then
     }
-    addCombo(GAIN.close);
   }
   // New hazards are announced on the checkpoint banner of the level they start at.
   const HAZARD_AT = { 26: 'hzSliders', 30: 'hzOil', 35: 'hzWorks' };
