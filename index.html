@@ -2802,7 +2802,6 @@ window.LD_RULES = (() => {
   // It hovers at the top, slides between lanes and drops small Shaheds. Rockets still cost
   // coins, fly straight up your lane, and there's a coin on every row while it's up, so it can
   // always be beaten. The level holds still (and burns no fuel) until it's down.
-  const BOSS_AT = 0.4;                         // how far into the area's last level it turns up
   const BOSS_FROM = 9, BOSS_TOTAL = 9;         // first one at the end of the sunflower fields (the wheat fields stay a gentle start)
   const BOSS_PTS = 600, BOSS_HIT_PTS = 40;     // x level x combo
   const BOSS_COMBO = 10;
@@ -2814,6 +2813,13 @@ window.LD_RULES = (() => {
   const BOMB_FUEL = 10;                        // fuel lost to a direct hit from one of its bombs
   const BOMB_CHARGE = 0.7, BOMB_EXTRA = 140;   // warning before each drop (s); bombs then fly this much faster than the road
   let boss = null, bossDoneLevel = 0, bossesRun = 0, whiteT = 0;
+  // Where each area's giant Shahed turns up: one of its last three levels, anywhere from a quarter
+  // to three quarters in, picked fresh every run so it can't be planned for. (Seeded on daily runs,
+  // so everyone gets the same one that day.)
+  let bossPlan = {};
+  function bossPlanFor(i) {
+    return bossPlan[i] || (bossPlan[i] = { lv: Math.max(BOSS_FROM - 2, 5 * i + 2 + Math.floor(droneRand() * 3)), at: 0.25 + droneRand() * 0.5, done: false });
+  }
   const bossHP = a => Math.round(4.5 + 1.5 * a); // hits to bring it down: 6 in the sunflower fields … 18 under the northern lights
   // Kill marks: the areas whose giant Shahed you've ever beaten, painted on the car's sides.
   function bossMarks() { try { const a = JSON.parse(localStorage.getItem('ddBosses') || '[]'); return Array.isArray(a) ? a : []; } catch { return []; } }
@@ -3078,6 +3084,7 @@ window.LD_RULES = (() => {
     startLevel = level; speed = levelSpeed(level) * (raidOn ? RAID_SPEED : 1) * runDiff.speed; slip = 0;
     spawnDist = 200; flash = 0; roadOffset = 0; shake = 0; planner = R.newPlanner(roadRand);
     levelDist = 0; distance = 0; bonus = 0; fuel = 100; coins = 0; coinMeter = 0; lowFuelT = 0; lowWarned = false; finishSpawned = false;
+    bossPlan = {};
     combo = 0; comboIdle = 0; cleanLevel = true; odPhase = ''; odT = 0; odBoost = 1; overdrives = 0; warpT = 0; hurtT = 0; dents = []; smokeT = 0; rs = newRunStats(); boss = null; bossDoneLevel = 0; bossesRun = 0; whiteT = 0; sfx.pitch(1);
     // One rocket loaded from the start, so the first Shahed (7 s in, before 3 coins are usually collected) can be shot down.
     drones = []; rockets = []; booms = []; wallet = ROCKET_COST; droneT = twist.swarm ? 4 : 7; droneSeen = false; kills = 0; droneQueue = []; resuming = false; runTime = 0; carNo = 1 + Math.floor(Math.random() * 99);
@@ -4902,7 +4909,10 @@ window.LD_RULES = (() => {
       if (Math.random() < dt * 40) particles.push({ x: player.x + (Math.random() - 0.5) * 10, y: player.y + player.h, vx: (Math.random() - 0.5) * 40, vy: 120, life: 0.4, color: '#f6ad55' });
       if (raidFinale <= 0) { raidFinale = 0; gameOver('raid'); return; }
     } else if (raidOn) { if (!boss && !odPhase && (raidWait -= dt) <= 0) { if (bossDoneLevel === level) raidNext(); else startBoss(); } }
-    else if (!boss && level % 5 === 4 && level >= BOSS_FROM && bossDoneLevel !== level && levelDist >= levelLength(level) * PX_PER_M * BOSS_AT) startBoss();
+    else if (!boss && level >= BOSS_FROM - 2) {          // each area's giant Shahed, at a random point near its end
+      const pl = bossPlanFor(Math.floor(level / 5));
+      if (!pl.done && (level > pl.lv || (level === pl.lv && levelDist >= levelLength(level) * PX_PER_M * pl.at))) { pl.done = true; startBoss(); }
+    }
     if (boss) updateBoss(dt);
     whiteT = Math.max(0, whiteT - realDt);
     // The combo drains once nothing has added to it for a while.
