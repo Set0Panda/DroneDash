@@ -1107,7 +1107,7 @@ window.I18N = (() => {
       lv: 'LV {n}', fuel: 'FUEL', pipsTitle: 'Coins until next fuel top-up',
       mute: 'Mute sound', unmute: 'Unmute sound', meters: '{n} m', fuelFloat: '{n}% FUEL',
       levelBanner: 'LEVEL {n}', levelSub: '+{pts} pts · +{fuel}% fuel · faster!',
-      outBanner: 'OUT OF FUEL', outSub: 'Grab coins to keep your tank topped up',
+      outBanner: 'OUT OF FUEL', outSub: 'Collect coins to keep your tank topped up',
       checkpoint: 'CHECKPOINT · LEVEL {n}', homeBest: '🏆 Best {best} · Level {level}',
       scoreLabel: "Score", newBest: "New best!",
       unlocked: "Unlocked: {item}", upStripes: "Racing stripes", upSpoiler: "Spoiler", upNumber: "Racing number", upFlames: "Exhaust flames", upGlow: "Neon glow", upGold: "Gold trim",
@@ -1135,10 +1135,10 @@ window.I18N = (() => {
       privacyNote: "No ads, no cookies. Only anonymous play counts.",
       comboTip: "COMBO ×2!", comboTipSub: "Coins, near misses and drones keep it going", comboFade: "Keep it going or it fades!", overdrive: "OVERDRIVE!", odSub: "Smash everything!", calmOn: "Reduce motion: On", calmOff: "Reduce motion: Off",
       missions: "Missions", msSwap: "Swap this mission (once a day)", msNext: "Next: {item} at ★{n}", rank0: "Rookie",
-      rank1: "Pro", rank2: "Ace", rank3: "Legend", ms_coins: "Grab {n} coins in one run",
+      rank1: "Pro", rank2: "Ace", rank3: "Legend", ms_coins: "Collect {n} coins in one run",
       ms_level: "Reach level {n}", ms_dist: "Drive {n} m in one run", ms_combo: "Reach a ×{n} combo", ms_close: "{n} near misses in one run",
       ms_kills: "Shoot down {n} Shaheds in one run", ms_barrier: "Blow up {n} barriers with rockets", ms_clean: "{n} levels without a scratch", ms_od: "Overdrive {n}× in one run",
-      ms_smash: "Smash {n} things in Overdrive", ms_heart: "Grab {n} ♥ in one run", ms_wreck: "Reach a checkpoint badly damaged", ms_tCoins: "Collect {n} coins in total",
+      ms_smash: "Smash {n} things in Overdrive", ms_heart: "Collect {n} ♥ in one run", ms_wreck: "Reach a checkpoint badly damaged", ms_tCoins: "Collect {n} coins in total",
       ms_tKills: "Shoot down {n} Shaheds in total", ms_tDaily: "Play {n} daily challenges", finishLabel: "Finish", trailLabel: "Overdrive trail",
       fin_gloss: "Gloss", fin_metallic: "Metallic", fin_pearl: "Pearl", fin_matte: "Matte",
       fin_chrome: "Chrome", fin_neon: "Neon", fin_candy: "Candy", trail_rainbow: "Rainbow",
@@ -1179,10 +1179,11 @@ window.I18N = (() => {
       recRuns: "Runs", recRaid: "Raid", recDaily: "Daily", recNone: "Not played yet", recStreakHint: "Play a daily every day to keep it going",
       diffWhat0: "Slower road · score ×0.7", diffWhat1: "Normal speed · score ×1", diffWhat2: "Faster road · score ×1.3", raidWhat0: "Weaker giant Shaheds, fewer bombs", raidWhat1: "Standard giant Shaheds", raidWhat2: "Tougher giant Shaheds, more bombs", ok: "OK",
       installHintFfDesk: "Firefox on computers can't install apps. Open this page in Chrome or Edge to install it, or bookmark it (Ctrl+D).", installHintFfAndroid: "To install: tap the menu (⋮) and choose “Add to Home screen”.",
-      lowFuelTip: "Low fuel! Grab coins", learnTip: "Finding it tough? Try Learner: a slower road.", learnBtn: "Try Learner",
+      lowFuelTip: "Low fuel! Collect coins", learnTip: "Finding it tough? Try Learner: a slower road.", learnBtn: "Try Learner",
       ctrlThumb: "Controls: One thumb", ctrlLane: "Controls: Tap lane", thumbHint: "Drag to steer · Tap to fire",
       leadThumb: "Drag the stick or the road to steer · tap to fire.", ctrlNote: "Change how you steer and fire on touch screens",
-      rocketPower: "Rocket power {n}", raidRule6: "**Each win** = stronger rockets (up to **★★★**)"
+      rocketPower: "Rocket power {n}", raidRule6: "**Each win** = stronger rockets (up to **★★★**)",
+      bossName0: "Shahed", bossName1: "Black Shahed", bossName2: "Jet Shahed", bossName3: "Mothership"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -1280,7 +1281,8 @@ window.I18N = (() => {
       lowFuelTip: "¡Poco combustible! Coge monedas", learnTip: "¿Se te hace difícil? Prueba Aprendiz: carretera más lenta.", learnBtn: "Probar Aprendiz",
       ctrlThumb: "Controles: Un pulgar", ctrlLane: "Controles: Tocar carril", thumbHint: "Arrastra para girar · Toca para disparar",
       leadThumb: "Arrastra el mando o la carretera para girar · toca para disparar.", ctrlNote: "Cambia cómo giras y disparas en pantallas táctiles",
-      rocketPower: "Potencia de cohetes {n}", raidRule6: "**Cada victoria** = cohetes más fuertes (hasta **★★★**)"
+      rocketPower: "Potencia de cohetes {n}", raidRule6: "**Cada victoria** = cohetes más fuertes (hasta **★★★**)",
+      bossName0: "Shahed", bossName1: "Shahed negro", bossName2: "Shahed a reacción", bossName3: "Nave nodriza"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -1378,7 +1380,8 @@ window.I18N = (() => {
       lowFuelTip: "Peu d'essence ! Prends des pièces", learnTip: "C'est dur ? Essaie Apprenti conducteur : une route plus lente.", learnBtn: "Essayer Apprenti conducteur",
       ctrlThumb: "Commandes : Un pouce", ctrlLane: "Commandes : Toucher la voie", thumbHint: "Glisse pour tourner · Touche pour tirer",
       leadThumb: "Glisse le joystick ou la route pour tourner · touche pour tirer.", ctrlNote: "Change ta façon de tourner et de tirer sur écran tactile",
-      rocketPower: "Puissance des roquettes {n}", raidRule6: "**Chaque victoire** = roquettes plus fortes (jusqu'à **★★★**)"
+      rocketPower: "Puissance des roquettes {n}", raidRule6: "**Chaque victoire** = roquettes plus fortes (jusqu'à **★★★**)",
+      bossName0: "Shahed", bossName1: "Shahed noir", bossName2: "Shahed à réaction", bossName3: "Vaisseau-mère"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -1476,7 +1479,8 @@ window.I18N = (() => {
       lowFuelTip: "Wenig Sprit! Münzen holen", learnTip: "Zu schwer? Probier Fahrschüler: langsamere Straße.", learnBtn: "Fahrschüler testen",
       ctrlThumb: "Steuerung: Ein Daumen", ctrlLane: "Steuerung: Spur antippen", thumbHint: "Ziehen zum Lenken · Tippen zum Feuern",
       leadThumb: "Stick oder Straße ziehen zum Lenken · tippen zum Feuern.", ctrlNote: "Wie du auf Touchscreens lenkst und feuerst",
-      rocketPower: "Raketenkraft {n}", raidRule6: "**Jeder Sieg** = stärkere Raketen (bis **★★★**)"
+      rocketPower: "Raketenkraft {n}", raidRule6: "**Jeder Sieg** = stärkere Raketen (bis **★★★**)",
+      bossName0: "Shahed", bossName1: "Schwarzer Shahed", bossName2: "Jet-Shahed", bossName3: "Mutterschiff"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -1574,7 +1578,8 @@ window.I18N = (() => {
       lowFuelTip: "Pouco combustível! Pegue moedas", learnTip: "Está difícil? Tente Aprendiz: estrada mais lenta.", learnBtn: "Tentar Aprendiz",
       ctrlThumb: "Controles: Um polegar", ctrlLane: "Controles: Tocar na faixa", thumbHint: "Arraste para virar · Toque para atirar",
       leadThumb: "Arraste o controle ou a estrada para virar · toque para atirar.", ctrlNote: "Mude como você vira e atira em telas sensíveis ao toque",
-      rocketPower: "Poder dos foguetes {n}", raidRule6: "**Cada vitória** = foguetes mais fortes (até **★★★**)"
+      rocketPower: "Poder dos foguetes {n}", raidRule6: "**Cada vitória** = foguetes mais fortes (até **★★★**)",
+      bossName0: "Shahed", bossName1: "Shahed preto", bossName2: "Shahed a jato", bossName3: "Nave-mãe"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -1672,7 +1677,8 @@ window.I18N = (() => {
       lowFuelTip: "Poco carburante! Prendi monete", learnTip: "Troppo difficile? Prova «Foglio rosa»: strada più lenta.", learnBtn: "Prova «Foglio rosa»",
       ctrlThumb: "Comandi: Un pollice", ctrlLane: "Comandi: Tocca la corsia", thumbHint: "Trascina per sterzare · Tocca per sparare",
       leadThumb: "Trascina la levetta o la strada per sterzare · tocca per sparare.", ctrlNote: "Cambia come sterzi e spari sui touchscreen",
-      rocketPower: "Potenza razzi {n}", raidRule6: "**Ogni vittoria** = razzi più forti (fino a **★★★**)"
+      rocketPower: "Potenza razzi {n}", raidRule6: "**Ogni vittoria** = razzi più forti (fino a **★★★**)",
+      bossName0: "Shahed", bossName1: "Shahed nero", bossName2: "Shahed a reazione", bossName3: "Nave madre"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -1770,7 +1776,8 @@ window.I18N = (() => {
       lowFuelTip: "燃料が少ない！コインを取ろう", learnTip: "難しい？仮免許を試そう：道路がゆっくり。", learnBtn: "仮免許で遊ぶ",
       ctrlThumb: "操作：片手（親指）", ctrlLane: "操作：車線をタップ", thumbHint: "ドラッグで移動 · タップで発射",
       leadThumb: "スティックか道路をドラッグで移動 · タップで発射。", ctrlNote: "タッチ画面での移動と発射の方法を変更",
-      rocketPower: "ロケット強化 {n}", raidRule6: "**勝つたびに**ロケットが強くなる（最大**★★★**）"
+      rocketPower: "ロケット強化 {n}", raidRule6: "**勝つたびに**ロケットが強くなる（最大**★★★**）",
+      bossName0: "シャヘド", bossName1: "黒いシャヘド", bossName2: "ジェットシャヘド", bossName3: "母艦"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -1868,7 +1875,8 @@ window.I18N = (() => {
       lowFuelTip: "燃油不足！快吃金币", learnTip: "觉得难？试试新手司机：路速更慢。", learnBtn: "试试新手司机",
       ctrlThumb: "操控：单指拇指", ctrlLane: "操控：点击车道", thumbHint: "拖动转向 · 点击开火",
       leadThumb: "拖动摇杆或路面转向 · 点击开火。", ctrlNote: "更改触屏上的转向和开火方式",
-      rocketPower: "火箭威力 {n}", raidRule6: "**每次获胜** = 火箭更强（最多 **★★★**）"
+      rocketPower: "火箭威力 {n}", raidRule6: "**每次获胜** = 火箭更强（最多 **★★★**）",
+      bossName0: "沙赫德", bossName1: "黑色沙赫德", bossName2: "喷气沙赫德", bossName3: "母舰"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -1966,7 +1974,8 @@ window.I18N = (() => {
       lowFuelTip: "연료 부족! 코인을 모으세요", learnTip: "어렵나요? 초보 운전으로 해 보세요: 느린 도로.", learnBtn: "초보 운전으로 하기",
       ctrlThumb: "조작: 한 손가락", ctrlLane: "조작: 차선 탭", thumbHint: "드래그로 이동 · 탭으로 발사",
       leadThumb: "스틱이나 도로를 드래그해 이동 · 탭해서 발사.", ctrlNote: "터치스크린에서 이동·발사 방식 변경",
-      rocketPower: "로켓 위력 {n}", raidRule6: "**이길 때마다** 로켓 강화 (최대 **★★★**)"
+      rocketPower: "로켓 위력 {n}", raidRule6: "**이길 때마다** 로켓 강화 (최대 **★★★**)",
+      bossName0: "샤헤드", bossName1: "검은 샤헤드", bossName2: "제트 샤헤드", bossName3: "모선"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -2064,7 +2073,8 @@ window.I18N = (() => {
       lowFuelTip: "ईंधन कम! सिक्के लो", learnTip: "मुश्किल लग रहा है? लर्नर ड्राइवर आज़माओ: धीमी सड़क।", learnBtn: "लर्नर ड्राइवर आज़माओ",
       ctrlThumb: "कंट्रोल: एक अंगूठा", ctrlLane: "कंट्रोल: लेन पर टैप", thumbHint: "मोड़ने के लिए खींचो · चलाने के लिए टैप करो",
       leadThumb: "मोड़ने के लिए स्टिक या सड़क खींचो · चलाने के लिए टैप करो।", ctrlNote: "टच स्क्रीन पर मोड़ने और चलाने का तरीका बदलो",
-      rocketPower: "रॉकेट पावर {n}", raidRule6: "**हर जीत** = और ताक़तवर रॉकेट (**★★★** तक)"
+      rocketPower: "रॉकेट पावर {n}", raidRule6: "**हर जीत** = और ताक़तवर रॉकेट (**★★★** तक)",
+      bossName0: "शाहेद", bossName1: "काला शाहेद", bossName2: "जेट शाहेद", bossName3: "मदरशिप"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -2164,7 +2174,8 @@ window.I18N = (() => {
       lowFuelTip: "Мало пального! Збирай монети", learnTip: "Важко? Спробуй «Учень водія»: повільніша дорога.", learnBtn: "Спробувати «Учень водія»",
       ctrlThumb: "Керування: Один палець", ctrlLane: "Керування: Торкнись смуги", thumbHint: "Тягни, щоб кермувати · Торкнись, щоб стріляти",
       leadThumb: "Тягни джойстик або дорогу, щоб кермувати · торкнись, щоб стріляти.", ctrlNote: "Як кермувати й стріляти на сенсорному екрані",
-      rocketPower: "Сила ракет {n}", raidRule6: "**Кожна перемога** = сильніші ракети (до **★★★**)"
+      rocketPower: "Сила ракет {n}", raidRule6: "**Кожна перемога** = сильніші ракети (до **★★★**)",
+      bossName0: "Шахед", bossName1: "Чорний шахед", bossName2: "Реактивний шахед", bossName3: "Корабель-матка"
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -2262,7 +2273,8 @@ window.I18N = (() => {
       lowFuelTip: "საწვავი ცოტაა! შეაგროვე მონეტები", learnTip: "რთულია? სცადე მოსწავლე მძღოლი: ნელი გზა.", learnBtn: "სცადე მოსწავლე მძღოლი",
       ctrlThumb: "მართვა: ერთი ცერით", ctrlLane: "მართვა: ზოლზე შეხება", thumbHint: "გაასრიალე მოსახვევად · შეეხე სასროლად",
       leadThumb: "მოსახვევად გაასრიალე ჯოისტიკი ან გზა · შეეხე სასროლად.", ctrlNote: "შეცვალე მართვა და სროლა სენსორულ ეკრანზე",
-      rocketPower: "რაკეტის ძალა {n}", raidRule6: "**ყოველი გამარჯვება** = უფრო ძლიერი რაკეტები (**★★★**-მდე)"
+      rocketPower: "რაკეტის ძალა {n}", raidRule6: "**ყოველი გამარჯვება** = უფრო ძლიერი რაკეტები (**★★★**-მდე)",
+      bossName0: "შაჰედი", bossName1: "შავი შაჰედი", bossName2: "რეაქტიული შაჰედი", bossName3: "დედა-ხომალდი"
     }
   };
   const NAMES = {
@@ -3194,7 +3206,11 @@ window.LD_RULES = (() => {
     droneQueue = [];
     for (const d of drones) if (!d.dead) { d.dead = true; explode(d.x, d.y); }   // the sky clears: just it and its bombs
     sfx.odBuild();
-    showBanner(t('bossBanner'), tip('ddTipBoss') ? t('bossTip', { n: ROCKET_COST }) : '', true);
+    const tier = bossTier(a);
+    if (tier > readNum('ddBossSeen')) {                           // a look you haven't met before
+      writeNum('ddBossSeen', tier);
+      showBanner(t('limited') + ' · ' + t('bossName' + tier), t('bossBanner'), true);
+    } else showBanner(t('bossBanner'), tip('ddTipBoss') ? t('bossTip', { n: ROCKET_COST }) : '', true);
     if (raidOD) { raidOD = false; combo = OD_AT; startOverdrive(true, RAID_OD_TIME); }   // raid: the last win's Overdrive opens this fight (a short one)
     buzz([40, 60, 40]);
   }
@@ -3323,15 +3339,44 @@ window.LD_RULES = (() => {
   // The giant Shahed, drawn in detail (same units as drawShahed, nose pointing down at you): a
   // tailless delta wing with upright fins at the tips, a long tube body with a warhead nose, the
   // little piston engine and pusher prop at the back. dmg 0..1: scorched, then smoking and burning.
-  function drawGiantShahed(t, ang, dmg) {
-    const WING = [[0, 26], [31, -13], [28, -18], [0, -11], [-28, -18], [-31, -13]];
+  // Four looks as they get tougher: classic grey (1st-2nd), black with bomb racks (3rd-5th),
+  // the jet version carrying small Shaheds (6th-8th), and the mothership (9th).
+  const bossTier = a => a >= 9 ? 3 : a >= 6 ? 2 : a >= 3 ? 1 : 0;
+  const giantWing = tier => tier === 2 ? [[0, 30], [27, -12], [24, -18], [0, -13], [-24, -18], [-27, -12]]
+                                       : [[0, 26], [31, -13], [28, -18], [0, -11], [-28, -18], [-31, -13]];
+  const GIANT_SKIN = [['#5d626e', '#7d8291', '#868b99', '#5a5f6b'], ['#23252c', '#383b45', '#40434e', '#212329'],
+                      ['#3a4556', '#5a6779', '#64718a', '#384252'], ['#1d1e24', '#32343d', '#393b45', '#1b1c22']];
+  function drawMiniShahed(x, y, sc) {          // a small Shahed carried under the wing
+    ctx.save(); ctx.translate(x, y); ctx.scale(sc, sc);
+    ctx.fillStyle = '#7a7f8d'; poly([[0, 7], [7, -3], [0, -1.5], [-7, -3]]);
+    ctx.fillStyle = '#2c2f37'; ctx.fillRect(-1, -4, 2, 10);
+    ctx.restore();
+  }
+  function drawGiantShahed(t, ang, dmg, tier = 0) {
+    const WING = giantWing(tier), tipX = WING[1][0] - 1.2, jet = tier === 2;
     ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.translate(12, 20); ctx.rotate(ang); poly(WING); ctx.restore();   // shadow
     ctx.save(); ctx.rotate(ang);
-    const g = ctx.createLinearGradient(-31, 0, 31, 0);                 // matt grey with a little sheen
-    g.addColorStop(0, '#5d626e'); g.addColorStop(0.45, '#7d8291'); g.addColorStop(0.55, '#868b99'); g.addColorStop(1, '#5a5f6b');
+    const g = ctx.createLinearGradient(-31, 0, 31, 0), sk = GIANT_SKIN[tier];   // its paint, with a little sheen
+    g.addColorStop(0, sk[0]); g.addColorStop(0.45, sk[1]); g.addColorStop(0.55, sk[2]); g.addColorStop(1, sk[3]);
     ctx.fillStyle = g; poly(WING);
-    ctx.strokeStyle = '#3a3e48'; ctx.lineWidth = 0.9;                  // leading edges
-    ctx.beginPath(); ctx.moveTo(-31, -13); ctx.lineTo(0, 26); ctx.lineTo(31, -13); ctx.stroke();
+    ctx.strokeStyle = tier ? '#14151a' : '#3a3e48'; ctx.lineWidth = 0.9;   // leading edges
+    ctx.beginPath(); ctx.moveTo(WING[5][0], WING[5][1]); ctx.lineTo(0, WING[0][1]); ctx.lineTo(WING[1][0], WING[1][1]); ctx.stroke();
+    if (tier === 1) {                                                  // black: red wingtips and a bomb rack under each wing
+      ctx.fillStyle = '#c53030';
+      for (const sg of [-1, 1]) poly([[sg * 31, -13], [sg * 24, -5.6], [sg * 25, -16.5], [sg * 28, -18]]);
+      for (const sg of [-1, 1]) {
+        ctx.fillStyle = '#101115'; roundRect(sg * 16 - 2.5, -9, 5, 12, 1.5); ctx.fill();
+        ctx.fillStyle = '#6b2020'; for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(sg * 16, -6.5 + i * 3.6, 1.4, 0, 6.29); ctx.fill(); }
+      }
+    } else if (tier === 2) {                                           // jet: small Shaheds clipped under the wings
+      for (const sg of [-1, 1]) { drawMiniShahed(sg * 12, -5, 0.6); drawMiniShahed(sg * 19, -10, 0.5); }
+    } else if (tier === 3) {                                           // mothership: warning stripes and a row of small Shaheds
+      ctx.save(); ctx.beginPath(); for (const [x, y] of WING) ctx.lineTo(x, y); ctx.closePath(); ctx.clip();
+      ctx.strokeStyle = 'rgba(220,40,40,.75)'; ctx.lineWidth = 2.2;
+      ctx.beginPath(); for (let x = -36; x < 40; x += 7) { ctx.moveTo(x, -20); ctx.lineTo(x + 10, -8); } ctx.stroke();
+      ctx.restore();
+      for (const sg of [-1, 1]) for (let i = 0; i < 3; i++) drawMiniShahed(sg * (9 + i * 6.5), -3 - i * 3.5, 0.45);
+    }
     ctx.strokeStyle = 'rgba(20,22,28,.35)'; ctx.lineWidth = 0.4;        // panel lines
     ctx.beginPath();
     for (const sg of [-1, 1]) { ctx.moveTo(sg * 6, 9); ctx.lineTo(sg * 25, -11); ctx.moveTo(sg * 6, 0); ctx.lineTo(sg * 17, -12.5); ctx.moveTo(sg * 15, 2); ctx.lineTo(sg * 15, -13.5); }
@@ -3339,8 +3384,8 @@ window.LD_RULES = (() => {
     ctx.fillStyle = '#464a55';                                         // elevons along the trailing edge
     for (const sg of [-1, 1]) poly([[sg * 9, -12.4], [sg * 26, -17.2], [sg * 26.6, -15.2], [sg * 9.2, -10.6]]);
     for (const sg of [-1, 1]) {                                        // upright fins at the wingtips
-      ctx.fillStyle = '#2f323b'; ctx.fillRect(sg * 29.8 - 1.6, -23, 3.2, 13);
-      ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(sg * 29.8 - 1.6, -23, 1, 13);
+      ctx.fillStyle = '#2f323b'; ctx.fillRect(sg * tipX - 1.6, -23, 3.2, 13);
+      ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(sg * tipX - 1.6, -23, 1, 13);
     }
     if (dmg > 0.3) {                                                   // scorch marks once it's been hit a few times
       ctx.fillStyle = 'rgba(20,16,14,.55)';
@@ -3348,7 +3393,7 @@ window.LD_RULES = (() => {
       if (dmg > 0.55) { ctx.beginPath(); ctx.ellipse(-17, -9, 4, 2.4, 0.5, 0, 6.29); ctx.fill(); ctx.beginPath(); ctx.ellipse(6, 10, 2.6, 2, 0, 0, 6.29); ctx.fill(); }
     }
     ctx.font = '700 4.2px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(235,238,245,.35)';
-    ctx.save(); ctx.translate(-16, -4); ctx.rotate(-0.15); ctx.fillText('136', 0, 0); ctx.restore();   // stencil
+    ctx.save(); ctx.translate(-16, -4); ctx.rotate(-0.15); ctx.fillText(['136', '136', '238', 'M-1'][tier], 0, 0); ctx.restore();   // stencil
     const bg = ctx.createLinearGradient(-5, 0, 5, 0);                  // the tube body, shaded round
     bg.addColorStop(0, '#50545f'); bg.addColorStop(0.5, '#9298a6'); bg.addColorStop(1, '#4a4e59');
     ctx.fillStyle = bg; roundRect(-4.6, -23, 9.2, 48, 4.6); ctx.fill();
@@ -3363,14 +3408,23 @@ window.LD_RULES = (() => {
       ctx.fillStyle = '#ff9f1c'; poly([[-3, -27], [3, -27], [0, -27 - fl]]);
       ctx.fillStyle = '#ffe08a'; poly([[-1.4, -27], [1.4, -27], [0, -27 - fl * 0.55]]);
     }
-    ctx.fillStyle = 'rgba(225,228,240,.28)';                           // pusher prop: a blurred disc and two blades
-    ctx.beginPath(); ctx.ellipse(0, -28.5, 13, 2.2, 0, 0, 6.29); ctx.fill();
-    const pa = Math.cos(t * 41) * 12;
-    ctx.strokeStyle = 'rgba(30,32,38,.75)'; ctx.lineWidth = 1.6;
-    ctx.beginPath(); ctx.moveTo(-pa, -28.5); ctx.lineTo(pa, -28.5); ctx.stroke();
-    const blink = Math.floor(t * 3) % 2 === 0;                         // nav lights
+    if (jet) {                                                         // jet: a nozzle with a glowing exhaust instead of a prop
+      ctx.fillStyle = '#15161b'; roundRect(-4, -31, 8, 5, 2); ctx.fill();
+      const fl = 7 + Math.random() * 4, eg = ctx.createLinearGradient(0, -31, 0, -31 - fl);
+      eg.addColorStop(0, 'rgba(190,235,255,.95)'); eg.addColorStop(1, 'rgba(80,160,255,0)');
+      ctx.fillStyle = eg; poly([[-3.2, -31], [3.2, -31], [0, -31 - fl]]);
+    } else {
+      ctx.fillStyle = 'rgba(225,228,240,.28)';                         // pusher prop: a blurred disc and two blades
+      ctx.beginPath(); ctx.ellipse(0, -28.5, 13, 2.2, 0, 0, 6.29); ctx.fill();
+      const pa = Math.cos(t * 41) * 12;
+      ctx.strokeStyle = 'rgba(30,32,38,.75)'; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.moveTo(-pa, -28.5); ctx.lineTo(pa, -28.5); ctx.stroke();
+    }
+    const blink = Math.floor(t * (tier === 3 ? 6 : 3)) % 2 === 0;     // nav lights (the mothership's flash fast)
     ctx.fillStyle = blink ? '#ff4d4d' : '#5b1d1d';
-    for (const [x, y] of [[0, 15], [-29.8, -10], [29.8, -10]]) { ctx.beginPath(); ctx.arc(x, y, 1.3, 0, 6.29); ctx.fill(); }
+    const lights = [[0, 15], [-tipX, -10], [tipX, -10]];
+    if (tier === 3) lights.push([-15, -12], [15, -12], [0, -16]);
+    for (const [x, y] of lights) { ctx.beginPath(); ctx.arc(x, y, tier === 3 ? 1.6 : 1.3, 0, 6.29); ctx.fill(); }
     ctx.restore();
   }
   // Where FIRE goes in a giant Shahed fight: straight up your lane. Green once you're under its body.
@@ -3404,13 +3458,17 @@ window.LD_RULES = (() => {
       g.addColorStop(0, `rgba(255,90,90,${(0.85 * k).toFixed(3)})`); g.addColorStop(1, 'rgba(255,90,90,0)');
       ctx.fillStyle = g; ctx.fillRect(-50, -30, 100, 100);
     }
-    drawGiantShahed(b.t, Math.sin(b.t * 1.3) * 0.06, 1 - b.hp / b.max);
-    if (b.hitT > 0) { ctx.globalAlpha = b.hitT / 0.15 * 0.6; ctx.fillStyle = '#fff'; poly([[0, 26], [31, -13], [28, -18], [0, -11], [-28, -18], [-31, -13]]); }
+    drawGiantShahed(b.t, Math.sin(b.t * 1.3) * 0.06, 1 - b.hp / b.max, bossTier(b.a));
+    if (b.hitT > 0) { ctx.globalAlpha = b.hitT / 0.15 * 0.6; ctx.fillStyle = '#fff'; poly(giantWing(bossTier(b.a))); }
     ctx.restore();
     const x0 = vergeW + 12, w = W - 2 * vergeW - 24, y0 = b.barY;
     ctx.fillStyle = 'rgba(10,12,24,.75)'; roundRect(x0 - 4, y0 - 4, w + 8, 14, 7); ctx.fill();
     ctx.fillStyle = b.hp <= b.max / 2 ? '#ff5a5a' : '#ff9f1c';
     roundRect(x0, y0, Math.max(0, w * b.hp / b.max), 6, 3); ctx.fill();
+    ctx.font = '800 11px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';   // its name, just under the bar
+    const nm = '🛸 ' + t('bossName' + bossTier(b.a));
+    ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(10,12,24,.85)'; ctx.strokeText(nm, W / 2, y0 + 22);
+    ctx.fillStyle = '#ffd6d6'; ctx.fillText(nm, W / 2, y0 + 22);
   }
   // Overdrive: whatever you drive into goes flying.
   function odSmash(o) {
