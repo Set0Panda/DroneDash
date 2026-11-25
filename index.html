@@ -230,6 +230,19 @@
   #rocketBtn:disabled b { background: #262b47; color: #8b93b5; }
   #rocketBtn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 #b38f00; }
   #rocketBtn.ready { animation: rocketPulse .45s ease-in-out infinite alternate; }
+  /* rocket power ★ / ★★ / ★★★: the button (or the knob) gets a ring in that power's flame colour */
+  .pw1 { --pw: #ff9a3c; } .pw2 { --pw: #5fd8ff; } .pw3 { --pw: #c77dff; }
+  #rocketBtn::after, .stickKnob::after { content: ''; position: absolute; inset: -5px; border-radius: 18px; pointer-events: none; display: none;
+    border: 3px solid var(--pw); box-shadow: 0 0 14px var(--pw), inset 0 0 10px var(--pw); }
+  .stickKnob::after { border-radius: 50%; }
+  #rocketBtn[class*=pw]::after, .stick[class*=pw] .stickKnob::after { display: block; }
+  #rocketBtn[class*=pw] .rk, .stick[class*=pw] .stickKnob > span { filter: drop-shadow(0 0 5px var(--pw)) drop-shadow(0 0 2px var(--pw)); }
+  #rocketBtn[class*=pw] .rk { font-size: 38px; }
+  #rocketBtn[class*=pw]:not(:disabled) b, .stick[class*=pw]:not(.empty) .stickN { background: var(--pw); color: #0a1c3d; }
+  #rocketBtn:disabled::after, .stick.empty .stickKnob::after { opacity: .35; }
+  #rocketBtn.pwUp .rk, .stick.pwUp .stickKnob > span { animation: pwUp .9s ease-out; }
+  @keyframes pwUp { 0% { transform: scale(1); } 30% { transform: scale(1.6) rotate(-12deg); } 100% { transform: scale(1); } }
+  @media (prefers-reduced-motion: reduce) { #rocketBtn.pwUp .rk, .stick.pwUp .stickKnob > span { animation: none; } }
   @keyframes rocketPulse { from { box-shadow: 0 5px 0 #b38f00, 0 0 0 0 rgba(255,215,0,.7); } to { box-shadow: 0 5px 0 #b38f00, 0 0 0 8px rgba(255,215,0,0); transform: scale(1.06); } }
   #eggBar.alert #eggNext { color: var(--enemy); animation: blink .5s steps(1) infinite; }
   .tag { flex: none; min-width: 44px; white-space: nowrap; font-size: 12px; font-weight: 800; letter-spacing: 1px; color: var(--muted); }
@@ -3658,7 +3671,15 @@ window.LD_RULES = (() => {
   const eggBar = $('eggBar'), rocketBtn = $('rocketBtn'), rocketN = $('rocketN'), eggNext = $('eggNext');
   const eggPips = [...$('eggCoins').children];
   // Bottom launch bar: rockets ready, coins towards the next one, and an alert while a Shahed is incoming.
+  let shownPower = 0;
   function paintEggBar() {
+    const P = rocketPower();
+    if (P !== shownPower) {                               // stronger rockets: a coloured ring on the button, and a pop when it changes
+      for (const n of [rocketBtn, $('stick')]) {
+        n.classList.remove('pw1', 'pw2', 'pw3', 'pwUp'); if (P) { n.classList.add('pw' + P); if (P > shownPower) { void n.offsetWidth; n.classList.add('pwUp'); } }
+      }
+      shownPower = P;
+    }
     const n = Math.floor(wallet / ROCKET_COST), full = n >= MAX_ROCKETS;
     const part = full ? ROCKET_COST : wallet % ROCKET_COST;
     const incoming = drones.some(d => !d.dead && !rockets.some(r => r.target === d)); // not already being shot at
@@ -4209,7 +4230,8 @@ window.LD_RULES = (() => {
   function levelUp() {
     levelDist -= levelLength(level) * PX_PER_M;
     level++;
-    if (!raidOn && level % 5 === 2) landmarks.push({ a: areaFor(level), k: kAtY(-260), side: Math.random() < 0.5 ? 0 : 1, passed: false });
+    if (!raidOn && level % 5 === 2)          // a few seconds in, once the checkpoint banner has gone
+      landmarks.push({ a: areaFor(level), k: kAtY(-Math.max(900, speed * 3.5)), side: Math.random() < 0.5 ? 0 : 1, passed: false });
     finishSpawned = false;
     fuel = Math.min(100, fuel + CHECKPOINT_FUEL);
     const pts = 100 * (level - 1);
@@ -5042,14 +5064,13 @@ window.LD_RULES = (() => {
     scroll += roadV * dt;
     for (const lm of landmarks) {                       // passing a landmark: its name, and a new one for the collection
       const ly = scroll - lm.k * SEG;
-      if (!lm.passed && ly > player.y) {
+      if (!lm.passed && ly > H * 0.22) {               // well in view: its name at the top, and into the collection
         lm.passed = true;
         const name = t('lm' + lm.a), seen = seenLandmarks();
-        floatText(lm.side ? W - vergeW * 2.2 : vergeW * 2.2, player.y - 60, '📍 ' + name, '#ffe9a8');
         if (!seen.includes(lm.a)) {
           seen.push(lm.a); try { localStorage.setItem(LM_KEY, JSON.stringify(seen)); } catch {}
           toast('📍 ' + t('lmNew') + ' · ' + name); buzz(25);
-        }
+        } else toast('📍 ' + name);
       }
     }
     landmarks = landmarks.filter(lm => scroll - lm.k * SEG < H + 260);
@@ -5959,7 +5980,7 @@ window.LD_RULES = (() => {
     ctx.rotate(Math.atan2(r.vy, r.vx) + Math.PI / 2);
     if (P) {                                     // powered up: bigger, with a hotter, longer flame
       ctx.scale(1 + 0.18 * P, 1 + 0.18 * P);
-      ctx.fillStyle = ['', 'rgba(255,170,60,.55)', 'rgba(120,220,255,.55)', 'rgba(255,230,90,.7)'][P];
+      ctx.fillStyle = ['', 'rgba(255,170,60,.55)', 'rgba(120,220,255,.55)', 'rgba(200,125,255,.7)'][P];
       poly([[-5, 9], [5, 9], [0, 26 + 6 * P + Math.random() * 10]]);
     }
     ctx.fillStyle = '#f6ad55';
@@ -6015,8 +6036,11 @@ window.LD_RULES = (() => {
   // The landmarks, drawn tilted up (a side view standing on the roadside) so they read at a glance.
   // Base on the road at y, rising up the road; about 1.6x the roadside's width.
   function drawLandmark(a, side, y) {
-    const s = vergeW / 30, cx = side ? W - vergeW * 0.55 : vergeW * 0.55, tt = performance.now() / 1000;
+    const s = vergeW / 30 * 1.12, cx = side ? W - vergeW * 0.72 : vergeW * 0.72, tt = performance.now() / 1000;   // fully on screen
     ctx.save(); ctx.translate(cx, y); ctx.scale(s, s);
+    const glow = ctx.createRadialGradient(0, -22, 4, 0, -22, 40);                  // a warm glow so it stands out from the scenery
+    glow.addColorStop(0, 'rgba(255,225,120,' + (0.42 + 0.12 * Math.sin(tt * 3)) + ')'); glow.addColorStop(1, 'rgba(255,225,120,0)');
+    ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(0, -22, 40, 0, 6.29); ctx.fill();
     ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(0, 2, 22, 6, 0, 0, 6.29); ctx.fill();   // its shadow on the ground
     if (a === 0) {                     // a wooden windmill, its sails turning
       ctx.fillStyle = '#8a5a2b'; poly([[-9, 0], [9, 0], [6, -34], [-6, -34]]);
