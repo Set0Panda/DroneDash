@@ -743,7 +743,9 @@
   #records .recCard > h1, #records #recBack { flex: none; }
   .recTabs { width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; flex: none; }
   .recTabs button { margin: 0; padding: 8px 4px; min-height: 0; font-size: 14px; font-weight: 800; border-radius: 12px;
-                    background: rgba(255,255,255,.08); box-shadow: none; color: var(--text); white-space: nowrap; overflow: hidden; min-width: 0; }
+                    background: rgba(255,255,255,.08); box-shadow: none; color: var(--text); white-space: nowrap; overflow: hidden; min-width: 0;
+                    display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 3px; font-size: 13px; line-height: 1.15; }
+  .recTabs button > [aria-hidden="true"] { font-size: 19px; line-height: 1; }   /* icon on top, the word underneath: four tabs fit with both */
   .recTabs button[aria-selected="true"] { background: var(--ua-blue); box-shadow: inset 0 0 0 2px var(--ua-yellow); }
   .recTabs button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
   .recPane { width: 100%; display: grid; gap: 8px; }
