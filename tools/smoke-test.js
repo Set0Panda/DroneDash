@@ -47,7 +47,7 @@
   }
   const common = [
     // a hook to read game state
-    ["let carNo = 7;", "let carNo = 7; window.__G = () => ({ state, level, lives, fuel, wallet, kills, coins, objects, drones, rockets, player, laneW, lookArea, combo, mult: comboMult(), odPhase, overdrives, bossesRun, bossLane: boss ? Math.max(0, Math.min(2, Math.round((boss.x - vergeW - laneW / 2) / laneW))) : -1, bossCharge: boss && boss.charge ? boss.charge.lanes : [] });"],
+    ["let carNo = 7;", "let carNo = 7; window.__end = () => gameOver('fuel'); window.__G = () => ({ state, level, lives, fuel, wallet, kills, coins, objects, drones, rockets, player, laneW, lookArea, combo, mult: comboMult(), odPhase, overdrives, bossesRun, bossLane: boss ? Math.max(0, Math.min(2, Math.round((boss.x - vergeW - laneW / 2) / laneW))) : -1, bossCharge: boss && boss.charge ? boss.charge.lanes : [] });"],
     // translations table, for the language check
     ["const STR = {", "const STR = window.__STR = {"],
     // a hook to drive the giant Shahed code directly
@@ -147,7 +147,9 @@
     $('playBtn').click(); if (!$('intro').classList.contains('hidden')) $('startBtn').click();
     let frames = 0;
     while (frames < 30000 && $('over').classList.contains('hidden')) { drive(); stepSafe(1); frames++; }
-    report.stats.normalRun = { frames, endedWithGameOver: !$('over').classList.contains('hidden'),
+    const survived = $('over').classList.contains('hidden');   // the bot can outlast the frame budget: end the run here
+    if (survived) { window.__end(); stepSafe(5); }
+    report.stats.normalRun = { frames, survived, endedWithGameOver: !$('over').classList.contains('hidden'),
       level: __G().level, journeyLine: $('overTrip').textContent, title: $('overTitle').textContent };
     // Missions: the runs so far should have finished some and shown them on game over
     try { const m = JSON.parse(localStorage.getItem('ddMissions') || '{}'); report.checks.missionStars = m.stars || 0; report.checks.missionsActive = (m.active || []).length; } catch (e) { err('missions', e); }
@@ -171,6 +173,7 @@
     report.checks.dailyBanner = dailyText.includes('\u{1F4C5}') || dailyText;
     stepSafe(5);
     let df = 0; while (df < 30000 && $('over').classList.contains('hidden')) { drive(); stepSafe(1); df++; }
+    if ($('over').classList.contains('hidden')) { window.__end(); stepSafe(5); }   // outlasted the budget: end it here
     report.checks.dailyGameOver = !$('over').classList.contains('hidden') && !$('overDaily').hidden;
     $('shareBtn').click(); await sleep(600);
     report.checks.shareCopiesText = !!(window.__copied && window.__copied.includes('Drone Dash'));

@@ -251,12 +251,8 @@
   #prog { background: var(--ua-blue-lt); }
   #fuel { background: var(--fuel); }
   .small { flex: none; width: 54px; text-align: right; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
-  #pips { flex: none; width: 66px; display: flex; justify-content: flex-end; align-items: center; gap: 3px; }
-  #pips::before { content: '⛽'; font-size: 10px; margin-right: 1px; }   /* coins towards the next fuel top-up */
-  #pips i { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--coin); opacity: .45; }
-  #pips i.on { background: var(--coin); opacity: 1; }
-  #pips.full i { animation: pipFlash .6s ease-out; }
-  @keyframes pipFlash { 0%, 50% { background: var(--fuel); border-color: var(--fuel); opacity: 1; transform: scale(1.4); } }
+  #fuel.gain { animation: fuelGain .35s ease-out; }       /* a coin just topped it up */
+  @keyframes fuelGain { 0% { filter: brightness(1.8); box-shadow: 0 0 8px var(--fuel); } }
   #fuelRow.low .tag { color: var(--enemy); animation: blink .5s steps(1) infinite; }
   #fuelRow.low #fuel { background: var(--enemy); }
   @keyframes blink { 50% { opacity: .25; } }
@@ -933,7 +929,7 @@
   <div id="hud">
     <div class="hrow"><span id="score">0</span><span id="streak">×2</span><span class="livesBox"><span id="lives" role="img"></span><span id="heartProg" hidden></span></span><button id="pauseBtn" type="button" data-i18n-title="pause" data-i18n-aria="pause" aria-label="Pause">⏸</button></div>
     <div class="hrow"><span class="tag" id="level">LV 1</span><div class="bar"><div id="prog"></div></div><span class="small" id="togo">400 m</span></div>
-    <div class="hrow" id="fuelRow"><span class="tag" data-i18n="fuel">FUEL</span><div class="bar"><div id="fuel"></div></div><span id="pips" data-i18n-title="pipsTitle" title="Coins until next fuel top-up"><i></i><i></i><i></i><i></i><i></i></span></div>
+    <div class="hrow" id="fuelRow"><span class="tag" data-i18n="fuel">FUEL</span><div class="bar"><div id="fuel"></div></div></div>
   </div>
 
   <div id="count"></div>
@@ -1074,9 +1070,9 @@
       <p class="lead"><span id="leadCtrl" data-i18n="lead1">Tap or drag to change lanes.</span></p>
       <ul class="rules">
         <li><span class="ico"><span class="ico flag"></span></span><span data-i18n="rule1" data-rich><b>Checkpoints</b> = next level, faster</span></li>
-        <li><span class="ico autoIco">⛽</span><span data-i18n="rule2" data-rich><b>Fuel</b> drains · <b>5 coins</b> = +40%</span></li>
+        <li><span class="ico autoIco">⛽</span><span data-i18n="rule2" data-rich><b>Fuel</b> drains · <b>every coin</b> = more ⛽</span></li>
         <li><span class="ico"><span class="ico block"></span></span><span data-i18n="rule4" data-rich><b>3 crashes</b> = out · <b>10 coins</b> = a <b>♥</b> (fixes the car)</span></li>
-        <li><span class="ico"><span class="ico hole"></span></span><span data-i18n="rule5" data-rich><b>Potholes</b> = −8% fuel</span></li>
+        <li><span class="ico"><span class="ico hole"></span></span><span data-i18n="rule5" data-rich><b>Potholes</b> = −5% fuel</span></li>
         <li><span class="ico autoIco">🚀</span><span data-i18n="rule6" data-rich><b>FIRE</b>: 3 coins at a <b>Shahed</b> or barrier · 1 coin straight ahead</span></li>
         <li><span class="ico autoIco">🛸</span><span data-i18n="ruleBoss" data-rich><b>Area end</b> = 🛸 Shahed · get under it and <b>FIRE</b> · each win = 🚀★</span></li>
         <li><span class="ico"><i class="comboIco">×2</i></span><span data-i18n="ruleCombo" data-rich><b>Combo</b>: coins, near misses and drones fill it · <b>max = OVERDRIVE</b></span></li>
@@ -1151,9 +1147,9 @@ window.I18N = (() => {
       howToPlay: 'How to Play',
       lead1: "Tap or drag to change lanes.",
       rule1: "**Checkpoints** = next level, faster",
-      rule2: "**Fuel** drains · **5 coins** = +40%",
+      rule2: "**Fuel** drains · **every coin** = more ⛽",
       rule4: "**3 crashes** = out · **10 coins** = a **♥** (fixes the car)",
-      rule5: "**Potholes** = −8% fuel",
+      rule5: "**Potholes** = −5% fuel",
       rule6: "**FIRE**: 3 coins at a **Shahed** or barrier · 1 coin straight ahead",
       ruleCombo: "**Combo**: coins, near misses and drones fill it · **max = OVERDRIVE**",
       ruleAuto: "**Auto-fire**: aims for you, better with a combo",
@@ -1161,7 +1157,7 @@ window.I18N = (() => {
       crashed: 'Crashed!', outOfFuel: 'Out of fuel!', score: 'Score: {n}',
       level: 'Level', distance: 'Distance', coins: 'Coins',
       bestLine: 'Best: {best} · Highest level: {level}', retry: 'Retry', home: 'Home',
-      lv: 'LV {n}', fuel: 'FUEL', pipsTitle: 'Coins until next fuel top-up',
+      lv: 'LV {n}', fuel: 'FUEL',
       mute: 'Mute sound', unmute: 'Unmute sound', meters: '{n} m', fuelFloat: '{n}% FUEL',
       levelBanner: 'LEVEL {n}', levelSub: '+{pts} pts · +{fuel}% fuel · faster!',
       outBanner: 'OUT OF FUEL', outSub: 'Collect coins to keep your tank topped up',
@@ -1256,9 +1252,9 @@ window.I18N = (() => {
       howToPlay: 'Cómo jugar',
       lead1: "Toca o arrastra para cambiar de carril.",
       rule1: "**Puntos de control** = siguiente nivel, más rápido",
-      rule2: "**Combustible** se gasta · **5 monedas** = +40%",
+      rule2: "**Combustible** se gasta · **cada moneda** = más ⛽",
       rule4: "**3 choques** = fuera · **10 monedas** = un **♥** (repara el coche)",
-      rule5: "**Baches** = −8% combustible",
+      rule5: "**Baches** = −5% combustible",
       rule6: "**DISPARAR**: 3 monedas a un **Shahed** o barrera · 1 moneda hacia delante",
       ruleCombo: "**Combo**: monedas, roces y drones lo llenan · **al máximo = OVERDRIVE**",
       ruleAuto: "**Disparo automático**: apunta por ti, mejor con combo",
@@ -1266,7 +1262,7 @@ window.I18N = (() => {
       crashed: '¡Choque!', outOfFuel: '¡Sin combustible!', score: 'Puntos: {n}',
       level: 'Nivel', distance: 'Distancia', coins: 'Monedas',
       bestLine: 'Récord: {best} · Nivel máximo: {level}', retry: 'Reintentar', home: 'Inicio',
-      lv: 'NV {n}', fuel: 'COMB.', pipsTitle: 'Monedas para la próxima recarga',
+      lv: 'NV {n}', fuel: 'COMB.',
       mute: 'Silenciar', unmute: 'Activar sonido', meters: '{n} m', fuelFloat: '{n} % COMB.',
       levelBanner: 'NIVEL {n}', levelSub: '+{pts} pts · +{fuel} % comb. · ¡más rápido!',
       outBanner: 'SIN COMBUSTIBLE', outSub: 'Recoge monedas para mantener el tanque lleno',
@@ -1361,9 +1357,9 @@ window.I18N = (() => {
       howToPlay: 'Comment jouer',
       lead1: "Touche ou glisse pour changer de voie.",
       rule1: "**Points de contrôle** = niveau suivant, plus rapide",
-      rule2: `**L'essence** baisse · **5 pièces** = +40${NB}%`,
+      rule2: `**L'essence** baisse · **chaque pièce** = plus de ⛽`,
       rule4: "**3 accidents** = fini · **10 pièces** = un **♥** (répare la voiture)",
-      rule5: `**Nids-de-poule** = −8${NB}% d'essence`,
+      rule5: `**Nids-de-poule** = −5${NB}% d'essence`,
       rule6: "**FEU** : 3 pièces sur un **Shahed** ou une barrière · 1 pièce tout droit",
       ruleCombo: "**Combo** : pièces, frôlements et drones le remplissent · **au max = OVERDRIVE**",
       ruleAuto: "**Tir auto** : vise pour toi, mieux avec un combo",
@@ -1371,7 +1367,7 @@ window.I18N = (() => {
       crashed: `Accident${NB}!`, outOfFuel: `Panne d'essence${NB}!`, score: `Score${NB}: {n}`,
       level: 'Niveau', distance: 'Distance', coins: 'Pièces',
       bestLine: `Record${NB}: {best} · Niveau max${NB}: {level}`, retry: 'Rejouer', home: 'Accueil',
-      lv: 'NIV {n}', fuel: 'ESSENCE', pipsTitle: 'Pièces avant le prochain plein',
+      lv: 'NIV {n}', fuel: 'ESSENCE',
       mute: 'Couper le son', unmute: 'Activer le son', meters: `{n}${NB}m`, fuelFloat: `{n}${NB}% ESSENCE`,
       levelBanner: 'NIVEAU {n}', levelSub: `+{pts} pts · +{fuel}${NB}% d'essence · plus vite${NB}!`,
       outBanner: 'PANNE SÈCHE', outSub: 'Ramasse des pièces pour garder le réservoir plein',
@@ -1466,9 +1462,9 @@ window.I18N = (() => {
       howToPlay: 'So wird gespielt',
       lead1: "Tippen oder ziehen zum Spurwechsel.",
       rule1: "**Checkpoints** = nächstes Level, schneller",
-      rule2: "**Sprit** sinkt · **5 Münzen** = +40 %",
+      rule2: "**Sprit** sinkt · **jede Münze** = mehr ⛽",
       rule4: "**3 Unfälle** = raus · **10 Münzen** = ein **♥** (repariert das Auto)",
-      rule5: "**Schlaglöcher** = −8 % Sprit",
+      rule5: "**Schlaglöcher** = −5 % Sprit",
       rule6: "**FEUER**: 3 Münzen auf **Shahed** oder Barriere · 1 Münze geradeaus",
       ruleCombo: "**Combo**: Münzen, knappe Manöver und Drohnen füllen ihn · **voll = OVERDRIVE**",
       ruleAuto: "**Auto-Feuer**: zielt für dich, besser mit Combo",
@@ -1476,7 +1472,7 @@ window.I18N = (() => {
       crashed: 'Unfall!', outOfFuel: 'Tank leer!', score: 'Punkte: {n}',
       level: 'Level', distance: 'Strecke', coins: 'Münzen',
       bestLine: 'Rekord: {best} · Höchstes Level: {level}', retry: 'Nochmal', home: 'Start',
-      lv: 'LV {n}', fuel: 'TANK', pipsTitle: 'Münzen bis zum nächsten Nachtanken',
+      lv: 'LV {n}', fuel: 'TANK',
       mute: 'Ton aus', unmute: 'Ton an', meters: '{n} m', fuelFloat: '{n} % TANK',
       levelBanner: 'LEVEL {n}', levelSub: '+{pts} Pkt. · +{fuel} % Sprit · schneller!',
       outBanner: 'TANK LEER', outSub: 'Sammle Münzen, damit der Tank voll bleibt',
@@ -1571,9 +1567,9 @@ window.I18N = (() => {
       howToPlay: 'Como jogar',
       lead1: "Toque ou arraste para mudar de faixa.",
       rule1: "**Checkpoints** = próximo nível, mais rápido",
-      rule2: "**Combustível** acaba · **5 moedas** = +40%",
+      rule2: "**Combustível** acaba · **cada moeda** = mais ⛽",
       rule4: "**3 batidas** = fim · **10 moedas** = um **♥** (conserta o carro)",
-      rule5: "**Buracos** = −8% combustível",
+      rule5: "**Buracos** = −5% combustível",
       rule6: "**DISPARAR**: 3 moedas num **Shahed** ou barreira · 1 moeda em frente",
       ruleCombo: "**Combo**: moedas, quase-batidas e drones enchem · **no máximo = OVERDRIVE**",
       ruleAuto: "**Disparo automático**: mira por você, melhor com combo",
@@ -1581,7 +1577,7 @@ window.I18N = (() => {
       crashed: 'Bateu!', outOfFuel: 'Sem combustível!', score: 'Pontos: {n}',
       level: 'Nível', distance: 'Distância', coins: 'Moedas',
       bestLine: 'Recorde: {best} · Nível máximo: {level}', retry: 'Tentar de novo', home: 'Início',
-      lv: 'NV {n}', fuel: 'COMB.', pipsTitle: 'Moedas até o próximo reabastecimento',
+      lv: 'NV {n}', fuel: 'COMB.',
       mute: 'Silenciar', unmute: 'Ativar som', meters: '{n} m', fuelFloat: '{n}% COMB.',
       levelBanner: 'NÍVEL {n}', levelSub: '+{pts} pts · +{fuel}% comb. · mais rápido!',
       outBanner: 'SEM COMBUSTÍVEL', outSub: 'Pegue moedas para manter o tanque cheio',
@@ -1676,9 +1672,9 @@ window.I18N = (() => {
       howToPlay: 'Come si gioca',
       lead1: "Tocca o trascina per cambiare corsia.",
       rule1: "**Checkpoint** = livello successivo, più veloce",
-      rule2: "**Carburante** cala · **5 monete** = +40%",
+      rule2: "**Carburante** cala · **ogni moneta** = più ⛽",
       rule4: "**3 incidenti** = fuori · **10 monete** = un **♥** (ripara l'auto)",
-      rule5: "**Buche** = −8% carburante",
+      rule5: "**Buche** = −5% carburante",
       rule6: "**FUOCO**: 3 monete su **Shahed** o barriera · 1 moneta dritto",
       ruleCombo: "**Combo**: monete, sorpassi al pelo e droni lo riempiono · **al massimo = OVERDRIVE**",
       ruleAuto: "**Fuoco automatico**: mira per te, meglio con una combo",
@@ -1686,7 +1682,7 @@ window.I18N = (() => {
       crashed: 'Incidente!', outOfFuel: 'A secco!', score: 'Punti: {n}',
       level: 'Livello', distance: 'Distanza', coins: 'Monete',
       bestLine: 'Record: {best} · Livello max: {level}', retry: 'Riprova', home: 'Home',
-      lv: 'LV {n}', fuel: 'BENZINA', pipsTitle: 'Monete al prossimo rifornimento',
+      lv: 'LV {n}', fuel: 'BENZINA',
       mute: 'Disattiva audio', unmute: 'Attiva audio', meters: '{n} m', fuelFloat: '{n}% BENZINA',
       levelBanner: 'LIVELLO {n}', levelSub: '+{pts} pt · +{fuel}% benzina · più veloce!',
       outBanner: 'A SECCO', outSub: 'Prendi monete per tenere pieno il serbatoio',
@@ -1781,9 +1777,9 @@ window.I18N = (() => {
       howToPlay: '遊び方',
       lead1: "タップかドラッグで車線を変える。",
       rule1: "**チェックポイント**でレベルアップ、速くなる",
-      rule2: "**燃料**は減る・**コイン5枚**で+40%",
+      rule2: "**燃料**は減る・**コイン1枚ごと**に⛽回復",
       rule4: "**3回クラッシュ**で終了・**コイン10枚**で**♥**（車も修理）",
-      rule5: "**穴ぼこ**は燃料−8%",
+      rule5: "**穴ぼこ**は燃料−5%",
       rule6: "**発射**：**シャヘド**やバリアにコイン3枚 · まっすぐならコイン1枚",
       ruleCombo: "**コンボ**：コイン・ギリギリ回避・ドローン撃墜でたまる · **満タンでOVERDRIVE**",
       ruleAuto: "**自動発射**：自動で狙う。コンボ中は命中率アップ",
@@ -1791,7 +1787,7 @@ window.I18N = (() => {
       crashed: 'クラッシュ！', outOfFuel: '燃料切れ！', score: 'スコア：{n}',
       level: 'レベル', distance: '距離', coins: 'コイン',
       bestLine: 'ベスト：{best}・最高レベル：{level}', retry: 'リトライ', home: 'ホーム',
-      lv: 'LV {n}', fuel: '燃料', pipsTitle: '次の給油までのコイン',
+      lv: 'LV {n}', fuel: '燃料',
       mute: 'ミュート', unmute: 'ミュート解除', meters: '{n} m', fuelFloat: '{n}% 燃料',
       levelBanner: 'レベル {n}', levelSub: '+{pts}点・燃料+{fuel}%・スピードアップ！',
       outBanner: '燃料切れ', outSub: 'コインを集めて燃料を補給しよう',
@@ -1886,9 +1882,9 @@ window.I18N = (() => {
       howToPlay: '玩法',
       lead1: "点击或拖动来换车道。",
       rule1: "**检查点** = 下一关，更快",
-      rule2: "**燃油**会减少 · **5 枚金币** = +40%",
+      rule2: "**燃油**会减少 · **每枚金币** = 更多 ⛽",
       rule4: "**撞3次**出局 · **10 枚金币** = 一颗 **♥**（修好赛车）",
-      rule5: "**坑洞**扣 8% 燃油",
+      rule5: "**坑洞**扣 5% 燃油",
       rule6: "**发射**：打**沙赫德**或路障 3 枚金币 · 直射 1 枚金币",
       ruleCombo: "**连击**：金币、擦身而过和击落无人机都能攒 · **满了 = OVERDRIVE**",
       ruleAuto: "**自动射击**：替你瞄准，连击越高越准",
@@ -1896,7 +1892,7 @@ window.I18N = (() => {
       crashed: '撞车了！', outOfFuel: '没油了！', score: '得分：{n}',
       level: '关卡', distance: '距离', coins: '金币',
       bestLine: '最高分：{best} · 最高关卡：{level}', retry: '重试', home: '主页',
-      lv: '第{n}关', fuel: '燃油', pipsTitle: '距离下次加油还需的金币',
+      lv: '第{n}关', fuel: '燃油',
       mute: '静音', unmute: '取消静音', meters: '{n} 米', fuelFloat: '{n}% 燃油',
       levelBanner: '第 {n} 关', levelSub: '+{pts} 分 · 燃油 +{fuel}% · 加速！',
       outBanner: '燃油耗尽', outSub: '收集金币，保持油箱充足',
@@ -1991,9 +1987,9 @@ window.I18N = (() => {
       howToPlay: '게임 방법',
       lead1: "탭하거나 드래그해서 차선 변경.",
       rule1: "**체크포인트** = 다음 레벨, 더 빠르게",
-      rule2: "**연료**는 줄어듦 · **코인 5개** = +40%",
+      rule2: "**연료**는 줄어듦 · **코인마다** ⛽ 충전",
       rule4: "**3번 충돌**하면 끝 · **코인 10개** = **♥** 하나 (차 수리)",
-      rule5: "**포트홀**은 연료 −8%",
+      rule5: "**포트홀**은 연료 −5%",
       rule6: "**발사**: **샤헤드**·바리케이드에 코인 3개 · 직진 발사는 코인 1개",
       ruleCombo: "**콤보**: 코인, 아슬아슬 회피, 드론 격추로 채워짐 · **가득 = OVERDRIVE**",
       ruleAuto: "**자동 발사**: 대신 조준, 콤보가 높을수록 정확",
@@ -2001,7 +1997,7 @@ window.I18N = (() => {
       crashed: '충돌!', outOfFuel: '연료 고갈!', score: '점수: {n}',
       level: '레벨', distance: '거리', coins: '코인',
       bestLine: '최고 점수: {best} · 최고 레벨: {level}', retry: '다시 하기', home: '홈',
-      lv: 'LV {n}', fuel: '연료', pipsTitle: '다음 충전까지 필요한 코인',
+      lv: 'LV {n}', fuel: '연료',
       mute: '음소거', unmute: '음소거 해제', meters: '{n} m', fuelFloat: '{n}% 연료',
       levelBanner: '레벨 {n}', levelSub: '+{pts}점 · 연료 +{fuel}% · 더 빠르게!',
       outBanner: '연료 고갈', outSub: '코인을 모아 연료를 채우세요',
@@ -2096,9 +2092,9 @@ window.I18N = (() => {
       howToPlay: 'कैसे खेलें',
       lead1: "लेन बदलने के लिए टैप या ड्रैग करें।",
       rule1: "**चेकपॉइंट** = अगला लेवल, और तेज़",
-      rule2: "**ईंधन** घटता है · **5 सिक्के** = +40%",
+      rule2: "**ईंधन** घटता है · **हर सिक्का** = ज़्यादा ⛽",
       rule4: "**3 टक्कर** = बाहर · **10 सिक्के** = एक **♥** (कार ठीक करता है)",
-      rule5: "**गड्ढे** = −8% ईंधन",
+      rule5: "**गड्ढे** = −5% ईंधन",
       rule6: "**फ़ायर**: **शाहेद** या बैरियर पर 3 सिक्के · सीधा 1 सिक्का",
       ruleCombo: "**कॉम्बो**: सिक्के, बाल-बाल बचना और ड्रोन इसे भरते हैं · **पूरा = OVERDRIVE**",
       ruleAuto: "**ऑटो-फ़ायर**: आपके लिए निशाना, कॉम्बो से बेहतर",
@@ -2106,7 +2102,7 @@ window.I18N = (() => {
       crashed: 'टक्कर!', outOfFuel: 'ईंधन ख़त्म!', score: 'स्कोर: {n}',
       level: 'लेवल', distance: 'दूरी', coins: 'सिक्के',
       bestLine: 'सर्वश्रेष्ठ: {best} · सबसे ऊँचा लेवल: {level}', retry: 'फिर से खेलें', home: 'होम',
-      lv: 'LV {n}', fuel: 'ईंधन', pipsTitle: 'अगली ईंधन भराई तक सिक्के',
+      lv: 'LV {n}', fuel: 'ईंधन',
       mute: 'आवाज़ बंद करें', unmute: 'आवाज़ चालू करें', meters: '{n} मी', fuelFloat: '{n}% ईंधन',
       levelBanner: 'लेवल {n}', levelSub: '+{pts} अंक · +{fuel}% ईंधन · और तेज़!',
       outBanner: 'ईंधन ख़त्म', outSub: 'टंकी भरी रखने के लिए सिक्के उठाएँ',
@@ -2201,9 +2197,9 @@ window.I18N = (() => {
       howToPlay: 'Як грати',
       lead1: "Торкнись або тягни, щоб змінити смугу.",
       rule1: '**Чекпоінти** = наступний рівень, швидше',
-      rule2: "**Пальне** витрачається · **5 монет** = +40%",
+      rule2: "**Пальне** витрачається · **кожна монета** = більше ⛽",
       rule4: "**3 аварії** — кінець · **10 монет** = **♥** (лагодить авто)",
-      rule5: "**Ями** = −8% пального",
+      rule5: "**Ями** = −5% пального",
       rule6: "**ПУСК**: 3 монети по **шахеду** чи бар'єру · 1 монета прямо",
       ruleCombo: "**Комбо**: монети, проїзд на волосині й дрони заповнюють його · **максимум = OVERDRIVE**",
       ruleAuto: "**Автопуск**: цілиться за тебе, точніше з комбо",
@@ -2211,7 +2207,7 @@ window.I18N = (() => {
       crashed: 'Аварія!', outOfFuel: 'Пальне скінчилося!', score: 'Рахунок: {n}',
       level: 'Рівень', distance: 'Відстань', coins: 'Монети',
       bestLine: 'Рекорд: {best} · Найвищий рівень: {level}', retry: 'Ще раз', home: 'Меню',
-      lv: 'РІВ {n}', fuel: 'ПАЛЬНЕ', pipsTitle: 'Монет до наступної заправки',
+      lv: 'РІВ {n}', fuel: 'ПАЛЬНЕ',
       mute: 'Вимкнути звук', unmute: 'Увімкнути звук', meters: '{n} м', fuelFloat: '{n}% ПАЛЬНЕ',
       levelBanner: 'РІВЕНЬ {n}', levelSub: '+{pts} очок · +{fuel}% пального · швидше!',
       outBanner: 'ПАЛЬНЕ СКІНЧИЛОСЯ', outSub: 'Збирай монети, щоб бак не спорожнів',
@@ -2308,9 +2304,9 @@ window.I18N = (() => {
       howToPlay: 'როგორ ვითამაშოთ',
       lead1: "შეეხე ან გაასრიალე ზოლის შესაცვლელად.",
       rule1: '**საკონტროლო პუნქტი** = შემდეგი დონე, უფრო სწრაფად',
-      rule2: "**საწვავი** იხარჯება · **5 მონეტა** = +40%",
+      rule2: "**საწვავი** იხარჯება · **ყოველი მონეტა** = მეტი ⛽",
       rule4: "**3 ავარია** = დასასრული · **10 მონეტა** = **♥** (მანქანას აკეთებს)",
-      rule5: "**ორმოები** = −8% საწვავი",
+      rule5: "**ორმოები** = −5% საწვავი",
       rule6: "**გასროლა**: 3 მონეტა **შაჰედზე** ან ბარიერზე · 1 მონეტა პირდაპირ",
       ruleCombo: "**კომბო**: მონეტები, ძლივს აცილება და დრონები ავსებს · **სავსე = OVERDRIVE**",
       ruleAuto: "**ავტოგასროლა**: შენ მაგივრად უმიზნებს, კომბოთი უკეთესად",
@@ -2318,7 +2314,7 @@ window.I18N = (() => {
       crashed: 'ავარია!', outOfFuel: 'საწვავი გათავდა!', score: 'ქულა: {n}',
       level: 'დონე', distance: 'მანძილი', coins: 'მონეტები',
       bestLine: 'რეკორდი: {best} · უმაღლესი დონე: {level}', retry: 'თავიდან', home: 'მენიუ',
-      lv: 'დონე {n}', fuel: 'საწვავი', pipsTitle: 'მონეტები შემდეგ შევსებამდე',
+      lv: 'დონე {n}', fuel: 'საწვავი',
       mute: 'ხმის გამორთვა', unmute: 'ხმის ჩართვა', meters: '{n} მ', fuelFloat: '{n}% საწვავი',
       levelBanner: 'დონე {n}', levelSub: '+{pts} ქულა · +{fuel}% საწვავი · უფრო სწრაფად!',
       outBanner: 'საწვავი გათავდა', outSub: 'შეაგროვე მონეტები, რომ ავზი სავსე დარჩეს',
@@ -2597,10 +2593,11 @@ window.LD_RULES = (() => {
     BARRIER_H: 38, POTHOLE_H: 30,
     COIN_AHEAD: 150,                // coin sits this far past its row, in the row's clear lane
     PX_PER_M: 10,                   // 10 px of road = 1 metre
-    COINS_PER_REFUEL: 5,            // fill the coin meter to earn a top-up
-    REFUEL: 40,                     // % fuel per full coin meter
+    // Every coin tops up the tank straight away: 8% (the old 5 coins = 40%), rising to 11% by level 24
+    // so the fast late levels, where fuel drain is at its highest, stay fuelled when a few coins are missed.
+    coinFuel: L => Math.min(11, 8 + 0.25 * Math.max(0, L - 12)),
     CHECKPOINT_FUEL: 15,
-    POTHOLE_FUEL: 8,                // % fuel lost hitting a pothole
+    POTHOLE_FUEL: 5,                // % fuel lost hitting a pothole (was 8)
     POTHOLE_SLOW: 0.7,              // speed multiplier on hitting a pothole
     // Coins stay just as common on every level: coin income already grows with speed
     // (more rows per second), which is what keeps a perfect run fuelled.
@@ -2708,7 +2705,7 @@ window.LD_RULES = (() => {
 (() => {
   // ---------- Tuning ----------
   const R = LD_RULES;
-  const { LANES, MIN_GAP, BARRIER_H, POTHOLE_H, PX_PER_M, COINS_PER_REFUEL, REFUEL, CHECKPOINT_FUEL,
+  const { LANES, MIN_GAP, BARRIER_H, POTHOLE_H, PX_PER_M, coinFuel, CHECKPOINT_FUEL,
           POTHOLE_FUEL, POTHOLE_SLOW, levelLength, levelSpeed, fuelDrain } = R;
   let MAX_LIVES = 3;        // 1 on the daily 'one heart' twist
   const t = I18N.t, num = I18N.num;
@@ -2721,7 +2718,7 @@ window.LD_RULES = (() => {
   let ctx = canvas.getContext('2d'); // swapped briefly by paintCarOn() for car previews
   const el = {
     score: $('score'), streak: $('streak'), lives: $('lives'), coinCount: $('coinCount'), heartProg: $('heartProg'), level: $('level'), prog: $('prog'),
-    togo: $('togo'), fuel: $('fuel'), pips: $('pips'), fuelRow: $('fuelRow'),
+    togo: $('togo'), fuel: $('fuel'), fuelRow: $('fuelRow'),
     intro: $('intro'), over: $('over'), count: $('count'), banner: $('banner'), eggKills: $('eggKills'),
   };
 
@@ -2729,7 +2726,7 @@ window.LD_RULES = (() => {
   let state = 'home'; // home | menu (how-to-play) | countdown | play | stall | over | bye
   let player, objects, particles, floats, lives, speed, spawnDist, flash, roadOffset, shake, last;
   let planner; // row planner state (see LD_RULES.planRow)
-  let level, levelDist, distance, bonus, fuel, coins, coinMeter, finishSpawned, stallT, lowFuelT = 0, lowWarned = false;
+  let level, levelDist, distance, bonus, fuel, coins, finishSpawned, stallT, lowFuelT = 0, lowWarned = false;
   let countT = 0, shownCount = null;
 
   // ---- The journey: every 5 levels the road passes into a new area of the country ----
@@ -2869,7 +2866,7 @@ window.LD_RULES = (() => {
   // Started as a Ukrainian-only easter egg; now in every language. One switch to turn it off.
   const DRONES_ON = true;
   const DRONES = () => DRONES_ON;
-  const ROCKET_COST = 3, MAX_ROCKETS = 3, DRONE_FUEL = 15, ROCKET_V = 1100;
+  const ROCKET_COST = 3, MAX_ROCKETS = 3, DRONE_FUEL = 10, ROCKET_V = 1100;
   // Shahed difficulty by level. Whatever path a drone flies, the lane it will hit is
   // shown (red strip down that lane) from the moment it appears, so it can always be read.
   const DRONE = {
@@ -2897,7 +2894,7 @@ window.LD_RULES = (() => {
     // the lock stays around half a second.
     lock: L => Math.max(0.5, 0.74 - 0.018 * (L - 1)),
     glide: 9,         // how quickly a tracking drone slides across to your new lane (per second)
-    splashFuel: 5,    // fuel lost in the lane next to the blast (a direct hit costs DRONE_FUEL)
+    splashFuel: 3,    // fuel lost in the lane next to the blast (a direct hit costs DRONE_FUEL)
   };
   let droneQueue = [];                         // drones of the current wave still to launch
   let drones = [], rockets = [], booms = [], wallet = 0, droneT = 0, droneSeen = false;
@@ -2953,7 +2950,7 @@ window.LD_RULES = (() => {
   const RAID_HP = [1, 1.4, 1.75], RAID_BOMBS = [1.1, 0.85, 0.72];   // raid giant Shaheds: health, and time between bombs (lower = faster)
   const RAID_OD_TIME = 3.5, FREE_RELOAD = 0.8;   // the raid's opening Overdrive (s); time between free rockets (s)
   let freeCool = 0;                        // combo for each rocket that hits its body
-  const BOMB_FUEL = 10;                        // fuel lost to a direct hit from one of its bombs
+  const BOMB_FUEL = 6;                         // fuel lost to a direct hit from one of its bombs
   const BOMB_CHARGE = 0.7, BOMB_EXTRA = 140;   // warning before each drop (s); bombs then fly this much faster than the road
   let boss = null, bossDoneLevel = 0, bossesRun = 0, whiteT = 0;
   const BREATHER = 8;                 // seconds of calmer road after a big Shahed (after its victory lap): 5 at 80%, then 3 easing back
@@ -3228,7 +3225,7 @@ window.LD_RULES = (() => {
     runDiffI = mode === 'daily' ? 1 : diffI; runDiff = DIFFS[runDiffI];
     startLevel = level; speed = levelSpeed(level) * (raidOn ? RAID_SPEED : 1) * runDiff.speed; slip = 0;
     spawnDist = 200; flash = 0; roadOffset = 0; shake = 0; planner = R.newPlanner(roadRand);
-    levelDist = 0; distance = 0; bonus = 0; fuel = 100; coins = 0; coinMeter = 0; lowFuelT = 0; lowWarned = false; finishSpawned = false;
+    levelDist = 0; distance = 0; bonus = 0; fuel = 100; coins = 0; lowFuelT = 0; lowWarned = false; finishSpawned = false;
     bossPlan = {}; breatherT = 0; landmarks = [];
     combo = 0; comboIdle = 0; cleanLevel = true; odPhase = ''; odT = 0; odBoost = 1; overdrives = 0; warpT = 0; hurtT = 0; dents = []; smokeT = 0; rs = newRunStats(); boss = null; bossDoneLevel = 0; bossesRun = 0; whiteT = 0; sfx.pitch(1);
     // One rocket loaded from the start, so the first Shahed (7 s in, before 3 coins are usually collected) can be shot down.
@@ -3264,7 +3261,6 @@ window.LD_RULES = (() => {
     el.fuel.style.width = fuel + '%';
     el.fuel.style.backgroundColor = fuel > 50 ? '' : fuel > 25 ? getVar('--fuel-mid') : '';
     el.fuelRow.classList.toggle('low', fuel <= 25);
-    [...el.pips.children].forEach((p, i) => p.classList.toggle('on', i < coinMeter));
     if (DRONES()) paintEggBar();
   }
   // The combo badge next to the score.
@@ -4176,17 +4172,10 @@ window.LD_RULES = (() => {
       bonus += pts;
       burst(ox, o.y + o.h / 2, getVar('--coin'), 12);
       floatText(ox, o.y, '+' + num(pts), getVar('--coin'));
-      coinMeter++;
       sfx.coin(comboMult());
       addCombo(GAIN.coin);
-      if (coinMeter >= COINS_PER_REFUEL) {
-        coinMeter = 0;
-        sfx.refuel();
-        fuel = Math.min(100, fuel + REFUEL);
-        floatText(player.x, player.y - 30, t('fuelFloat', { n: '+' + REFUEL }), getVar('--fuel'));
-        burst(player.x, player.y, getVar('--fuel'), 20);
-        el.pips.classList.remove('full'); void el.pips.offsetWidth; el.pips.classList.add('full');
-      }
+      fuel = Math.min(100, fuel + coinFuel(level));          // every coin: straight into the tank
+      el.fuel.classList.remove('gain'); void el.fuel.offsetWidth; el.fuel.classList.add('gain');
       return;
     }
     if (o.type === 'life') {
