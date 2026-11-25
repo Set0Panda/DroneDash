@@ -234,9 +234,9 @@
     const f = {};
     // every look draws, and how long each takes (a rough guide to cost on slower phones)
     f.drawMs = {};
-    for (let tier = 0; tier < 4; tier++) {
+    for (let tier = 0; tier < 9; tier++) {
       const t0 = performance.now(); for (let i = 0; i < 300; i++) __T.draw(tier);
-      f.drawMs[['grey', 'black', 'jet', 'mothership'][tier]] = +((performance.now() - t0) / 300).toFixed(3);
+      f.drawMs[['shahed', 'desert', 'black', 'night', 'hunter', 'armoured', 'jet', 'carrier', 'mothership'].at(tier)] = +((performance.now() - t0) / 300).toFixed(3);
     }
     // the last giant Shahed of a raid: no Overdrive, the car drives off, then "Raid complete"
     $('raidBtn').click(); $('raidGo').click();
