@@ -743,7 +743,15 @@
   .recRow .marks i { font-style: normal; opacity: .22; filter: grayscale(1); }
   .recRow .marks i.on { opacity: 1; filter: none; }
   .recNote { font-size: 13px; color: var(--muted); margin: 2px 0 0; }
-  .recLm { margin: -6px 0 0; font-weight: 700; flex: none; }
+  /* the two collections under the Records title: landmarks seen, big Shaheds met */
+  .recCollect { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: -4px; flex: none; }
+  .colTile { min-width: 0; display: grid; gap: 6px; padding: 8px 10px 9px; border-radius: 12px; background: rgba(255,255,255,.06); text-align: left; }
+  .colHead { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; font-size: 12.5px; font-weight: 800; color: var(--text); white-space: nowrap; overflow: hidden; }
+  .colHead b { color: var(--coin); font-size: 14px; font-variant-numeric: tabular-nums; }
+  .colBar { height: 5px; border-radius: 3px; background: rgba(255,255,255,.1); overflow: hidden; }
+  .colBar i { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--ua-blue-lt), var(--ua-yellow)); }
+  .colIcons { display: flex; flex-wrap: wrap; gap: 2px 3px; font-size: 13px; line-height: 1.2; }
+  .colIcons .off { filter: grayscale(1); opacity: .25; }
   /* Upgrades: every car upgrade, greyed until you've reached its level */
   .menuRow.three { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
   /* How to Play: the combo badge as it looks next to the score */
@@ -974,8 +982,12 @@
   <div id="records" class="overlay hidden">
     <div class="card recCard" role="dialog" aria-labelledby="recTitle">
       <h1 id="recTitle">🏆 <span data-i18n="records">Records</span></h1>
-      <p id="recLandmarks" class="recNote recLm"></p>
-      <p id="recMet" class="recNote recLm"></p>
+      <div class="recCollect">
+        <div class="colTile"><div class="colHead"><span><span aria-hidden="true">📍</span> <span data-i18n="lmTitle">Landmarks</span></span><b id="lmN"></b></div>
+          <div class="colBar"><i id="lmBar"></i></div><div id="lmIcons" class="colIcons" aria-hidden="true"></div></div>
+        <div class="colTile"><div class="colHead"><span><span aria-hidden="true">🛸</span> <span data-i18n="metTitle">Shaheds</span></span><b id="metN"></b></div>
+          <div class="colBar"><i id="metBar"></i></div><div id="metIcons" class="colIcons" aria-hidden="true"></div></div>
+      </div>
       <div id="recTabs" class="recTabs" role="tablist">
         <button type="button" role="tab" data-tab="runs"><span aria-hidden="true">🏁</span> <span data-i18n="recRuns">Runs</span></button>
         <button type="button" role="tab" data-tab="raid"><span aria-hidden="true">🛸</span> <span data-i18n="recRaid">Raid</span></button>
@@ -1202,9 +1214,9 @@ window.I18N = (() => {
       swarmTip: "Shoot the small ones!",
       downName: "{name} down!",
       bossAttack: "Shahed attack",
-      lm0: "Windmill of Pyrohiv", lm1: "Pysanka of Kolomyia", lm2: "Motherland Monument", lm3: "Tunnel of Love", lm4: "Hoverla", lm5: "Kamiana Mohyla", lm6: "Vorontsov Lighthouse", lm7: "Kamianets-Podilskyi Castle", lm8: "DniproHES dam", lm9: "Pip Ivan Observatory", lmNew: "New landmark!", lmCount: "Landmarks seen: {n}/{total}",
+      lm0: "Windmill of Pyrohiv", lm1: "Pysanka of Kolomyia", lm2: "Motherland Monument", lm3: "Tunnel of Love", lm4: "Hoverla", lm5: "Kamiana Mohyla", lm6: "Vorontsov Lighthouse", lm7: "Kamianets-Podilskyi Castle", lm8: "DniproHES dam", lm9: "Pip Ivan Observatory", lmNew: "New landmark!",
       shName0: "Shahed", shName1: "Desert Shahed", shName2: "Black Shahed", shName3: "Night Shahed", shName4: "Hunter Shahed", shName5: "Armoured Shahed", shName6: "Jet Shahed", shName7: "Carrier Shahed", shName8: "Mothership",
-      metCount: "Shaheds met: {n}/{total}"
+      lmTitle: "Landmarks", metTitle: "Shaheds"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -1306,9 +1318,9 @@ window.I18N = (() => {
       swarmTip: "¡Derriba a los pequeños!",
       downName: "¡{name} derribado!",
       bossAttack: "Ataque Shahed",
-      lm0: "Molino de Pyrohiv", lm1: "Pysanka de Kolomyia", lm2: "Monumento a la Madre Patria", lm3: "Túnel del Amor", lm4: "Hoverla", lm5: "Kamiana Mohyla", lm6: "Faro de Vorontsov", lm7: "Castillo de Kamianets-Podilskyi", lm8: "Presa DniproHES", lm9: "Observatorio de Pip Ivan", lmNew: "¡Nuevo lugar emblemático!", lmCount: "Lugares vistos: {n}/{total}",
+      lm0: "Molino de Pyrohiv", lm1: "Pysanka de Kolomyia", lm2: "Monumento a la Madre Patria", lm3: "Túnel del Amor", lm4: "Hoverla", lm5: "Kamiana Mohyla", lm6: "Faro de Vorontsov", lm7: "Castillo de Kamianets-Podilskyi", lm8: "Presa DniproHES", lm9: "Observatorio de Pip Ivan", lmNew: "¡Nuevo lugar emblemático!",
       shName0: "Shahed", shName1: "Shahed del desierto", shName2: "Shahed negro", shName3: "Shahed nocturno", shName4: "Shahed cazador", shName5: "Shahed blindado", shName6: "Shahed a reacción", shName7: "Shahed portador", shName8: "Nave nodriza",
-      metCount: "Shaheds vistos: {n}/{total}"
+      lmTitle: "Lugares", metTitle: "Shaheds"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -1410,9 +1422,9 @@ window.I18N = (() => {
       swarmTip: "Abats les petits !",
       downName: "{name} abattu !",
       bossAttack: "Attaque Shahed",
-      lm0: "Moulin de Pyrohiv", lm1: "Pyssanka de Kolomyia", lm2: "Monument de la Mère-Patrie", lm3: "Tunnel de l'amour", lm4: "Hoverla", lm5: "Kamiana Mohyla", lm6: "Phare de Vorontsov", lm7: "Château de Kamianets-Podilsky", lm8: "Barrage DniproHES", lm9: "Observatoire du Pip Ivan", lmNew: "Nouveau lieu célèbre !", lmCount: "Lieux vus : {n}/{total}",
+      lm0: "Moulin de Pyrohiv", lm1: "Pyssanka de Kolomyia", lm2: "Monument de la Mère-Patrie", lm3: "Tunnel de l'amour", lm4: "Hoverla", lm5: "Kamiana Mohyla", lm6: "Phare de Vorontsov", lm7: "Château de Kamianets-Podilsky", lm8: "Barrage DniproHES", lm9: "Observatoire du Pip Ivan", lmNew: "Nouveau lieu célèbre !",
       shName0: "Shahed", shName1: "Shahed du désert", shName2: "Shahed noir", shName3: "Shahed de nuit", shName4: "Shahed chasseur", shName5: "Shahed blindé", shName6: "Shahed à réaction", shName7: "Shahed porteur", shName8: "Vaisseau-mère",
-      metCount: "Shaheds rencontrés : {n}/{total}"
+      lmTitle: "Lieux", metTitle: "Shaheds"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -1514,9 +1526,9 @@ window.I18N = (() => {
       swarmTip: "Schieß die Kleinen ab!",
       downName: "{name} abgeschossen!",
       bossAttack: "Shahed greift an",
-      lm0: "Windmühle von Pyrohiw", lm1: "Pysanka von Kolomyja", lm2: "Mutter-Heimat-Statue", lm3: "Tunnel der Liebe", lm4: "Howerla", lm5: "Kamjana Mohyla", lm6: "Woronzow-Leuchtturm", lm7: "Burg Kamjanez-Podilskyj", lm8: "DniproHES-Staudamm", lm9: "Observatorium Pip Iwan", lmNew: "Neues Wahrzeichen!", lmCount: "Wahrzeichen gesehen: {n}/{total}",
+      lm0: "Windmühle von Pyrohiw", lm1: "Pysanka von Kolomyja", lm2: "Mutter-Heimat-Statue", lm3: "Tunnel der Liebe", lm4: "Howerla", lm5: "Kamjana Mohyla", lm6: "Woronzow-Leuchtturm", lm7: "Burg Kamjanez-Podilskyj", lm8: "DniproHES-Staudamm", lm9: "Observatorium Pip Iwan", lmNew: "Neues Wahrzeichen!",
       shName0: "Shahed", shName1: "Wüsten-Shahed", shName2: "Schwarzer Shahed", shName3: "Nacht-Shahed", shName4: "Jäger-Shahed", shName5: "Panzer-Shahed", shName6: "Jet-Shahed", shName7: "Träger-Shahed", shName8: "Mutterschiff",
-      metCount: "Shaheds getroffen: {n}/{total}"
+      lmTitle: "Wahrzeichen", metTitle: "Shaheds"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -1618,9 +1630,9 @@ window.I18N = (() => {
       swarmTip: "Derrube os pequenos!",
       downName: "{name} derrubado!",
       bossAttack: "Investida Shahed",
-      lm0: "Moinho de Pyrohiv", lm1: "Pêssanka de Kolomyia", lm2: "Monumento à Mãe-Pátria", lm3: "Túnel do Amor", lm4: "Hoverla", lm5: "Kamiana Mohyla", lm6: "Farol de Vorontsov", lm7: "Castelo de Kamianets-Podilskyi", lm8: "Barragem DniproHES", lm9: "Observatório de Pip Ivan", lmNew: "Novo ponto turístico!", lmCount: "Pontos vistos: {n}/{total}",
+      lm0: "Moinho de Pyrohiv", lm1: "Pêssanka de Kolomyia", lm2: "Monumento à Mãe-Pátria", lm3: "Túnel do Amor", lm4: "Hoverla", lm5: "Kamiana Mohyla", lm6: "Farol de Vorontsov", lm7: "Castelo de Kamianets-Podilskyi", lm8: "Barragem DniproHES", lm9: "Observatório de Pip Ivan", lmNew: "Novo ponto turístico!",
       shName0: "Shahed", shName1: "Shahed do deserto", shName2: "Shahed preto", shName3: "Shahed noturno", shName4: "Shahed caçador", shName5: "Shahed blindado", shName6: "Shahed a jato", shName7: "Shahed porta-drones", shName8: "Nave-mãe",
-      metCount: "Shaheds vistos: {n}/{total}"
+      lmTitle: "Pontos", metTitle: "Shaheds"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -1722,9 +1734,9 @@ window.I18N = (() => {
       swarmTip: "Abbatti i piccoli!",
       downName: "{name} abbattuto!",
       bossAttack: "Attacco Shahed",
-      lm0: "Mulino di Pyrohiv", lm1: "Pysanka di Kolomyja", lm2: "Monumento alla Madre Patria", lm3: "Tunnel dell'amore", lm4: "Hoverla", lm5: "Kamjana Mohyla", lm6: "Faro di Voroncov", lm7: "Castello di Kam'janec'-Podil's'kyj", lm8: "Diga DniproHES", lm9: "Osservatorio del Pip Ivan", lmNew: "Nuovo luogo simbolo!", lmCount: "Luoghi visti: {n}/{total}",
+      lm0: "Mulino di Pyrohiv", lm1: "Pysanka di Kolomyja", lm2: "Monumento alla Madre Patria", lm3: "Tunnel dell'amore", lm4: "Hoverla", lm5: "Kamjana Mohyla", lm6: "Faro di Voroncov", lm7: "Castello di Kam'janec'-Podil's'kyj", lm8: "Diga DniproHES", lm9: "Osservatorio del Pip Ivan", lmNew: "Nuovo luogo simbolo!",
       shName0: "Shahed", shName1: "Shahed del deserto", shName2: "Shahed nero", shName3: "Shahed notturno", shName4: "Shahed cacciatore", shName5: "Shahed corazzato", shName6: "Shahed a reazione", shName7: "Shahed portadroni", shName8: "Nave madre",
-      metCount: "Shahed incontrati: {n}/{total}"
+      lmTitle: "Luoghi", metTitle: "Shahed"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -1826,9 +1838,9 @@ window.I18N = (() => {
       swarmTip: "小さいのを撃ち落とせ！",
       downName: "{name}撃墜！",
       bossAttack: "シャヘド急襲",
-      lm0: "ピロヒウの風車", lm1: "コロミヤのピサンカ", lm2: "母なる祖国像", lm3: "愛のトンネル", lm4: "ホヴェールラ山", lm5: "カミャナ・モヒラ", lm6: "ヴォロンツォフ灯台", lm7: "カームヤネツィ・ポジーリシクィイ城", lm8: "ドニプロ水力発電ダム", lm9: "ピップ・イヴァン天文台", lmNew: "新しい名所！", lmCount: "見た名所：{n}/{total}",
+      lm0: "ピロヒウの風車", lm1: "コロミヤのピサンカ", lm2: "母なる祖国像", lm3: "愛のトンネル", lm4: "ホヴェールラ山", lm5: "カミャナ・モヒラ", lm6: "ヴォロンツォフ灯台", lm7: "カームヤネツィ・ポジーリシクィイ城", lm8: "ドニプロ水力発電ダム", lm9: "ピップ・イヴァン天文台", lmNew: "新しい名所！",
       shName0: "シャヘド", shName1: "砂漠のシャヘド", shName2: "黒いシャヘド", shName3: "夜のシャヘド", shName4: "ハンターシャヘド", shName5: "装甲シャヘド", shName6: "ジェットシャヘド", shName7: "キャリアシャヘド", shName8: "母艦",
-      metCount: "出会ったシャヘド：{n}/{total}"
+      lmTitle: "名所", metTitle: "シャヘド"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -1930,9 +1942,9 @@ window.I18N = (() => {
       swarmTip: "击落小的！",
       downName: "击落{name}！",
       bossAttack: "沙赫德来袭",
-      lm0: "皮罗希夫风车", lm1: "科洛米亚彩蛋", lm2: "祖国母亲雕像", lm3: "爱情隧道", lm4: "霍维尔拉山", lm5: "石墓丘", lm6: "沃龙佐夫灯塔", lm7: "卡缅涅茨-波多利斯基城堡", lm8: "第聂伯水电站大坝", lm9: "皮普伊万天文台", lmNew: "新地标！", lmCount: "已见地标：{n}/{total}",
+      lm0: "皮罗希夫风车", lm1: "科洛米亚彩蛋", lm2: "祖国母亲雕像", lm3: "爱情隧道", lm4: "霍维尔拉山", lm5: "石墓丘", lm6: "沃龙佐夫灯塔", lm7: "卡缅涅茨-波多利斯基城堡", lm8: "第聂伯水电站大坝", lm9: "皮普伊万天文台", lmNew: "新地标！",
       shName0: "沙赫德", shName1: "沙漠沙赫德", shName2: "黑色沙赫德", shName3: "夜袭沙赫德", shName4: "猎手沙赫德", shName5: "装甲沙赫德", shName6: "喷气沙赫德", shName7: "运载沙赫德", shName8: "母舰",
-      metCount: "遇到的沙赫德：{n}/{total}"
+      lmTitle: "地标", metTitle: "沙赫德"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -2034,9 +2046,9 @@ window.I18N = (() => {
       swarmTip: "작은 것들을 격추하세요!",
       downName: "{name} 격추!",
       bossAttack: "샤헤드 습격",
-      lm0: "피로히우 풍차", lm1: "콜로미야 피산카", lm2: "조국의 어머니 동상", lm3: "사랑의 터널", lm4: "호베를라 산", lm5: "카먀나 모힐라", lm6: "보론초프 등대", lm7: "카미야네치포딜스키 성", lm8: "드니프로 수력발전 댐", lm9: "피프 이반 천문대", lmNew: "새 명소!", lmCount: "본 명소: {n}/{total}",
+      lm0: "피로히우 풍차", lm1: "콜로미야 피산카", lm2: "조국의 어머니 동상", lm3: "사랑의 터널", lm4: "호베를라 산", lm5: "카먀나 모힐라", lm6: "보론초프 등대", lm7: "카미야네치포딜스키 성", lm8: "드니프로 수력발전 댐", lm9: "피프 이반 천문대", lmNew: "새 명소!",
       shName0: "샤헤드", shName1: "사막 샤헤드", shName2: "검은 샤헤드", shName3: "야간 샤헤드", shName4: "헌터 샤헤드", shName5: "장갑 샤헤드", shName6: "제트 샤헤드", shName7: "캐리어 샤헤드", shName8: "모선",
-      metCount: "만난 샤헤드: {n}/{total}"
+      lmTitle: "명소", metTitle: "샤헤드"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -2138,9 +2150,9 @@ window.I18N = (() => {
       swarmTip: "छोटों को मार गिराओ!",
       downName: "{name} गिराया!",
       bossAttack: "शाहेद का धावा",
-      lm0: "पिरोहिव की पवनचक्की", lm1: "कोलोमिया का पिसांका", lm2: "मातृभूमि स्मारक", lm3: "प्रेम की सुरंग", lm4: "होवेरला", lm5: "कामियाना मोहिला", lm6: "वोरोन्त्सोव प्रकाशस्तंभ", lm7: "कामियानेट्स-पोदिल्स्की क़िला", lm8: "द्निप्रोहेस बाँध", lm9: "पिप इवान वेधशाला", lmNew: "नया लैंडमार्क!", lmCount: "देखे लैंडमार्क: {n}/{total}",
+      lm0: "पिरोहिव की पवनचक्की", lm1: "कोलोमिया का पिसांका", lm2: "मातृभूमि स्मारक", lm3: "प्रेम की सुरंग", lm4: "होवेरला", lm5: "कामियाना मोहिला", lm6: "वोरोन्त्सोव प्रकाशस्तंभ", lm7: "कामियानेट्स-पोदिल्स्की क़िला", lm8: "द्निप्रोहेस बाँध", lm9: "पिप इवान वेधशाला", lmNew: "नया लैंडमार्क!",
       shName0: "शाहेद", shName1: "रेगिस्तानी शाहेद", shName2: "काला शाहेद", shName3: "रात का शाहेद", shName4: "शिकारी शाहेद", shName5: "बख़्तरबंद शाहेद", shName6: "जेट शाहेद", shName7: "वाहक शाहेद", shName8: "मदरशिप",
-      metCount: "मिले शाहेद: {n}/{total}"
+      lmTitle: "लैंडमार्क", metTitle: "शाहेद"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -2244,9 +2256,9 @@ window.I18N = (() => {
       swarmTip: "Збивай малих!",
       downName: "{name} збито!",
       bossAttack: "Шахед атакує",
-      lm0: "Вітряк у Пирогові", lm1: "Писанка в Коломиї", lm2: "Батьківщина-Мати", lm3: "Тунель кохання", lm4: "Говерла", lm5: "Кам'яна Могила", lm6: "Воронцовський маяк", lm7: "Кам'янець-Подільська фортеця", lm8: "Дніпрогес", lm9: "Обсерваторія на Піп Івані", lmNew: "Нова пам'ятка!", lmCount: "Побачені пам'ятки: {n}/{total}",
+      lm0: "Вітряк у Пирогові", lm1: "Писанка в Коломиї", lm2: "Батьківщина-Мати", lm3: "Тунель кохання", lm4: "Говерла", lm5: "Кам'яна Могила", lm6: "Воронцовський маяк", lm7: "Кам'янець-Подільська фортеця", lm8: "Дніпрогес", lm9: "Обсерваторія на Піп Івані", lmNew: "Нова пам'ятка!",
       shName0: "Шахед", shName1: "Пустельний шахед", shName2: "Чорний шахед", shName3: "Нічний шахед", shName4: "Шахед-мисливець", shName5: "Броньований шахед", shName6: "Реактивний шахед", shName7: "Шахед-носій", shName8: "Корабель-матка",
-      metCount: "Зустрінуті шахеди: {n}/{total}"
+      lmTitle: "Пам'ятки", metTitle: "Шахеди"
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -2348,9 +2360,9 @@ window.I18N = (() => {
       swarmTip: "ჩამოაგდე პატარები!",
       downName: "{name} ჩამოგდებულია!",
       bossAttack: "შაჰედი უტევს",
-      lm0: "პიროჰივის ქარის წისქვილი", lm1: "კოლომიის პისანკა", lm2: "დედა-სამშობლოს მონუმენტი", lm3: "სიყვარულის გვირაბი", lm4: "ჰოვერლა", lm5: "ქვის გორა (კამიანა მოჰილა)", lm6: "ვორონცოვის შუქურა", lm7: "კამიანეც-პოდილსკის ციხე", lm8: "დნეპრჰესის კაშხალი", lm9: "პიპ ივანის ობსერვატორია", lmNew: "ახალი ღირსშესანიშნაობა!", lmCount: "ნანახი ადგილები: {n}/{total}",
+      lm0: "პიროჰივის ქარის წისქვილი", lm1: "კოლომიის პისანკა", lm2: "დედა-სამშობლოს მონუმენტი", lm3: "სიყვარულის გვირაბი", lm4: "ჰოვერლა", lm5: "ქვის გორა (კამიანა მოჰილა)", lm6: "ვორონცოვის შუქურა", lm7: "კამიანეც-პოდილსკის ციხე", lm8: "დნეპრჰესის კაშხალი", lm9: "პიპ ივანის ობსერვატორია", lmNew: "ახალი ღირსშესანიშნაობა!",
       shName0: "შაჰედი", shName1: "უდაბნოს შაჰედი", shName2: "შავი შაჰედი", shName3: "ღამის შაჰედი", shName4: "მონადირე შაჰედი", shName5: "ჯავშნიანი შაჰედი", shName6: "რეაქტიული შაჰედი", shName7: "მზიდი შაჰედი", shName8: "დედა-ხომალდი",
-      metCount: "ნანახი შაჰედები: {n}/{total}"
+      lmTitle: "ადგილები", metTitle: "შაჰედები"
     }
   };
   const NAMES = {
@@ -4858,10 +4870,15 @@ window.LD_RULES = (() => {
   });
   function openRecords() {
     state = 'records'; show('records'); paintRecTab();
-    const seen = seenLandmarks();                        // the landmark collection: icons of the areas you've seen theirs in
-    $('recLandmarks').textContent = '📍 ' + t('lmCount', { n: seen.length, total: AREAS.length }) + '  ' + AREAS.map((A, i) => seen.includes(i) ? A.icon : '·').join(' ');
-    const met = shahedsMet();                            // the big Shaheds met so far: a dot each, the rest left a mystery
-    $('recMet').textContent = '🛸 ' + t('metCount', { n: met.length, total: 9 }) + '  ' + [0, 1, 2, 3, 4, 5, 6, 7, 8].map(v => met.includes(v) ? '●' : '○').join('');
+    const seen = seenLandmarks(), met = shahedsMet();       // the two collections, as tiles: count, a bar, and the icons collected so far
+    const paint = (id, have, total, icons) => {
+      $(id + 'N').textContent = have.length + '/' + total;
+      $(id + 'Bar').style.width = Math.round(have.length / total * 100) + '%';
+      const box = $(id + 'Icons'); box.textContent = '';
+      icons.forEach((ic, i) => { const sp = document.createElement('span'); sp.textContent = ic; if (!have.includes(i)) sp.className = 'off'; box.appendChild(sp); });
+    };
+    paint('lm', seen, AREAS.length, AREAS.map(A => A.icon));
+    paint('met', met, 9, Array(9).fill('🛸'));
   }
   // Upgrades: all 25, each on a little copy of your car as it looks at that level. Unlocked once
   // you've reached its level in any run; the next one to get is outlined.
