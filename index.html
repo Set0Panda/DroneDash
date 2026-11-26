@@ -711,6 +711,22 @@
   /* The main action: a big ▶ on the left, "Play" large and centred in the button */
   #playBtn { position: relative; font-size: 30px; font-weight: 900; letter-spacing: .5px; padding: 12px 56px; text-align: center; }
   #playBtn .playIco { position: absolute; left: 20px; top: 50%; transform: translateY(-52%); font-size: 30px; line-height: 1; }
+  /* home: the start setup and the missions as one line each; Daily and Raid side by side */
+  .setupLine, .msChip { margin: 0; width: 100%; min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 9px 12px; border-radius: 12px; font-size: 15px; font-weight: 800; color: var(--text); text-align: left;
+    background: rgba(255,255,255,.07); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.14); }
+  .setupLine[hidden] { display: none; }
+  .setupLine .setupTx { min-width: 0; display: grid; gap: 1px; }
+  .setupLine .setupTx > *, .msChip span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .setupLine .setupTx small { font-size: 12.5px; font-weight: 700; color: var(--muted); }
+  .setupLine b { flex: none; font-size: 20px; color: var(--ua-yellow); }
+  .msChip b { flex: none; color: var(--coin); font-size: 14px; }
+  .modeRow { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .modeRow .dailyBtn, .modeRow .raidBtn { margin: 0; min-width: 0; padding: 9px 6px 8px !important; font-size: 17px; gap: 2px; align-content: start; }
+  .modeRow .btnIco { position: static !important; transform: none !important; font-size: 26px !important; }
+  .modeRow small { font-size: 11.5px !important; line-height: 1.25 !important; }
+  .setupCard .startPick, .msCard .missions { width: 100%; }
+  .setupCard, .msCard { gap: 12px; }
   .dailyBtn { display: grid; gap: 2px; justify-items: center; padding: 10px 10px; font-size: 22px; line-height: 1.15; }
   .dailyBtn small { font-size: 13px; font-weight: 700; opacity: .85; max-width: 100%; white-space: pre-line; line-height: 1.35; text-wrap: balance; }
   .overDaily { font-size: 14px; font-weight: 800; color: var(--coin) !important; margin: -4px 0 0 !important; }
@@ -982,10 +998,12 @@
     <p id="homeBest" hidden></p>
     <div class="menuBtns">
       <button id="playBtn"><span class="playIco" aria-hidden="true">▶</span><span data-i18n="play">Play</span></button>
-      <div id="startPick" class="startPick" hidden></div>
-      <button id="dailyBtn" class="secondary dailyBtn" type="button"><span class="btnIco" aria-hidden="true">📅</span><span data-i18n="daily">Daily challenge</span><small id="dailySub"></small></button>
-      <button id="raidBtn" class="secondary raidBtn" type="button"><b class="limited" data-i18n="limited">🆕 New</b><span class="btnIco" aria-hidden="true">🛸</span><span data-i18n="raidBtn">Shahed Raid</span><small data-i18n="raidSub">All 9 Shaheds in a row</small></button>
-      <div id="homeMissions" class="missions"></div>
+      <button id="setupBtn" class="setupLine" type="button" hidden></button>
+      <div class="modeRow">
+        <button id="dailyBtn" class="secondary dailyBtn" type="button"><span class="btnIco" aria-hidden="true">📅</span><span data-i18n="daily">Daily Challenge</span><small id="dailySub"></small></button>
+        <button id="raidBtn" class="secondary raidBtn" type="button"><b class="limited" data-i18n="limited">🆕 New</b><span class="btnIco" aria-hidden="true">🛸</span><span data-i18n="raidBtn">Shahed Raid</span><small data-i18n="raidSub">Take down all 9 Shaheds</small></button>
+      </div>
+      <button id="msChip" class="msChip" type="button"></button>
       <div class="menuRow three">
         <button id="garageBtn" class="secondary" type="button"><i class="swatch"></i><span data-i18n="colourBtn">Paint</span></button>
         <button id="upBtn" class="secondary" type="button"><span aria-hidden="true">🎁</span> <span data-i18n="upgradesBtn">Upgrades</span></button>
@@ -1065,12 +1083,29 @@
     </div>
   </div>
 
+  <!-- From the home screen: where to start and how hard -->
+  <div id="setupView" class="overlay hidden">
+    <div class="card setupCard" role="dialog" aria-labelledby="setupTitle">
+      <h1 id="setupTitle">🗺️ <span data-i18n="setupTitle">Your run</span></h1>
+      <div id="startPick" class="startPick"></div>
+      <button id="setupPlay"><span aria-hidden="true">▶</span> <span data-i18n="play">Play</span></button>
+      <button id="setupDone" class="ghost" data-i18n="back">Back</button>
+    </div>
+  </div>
+  <!-- From the home screen: the missions in full (with the daily swap) -->
+  <div id="msView" class="overlay hidden">
+    <div class="card msCard" role="dialog" aria-labelledby="msTitle">
+      <h1 id="msTitle">🎯 <span data-i18n="missions">Missions</span></h1>
+      <div id="homeMissions" class="missions"></div>
+      <button id="msDone" data-i18n="back">Back</button>
+    </div>
+  </div>
   <!-- Settings from the home screen: the pause menu's settings panel is moved in here while it's open -->
   <div id="settingsView" class="overlay hidden">
     <div class="card setCard" role="dialog" aria-labelledby="setTitle">
       <h1 id="setTitle">⚙️ <span data-i18n="settings">Settings</span></h1>
       <div id="setHost" class="overBtns"></div>
-      <button id="setDone" data-i18n="done">Done</button>
+      <button id="setDone" data-i18n="back">Back</button>
     </div>
   </div>
 
@@ -1213,10 +1248,10 @@ window.I18N = (() => {
       rocketTitle: "Rocket: {n} coins (Space)", launch: "FIRE", droneAlert: "SHAHED! Tap FIRE", droneNoRocket: "SHAHED! Dodge!",
       language: 'Language', auto: 'Auto',
       // daily challenge, sharing, levels 26-50
-      daily: "Daily challenge", dailyNum: "Daily #{n}", dailyBest: "Today's best: {best}", streak: "{n}-day streak",
-      twCity: "Start in the city (level 10)", twSwarm: "Drone swarm: twice the Shaheds", twFog: "Sea fog all the way", twRush: "Coin Rush after every checkpoint",
-      twDesert: "Start in the desert (level 25)", twOneLife: "One heart only", twSliders: "Sliding barriers from the start", twNight: "Night drive all the way",
-      twOil: "Oil slicks everywhere", twWorks: "Roadworks from the start", share: "Share", sharePts: "{score} points", beatIt: "Can you beat it?",
+      daily: "Daily Challenge", dailyNum: "Daily #{n}", dailyBest: "Today's best: {best}", streak: "{n}-day streak",
+      twCity: "City Start: level 10", twSwarm: "Drone Swarm: ×2 Shaheds", twFog: "Sea Fog: all the way", twRush: "Coin Rush: every checkpoint",
+      twDesert: "Desert Start: level 25", twOneLife: "One Heart: no second chances", twSliders: "Sliders: from the start", twNight: "Night Drive: all the way",
+      twOil: "Oil Slicks: everywhere", twWorks: "Roadworks: from the start", share: "Share", sharePts: "{score} points", beatIt: "Can you beat it?",
       copied: "Result copied: paste it anywhere", shareFailed: "Couldn't share on this device", slippery: "SLIPPERY!", hzSliders: "Sliding barriers",
       hzOil: "Oil slicks", hzWorks: "Roadworks", area5: "Desert", area6: "Coast bridge",
       area7: "Autumn hills", area8: "Industrial port", area9: "Northern lights", upBolt: "Lightning decals",
@@ -1249,7 +1284,7 @@ window.I18N = (() => {
       ms_boss_1: "Take down a 🛸 Shahed",
       upgradesBtn: "Upgrades", upCount: "{n}/{total} unlocked · best level {best}", upNext: "Next: {item} at level {n}",
       peekNote: "Preview only: unlocks at ★{n}",
-      raidBtn: "Shahed Raid", raidSub: "All 9 Shaheds in a row", raidResult: "{n}/9 Shaheds", raidDone: "RAID COMPLETE!", raidBest: "Best raid: {n}/9 · ⏱ {time}",
+      raidBtn: "Shahed Raid", raidSub: "Take down all 9 Shaheds", raidResult: "{n}/9 Shaheds", raidDone: "RAID COMPLETE!", raidBest: "Best raid: {n}/9 · ⏱ {time}",
       raidRule1: "**9 Shaheds** · each one tougher",
       raidRule2: "**Under its body** + FIRE = hit · wings block",
       raidRule3: "**Red lane** = bomb · move!",
@@ -1282,7 +1317,8 @@ window.I18N = (() => {
       lmTitle: "Landmarks", metTitle: "Shaheds",
       lmWhere: "Seen on level 2 of each area, in normal runs and dailies.",
       shTip0: "Get under it and fire", shTip1: "2 lanes at once", shTip2: "Find the open lane", shTip3: "Shoot when it shows", shTip4: "Keep moving", shTip5: "🛡️ Armour first", shTip6: "Shoot as it stops", shTip7: "Shoot the small ones", shTip8: "🛡️ Armour + every trick", armourBroken: "ARMOUR DOWN!", fuelLane: "Fuel lane: drive through it!", fuelFull: "Full tank!",
-      lmShare: "📍 I passed {name} in Drone Dash ({area} · level {n}). Can you find it too?"
+      lmShare: "📍 I passed {name} in Drone Dash ({area} · level {n}). Can you find it too?", setupTitle: "Your run",
+      back: "Back"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -1356,7 +1392,7 @@ window.I18N = (() => {
       ms_boss_1: "Derriba un 🛸 Shahed",
       upgradesBtn: "Mejoras", upCount: "{n}/{total} desbloqueadas · mejor nivel {best}", upNext: "Siguiente: {item} en el nivel {n}",
       peekNote: "Solo vista previa: se desbloquea con ★{n}",
-      raidBtn: "Incursión Shahed", raidSub: "Los 9 Shaheds seguidos", raidResult: "{n}/9 Shaheds", raidDone: "¡INCURSIÓN COMPLETADA!", raidBest: "Mejor incursión: {n}/9 · ⏱ {time}",
+      raidBtn: "Incursión Shahed", raidSub: "Derriba los 9 Shaheds", raidResult: "{n}/9 Shaheds", raidDone: "¡INCURSIÓN COMPLETADA!", raidBest: "Mejor incursión: {n}/9 · ⏱ {time}",
       raidRule1: "**9 Shaheds** · cada uno más difícil",
       raidRule2: "**Bajo su cuerpo** + DISPARAR = impacto · las alas bloquean",
       raidRule3: "**Carril rojo** = bomba · ¡muévete!",
@@ -1389,7 +1425,9 @@ window.I18N = (() => {
       lmTitle: "Lugares", metTitle: "Shaheds",
       lmWhere: "Aparecen en el nivel 2 de cada zona, en partidas normales y diarias.",
       shTip0: "Ponte debajo y dispara", shTip1: "2 carriles a la vez", shTip2: "Busca el carril libre", shTip3: "Dispara cuando aparezca", shTip4: "No pares", shTip5: "🛡️ Primero el blindaje", shTip6: "Dispara cuando pare", shTip7: "Derriba los pequeños", shTip8: "🛡️ Blindaje + todo", armourBroken: "¡SIN BLINDAJE!", fuelLane: "Carril de combustible: ¡pásalo!", fuelFull: "¡Depósito lleno!",
-      lmShare: "📍 Pasé por {name} en Drone Dash ({area} · nivel {n}). ¿Puedes encontrarlo tú también?"
+      lmShare: "📍 Pasé por {name} en Drone Dash ({area} · nivel {n}). ¿Puedes encontrarlo tú también?",
+      setupTitle: "Tu partida",
+      back: "Atrás"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -1463,7 +1501,7 @@ window.I18N = (() => {
       ms_boss_1: "Abats un 🛸 Shahed",
       upgradesBtn: "Bonus", upCount: "{n}/{total} débloqués · meilleur niveau {best}", upNext: "Suivant : {item} au niveau {n}",
       peekNote: "Aperçu seulement : débloqué à ★{n}",
-      raidBtn: "Raid Shahed", raidSub: "Les 9 Shaheds à la suite", raidResult: "{n}/9 Shaheds", raidDone: "RAID TERMINÉ !", raidBest: "Meilleur raid : {n}/9 · ⏱ {time}",
+      raidBtn: "Raid Shahed", raidSub: "Abats les 9 Shaheds", raidResult: "{n}/9 Shaheds", raidDone: "RAID TERMINÉ !", raidBest: "Meilleur raid : {n}/9 · ⏱ {time}",
       raidRule1: "**9 Shaheds** · chacun plus coriace",
       raidRule2: "**Sous son corps** + FEU = touché · les ailes bloquent",
       raidRule3: "**Voie rouge** = bombe · bouge !",
@@ -1496,7 +1534,9 @@ window.I18N = (() => {
       lmTitle: "Lieux", metTitle: "Shaheds",
       lmWhere: "Visibles au niveau 2 de chaque zone, en partie normale et quotidienne.",
       shTip0: "Place-toi dessous et tire", shTip1: "2 voies à la fois", shTip2: "Trouve la voie libre", shTip3: "Tire quand il apparaît", shTip4: "Bouge sans cesse", shTip5: "🛡️ Le blindage d'abord", shTip6: "Tire quand il s'arrête", shTip7: "Abats les petits", shTip8: "🛡️ Blindage + tout", armourBroken: "BLINDAGE DÉTRUIT !", fuelLane: "Voie carburant : roule dessus !", fuelFull: "Plein fait !",
-      lmShare: "📍 J'ai croisé {name} dans Drone Dash ({area} · niveau {n}). Tu peux le trouver aussi ?"
+      lmShare: "📍 J'ai croisé {name} dans Drone Dash ({area} · niveau {n}). Tu peux le trouver aussi ?",
+      setupTitle: "Ta partie",
+      back: "Retour"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -1570,7 +1610,7 @@ window.I18N = (() => {
       ms_boss_1: "Schieß eine 🛸 Shahed ab",
       upgradesBtn: "Extras", upCount: "{n}/{total} freigeschaltet · bestes Level {best}", upNext: "Nächstes: {item} bei Level {n}",
       peekNote: "Nur Vorschau: wird bei ★{n} freigeschaltet",
-      raidBtn: "Shahed-Angriff", raidSub: "Alle 9 Shaheds am Stück", raidResult: "{n}/9 Shaheds", raidDone: "ANGRIFF ABGEWEHRT!", raidBest: "Bester Angriff: {n}/9 · ⏱ {time}",
+      raidBtn: "Shahed-Angriff", raidSub: "Hol alle 9 Shaheds runter", raidResult: "{n}/9 Shaheds", raidDone: "ANGRIFF ABGEWEHRT!", raidBest: "Bester Angriff: {n}/9 · ⏱ {time}",
       raidRule1: "**9 Shaheds** · jede härter",
       raidRule2: "**Unter den Rumpf** + FEUER = Treffer · Flügel blocken",
       raidRule3: "**Rote Spur** = Bombe · weg da!",
@@ -1603,7 +1643,9 @@ window.I18N = (() => {
       lmTitle: "Wahrzeichen", metTitle: "Shaheds",
       lmWhere: "Zu sehen in Level 2 jedes Gebiets, in normalen und täglichen Fahrten.",
       shTip0: "Drunter und feuern", shTip1: "2 Spuren zugleich", shTip2: "Such die freie Spur", shTip3: "Schieß, wenn er auftaucht", shTip4: "Bleib in Bewegung", shTip5: "🛡️ Erst die Panzerung", shTip6: "Schieß, wenn er hält", shTip7: "Schieß die Kleinen ab", shTip8: "🛡️ Panzer + alles", armourBroken: "PANZERUNG WEG!", fuelLane: "Tankspur: einfach durchfahren!", fuelFull: "Tank voll!",
-      lmShare: "📍 Ich bin in Drone Dash an {name} vorbeigefahren ({area} · Level {n}). Findest du es auch?"
+      lmShare: "📍 Ich bin in Drone Dash an {name} vorbeigefahren ({area} · Level {n}). Findest du es auch?",
+      setupTitle: "Deine Fahrt",
+      back: "Zurück"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -1677,7 +1719,7 @@ window.I18N = (() => {
       ms_boss_1: "Derrube um 🛸 Shahed",
       upgradesBtn: "Melhorias", upCount: "{n}/{total} desbloqueadas · melhor nível {best}", upNext: "Próxima: {item} no nível {n}",
       peekNote: "Só pré-visualização: desbloqueia com ★{n}",
-      raidBtn: "Ataque Shahed", raidSub: "Os 9 Shaheds seguidos", raidResult: "{n}/9 Shaheds", raidDone: "ATAQUE CONCLUÍDO!", raidBest: "Melhor ataque: {n}/9 · ⏱ {time}",
+      raidBtn: "Ataque Shahed", raidSub: "Derrube os 9 Shaheds", raidResult: "{n}/9 Shaheds", raidDone: "ATAQUE CONCLUÍDO!", raidBest: "Melhor ataque: {n}/9 · ⏱ {time}",
       raidRule1: "**9 Shaheds** · cada um mais difícil",
       raidRule2: "**Sob o corpo** + DISPARAR = acerto · asas bloqueiam",
       raidRule3: "**Faixa vermelha** = bomba · saia!",
@@ -1710,7 +1752,9 @@ window.I18N = (() => {
       lmTitle: "Pontos", metTitle: "Shaheds",
       lmWhere: "Aparecem no nível 2 de cada área, em partidas normais e diárias.",
       shTip0: "Fique embaixo e atire", shTip1: "2 faixas de uma vez", shTip2: "Ache a faixa livre", shTip3: "Atire quando aparecer", shTip4: "Não pare", shTip5: "🛡️ Blindagem primeiro", shTip6: "Atire quando parar", shTip7: "Derrube os pequenos", shTip8: "🛡️ Blindagem + tudo", armourBroken: "BLINDAGEM QUEBRADA!", fuelLane: "Faixa de combustível: passe por ela!", fuelFull: "Tanque cheio!",
-      lmShare: "📍 Passei por {name} no Drone Dash ({area} · nível {n}). Consegue encontrar também?"
+      lmShare: "📍 Passei por {name} no Drone Dash ({area} · nível {n}). Consegue encontrar também?",
+      setupTitle: "Sua corrida",
+      back: "Voltar"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -1784,7 +1828,7 @@ window.I18N = (() => {
       ms_boss_1: "Abbatti uno 🛸 Shahed",
       upgradesBtn: "Extra", upCount: "{n}/{total} sbloccati · miglior livello {best}", upNext: "Prossimo: {item} al livello {n}",
       peekNote: "Solo anteprima: si sblocca a ★{n}",
-      raidBtn: "Raid Shahed", raidSub: "I 9 Shahed di fila", raidResult: "{n}/9 Shahed", raidDone: "RAID COMPLETATO!", raidBest: "Miglior raid: {n}/9 · ⏱ {time}",
+      raidBtn: "Raid Shahed", raidSub: "Abbatti tutti i 9 Shahed", raidResult: "{n}/9 Shahed", raidDone: "RAID COMPLETATO!", raidBest: "Miglior raid: {n}/9 · ⏱ {time}",
       raidRule1: "**9 Shahed** · ognuno più tosto",
       raidRule2: "**Sotto il corpo** + FUOCO = colpito · le ali bloccano",
       raidRule3: "**Corsia rossa** = bomba · spostati!",
@@ -1817,7 +1861,9 @@ window.I18N = (() => {
       lmTitle: "Luoghi", metTitle: "Shahed",
       lmWhere: "Si vedono al livello 2 di ogni zona, nelle corse normali e giornaliere.",
       shTip0: "Mettiti sotto e spara", shTip1: "2 corsie insieme", shTip2: "Trova la corsia libera", shTip3: "Spara quando appare", shTip4: "Muoviti sempre", shTip5: "🛡️ Prima la corazza", shTip6: "Spara quando si ferma", shTip7: "Abbatti i piccoli", shTip8: "🛡️ Corazza + tutto", armourBroken: "CORAZZA DISTRUTTA!", fuelLane: "Corsia carburante: passaci sopra!", fuelFull: "Pieno fatto!",
-      lmShare: "📍 Ho superato {name} in Drone Dash ({area} · livello {n}). Riesci a trovarlo anche tu?"
+      lmShare: "📍 Ho superato {name} in Drone Dash ({area} · livello {n}). Riesci a trovarlo anche tu?",
+      setupTitle: "La tua corsa",
+      back: "Indietro"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -1891,7 +1937,7 @@ window.I18N = (() => {
       ms_boss_1: "🛸 シャヘドを撃墜",
       upgradesBtn: "アップグレード", upCount: "{n}/{total} 解放 · 最高レベル {best}", upNext: "次：レベル{n}で{item}",
       peekNote: "プレビューのみ：★{n}で解放",
-      raidBtn: "シャヘド襲来", raidSub: "シャヘド9機と連戦", raidResult: "シャヘド {n}/9", raidDone: "襲来を撃退！", raidBest: "ベスト：{n}/9 · ⏱ {time}",
+      raidBtn: "シャヘド襲来", raidSub: "シャヘド9機をすべて撃墜", raidResult: "シャヘド {n}/9", raidDone: "襲来を撃退！", raidBest: "ベスト：{n}/9 · ⏱ {time}",
       raidRule1: "**シャヘド9機** · どんどん手強く",
       raidRule2: "**胴体の真下**で発射＝命中 · 翼は弾く",
       raidRule3: "**赤い車線**＝爆弾 · よけろ！",
@@ -1924,7 +1970,9 @@ window.I18N = (() => {
       lmTitle: "名所", metTitle: "シャヘド",
       lmWhere: "各エリアのレベル2に登場（通常ランとデイリー）。",
       shTip0: "真下に入って撃て", shTip1: "2車線同時", shTip2: "空いた車線へ", shTip3: "見えたら撃て", shTip4: "動き続けろ", shTip5: "🛡️ まず装甲", shTip6: "止まったら撃て", shTip7: "小型を撃て", shTip8: "🛡️ 装甲＋全技", armourBroken: "装甲破壊！", fuelLane: "給油レーン：走り抜けろ！", fuelFull: "満タン！",
-      lmShare: "📍 Drone Dashで{name}を通過！（{area}・レベル{n}）君も見つけられる？"
+      lmShare: "📍 Drone Dashで{name}を通過！（{area}・レベル{n}）君も見つけられる？",
+      setupTitle: "今回のラン",
+      back: "戻る"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -1998,7 +2046,7 @@ window.I18N = (() => {
       ms_boss_1: "击落一架🛸 沙赫德",
       upgradesBtn: "升级", upCount: "已解锁 {n}/{total} · 最高第 {best} 关", upNext: "下一个：第 {n} 关解锁{item}",
       peekNote: "仅预览：★{n} 解锁",
-      raidBtn: "沙赫德空袭", raidSub: "9 架沙赫德连战", raidResult: "沙赫德 {n}/9", raidDone: "空袭击退！", raidBest: "最佳：{n}/9 · ⏱ {time}",
+      raidBtn: "沙赫德空袭", raidSub: "击落全部 9 架沙赫德", raidResult: "沙赫德 {n}/9", raidDone: "空袭击退！", raidBest: "最佳：{n}/9 · ⏱ {time}",
       raidRule1: "**9 架沙赫德** · 一架比一架难",
       raidRule2: "**机身正下方**＋发射＝命中 · 机翼挡火箭",
       raidRule3: "**红色车道**＝炸弹 · 快躲！",
@@ -2031,7 +2079,9 @@ window.I18N = (() => {
       lmTitle: "地标", metTitle: "沙赫德",
       lmWhere: "在每个区域的第2关出现（普通跑和每日挑战）。",
       shTip0: "到它下方开火", shTip1: "同时炸两条车道", shTip2: "找空车道", shTip3: "现身就射", shTip4: "保持移动", shTip5: "🛡️ 先破装甲", shTip6: "停下就射", shTip7: "击落小的", shTip8: "🛡️ 装甲+全招", armourBroken: "装甲已破！", fuelLane: "加油车道：直接开过去！", fuelFull: "油箱已满！",
-      lmShare: "📍 我在 Drone Dash 里经过了{name}（{area} · 第 {n} 关）。你也能找到吗？"
+      lmShare: "📍 我在 Drone Dash 里经过了{name}（{area} · 第 {n} 关）。你也能找到吗？",
+      setupTitle: "本局设置",
+      back: "返回"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -2105,7 +2155,7 @@ window.I18N = (() => {
       ms_boss_1: "🛸 샤헤드 격추",
       upgradesBtn: "업그레이드", upCount: "{n}/{total} 해제 · 최고 레벨 {best}", upNext: "다음: 레벨 {n}에서 {item}",
       peekNote: "미리보기만: ★{n}에 해제",
-      raidBtn: "샤헤드 공습", raidSub: "샤헤드 9대 연속", raidResult: "샤헤드 {n}/9", raidDone: "공습 격퇴!", raidBest: "최고 기록: {n}/9 · ⏱ {time}",
+      raidBtn: "샤헤드 공습", raidSub: "샤헤드 9대를 모두 격추", raidResult: "샤헤드 {n}/9", raidDone: "공습 격퇴!", raidBest: "최고 기록: {n}/9 · ⏱ {time}",
       raidRule1: "**샤헤드 9대** · 점점 더 강해짐",
       raidRule2: "**몸체 바로 밑** + 발사 = 명중 · 날개는 막음",
       raidRule3: "**빨간 차선** = 폭탄 · 피해!",
@@ -2138,7 +2188,9 @@ window.I18N = (() => {
       lmTitle: "명소", metTitle: "샤헤드",
       lmWhere: "각 지역의 레벨 2에서 등장 (일반 주행과 데일리).",
       shTip0: "아래로 가서 쏴라", shTip1: "두 차선 동시", shTip2: "빈 차선으로", shTip3: "보이면 쏴라", shTip4: "계속 움직여라", shTip5: "🛡️ 장갑 먼저", shTip6: "멈추면 쏴라", shTip7: "작은 것부터", shTip8: "🛡️ 장갑+모든 기술", armourBroken: "장갑 파괴!", fuelLane: "주유 차선: 그대로 통과!", fuelFull: "연료 가득!",
-      lmShare: "📍 Drone Dash에서 {name}을(를) 지나쳤어 ({area} · 레벨 {n}). 너도 찾을 수 있어?"
+      lmShare: "📍 Drone Dash에서 {name}을(를) 지나쳤어 ({area} · 레벨 {n}). 너도 찾을 수 있어?",
+      setupTitle: "이번 주행",
+      back: "뒤로"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -2212,7 +2264,7 @@ window.I18N = (() => {
       ms_boss_1: "एक 🛸 शाहेद गिराओ",
       upgradesBtn: "अपग्रेड", upCount: "{n}/{total} अनलॉक · सर्वश्रेष्ठ लेवल {best}", upNext: "अगला: लेवल {n} पर {item}",
       peekNote: "सिर्फ़ झलक: ★{n} पर अनलॉक",
-      raidBtn: "शाहेद हमला", raidSub: "सारे 9 शाहेद लगातार", raidResult: "{n}/9 शाहेद", raidDone: "हमला नाकाम!", raidBest: "सर्वश्रेष्ठ: {n}/9 · ⏱ {time}",
+      raidBtn: "शाहेद हमला", raidSub: "सभी 9 शाहेद गिराओ", raidResult: "{n}/9 शाहेद", raidDone: "हमला नाकाम!", raidBest: "सर्वश्रेष्ठ: {n}/9 · ⏱ {time}",
       raidRule1: "**9 शाहेद** · हर एक और मुश्किल",
       raidRule2: "**बॉडी के नीचे** + फ़ायर = हिट · पंख रोकते हैं",
       raidRule3: "**लाल लेन** = बम · हटो!",
@@ -2245,7 +2297,9 @@ window.I18N = (() => {
       lmTitle: "लैंडमार्क", metTitle: "शाहेद",
       lmWhere: "हर इलाक़े के लेवल 2 पर दिखते हैं, सामान्य रन और डेली में।",
       shTip0: "नीचे जाओ और फ़ायर करो", shTip1: "एक साथ 2 लेन", shTip2: "खाली लेन ढूँढो", shTip3: "दिखे तो मारो", shTip4: "चलते रहो", shTip5: "🛡️ पहले कवच", shTip6: "रुके तो मारो", shTip7: "छोटों को मारो", shTip8: "🛡️ कवच + हर चाल", armourBroken: "कवच टूटा!", fuelLane: "ईंधन लेन: बस इसमें से गुज़रो!", fuelFull: "टंकी फुल!",
-      lmShare: "📍 मैंने Drone Dash में {name} पार किया ({area} · लेवल {n})। क्या तुम भी इसे ढूँढ सकते हो?"
+      lmShare: "📍 मैंने Drone Dash में {name} पार किया ({area} · लेवल {n})। क्या तुम भी इसे ढूँढ सकते हो?",
+      setupTitle: "तुम्हारी दौड़",
+      back: "वापस"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -2321,7 +2375,7 @@ window.I18N = (() => {
       ms_boss_1: "Збий 🛸 шахед",
       upgradesBtn: "Апгрейди", upCount: "{n}/{total} відкрито · найкращий рівень {best}", upNext: "Далі: {item} на рівні {n}",
       peekNote: "Лише перегляд: відкриється за ★{n}",
-      raidBtn: "Атака шахедів", raidSub: "Усі 9 шахедів поспіль", raidResult: "{n}/9 шахедів", raidDone: "АТАКУ ВІДБИТО!", raidBest: "Найкраща атака: {n}/9 · ⏱ {time}",
+      raidBtn: "Атака шахедів", raidSub: "Збий усі 9 шахедів", raidResult: "{n}/9 шахедів", raidDone: "АТАКУ ВІДБИТО!", raidBest: "Найкраща атака: {n}/9 · ⏱ {time}",
       raidRule1: "**9 шахедів** · кожен сильніший",
       raidRule2: "**Під корпус** + ПУСК = влучання · крила блокують",
       raidRule3: "**Червона смуга** = бомба · геть!",
@@ -2354,7 +2408,9 @@ window.I18N = (() => {
       lmTitle: "Пам'ятки", metTitle: "Шахеди",
       lmWhere: "Трапляються на 2-му рівні кожної зони у звичайних і щоденних заїздах.",
       shTip0: "Стань під нього і стріляй", shTip1: "Одразу 2 смуги", shTip2: "Шукай вільну смугу", shTip3: "Стріляй, коли видно", shTip4: "Не зупиняйся", shTip5: "🛡️ Спершу броня", shTip6: "Стріляй, коли зупиниться", shTip7: "Збивай малих", shTip8: "🛡️ Броня + усе", armourBroken: "БРОНЮ ЗБИТО!", fuelLane: "Смуга пального: проїжджай нею!", fuelFull: "Повний бак!",
-      lmShare: "📍 Я проїхав {name} у Drone Dash ({area} · рівень {n}). А ти знайдеш?"
+      lmShare: "📍 Я проїхав {name} у Drone Dash ({area} · рівень {n}). А ти знайдеш?",
+      setupTitle: "Твій заїзд",
+      back: "Назад"
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -2428,7 +2484,7 @@ window.I18N = (() => {
       ms_boss_1: "ჩამოაგდე 🛸 შაჰედი",
       upgradesBtn: "აპგრეიდები", upCount: "{n}/{total} გახსნილი · საუკეთესო დონე {best}", upNext: "შემდეგი: {item} დონე {n}-ზე",
       peekNote: "მხოლოდ გადახედვა: გაიხსნება ★{n}-ზე",
-      raidBtn: "შაჰედების შეტევა", raidSub: "ყველა 9 შაჰედი ზედიზედ", raidResult: "{n}/9 შაჰედი", raidDone: "შეტევა მოგერიებულია!", raidBest: "საუკეთესო: {n}/9 · ⏱ {time}",
+      raidBtn: "შაჰედების შეტევა", raidSub: "ჩამოაგდე ყველა 9 შაჰედი", raidResult: "{n}/9 შაჰედი", raidDone: "შეტევა მოგერიებულია!", raidBest: "საუკეთესო: {n}/9 · ⏱ {time}",
       raidRule1: "**9 შაჰედი** · ყოველი უფრო ძნელი",
       raidRule2: "**კორპუსის ქვეშ** + გასროლა = მოხვედრა · ფრთები ბლოკავს",
       raidRule3: "**წითელი ზოლი** = ბომბი · გაეცალე!",
@@ -2461,7 +2517,9 @@ window.I18N = (() => {
       lmTitle: "ადგილები", metTitle: "შაჰედები",
       lmWhere: "ჩანს ყოველი ზონის მე-2 დონეზე, ჩვეულებრივ და ყოველდღიურ რბოლებში.",
       shTip0: "მის ქვეშ დადექი და ესროლე", shTip1: "2 ზოლი ერთად", shTip2: "იპოვე თავისუფალი ზოლი", shTip3: "ესროლე, როცა ჩანს", shTip4: "იმოძრავე", shTip5: "🛡️ ჯერ ჯავშანი", shTip6: "ესროლე, როცა გაჩერდება", shTip7: "ჩამოაგდე პატარები", shTip8: "🛡️ ჯავშანი + ყველაფერი", armourBroken: "ჯავშანი გატეხილია!", fuelLane: "საწვავის ზოლი: გაიარე მასში!", fuelFull: "ავზი სავსეა!",
-      lmShare: "📍 Drone Dash-ში {name} გავიარე ({area} · დონე {n}). შენც იპოვი?"
+      lmShare: "📍 Drone Dash-ში {name} გავიარე ({area} · დონე {n}). შენც იპოვი?",
+      setupTitle: "შენი რბოლა",
+      back: "უკან"
     }
   };
   const NAMES = {
@@ -4733,12 +4791,12 @@ window.LD_RULES = (() => {
   // ---- Home screen ----
   const wrapEl = $('wrap');
   function show(id) {
-    for (const o of ['home', 'intro', 'over', 'garage', 'records', 'pause', 'upgrades', 'raidHelp', 'settingsView']) $(o).classList.toggle('hidden', o !== id);
+    for (const o of ['home', 'intro', 'over', 'garage', 'records', 'pause', 'upgrades', 'raidHelp', 'settingsView', 'setupView', 'msView']) $(o).classList.toggle('hidden', o !== id);
     shownOverlay = id;
     if (id === 'home') { $('home').scrollTop = 0; fitLabels($('home').querySelectorAll('.menuRow button')); fitHome(); requestAnimationFrame(fitHome);
       setTimeout(fitHome, 300); setTimeout(fitHome, 1000); }   // again once fonts, missions and the install button have settled
     else if (id) { fitCard(id); requestAnimationFrame(() => fitCard(id)); }   // fit now, and again once it has drawn
-    wrapEl.classList.toggle('at-home', ['home', 'garage', 'records', 'upgrades', 'settingsView'].includes(id));
+    wrapEl.classList.toggle('at-home', ['home', 'garage', 'records', 'upgrades', 'settingsView', 'setupView', 'msView'].includes(id));
   }
 
   // Home screen: if everything doesn't fit the screen's height, shrink it evenly until it does, so
@@ -4781,6 +4839,10 @@ window.LD_RULES = (() => {
     if (h.classList.contains('hidden')) return;
     st.style.zoom = '';
     fitLabels(h.querySelectorAll('.menuRow button'));
+    for (const tx of h.querySelectorAll('.setupTx > span, .setupTx > small, .msChip span')) {   // the one-line summaries: shrink to fit rather than cut off
+      tx.style.fontSize = ''; let fs = parseFloat(getComputedStyle(tx).fontSize);
+      while (tx.scrollWidth > tx.clientWidth + 1 && fs > 11.5) { fs -= 0.5; tx.style.fontSize = fs + 'px'; }
+    }
     const cs = getComputedStyle(h);
     const gaps = 2 * (parseFloat(cs.rowGap) || 0);          // the spacers above and below the stack sit a gap away from it
     const avail = h.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - gaps - 6;
@@ -5332,9 +5394,16 @@ window.LD_RULES = (() => {
     const mine = [d.best ? '🏆 ' + num(d.best) : '', d.streak ? '🔥 ' + num(d.streak) : ''].filter(Boolean).join(' · ');
     $('dailySub').textContent = '#' + n + ' · ' + t(tw.key) + (mine ? '\n' + mine : '');
     paintMissions($('homeMissions'), true);
+    {                                                              // on the home screen: the missions in one line, tap for the list
+      const done = ms.active.filter(m => m.done).length, mc = $('msChip');
+      mc.innerHTML = '';
+      const a = document.createElement('span'); a.textContent = '🎯 ' + t('missions') + ' · ' + done + '/' + ms.active.length;
+      const b = document.createElement('b'); b.textContent = '★ ' + num(ms.stars) + ' · ' + t(rankKey()) + ' ›';
+      mc.append(a, b);
+    }
     paintStartPick();
     if (!$('home').classList.contains('hidden')) fitLabels($('home').querySelectorAll('.menuRow button'));
-    requestAnimationFrame(fitHome);
+    fitHome(); requestAnimationFrame(fitHome);
     const rb = loadRaid()[diffI];                                // the best for the difficulty you've picked
     // Shahed Raid opens once you've beaten a giant Shahed in a normal run (or played a raid before)
     const raidOpen = bossMarks().length > 0 || raidPlayed();
@@ -7057,6 +7126,7 @@ window.LD_RULES = (() => {
     else if ((e.key === 'Enter' || e.key === ' ') && state === 'menu' && !e.target.closest('button')) { e.preventDefault(); closeHelp(); }
     else if ((e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') && state === 'play' && DRONES()) { e.preventDefault(); fire(); }
     else if (e.key === 'Escape' && !$('settingsView').classList.contains('hidden')) $('setDone').click();   // Settings: Esc = Done
+    else if (e.key === 'Escape' && (!$('setupView').classList.contains('hidden') || !$('msView').classList.contains('hidden'))) goHome();
     else if ((e.key === 'p' || e.key === 'P' || e.key === 'Escape') && (state === 'play' || state === 'countdown')) pauseGame();
     else if ((e.key === 'p' || e.key === 'P' || e.key === 'Escape') && state === 'paused') resumeGame();
     else if (e.key === 'Escape' && state === 'menu' && helpFrom === 'pause') closeHelp();   // back to the pause menu
@@ -7216,7 +7286,15 @@ window.LD_RULES = (() => {
   function paintStartPick(keepScroll) {
     const box = $('startPick'), got = reachedAreas(), cur = areaFor(chosenStart());
     const old = box.querySelector('.strip'), oldScroll = old ? old.scrollLeft : 0;   // after a tap, stay where you'd scrolled to
-    box.hidden = false;
+    const sb = $('setupBtn');                                      // on the home screen: the choice in one line, tap to change it
+    sb.hidden = false;
+    sb.innerHTML = '';
+    const sbTx = document.createElement('span'); sbTx.className = 'setupTx';   // where you start, and how hard underneath
+    const sbA = document.createElement('span'), sbD = document.createElement('small');
+    sbA.textContent = AREAS[cur].icon + ' ' + t(AREAS[cur].key); sbD.textContent = DIFFS[diffI].icon + ' ' + t(DIFFS[diffI].key);
+    sbTx.append(sbA, sbD);
+    const sbGo = document.createElement('b'); sbGo.textContent = '›'; sbGo.setAttribute('aria-hidden', 'true');
+    sb.append(sbTx, sbGo);
     box.textContent = '';
     const row = (label, items, strip) => {
       const r = document.createElement('div'); r.className = 'pickRow2';
@@ -7254,6 +7332,11 @@ window.LD_RULES = (() => {
     requestAnimationFrame(fitHome);                                // the height may have changed
   }
   $('dailyBtn').addEventListener('click', () => { mode = 'daily'; startPlay(); });
+  $('setupBtn').addEventListener('click', () => { show('setupView'); paintStartPick(); $('setupDone').focus(); });
+  $('setupDone').addEventListener('click', () => goHome());
+  $('setupPlay').addEventListener('click', () => startPlay());
+  $('msChip').addEventListener('click', () => { paintMissions($('homeMissions'), true); show('msView'); $('msDone').focus(); });
+  $('msDone').addEventListener('click', () => goHome());
   $('raidBtn').addEventListener('click', () => {
     if ($('raidBtn').classList.contains('locked')) {            // not yet: a little shake, the subtitle says why
       const b = $('raidBtn'); b.classList.remove('nope'); void b.offsetWidth; b.classList.add('nope'); buzz(30);
