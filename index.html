@@ -819,8 +819,7 @@
   .lmCard b { font-size: 13px; line-height: 1.2; }
   .lmCard small { font-size: 11.5px; color: var(--muted); line-height: 1.2; }
   .lmCard.off b { color: var(--muted); }
-  .lmCard.canShare { position: relative; cursor: pointer; }
-  .lmCard.canShare::after { content: '📤'; position: absolute; top: 5px; right: 6px; font-size: 13px; opacity: .75; }
+
   .lmShare { margin: 0; padding: 8px 12px; font-size: 14px; font-weight: 800; }
   /* Raid tab: the nine big Shaheds, three to a row */
   .shGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
@@ -938,6 +937,19 @@
   #upPeek b { font-size: 20px; }
   #upPeek small { font-size: 14px; color: var(--muted); font-weight: 700; }
   #upPeek button { margin: 4px 0 0; min-height: 0; padding: 8px 22px; }
+  /* Records: tap a landmark or a big Shahed for a closer look */
+  #records .recCard { position: relative; }
+  #recPeek { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 12px; background: rgba(5,7,15,.75); z-index: 5; border-radius: inherit; }
+  #recPeek[hidden] { display: none; }
+  #recPeek .peekCard { display: grid; justify-items: center; gap: 5px; padding: 16px 20px; border-radius: 18px; background: var(--card, #1a2140); width: min(100%, 280px);
+                       box-shadow: 0 10px 30px rgba(0,0,0,.5), inset 0 0 0 2px var(--ua-yellow); text-align: center; }
+  #recPeek .rpArt canvas { display: block; border-radius: 12px; background: rgba(255,255,255,.05); }
+  #recPeek b { font-size: 20px; line-height: 1.2; }
+  #recPeek small { font-size: 14px; color: var(--muted); font-weight: 700; }
+  #recPeek .rpMore { color: var(--text); font-weight: 800; }
+  .rpBtns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
+  .rpBtns button { margin: 0; min-height: 0; padding: 8px 18px; font-size: 15px; }
+  .lmCard.canPeek { cursor: pointer; }
   #pauseNext { font-size: 13px; color: var(--muted) !important; margin: -6px 0 0 !important; }
   .recList { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; gap: 6px; }
   .recList li {
@@ -1078,6 +1090,10 @@
         <div id="recRaidBox" class="recBox" hidden></div>
         <div id="recDailyBox" class="recBox" hidden></div>
         <div id="recSightsBox" class="recBox" hidden></div>
+      </div>
+      <div id="recPeek" role="dialog" aria-modal="true" aria-labelledby="rpName" hidden>
+        <div class="peekCard"><span id="rpArt" class="rpArt"></span><b id="rpName"></b><small id="rpSub"></small><small id="rpMore" class="rpMore"></small>
+          <div class="rpBtns"><button id="rpShare" class="secondary" type="button" hidden></button><button id="rpOk" class="ghost" type="button" data-i18n="ok">OK</button></div></div>
       </div>
       <button id="recBack" class="ghost" data-i18n="home">Home</button>
     </div>
@@ -5163,12 +5179,13 @@ window.LD_RULES = (() => {
     return row;
   }
   // A big Shahed on its own little canvas (the fight's drawing, borrowed): in colour once met, else a silhouette.
-  function shahedCanvas(v, met) {
+  function shahedCanvas(v, met, z = 1) {
     const c = document.createElement('canvas'), k = Math.min(3, window.devicePixelRatio || 1);
-    c.width = 88 * k; c.height = 64 * k; c.setAttribute('aria-hidden', 'true');
+    c.width = 88 * k * z; c.height = 64 * k * z; c.setAttribute('aria-hidden', 'true');
+    if (z !== 1) { c.style.width = 88 * z + 'px'; c.style.height = 64 * z + 'px'; }
     const g = c.getContext('2d'), keep = ctx;
     try {
-      ctx = g; g.scale(k, k); g.translate(44, 30); g.scale(1.25, 1.25);
+      ctx = g; g.scale(k * z, k * z); g.translate(44, 30); g.scale(1.25, 1.25);
       drawGiantShahed(0, 0, 0, v, -1);
       if (!met) { g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-atop'; g.fillStyle = '#0b0e1f'; g.fillRect(0, 0, c.width, c.height); }
     } finally { ctx = keep; }
@@ -5184,7 +5201,12 @@ window.LD_RULES = (() => {
       card.className = 'lmCard' + (on ? '' : ' off');
       const b = document.createElement('b'); b.textContent = on ? t('shName' + v) : '???';
       const sm = document.createElement('small'); sm.textContent = on ? t('shTip' + v) : A.icon + ' ' + t(A.key);
-      card.append(shahedCanvas(v, on), b, sm); grid.append(card);
+      card.append(shahedCanvas(v, on), b, sm);
+      card.classList.add('canPeek'); card.tabIndex = 0; card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', on ? t('shName' + v) : '🔒 ' + t(A.key));
+      card.addEventListener('click', () => peekShahed(v, on));
+      card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); peekShahed(v, on); } });
+      grid.append(card);
     }
     wrap.append(head, grid);
     return wrap;
@@ -5210,12 +5232,13 @@ window.LD_RULES = (() => {
     box.append(recRow('🔥', t('streak', { n: d.streak || 0 }), t('recStreakHint'), false));
   }
   // A landmark drawn on its own little canvas (the road's drawing, borrowed): in colour once seen, else a silhouette.
-  function landmarkCanvas(a, seen) {
+  function landmarkCanvas(a, seen, z = 1) {                    // z: size (1 = a Records card)
     const c = document.createElement('canvas'), k = Math.min(3, window.devicePixelRatio || 1);
-    c.width = 96 * k; c.height = 92 * k; c.setAttribute('aria-hidden', 'true');
+    c.width = 96 * k * z; c.height = 92 * k * z; c.setAttribute('aria-hidden', 'true');
+    if (z !== 1) { c.style.width = 96 * z + 'px'; c.style.height = 92 * z + 'px'; }
     const g = c.getContext('2d'), keep = { ctx, vergeW, W };
     try {
-      ctx = g; g.scale(k, k);
+      ctx = g; g.scale(k * z, k * z);
       vergeW = 27; W = 400;                                       // drawn at a fixed size, standing on the card's floor
       g.translate(48 - vergeW * 0.72, 0);
       drawLandmark(a, 0, 86, true);
@@ -5270,6 +5293,29 @@ window.LD_RULES = (() => {
       try { await navigator.clipboard.writeText(text + ' ' + GAME_URL); toast(t('copied')); } catch { toast(t('shareFailed')); }
     }
   }
+  // Records: a closer look at a landmark or a big Shahed (like tapping an upgrade).
+  let rpFrom = null;
+  function openRecPeek(art, name, sub, more, share) {
+    rpFrom = document.activeElement;
+    const box = $('rpArt'); box.textContent = ''; box.appendChild(art);
+    $('rpName').textContent = name; $('rpSub').textContent = sub; $('rpMore').textContent = more; $('rpMore').hidden = !more;
+    const sb = $('rpShare'); sb.hidden = !share;
+    if (share) { sb.textContent = '📤 ' + t('share'); sb.onclick = share; }
+    $('recPeek').hidden = false; $('rpOk').focus();
+  }
+  function closeRecPeek() { $('recPeek').hidden = true; if (rpFrom && rpFrom.focus) rpFrom.focus(); }
+  function peekLandmark(i, seen) {
+    const A = AREAS[i];
+    openRecPeek(landmarkCanvas(i, seen, 1.9), seen ? t('lm' + i) : '???', A.icon + ' ' + t(A.key) + ' · ' + t('lv', { n: i * 5 + 2 }),
+      seen ? '' : '🔒 ' + t('lmWhere'), seen ? () => shareLandmark(i) : null);
+  }
+  function peekShahed(v, met) {
+    const A = AREAS[Math.min(AREAS.length - 1, v + 1)];
+    openRecPeek(shahedCanvas(v, met, 2.6), met ? t('shName' + v) : '???', A.icon + ' ' + t(A.key), met ? t('shTip' + v) : '🔒', null);
+  }
+  $('rpOk').addEventListener('click', closeRecPeek);
+  $('recPeek').addEventListener('click', e => { if (e.target.id === 'recPeek') closeRecPeek(); });
+  $('recPeek').addEventListener('keydown', e => { if (e.key === 'Escape') { e.stopPropagation(); closeRecPeek(); } });
   function renderSights() {
     const box = $('recSightsBox'), seen = seenLandmarks(); box.textContent = '';
     const grid = document.createElement('div'); grid.className = 'lmGrid';
@@ -5280,18 +5326,17 @@ window.LD_RULES = (() => {
       const sm = document.createElement('small');
       sm.textContent = A.icon + ' ' + t(A.key) + (on ? '' : ' · ' + t('lv', { n: i * 5 + 2 }));
       card.append(landmarkCanvas(i, on), b, sm);
-      if (on) {                                                  // seen: tap to share it
-        card.classList.add('canShare'); card.tabIndex = 0; card.setAttribute('role', 'button');
-        card.setAttribute('aria-label', t('share') + ': ' + t('lm' + i));
-        card.addEventListener('click', () => shareLandmark(i));
-        card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); shareLandmark(i); } });
-      }
+      card.classList.add('canPeek'); card.tabIndex = 0; card.setAttribute('role', 'button');   // tap: a closer look (and share)
+      card.setAttribute('aria-label', on ? t('lm' + i) : '🔒 ' + t(A.key));
+      card.addEventListener('click', () => peekLandmark(i, on));
+      card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); peekLandmark(i, on); } });
       grid.append(card);
     });
     const note = document.createElement('p'); note.className = 'recNote'; note.textContent = t('lmWhere');
     box.append(grid, note);
   }
   function paintRecTab() {
+    $('recPeek').hidden = true;
     for (const b of $('recTabs').children) {
       const on = b.dataset.tab === recTab;
       b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1;
@@ -6500,7 +6545,6 @@ window.LD_RULES = (() => {
       ctx.fillStyle = A.ground; ctx.fillRect(-10, y - 1, vergeW + 10, SEG + 2); ctx.fillRect(W - vergeW, y - 1, vergeW + 10, SEG + 2);
       for (const side of [0, 1]) { drawScenery(areaAtK(k), side ? W - vergeW : 0, y, k * 2 + side, false); drawProp(areaAtK(k), side ? W - vergeW : 0, y, k * 2 + side); }
     }
-    for (const lm of landmarks) { const ly = scroll - lm.k * SEG; if (ly > -40 && ly < H + 260) drawLandmark(lm.a, lm.side, ly, false, LM_BIG); }
     // a soft kerb between road and roadside
     ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(vergeW - 3, -10, 3, H + 20); ctx.fillRect(W - vergeW, -10, 3, H + 20);
   }
@@ -6910,6 +6954,8 @@ window.LD_RULES = (() => {
     drawLook('under');                       // sunset glow / night darkness / rain tint on the ground
     drawSpeedLines();                        // streaks along the roadside as the pace builds
     drawBestMark();                          // a line across the road where your longest run ended
+    // the landmarks: over the road, its kerb and markings (they stand at the edge of the road), under everything on it
+    for (const lm of landmarks) { const ly = scroll - lm.k * SEG; if (ly > -40 && ly < H + 260) drawLandmark(lm.a, lm.side, ly, false, LM_BIG); }
 
     for (const o of objects) {
       if (o.type === 'finish') drawFinish(o.y, o.h);
