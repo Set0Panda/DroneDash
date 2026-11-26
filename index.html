@@ -260,6 +260,16 @@
   @keyframes fuelGain { 0% { filter: brightness(1.8); box-shadow: 0 0 8px var(--fuel); } }
   #fuelRow.low .tag { color: var(--enemy); animation: blink .5s steps(1) infinite; }
   #fuelRow.low #fuel { background: var(--enemy); }
+  /* rockets at a glance, up top where no thumb covers it: the count (in its ★ power colour) and coins to the next one */
+  .hudRk { flex: none; display: flex; align-items: center; gap: 4px; padding: 1px 7px 1px 5px; border-radius: 10px; background: rgba(10,12,24,.55);
+           font-size: 13px; font-weight: 900; line-height: 18px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .hudRk::before { content: '🚀'; font-size: 12px; }
+  .hudRk.ready { color: #0a1c3d; background: var(--pw, var(--ua-yellow)); }
+  .hudRkPips { display: flex; gap: 2px; }
+  .hudRkPips i { width: 6px; height: 6px; border-radius: 50%; border: 1.5px solid var(--coin); opacity: .5; }
+  .hudRkPips i.on { background: var(--coin); opacity: 1; }
+  .hudRk.ready .hudRkPips i { border-color: #0a1c3d; } .hudRk.ready .hudRkPips i.on { background: #0a1c3d; }
+  #wrap.at-home .hudRk { visibility: hidden; }
   @keyframes blink { 50% { opacity: .25; } }
 
   .overlay {
@@ -934,7 +944,7 @@
   <div id="hud">
     <div class="hrow"><span id="score">0</span><span id="streak">×2</span><span class="livesBox"><span id="lives" role="img"></span><span id="heartProg" hidden></span></span><button id="pauseBtn" type="button" data-i18n-title="pause" data-i18n-aria="pause" aria-label="Pause">⏸</button></div>
     <div class="hrow"><span class="tag" id="level">LV 1</span><div class="bar"><div id="prog"></div></div><span class="small" id="togo">400 m</span></div>
-    <div class="hrow" id="fuelRow"><span class="tag" data-i18n="fuel">FUEL</span><div class="bar"><div id="fuel"></div></div></div>
+    <div class="hrow" id="fuelRow"><span class="tag" data-i18n="fuel">FUEL</span><div class="bar"><div id="fuel"></div></div><span id="hudRk" class="hudRk" aria-hidden="true"><b id="hudRkN">0</b><span class="hudRkPips"><i></i><i></i><i></i></span></span></div>
   </div>
 
   <div id="count"></div>
@@ -1248,7 +1258,7 @@ window.I18N = (() => {
       shName0: "Shahed", shName1: "Desert Shahed", shName2: "Black Shahed", shName3: "Night Shahed", shName4: "Hunter Shahed", shName5: "Armoured Shahed", shName6: "Jet Shahed", shName7: "Carrier Shahed", shName8: "Mothership",
       lmTitle: "Landmarks", metTitle: "Shaheds",
       lmWhere: "Seen on level 2 of each area, in normal runs and dailies.",
-      shTip1: "Bombs two lanes side by side", shTip2: "Bombs two lanes: get to the third", shTip3: "Cloaks! Shoot it while it's visible", shTip4: "Hunts your lane: keep moving", shTip5: "🛡️ Break its armour, then its health", shTip6: "Fast: shoot as it settles", shTip7: "Launches small Shaheds: shoot or dodge", shTip8: "🛡️ Armoured, and every trick", armourBroken: "ARMOUR DOWN!", fuelLane: "Fuel lane: drive through it!", fuelFull: "Full tank!"
+      shTip1: "2 lanes at once", shTip2: "Find the open lane", shTip3: "Shoot when it shows", shTip4: "Keep moving", shTip5: "🛡️ Armour first", shTip6: "Shoot as it stops", shTip7: "Shoot the small ones", shTip8: "🛡️ Armour + every trick", armourBroken: "ARMOUR DOWN!", fuelLane: "Fuel lane: drive through it!", fuelFull: "Full tank!"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -1354,7 +1364,7 @@ window.I18N = (() => {
       shName0: "Shahed", shName1: "Shahed del desierto", shName2: "Shahed negro", shName3: "Shahed nocturno", shName4: "Shahed cazador", shName5: "Shahed blindado", shName6: "Shahed a reacción", shName7: "Shahed portador", shName8: "Nave nodriza",
       lmTitle: "Lugares", metTitle: "Shaheds",
       lmWhere: "Aparecen en el nivel 2 de cada zona, en partidas normales y diarias.",
-      shTip1: "Bombardea dos carriles juntos", shTip2: "Bombardea dos carriles: ve al tercero", shTip3: "¡Se camufla! Dispara cuando se vea", shTip4: "Caza tu carril: no pares", shTip5: "🛡️ Rompe su blindaje y luego su vida", shTip6: "Rápido: dispara cuando se detenga", shTip7: "Lanza Shaheds pequeños: dispara o esquiva", shTip8: "🛡️ Blindado y con todos los trucos", armourBroken: "¡SIN BLINDAJE!", fuelLane: "Carril de combustible: ¡pásalo!", fuelFull: "¡Depósito lleno!"
+      shTip1: "2 carriles a la vez", shTip2: "Busca el carril libre", shTip3: "Dispara cuando aparezca", shTip4: "No pares", shTip5: "🛡️ Primero el blindaje", shTip6: "Dispara cuando pare", shTip7: "Derriba los pequeños", shTip8: "🛡️ Blindaje + todo", armourBroken: "¡SIN BLINDAJE!", fuelLane: "Carril de combustible: ¡pásalo!", fuelFull: "¡Depósito lleno!"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -1460,7 +1470,7 @@ window.I18N = (() => {
       shName0: "Shahed", shName1: "Shahed du désert", shName2: "Shahed noir", shName3: "Shahed de nuit", shName4: "Shahed chasseur", shName5: "Shahed blindé", shName6: "Shahed à réaction", shName7: "Shahed porteur", shName8: "Vaisseau-mère",
       lmTitle: "Lieux", metTitle: "Shaheds",
       lmWhere: "Visibles au niveau 2 de chaque zone, en partie normale et quotidienne.",
-      shTip1: "Bombarde deux voies côte à côte", shTip2: "Bombarde deux voies : file sur la troisième", shTip3: "Il se camoufle ! Tire quand il est visible", shTip4: "Il traque ta voie : bouge", shTip5: "🛡️ Casse son blindage, puis sa vie", shTip6: "Rapide : tire quand il se pose", shTip7: "Lance des petits Shaheds : tire ou esquive", shTip8: "🛡️ Blindé, et tous les coups", armourBroken: "BLINDAGE DÉTRUIT !", fuelLane: "Voie carburant : roule dessus !", fuelFull: "Plein fait !"
+      shTip1: "2 voies à la fois", shTip2: "Trouve la voie libre", shTip3: "Tire quand il apparaît", shTip4: "Bouge sans cesse", shTip5: "🛡️ Le blindage d'abord", shTip6: "Tire quand il s'arrête", shTip7: "Abats les petits", shTip8: "🛡️ Blindage + tout", armourBroken: "BLINDAGE DÉTRUIT !", fuelLane: "Voie carburant : roule dessus !", fuelFull: "Plein fait !"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -1566,7 +1576,7 @@ window.I18N = (() => {
       shName0: "Shahed", shName1: "Wüsten-Shahed", shName2: "Schwarzer Shahed", shName3: "Nacht-Shahed", shName4: "Jäger-Shahed", shName5: "Panzer-Shahed", shName6: "Jet-Shahed", shName7: "Träger-Shahed", shName8: "Mutterschiff",
       lmTitle: "Wahrzeichen", metTitle: "Shaheds",
       lmWhere: "Zu sehen in Level 2 jedes Gebiets, in normalen und täglichen Fahrten.",
-      shTip1: "Bombardiert zwei Spuren nebeneinander", shTip2: "Bombardiert zwei Spuren: ab auf die dritte", shTip3: "Tarnt sich! Schieß, wenn er sichtbar ist", shTip4: "Jagt deine Spur: bleib in Bewegung", shTip5: "🛡️ Erst die Panzerung, dann die Lebenspunkte", shTip6: "Schnell: schieß, wenn er anhält", shTip7: "Startet kleine Shaheds: abschießen oder ausweichen", shTip8: "🛡️ Gepanzert, mit allen Tricks", armourBroken: "PANZERUNG WEG!", fuelLane: "Tankspur: einfach durchfahren!", fuelFull: "Tank voll!"
+      shTip1: "2 Spuren zugleich", shTip2: "Such die freie Spur", shTip3: "Schieß, wenn er auftaucht", shTip4: "Bleib in Bewegung", shTip5: "🛡️ Erst die Panzerung", shTip6: "Schieß, wenn er hält", shTip7: "Schieß die Kleinen ab", shTip8: "🛡️ Panzer + alles", armourBroken: "PANZERUNG WEG!", fuelLane: "Tankspur: einfach durchfahren!", fuelFull: "Tank voll!"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -1672,7 +1682,7 @@ window.I18N = (() => {
       shName0: "Shahed", shName1: "Shahed do deserto", shName2: "Shahed preto", shName3: "Shahed noturno", shName4: "Shahed caçador", shName5: "Shahed blindado", shName6: "Shahed a jato", shName7: "Shahed porta-drones", shName8: "Nave-mãe",
       lmTitle: "Pontos", metTitle: "Shaheds",
       lmWhere: "Aparecem no nível 2 de cada área, em partidas normais e diárias.",
-      shTip1: "Bombardeia duas faixas lado a lado", shTip2: "Bombardeia duas faixas: vá para a terceira", shTip3: "Fica invisível! Atire quando aparecer", shTip4: "Caça a sua faixa: não pare", shTip5: "🛡️ Quebre a blindagem, depois a vida", shTip6: "Rápido: atire quando ele parar", shTip7: "Lança Shaheds pequenos: atire ou desvie", shTip8: "🛡️ Blindado e com todos os truques", armourBroken: "BLINDAGEM QUEBRADA!", fuelLane: "Faixa de combustível: passe por ela!", fuelFull: "Tanque cheio!"
+      shTip1: "2 faixas de uma vez", shTip2: "Ache a faixa livre", shTip3: "Atire quando aparecer", shTip4: "Não pare", shTip5: "🛡️ Blindagem primeiro", shTip6: "Atire quando parar", shTip7: "Derrube os pequenos", shTip8: "🛡️ Blindagem + tudo", armourBroken: "BLINDAGEM QUEBRADA!", fuelLane: "Faixa de combustível: passe por ela!", fuelFull: "Tanque cheio!"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -1778,7 +1788,7 @@ window.I18N = (() => {
       shName0: "Shahed", shName1: "Shahed del deserto", shName2: "Shahed nero", shName3: "Shahed notturno", shName4: "Shahed cacciatore", shName5: "Shahed corazzato", shName6: "Shahed a reazione", shName7: "Shahed portadroni", shName8: "Nave madre",
       lmTitle: "Luoghi", metTitle: "Shahed",
       lmWhere: "Si vedono al livello 2 di ogni zona, nelle corse normali e giornaliere.",
-      shTip1: "Bombarda due corsie affiancate", shTip2: "Bombarda due corsie: vai nella terza", shTip3: "Si occulta! Spara quando è visibile", shTip4: "Insegue la tua corsia: muoviti", shTip5: "🛡️ Rompi la corazza, poi la vita", shTip6: "Veloce: spara quando si ferma", shTip7: "Lancia piccoli Shahed: spara o schiva", shTip8: "🛡️ Corazzato, con tutti i trucchi", armourBroken: "CORAZZA DISTRUTTA!", fuelLane: "Corsia carburante: passaci sopra!", fuelFull: "Pieno fatto!"
+      shTip1: "2 corsie insieme", shTip2: "Trova la corsia libera", shTip3: "Spara quando appare", shTip4: "Muoviti sempre", shTip5: "🛡️ Prima la corazza", shTip6: "Spara quando si ferma", shTip7: "Abbatti i piccoli", shTip8: "🛡️ Corazza + tutto", armourBroken: "CORAZZA DISTRUTTA!", fuelLane: "Corsia carburante: passaci sopra!", fuelFull: "Pieno fatto!"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -1884,7 +1894,7 @@ window.I18N = (() => {
       shName0: "シャヘド", shName1: "砂漠のシャヘド", shName2: "黒いシャヘド", shName3: "夜のシャヘド", shName4: "ハンターシャヘド", shName5: "装甲シャヘド", shName6: "ジェットシャヘド", shName7: "キャリアシャヘド", shName8: "母艦",
       lmTitle: "名所", metTitle: "シャヘド",
       lmWhere: "各エリアのレベル2に登場（通常ランとデイリー）。",
-      shTip1: "隣り合う2車線を爆撃", shTip2: "2車線を爆撃：残りの車線へ", shTip3: "姿を消す！見えている間に撃て", shTip4: "君の車線を狙う：動き続けろ", shTip5: "🛡️ 装甲を壊してから本体を", shTip6: "速い：止まった瞬間に撃て", shTip7: "小型シャヘドを放つ：撃つか避けろ", shTip8: "🛡️ 装甲付き、全ての技を使う", armourBroken: "装甲破壊！", fuelLane: "給油レーン：走り抜けろ！", fuelFull: "満タン！"
+      shTip1: "2車線同時", shTip2: "空いた車線へ", shTip3: "見えたら撃て", shTip4: "動き続けろ", shTip5: "🛡️ まず装甲", shTip6: "止まったら撃て", shTip7: "小型を撃て", shTip8: "🛡️ 装甲＋全技", armourBroken: "装甲破壊！", fuelLane: "給油レーン：走り抜けろ！", fuelFull: "満タン！"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -1990,7 +2000,7 @@ window.I18N = (() => {
       shName0: "沙赫德", shName1: "沙漠沙赫德", shName2: "黑色沙赫德", shName3: "夜袭沙赫德", shName4: "猎手沙赫德", shName5: "装甲沙赫德", shName6: "喷气沙赫德", shName7: "运载沙赫德", shName8: "母舰",
       lmTitle: "地标", metTitle: "沙赫德",
       lmWhere: "在每个区域的第2关出现（普通跑和每日挑战）。",
-      shTip1: "轰炸相邻两条车道", shTip2: "轰炸两条车道：去第三条", shTip3: "会隐身！趁它现身时射击", shTip4: "追踪你的车道：保持移动", shTip5: "🛡️ 先打破装甲，再打血量", shTip6: "速度快：趁它停下时射击", shTip7: "放出小型沙赫德：击落或躲开", shTip8: "🛡️ 有装甲，还会所有招式", armourBroken: "装甲已破！", fuelLane: "加油车道：直接开过去！", fuelFull: "油箱已满！"
+      shTip1: "同时炸两条车道", shTip2: "找空车道", shTip3: "现身就射", shTip4: "保持移动", shTip5: "🛡️ 先破装甲", shTip6: "停下就射", shTip7: "击落小的", shTip8: "🛡️ 装甲+全招", armourBroken: "装甲已破！", fuelLane: "加油车道：直接开过去！", fuelFull: "油箱已满！"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -2096,7 +2106,7 @@ window.I18N = (() => {
       shName0: "샤헤드", shName1: "사막 샤헤드", shName2: "검은 샤헤드", shName3: "야간 샤헤드", shName4: "헌터 샤헤드", shName5: "장갑 샤헤드", shName6: "제트 샤헤드", shName7: "캐리어 샤헤드", shName8: "모선",
       lmTitle: "명소", metTitle: "샤헤드",
       lmWhere: "각 지역의 레벨 2에서 등장 (일반 주행과 데일리).",
-      shTip1: "나란한 두 차선을 폭격", shTip2: "두 차선을 폭격: 세 번째 차선으로", shTip3: "은신한다! 보일 때 쏴라", shTip4: "네 차선을 노린다: 계속 움직여라", shTip5: "🛡️ 장갑을 부수고 체력을", shTip6: "빠르다: 멈출 때 쏴라", shTip7: "소형 샤헤드 발사: 격추하거나 피하라", shTip8: "🛡️ 장갑에 모든 기술까지", armourBroken: "장갑 파괴!", fuelLane: "주유 차선: 그대로 통과!", fuelFull: "연료 가득!"
+      shTip1: "두 차선 동시", shTip2: "빈 차선으로", shTip3: "보이면 쏴라", shTip4: "계속 움직여라", shTip5: "🛡️ 장갑 먼저", shTip6: "멈추면 쏴라", shTip7: "작은 것부터", shTip8: "🛡️ 장갑+모든 기술", armourBroken: "장갑 파괴!", fuelLane: "주유 차선: 그대로 통과!", fuelFull: "연료 가득!"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -2202,7 +2212,7 @@ window.I18N = (() => {
       shName0: "शाहेद", shName1: "रेगिस्तानी शाहेद", shName2: "काला शाहेद", shName3: "रात का शाहेद", shName4: "शिकारी शाहेद", shName5: "बख़्तरबंद शाहेद", shName6: "जेट शाहेद", shName7: "वाहक शाहेद", shName8: "मदरशिप",
       lmTitle: "लैंडमार्क", metTitle: "शाहेद",
       lmWhere: "हर इलाक़े के लेवल 2 पर दिखते हैं, सामान्य रन और डेली में।",
-      shTip1: "साथ-साथ दो लेन पर बम", shTip2: "दो लेन पर बम: तीसरी लेन में जाओ", shTip3: "छिप जाता है! दिखे तभी मारो", shTip4: "तुम्हारी लेन का पीछा: चलते रहो", shTip5: "🛡️ पहले कवच तोड़ो, फिर जान", shTip6: "तेज़: रुकते ही मारो", shTip7: "छोटे शाहेद छोड़ता है: मारो या बचो", shTip8: "🛡️ कवच वाला, हर चाल के साथ", armourBroken: "कवच टूटा!", fuelLane: "ईंधन लेन: बस इसमें से गुज़रो!", fuelFull: "टंकी फुल!"
+      shTip1: "एक साथ 2 लेन", shTip2: "खाली लेन ढूँढो", shTip3: "दिखे तो मारो", shTip4: "चलते रहो", shTip5: "🛡️ पहले कवच", shTip6: "रुके तो मारो", shTip7: "छोटों को मारो", shTip8: "🛡️ कवच + हर चाल", armourBroken: "कवच टूटा!", fuelLane: "ईंधन लेन: बस इसमें से गुज़रो!", fuelFull: "टंकी फुल!"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -2310,7 +2320,7 @@ window.I18N = (() => {
       shName0: "Шахед", shName1: "Пустельний шахед", shName2: "Чорний шахед", shName3: "Нічний шахед", shName4: "Шахед-мисливець", shName5: "Броньований шахед", shName6: "Реактивний шахед", shName7: "Шахед-носій", shName8: "Корабель-матка",
       lmTitle: "Пам'ятки", metTitle: "Шахеди",
       lmWhere: "Трапляються на 2-му рівні кожної зони у звичайних і щоденних заїздах.",
-      shTip1: "Бомбить дві сусідні смуги", shTip2: "Бомбить дві смуги: на третю!", shTip3: "Маскується! Стріляй, поки видно", shTip4: "Полює на твою смугу: рухайся", shTip5: "🛡️ Спершу броня, потім здоров'я", shTip6: "Швидкий: стріляй, коли зупиниться", shTip7: "Випускає малі шахеди: збивай або ухиляйся", shTip8: "🛡️ Броня і всі прийоми", armourBroken: "БРОНЮ ЗБИТО!", fuelLane: "Смуга пального: проїжджай нею!", fuelFull: "Повний бак!"
+      shTip1: "Одразу 2 смуги", shTip2: "Шукай вільну смугу", shTip3: "Стріляй, коли видно", shTip4: "Не зупиняйся", shTip5: "🛡️ Спершу броня", shTip6: "Стріляй, коли зупиниться", shTip7: "Збивай малих", shTip8: "🛡️ Броня + усе", armourBroken: "БРОНЮ ЗБИТО!", fuelLane: "Смуга пального: проїжджай нею!", fuelFull: "Повний бак!"
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -2416,7 +2426,7 @@ window.I18N = (() => {
       shName0: "შაჰედი", shName1: "უდაბნოს შაჰედი", shName2: "შავი შაჰედი", shName3: "ღამის შაჰედი", shName4: "მონადირე შაჰედი", shName5: "ჯავშნიანი შაჰედი", shName6: "რეაქტიული შაჰედი", shName7: "მზიდი შაჰედი", shName8: "დედა-ხომალდი",
       lmTitle: "ადგილები", metTitle: "შაჰედები",
       lmWhere: "ჩანს ყოველი ზონის მე-2 დონეზე, ჩვეულებრივ და ყოველდღიურ რბოლებში.",
-      shTip1: "ბომბავს ორ გვერდიგვერდ ზოლს", shTip2: "ბომბავს ორ ზოლს: გადადი მესამეზე", shTip3: "იმალება! ესროლე, როცა ჩანს", shTip4: "შენს ზოლს ნადირობს: იმოძრავე", shTip5: "🛡️ ჯერ ჯავშანი, მერე სიცოცხლე", shTip6: "სწრაფია: ესროლე, როცა გაჩერდება", shTip7: "უშვებს პატარა შაჰედებს: ჩამოაგდე ან აარიდე", shTip8: "🛡️ ჯავშნიანი, ყველა ხრიკით", armourBroken: "ჯავშანი გატეხილია!", fuelLane: "საწვავის ზოლი: გაიარე მასში!", fuelFull: "ავზი სავსეა!"
+      shTip1: "2 ზოლი ერთად", shTip2: "იპოვე თავისუფალი ზოლი", shTip3: "ესროლე, როცა ჩანს", shTip4: "იმოძრავე", shTip5: "🛡️ ჯერ ჯავშანი", shTip6: "ესროლე, როცა გაჩერდება", shTip7: "ჩამოაგდე პატარები", shTip8: "🛡️ ჯავშანი + ყველაფერი", armourBroken: "ჯავშანი გატეხილია!", fuelLane: "საწვავის ზოლი: გაიარე მასში!", fuelFull: "ავზი სავსეა!"
     }
   };
   const NAMES = {
@@ -3754,13 +3764,13 @@ window.LD_RULES = (() => {
   const autoChip = $('autoChip'), autoPct = $('autoPct');
   function fitFire() {}   // FIRE is just the rocket now: nothing to fit (kept for the callers)
   const eggBar = $('eggBar'), rocketBtn = $('rocketBtn'), rocketN = $('rocketN'), eggNext = $('eggNext');
-  const eggPips = [...$('eggCoins').children];
+  const eggPips = [...$('eggCoins').children], hudRk = $('hudRk'), hudRkN = $('hudRkN'), hudPips = [...hudRk.querySelectorAll('i')];
   // Bottom launch bar: rockets ready, coins towards the next one, and an alert while a Shahed is incoming.
   let shownPower = 0;
   function paintEggBar() {
     const P = rocketPower();
     if (P !== shownPower) {                               // stronger rockets: a coloured ring on the button, and a pop when it changes
-      for (const n of [rocketBtn, $('stick')]) {
+      for (const n of [rocketBtn, $('stick'), $('hudRk')]) {
         n.classList.remove('pw1', 'pw2', 'pw3', 'pwUp'); if (P) { n.classList.add('pw' + P); if (P > shownPower) { void n.offsetWidth; n.classList.add('pwUp'); } }
       }
       shownPower = P;
@@ -3779,6 +3789,9 @@ window.LD_RULES = (() => {
     const soon = () => { const b = barrierAhead(); return b && b.y + b.h > player.y - speed * 1.3; };   // a barrier about to block your lane
     rocketBtn.classList.toggle('ready', (n > 0 || free) && state === 'play' && (boss ? !bossHidden() && Math.abs(boss.x - player.x) < laneW * 0.5 : (!!target() || !!soon())));
     eggPips.forEach((p, i) => p.classList.toggle('on', i < part));
+    set(hudRkN, (free ? '∞' : String(n)) + (P ? '★'.repeat(P) : ''));                 // the same, up top
+    hudRk.classList.toggle('ready', n > 0 || free);
+    hudPips.forEach((p, i) => p.classList.toggle('on', i < part));
     eggBar.classList.toggle('alert', incoming);
     // The dots already show progress to the next rocket and the FIRE badge shows how many
     // are ready, so the text is only for the Shahed alert, or MAX when no more can be banked.
