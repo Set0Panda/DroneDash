@@ -232,9 +232,11 @@
   #rocketBtn.ready { animation: rocketPulse .45s ease-in-out infinite alternate; }
   /* rocket power ★ / ★★ / ★★★: the button (or the knob) gets a ring in that power's flame colour */
   .pw1 { --pw: #ff9a3c; } .pw2 { --pw: #5fd8ff; } .pw3 { --pw: #c77dff; }
-  #rocketBtn::after, .stickKnob::after { content: ''; position: absolute; inset: -5px; border-radius: 18px; pointer-events: none; display: none;
-    border: 3px solid var(--pw); box-shadow: 0 0 14px var(--pw), inset 0 0 10px var(--pw); }
-  .stickKnob::after { border-radius: 50%; }
+  /* the ring sits on the button's own edge (never off the screen), under the count badge */
+  #rocketBtn::after, .stickKnob::after { content: ''; position: absolute; inset: 0; border-radius: 14px; pointer-events: none; display: none; z-index: 1;
+    border: 3px solid var(--pw); box-shadow: 0 0 12px var(--pw), inset 0 0 10px var(--pw); }
+  .stickKnob::after { inset: -4px; border-radius: 50%; }
+  #rocketBtn b { z-index: 2; }
   #rocketBtn[class*=pw]::after, .stick[class*=pw] .stickKnob::after { display: block; }
   #rocketBtn[class*=pw] .rk, .stick[class*=pw] .stickKnob > span { filter: drop-shadow(0 0 5px var(--pw)) drop-shadow(0 0 2px var(--pw)); }
   #rocketBtn[class*=pw] .rk { font-size: 38px; }
