@@ -657,6 +657,18 @@
   .msNext { font-size: 11px; color: var(--muted); text-align: center; margin-top: 1px; }
   .pauseCard .missions, .overCard .missions { width: 100%; max-width: 300px; margin: 0 auto; }
   /* mid-run: a pill that drops in under the HUD */
+  /* passing a landmark: a postcard slides in under the HUD */
+  .lmPop { position: absolute; left: 50%; top: calc(122px + env(safe-area-inset-top, 0px)); z-index: 5; transform: translateX(-50%);
+           display: flex; align-items: center; gap: 10px; padding: 6px 16px 6px 8px; border-radius: 16px; max-width: calc(100% - 32px);
+           background: linear-gradient(135deg, rgba(20,34,74,.94), rgba(10,14,32,.94)); box-shadow: 0 0 0 2px var(--ua-yellow), 0 8px 24px rgba(0,0,0,.5); pointer-events: none; }
+  .lmPop[hidden] { display: none; }
+  .lmPop.show { animation: lmPop 3.4s ease both; }
+  @keyframes lmPop { 0% { opacity: 0; transform: translate(-50%, -18px) scale(.9); } 8%, 88% { opacity: 1; transform: translate(-50%, 0) scale(1); } 100% { opacity: 0; transform: translate(-50%, -10px) scale(.97); } }
+  .lmPopArt canvas { width: 62px; height: 60px; display: block; }
+  .lmPopTx { display: grid; gap: 1px; text-align: left; min-width: 0; }
+  .lmPopTx small { font-size: 12px; font-weight: 800; color: var(--ua-yellow); text-transform: uppercase; letter-spacing: .5px; }
+  .lmPopTx b { font-size: 17px; line-height: 1.15; color: #fff; }
+  @media (prefers-reduced-motion: reduce) { .lmPop.show { animation-duration: .01s; animation-delay: 3s; } }
   .msToast { position: absolute; left: 50%; top: calc(96px + env(safe-area-inset-top, 0px)); z-index: 5; transform: translateX(-50%);
              max-width: min(92%, 340px); padding: 8px 14px; border-radius: 14px; font-size: 14px; font-weight: 800; text-align: center;
              color: #0f1220; background: #7ee2a8; box-shadow: 0 6px 20px rgba(0,0,0,.45); pointer-events: none; }
@@ -791,6 +803,9 @@
   .lmCard b { font-size: 13px; line-height: 1.2; }
   .lmCard small { font-size: 11.5px; color: var(--muted); line-height: 1.2; }
   .lmCard.off b { color: var(--muted); }
+  .lmCard.canShare { position: relative; cursor: pointer; }
+  .lmCard.canShare::after { content: '📤'; position: absolute; top: 5px; right: 6px; font-size: 13px; opacity: .75; }
+  .lmShare { margin: 0; padding: 8px 12px; font-size: 14px; font-weight: 800; }
   /* Raid tab: the nine big Shaheds, three to a row */
   .shGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
   .shGrid .lmCard { padding: 4px 3px 6px; }
@@ -956,6 +971,7 @@
   <div id="count"></div>
   <div id="banner"></div>
   <div id="msToast" class="msToast" hidden></div>
+  <div id="lmPop" class="lmPop" hidden><span id="lmPopArt" class="lmPopArt"></span><span class="lmPopTx"><small id="lmPopTag"></small><b id="lmPopName"></b></span></div>
 
   <div id="home" class="overlay">
     <div id="homeStack" class="homeStack">
@@ -1067,7 +1083,7 @@
         <button id="resumeBtn"><span aria-hidden="true">▶</span> <span data-i18n="resume">Resume</span></button>
         <button id="pauseHelp" class="secondary" data-i18n="howToPlay">How to Play</button>
         <!-- Settings drop-down: sound, auto-fire and which side FIRE sits on -->
-        <button id="setBtn" class="secondary setBtn" type="button" aria-expanded="false" aria-controls="setPanel"><span aria-hidden="true">⚙️</span> <span data-i18n="settings">Settings</span> <i class="caret" aria-hidden="true">▾</i></button>
+        <button id="setBtn" class="secondary setBtn" type="button"><span aria-hidden="true">⚙️</span> <span data-i18n="settings">Settings</span></button>
         <div id="setPanel" class="setPanel" hidden>
           <button id="soundBtn" class="secondary autoFireBtn" type="button" aria-pressed="true"></button>
           <button id="autoFireBtn" class="secondary autoFireBtn" type="button" aria-pressed="false"></button>
@@ -1094,7 +1110,7 @@
         <li><span class="ico autoIco">⛽</span><span data-i18n="rule2" data-rich><b>Fuel</b> drains · <b>every coin</b> = more ⛽</span></li>
         <li><span class="ico"><span class="ico block"></span></span><span data-i18n="rule4" data-rich><b>3 crashes</b> = out · <b>10 coins</b> = a <b>♥</b> (fixes the car)</span></li>
         <li><span class="ico"><span class="ico hole"></span></span><span data-i18n="rule5" data-rich><b>Potholes</b> = −5% fuel</span></li>
-        <li><span class="ico autoIco">🚀</span><span data-i18n="rule6" data-rich><b>FIRE</b>: 3 coins at a <b>Shahed</b> or barrier · 1 coin straight ahead</span></li>
+        <li><span class="ico autoIco">🚀</span><span data-i18n="rule6" data-rich><b>3 coins = 1 rocket</b> · it aims itself</span></li>
         <li><span class="ico autoIco">🛸</span><span data-i18n="ruleBoss" data-rich><b>Area end</b> = 🛸 Shahed · get under it and <b>FIRE</b> · each win = 🚀★</span></li>
         <li><span class="ico"><i class="comboIco">×2</i></span><span data-i18n="ruleCombo" data-rich><b>Combo</b>: coins, near misses and drones fill it · <b>max = OVERDRIVE</b></span></li>
         <li><span class="ico autoIco">🤖</span><span data-i18n="ruleAuto" data-rich><b>Auto-fire</b>: aims for you, better with a combo</span></li>
@@ -1142,6 +1158,7 @@
       <div id="learnTip" class="learnTip" hidden><span data-i18n="learnTip">Finding it tough? Try Learner: a slower road.</span>
         <button id="learnBtn" type="button" class="secondary"><span aria-hidden="true">🟢</span> <span data-i18n="learnBtn">Try Learner</span></button></div>
       <div id="overMissions" class="missions" hidden></div>
+      <button id="lmShareBtn" class="ghost lmShare" type="button" hidden></button>
       <div class="overBtns">
         <button id="retryBtn" data-i18n="retry">Retry</button>
         <button id="shareBtn" class="secondary" type="button"><span class="btnIco" aria-hidden="true">📤</span><span data-i18n="share">Share</span></button>
@@ -1171,7 +1188,7 @@ window.I18N = (() => {
       rule2: "**Fuel** drains · **every coin** = more ⛽",
       rule4: "**3 crashes** = out · **10 coins** = a **♥** (fixes the car)",
       rule5: "**Potholes** = −5% fuel",
-      rule6: "**FIRE**: 3 coins at a **Shahed** or barrier · 1 coin straight ahead",
+      rule6: "**3 coins = 1 rocket** · it aims itself",
       ruleCombo: "**Combo**: coins, near misses and drones fill it · **max = OVERDRIVE**",
       ruleAuto: "**Auto-fire**: aims for you, better with a combo",
       keys: "Keyboard: ← → or A / D · Space fire · P pause · M mute", gotIt: 'Got it!',
@@ -1264,7 +1281,8 @@ window.I18N = (() => {
       shName0: "Scout Shahed", shName1: "Desert Shahed", shName2: "Black Shahed", shName3: "Night Shahed", shName4: "Hunter Shahed", shName5: "Armoured Shahed", shName6: "Jet Shahed", shName7: "Carrier Shahed", shName8: "Mothership",
       lmTitle: "Landmarks", metTitle: "Shaheds",
       lmWhere: "Seen on level 2 of each area, in normal runs and dailies.",
-      shTip0: "Get under it and fire", shTip1: "2 lanes at once", shTip2: "Find the open lane", shTip3: "Shoot when it shows", shTip4: "Keep moving", shTip5: "🛡️ Armour first", shTip6: "Shoot as it stops", shTip7: "Shoot the small ones", shTip8: "🛡️ Armour + every trick", armourBroken: "ARMOUR DOWN!", fuelLane: "Fuel lane: drive through it!", fuelFull: "Full tank!"
+      shTip0: "Get under it and fire", shTip1: "2 lanes at once", shTip2: "Find the open lane", shTip3: "Shoot when it shows", shTip4: "Keep moving", shTip5: "🛡️ Armour first", shTip6: "Shoot as it stops", shTip7: "Shoot the small ones", shTip8: "🛡️ Armour + every trick", armourBroken: "ARMOUR DOWN!", fuelLane: "Fuel lane: drive through it!", fuelFull: "Full tank!",
+      lmShare: "📍 I passed {name} in Drone Dash ({area} · level {n}). Can you find it too?"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -1277,7 +1295,7 @@ window.I18N = (() => {
       rule2: "**Combustible** se gasta · **cada moneda** = más ⛽",
       rule4: "**3 choques** = fuera · **10 monedas** = un **♥** (repara el coche)",
       rule5: "**Baches** = −5% combustible",
-      rule6: "**DISPARAR**: 3 monedas a un **Shahed** o barrera · 1 moneda hacia delante",
+      rule6: "**3 monedas = 1 cohete** · apunta solo",
       ruleCombo: "**Combo**: monedas, roces y drones lo llenan · **al máximo = OVERDRIVE**",
       ruleAuto: "**Disparo automático**: apunta por ti, mejor con combo",
       keys: "Teclado: ← → o A / D · Espacio dispara · P pausa · M silencio", gotIt: '¡Entendido!',
@@ -1370,7 +1388,8 @@ window.I18N = (() => {
       shName0: "Shahed explorador", shName1: "Shahed del desierto", shName2: "Shahed negro", shName3: "Shahed nocturno", shName4: "Shahed cazador", shName5: "Shahed blindado", shName6: "Shahed a reacción", shName7: "Shahed portador", shName8: "Nave nodriza",
       lmTitle: "Lugares", metTitle: "Shaheds",
       lmWhere: "Aparecen en el nivel 2 de cada zona, en partidas normales y diarias.",
-      shTip0: "Ponte debajo y dispara", shTip1: "2 carriles a la vez", shTip2: "Busca el carril libre", shTip3: "Dispara cuando aparezca", shTip4: "No pares", shTip5: "🛡️ Primero el blindaje", shTip6: "Dispara cuando pare", shTip7: "Derriba los pequeños", shTip8: "🛡️ Blindaje + todo", armourBroken: "¡SIN BLINDAJE!", fuelLane: "Carril de combustible: ¡pásalo!", fuelFull: "¡Depósito lleno!"
+      shTip0: "Ponte debajo y dispara", shTip1: "2 carriles a la vez", shTip2: "Busca el carril libre", shTip3: "Dispara cuando aparezca", shTip4: "No pares", shTip5: "🛡️ Primero el blindaje", shTip6: "Dispara cuando pare", shTip7: "Derriba los pequeños", shTip8: "🛡️ Blindaje + todo", armourBroken: "¡SIN BLINDAJE!", fuelLane: "Carril de combustible: ¡pásalo!", fuelFull: "¡Depósito lleno!",
+      lmShare: "📍 Pasé por {name} en Drone Dash ({area} · nivel {n}). ¿Puedes encontrarlo tú también?"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -1383,7 +1402,7 @@ window.I18N = (() => {
       rule2: `**L'essence** baisse · **chaque pièce** = plus de ⛽`,
       rule4: "**3 accidents** = fini · **10 pièces** = un **♥** (répare la voiture)",
       rule5: `**Nids-de-poule** = −5${NB}% d'essence`,
-      rule6: "**FEU** : 3 pièces sur un **Shahed** ou une barrière · 1 pièce tout droit",
+      rule6: "**3 pièces = 1 roquette** · elle vise seule",
       ruleCombo: "**Combo** : pièces, frôlements et drones le remplissent · **au max = OVERDRIVE**",
       ruleAuto: "**Tir auto** : vise pour toi, mieux avec un combo",
       keys: `Clavier${NB}: ← → ou A / D · Espace tir · P pause · M son`, gotIt: `C'est parti${NB}!`,
@@ -1476,7 +1495,8 @@ window.I18N = (() => {
       shName0: "Shahed éclaireur", shName1: "Shahed du désert", shName2: "Shahed noir", shName3: "Shahed de nuit", shName4: "Shahed chasseur", shName5: "Shahed blindé", shName6: "Shahed à réaction", shName7: "Shahed porteur", shName8: "Vaisseau-mère",
       lmTitle: "Lieux", metTitle: "Shaheds",
       lmWhere: "Visibles au niveau 2 de chaque zone, en partie normale et quotidienne.",
-      shTip0: "Place-toi dessous et tire", shTip1: "2 voies à la fois", shTip2: "Trouve la voie libre", shTip3: "Tire quand il apparaît", shTip4: "Bouge sans cesse", shTip5: "🛡️ Le blindage d'abord", shTip6: "Tire quand il s'arrête", shTip7: "Abats les petits", shTip8: "🛡️ Blindage + tout", armourBroken: "BLINDAGE DÉTRUIT !", fuelLane: "Voie carburant : roule dessus !", fuelFull: "Plein fait !"
+      shTip0: "Place-toi dessous et tire", shTip1: "2 voies à la fois", shTip2: "Trouve la voie libre", shTip3: "Tire quand il apparaît", shTip4: "Bouge sans cesse", shTip5: "🛡️ Le blindage d'abord", shTip6: "Tire quand il s'arrête", shTip7: "Abats les petits", shTip8: "🛡️ Blindage + tout", armourBroken: "BLINDAGE DÉTRUIT !", fuelLane: "Voie carburant : roule dessus !", fuelFull: "Plein fait !",
+      lmShare: "📍 J'ai croisé {name} dans Drone Dash ({area} · niveau {n}). Tu peux le trouver aussi ?"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -1489,7 +1509,7 @@ window.I18N = (() => {
       rule2: "**Sprit** sinkt · **jede Münze** = mehr ⛽",
       rule4: "**3 Unfälle** = raus · **10 Münzen** = ein **♥** (repariert das Auto)",
       rule5: "**Schlaglöcher** = −5 % Sprit",
-      rule6: "**FEUER**: 3 Münzen auf **Shahed** oder Barriere · 1 Münze geradeaus",
+      rule6: "**3 Münzen = 1 Rakete** · sie zielt selbst",
       ruleCombo: "**Combo**: Münzen, knappe Manöver und Drohnen füllen ihn · **voll = OVERDRIVE**",
       ruleAuto: "**Auto-Feuer**: zielt für dich, besser mit Combo",
       keys: "Tastatur: ← → oder A / D · Leertaste Feuer · P Pause · M Ton aus", gotIt: 'Verstanden!',
@@ -1582,7 +1602,8 @@ window.I18N = (() => {
       shName0: "Späher-Shahed", shName1: "Wüsten-Shahed", shName2: "Schwarzer Shahed", shName3: "Nacht-Shahed", shName4: "Jäger-Shahed", shName5: "Panzer-Shahed", shName6: "Jet-Shahed", shName7: "Träger-Shahed", shName8: "Mutterschiff",
       lmTitle: "Wahrzeichen", metTitle: "Shaheds",
       lmWhere: "Zu sehen in Level 2 jedes Gebiets, in normalen und täglichen Fahrten.",
-      shTip0: "Drunter und feuern", shTip1: "2 Spuren zugleich", shTip2: "Such die freie Spur", shTip3: "Schieß, wenn er auftaucht", shTip4: "Bleib in Bewegung", shTip5: "🛡️ Erst die Panzerung", shTip6: "Schieß, wenn er hält", shTip7: "Schieß die Kleinen ab", shTip8: "🛡️ Panzer + alles", armourBroken: "PANZERUNG WEG!", fuelLane: "Tankspur: einfach durchfahren!", fuelFull: "Tank voll!"
+      shTip0: "Drunter und feuern", shTip1: "2 Spuren zugleich", shTip2: "Such die freie Spur", shTip3: "Schieß, wenn er auftaucht", shTip4: "Bleib in Bewegung", shTip5: "🛡️ Erst die Panzerung", shTip6: "Schieß, wenn er hält", shTip7: "Schieß die Kleinen ab", shTip8: "🛡️ Panzer + alles", armourBroken: "PANZERUNG WEG!", fuelLane: "Tankspur: einfach durchfahren!", fuelFull: "Tank voll!",
+      lmShare: "📍 Ich bin in Drone Dash an {name} vorbeigefahren ({area} · Level {n}). Findest du es auch?"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -1595,7 +1616,7 @@ window.I18N = (() => {
       rule2: "**Combustível** acaba · **cada moeda** = mais ⛽",
       rule4: "**3 batidas** = fim · **10 moedas** = um **♥** (conserta o carro)",
       rule5: "**Buracos** = −5% combustível",
-      rule6: "**DISPARAR**: 3 moedas num **Shahed** ou barreira · 1 moeda em frente",
+      rule6: "**3 moedas = 1 foguete** · ele mira sozinho",
       ruleCombo: "**Combo**: moedas, quase-batidas e drones enchem · **no máximo = OVERDRIVE**",
       ruleAuto: "**Disparo automático**: mira por você, melhor com combo",
       keys: "Teclado: ← → ou A / D · Espaço dispara · P pausa · M som", gotIt: 'Entendi!',
@@ -1688,7 +1709,8 @@ window.I18N = (() => {
       shName0: "Shahed batedor", shName1: "Shahed do deserto", shName2: "Shahed preto", shName3: "Shahed noturno", shName4: "Shahed caçador", shName5: "Shahed blindado", shName6: "Shahed a jato", shName7: "Shahed porta-drones", shName8: "Nave-mãe",
       lmTitle: "Pontos", metTitle: "Shaheds",
       lmWhere: "Aparecem no nível 2 de cada área, em partidas normais e diárias.",
-      shTip0: "Fique embaixo e atire", shTip1: "2 faixas de uma vez", shTip2: "Ache a faixa livre", shTip3: "Atire quando aparecer", shTip4: "Não pare", shTip5: "🛡️ Blindagem primeiro", shTip6: "Atire quando parar", shTip7: "Derrube os pequenos", shTip8: "🛡️ Blindagem + tudo", armourBroken: "BLINDAGEM QUEBRADA!", fuelLane: "Faixa de combustível: passe por ela!", fuelFull: "Tanque cheio!"
+      shTip0: "Fique embaixo e atire", shTip1: "2 faixas de uma vez", shTip2: "Ache a faixa livre", shTip3: "Atire quando aparecer", shTip4: "Não pare", shTip5: "🛡️ Blindagem primeiro", shTip6: "Atire quando parar", shTip7: "Derrube os pequenos", shTip8: "🛡️ Blindagem + tudo", armourBroken: "BLINDAGEM QUEBRADA!", fuelLane: "Faixa de combustível: passe por ela!", fuelFull: "Tanque cheio!",
+      lmShare: "📍 Passei por {name} no Drone Dash ({area} · nível {n}). Consegue encontrar também?"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -1701,7 +1723,7 @@ window.I18N = (() => {
       rule2: "**Carburante** cala · **ogni moneta** = più ⛽",
       rule4: "**3 incidenti** = fuori · **10 monete** = un **♥** (ripara l'auto)",
       rule5: "**Buche** = −5% carburante",
-      rule6: "**FUOCO**: 3 monete su **Shahed** o barriera · 1 moneta dritto",
+      rule6: "**3 monete = 1 razzo** · mira da solo",
       ruleCombo: "**Combo**: monete, sorpassi al pelo e droni lo riempiono · **al massimo = OVERDRIVE**",
       ruleAuto: "**Fuoco automatico**: mira per te, meglio con una combo",
       keys: "Tastiera: ← → o A / D · Spazio fuoco · P pausa · M audio", gotIt: 'Ho capito!',
@@ -1794,7 +1816,8 @@ window.I18N = (() => {
       shName0: "Shahed esploratore", shName1: "Shahed del deserto", shName2: "Shahed nero", shName3: "Shahed notturno", shName4: "Shahed cacciatore", shName5: "Shahed corazzato", shName6: "Shahed a reazione", shName7: "Shahed portadroni", shName8: "Nave madre",
       lmTitle: "Luoghi", metTitle: "Shahed",
       lmWhere: "Si vedono al livello 2 di ogni zona, nelle corse normali e giornaliere.",
-      shTip0: "Mettiti sotto e spara", shTip1: "2 corsie insieme", shTip2: "Trova la corsia libera", shTip3: "Spara quando appare", shTip4: "Muoviti sempre", shTip5: "🛡️ Prima la corazza", shTip6: "Spara quando si ferma", shTip7: "Abbatti i piccoli", shTip8: "🛡️ Corazza + tutto", armourBroken: "CORAZZA DISTRUTTA!", fuelLane: "Corsia carburante: passaci sopra!", fuelFull: "Pieno fatto!"
+      shTip0: "Mettiti sotto e spara", shTip1: "2 corsie insieme", shTip2: "Trova la corsia libera", shTip3: "Spara quando appare", shTip4: "Muoviti sempre", shTip5: "🛡️ Prima la corazza", shTip6: "Spara quando si ferma", shTip7: "Abbatti i piccoli", shTip8: "🛡️ Corazza + tutto", armourBroken: "CORAZZA DISTRUTTA!", fuelLane: "Corsia carburante: passaci sopra!", fuelFull: "Pieno fatto!",
+      lmShare: "📍 Ho superato {name} in Drone Dash ({area} · livello {n}). Riesci a trovarlo anche tu?"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -1807,7 +1830,7 @@ window.I18N = (() => {
       rule2: "**燃料**は減る・**コイン1枚ごと**に⛽回復",
       rule4: "**3回クラッシュ**で終了・**コイン10枚**で**♥**（車も修理）",
       rule5: "**穴ぼこ**は燃料−5%",
-      rule6: "**発射**：**シャヘド**やバリアにコイン3枚 · まっすぐならコイン1枚",
+      rule6: "**コイン3枚 = ロケット1発** · 自動で狙う",
       ruleCombo: "**コンボ**：コイン・ギリギリ回避・ドローン撃墜でたまる · **満タンでOVERDRIVE**",
       ruleAuto: "**自動発射**：自動で狙う。コンボ中は命中率アップ",
       keys: "キーボード：← → または A / D・スペースで発射・P で一時停止・M でミュート", gotIt: 'OK！',
@@ -1900,7 +1923,8 @@ window.I18N = (() => {
       shName0: "偵察シャヘド", shName1: "砂漠のシャヘド", shName2: "黒いシャヘド", shName3: "夜のシャヘド", shName4: "ハンターシャヘド", shName5: "装甲シャヘド", shName6: "ジェットシャヘド", shName7: "キャリアシャヘド", shName8: "母艦",
       lmTitle: "名所", metTitle: "シャヘド",
       lmWhere: "各エリアのレベル2に登場（通常ランとデイリー）。",
-      shTip0: "真下に入って撃て", shTip1: "2車線同時", shTip2: "空いた車線へ", shTip3: "見えたら撃て", shTip4: "動き続けろ", shTip5: "🛡️ まず装甲", shTip6: "止まったら撃て", shTip7: "小型を撃て", shTip8: "🛡️ 装甲＋全技", armourBroken: "装甲破壊！", fuelLane: "給油レーン：走り抜けろ！", fuelFull: "満タン！"
+      shTip0: "真下に入って撃て", shTip1: "2車線同時", shTip2: "空いた車線へ", shTip3: "見えたら撃て", shTip4: "動き続けろ", shTip5: "🛡️ まず装甲", shTip6: "止まったら撃て", shTip7: "小型を撃て", shTip8: "🛡️ 装甲＋全技", armourBroken: "装甲破壊！", fuelLane: "給油レーン：走り抜けろ！", fuelFull: "満タン！",
+      lmShare: "📍 Drone Dashで{name}を通過！（{area}・レベル{n}）君も見つけられる？"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -1913,7 +1937,7 @@ window.I18N = (() => {
       rule2: "**燃油**会减少 · **每枚金币** = 更多 ⛽",
       rule4: "**撞3次**出局 · **10 枚金币** = 一颗 **♥**（修好赛车）",
       rule5: "**坑洞**扣 5% 燃油",
-      rule6: "**发射**：打**沙赫德**或路障 3 枚金币 · 直射 1 枚金币",
+      rule6: "**3 枚金币 = 1 枚火箭** · 自动瞄准",
       ruleCombo: "**连击**：金币、擦身而过和击落无人机都能攒 · **满了 = OVERDRIVE**",
       ruleAuto: "**自动射击**：替你瞄准，连击越高越准",
       keys: "键盘：← → 或 A / D · 空格 发射 · P 暂停 · M 静音", gotIt: '知道了！',
@@ -2006,7 +2030,8 @@ window.I18N = (() => {
       shName0: "侦察沙赫德", shName1: "沙漠沙赫德", shName2: "黑色沙赫德", shName3: "夜袭沙赫德", shName4: "猎手沙赫德", shName5: "装甲沙赫德", shName6: "喷气沙赫德", shName7: "运载沙赫德", shName8: "母舰",
       lmTitle: "地标", metTitle: "沙赫德",
       lmWhere: "在每个区域的第2关出现（普通跑和每日挑战）。",
-      shTip0: "到它下方开火", shTip1: "同时炸两条车道", shTip2: "找空车道", shTip3: "现身就射", shTip4: "保持移动", shTip5: "🛡️ 先破装甲", shTip6: "停下就射", shTip7: "击落小的", shTip8: "🛡️ 装甲+全招", armourBroken: "装甲已破！", fuelLane: "加油车道：直接开过去！", fuelFull: "油箱已满！"
+      shTip0: "到它下方开火", shTip1: "同时炸两条车道", shTip2: "找空车道", shTip3: "现身就射", shTip4: "保持移动", shTip5: "🛡️ 先破装甲", shTip6: "停下就射", shTip7: "击落小的", shTip8: "🛡️ 装甲+全招", armourBroken: "装甲已破！", fuelLane: "加油车道：直接开过去！", fuelFull: "油箱已满！",
+      lmShare: "📍 我在 Drone Dash 里经过了{name}（{area} · 第 {n} 关）。你也能找到吗？"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -2019,7 +2044,7 @@ window.I18N = (() => {
       rule2: "**연료**는 줄어듦 · **코인마다** ⛽ 충전",
       rule4: "**3번 충돌**하면 끝 · **코인 10개** = **♥** 하나 (차 수리)",
       rule5: "**포트홀**은 연료 −5%",
-      rule6: "**발사**: **샤헤드**·바리케이드에 코인 3개 · 직진 발사는 코인 1개",
+      rule6: "**코인 3개 = 로켓 1발** · 자동 조준",
       ruleCombo: "**콤보**: 코인, 아슬아슬 회피, 드론 격추로 채워짐 · **가득 = OVERDRIVE**",
       ruleAuto: "**자동 발사**: 대신 조준, 콤보가 높을수록 정확",
       keys: "키보드: ← → 또는 A / D · 스페이스 발사 · P 일시 정지 · M 음소거", gotIt: '알겠어요!',
@@ -2112,7 +2137,8 @@ window.I18N = (() => {
       shName0: "정찰 샤헤드", shName1: "사막 샤헤드", shName2: "검은 샤헤드", shName3: "야간 샤헤드", shName4: "헌터 샤헤드", shName5: "장갑 샤헤드", shName6: "제트 샤헤드", shName7: "캐리어 샤헤드", shName8: "모선",
       lmTitle: "명소", metTitle: "샤헤드",
       lmWhere: "각 지역의 레벨 2에서 등장 (일반 주행과 데일리).",
-      shTip0: "아래로 가서 쏴라", shTip1: "두 차선 동시", shTip2: "빈 차선으로", shTip3: "보이면 쏴라", shTip4: "계속 움직여라", shTip5: "🛡️ 장갑 먼저", shTip6: "멈추면 쏴라", shTip7: "작은 것부터", shTip8: "🛡️ 장갑+모든 기술", armourBroken: "장갑 파괴!", fuelLane: "주유 차선: 그대로 통과!", fuelFull: "연료 가득!"
+      shTip0: "아래로 가서 쏴라", shTip1: "두 차선 동시", shTip2: "빈 차선으로", shTip3: "보이면 쏴라", shTip4: "계속 움직여라", shTip5: "🛡️ 장갑 먼저", shTip6: "멈추면 쏴라", shTip7: "작은 것부터", shTip8: "🛡️ 장갑+모든 기술", armourBroken: "장갑 파괴!", fuelLane: "주유 차선: 그대로 통과!", fuelFull: "연료 가득!",
+      lmShare: "📍 Drone Dash에서 {name}을(를) 지나쳤어 ({area} · 레벨 {n}). 너도 찾을 수 있어?"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -2125,7 +2151,7 @@ window.I18N = (() => {
       rule2: "**ईंधन** घटता है · **हर सिक्का** = ज़्यादा ⛽",
       rule4: "**3 टक्कर** = बाहर · **10 सिक्के** = एक **♥** (कार ठीक करता है)",
       rule5: "**गड्ढे** = −5% ईंधन",
-      rule6: "**फ़ायर**: **शाहेद** या बैरियर पर 3 सिक्के · सीधा 1 सिक्का",
+      rule6: "**3 सिक्के = 1 रॉकेट** · ख़ुद निशाना लगाता है",
       ruleCombo: "**कॉम्बो**: सिक्के, बाल-बाल बचना और ड्रोन इसे भरते हैं · **पूरा = OVERDRIVE**",
       ruleAuto: "**ऑटो-फ़ायर**: आपके लिए निशाना, कॉम्बो से बेहतर",
       keys: "कीबोर्ड: ← → या A / D · स्पेस फ़ायर · P रोकें · M म्यूट", gotIt: 'समझ गया!',
@@ -2218,7 +2244,8 @@ window.I18N = (() => {
       shName0: "स्काउट शाहेद", shName1: "रेगिस्तानी शाहेद", shName2: "काला शाहेद", shName3: "रात का शाहेद", shName4: "शिकारी शाहेद", shName5: "बख़्तरबंद शाहेद", shName6: "जेट शाहेद", shName7: "वाहक शाहेद", shName8: "मदरशिप",
       lmTitle: "लैंडमार्क", metTitle: "शाहेद",
       lmWhere: "हर इलाक़े के लेवल 2 पर दिखते हैं, सामान्य रन और डेली में।",
-      shTip0: "नीचे जाओ और फ़ायर करो", shTip1: "एक साथ 2 लेन", shTip2: "खाली लेन ढूँढो", shTip3: "दिखे तो मारो", shTip4: "चलते रहो", shTip5: "🛡️ पहले कवच", shTip6: "रुके तो मारो", shTip7: "छोटों को मारो", shTip8: "🛡️ कवच + हर चाल", armourBroken: "कवच टूटा!", fuelLane: "ईंधन लेन: बस इसमें से गुज़रो!", fuelFull: "टंकी फुल!"
+      shTip0: "नीचे जाओ और फ़ायर करो", shTip1: "एक साथ 2 लेन", shTip2: "खाली लेन ढूँढो", shTip3: "दिखे तो मारो", shTip4: "चलते रहो", shTip5: "🛡️ पहले कवच", shTip6: "रुके तो मारो", shTip7: "छोटों को मारो", shTip8: "🛡️ कवच + हर चाल", armourBroken: "कवच टूटा!", fuelLane: "ईंधन लेन: बस इसमें से गुज़रो!", fuelFull: "टंकी फुल!",
+      lmShare: "📍 मैंने Drone Dash में {name} पार किया ({area} · लेवल {n})। क्या तुम भी इसे ढूँढ सकते हो?"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -2231,7 +2258,7 @@ window.I18N = (() => {
       rule2: "**Пальне** витрачається · **кожна монета** = більше ⛽",
       rule4: "**3 аварії** — кінець · **10 монет** = **♥** (лагодить авто)",
       rule5: "**Ями** = −5% пального",
-      rule6: "**ПУСК**: 3 монети по **шахеду** чи бар'єру · 1 монета прямо",
+      rule6: "**3 монети = 1 ракета** · цілиться сама",
       ruleCombo: "**Комбо**: монети, проїзд на волосині й дрони заповнюють його · **максимум = OVERDRIVE**",
       ruleAuto: "**Автопуск**: цілиться за тебе, точніше з комбо",
       keys: "Клавіатура: ← → або A / D · Пробіл — пуск · P — пауза · M — звук", gotIt: 'Зрозуміло!',
@@ -2326,7 +2353,8 @@ window.I18N = (() => {
       shName0: "Шахед-розвідник", shName1: "Пустельний шахед", shName2: "Чорний шахед", shName3: "Нічний шахед", shName4: "Шахед-мисливець", shName5: "Броньований шахед", shName6: "Реактивний шахед", shName7: "Шахед-носій", shName8: "Корабель-матка",
       lmTitle: "Пам'ятки", metTitle: "Шахеди",
       lmWhere: "Трапляються на 2-му рівні кожної зони у звичайних і щоденних заїздах.",
-      shTip0: "Стань під нього і стріляй", shTip1: "Одразу 2 смуги", shTip2: "Шукай вільну смугу", shTip3: "Стріляй, коли видно", shTip4: "Не зупиняйся", shTip5: "🛡️ Спершу броня", shTip6: "Стріляй, коли зупиниться", shTip7: "Збивай малих", shTip8: "🛡️ Броня + усе", armourBroken: "БРОНЮ ЗБИТО!", fuelLane: "Смуга пального: проїжджай нею!", fuelFull: "Повний бак!"
+      shTip0: "Стань під нього і стріляй", shTip1: "Одразу 2 смуги", shTip2: "Шукай вільну смугу", shTip3: "Стріляй, коли видно", shTip4: "Не зупиняйся", shTip5: "🛡️ Спершу броня", shTip6: "Стріляй, коли зупиниться", shTip7: "Збивай малих", shTip8: "🛡️ Броня + усе", armourBroken: "БРОНЮ ЗБИТО!", fuelLane: "Смуга пального: проїжджай нею!", fuelFull: "Повний бак!",
+      lmShare: "📍 Я проїхав {name} у Drone Dash ({area} · рівень {n}). А ти знайдеш?"
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -2339,7 +2367,7 @@ window.I18N = (() => {
       rule2: "**საწვავი** იხარჯება · **ყოველი მონეტა** = მეტი ⛽",
       rule4: "**3 ავარია** = დასასრული · **10 მონეტა** = **♥** (მანქანას აკეთებს)",
       rule5: "**ორმოები** = −5% საწვავი",
-      rule6: "**გასროლა**: 3 მონეტა **შაჰედზე** ან ბარიერზე · 1 მონეტა პირდაპირ",
+      rule6: "**3 მონეტა = 1 რაკეტა** · თავად უმიზნებს",
       ruleCombo: "**კომბო**: მონეტები, ძლივს აცილება და დრონები ავსებს · **სავსე = OVERDRIVE**",
       ruleAuto: "**ავტოგასროლა**: შენ მაგივრად უმიზნებს, კომბოთი უკეთესად",
       keys: "კლავიატურა: ← → ან A / D · Space გასროლა · P პაუზა · M ხმა", gotIt: 'გასაგებია!',
@@ -2432,7 +2460,8 @@ window.I18N = (() => {
       shName0: "მზვერავი შაჰედი", shName1: "უდაბნოს შაჰედი", shName2: "შავი შაჰედი", shName3: "ღამის შაჰედი", shName4: "მონადირე შაჰედი", shName5: "ჯავშნიანი შაჰედი", shName6: "რეაქტიული შაჰედი", shName7: "მზიდი შაჰედი", shName8: "დედა-ხომალდი",
       lmTitle: "ადგილები", metTitle: "შაჰედები",
       lmWhere: "ჩანს ყოველი ზონის მე-2 დონეზე, ჩვეულებრივ და ყოველდღიურ რბოლებში.",
-      shTip0: "მის ქვეშ დადექი და ესროლე", shTip1: "2 ზოლი ერთად", shTip2: "იპოვე თავისუფალი ზოლი", shTip3: "ესროლე, როცა ჩანს", shTip4: "იმოძრავე", shTip5: "🛡️ ჯერ ჯავშანი", shTip6: "ესროლე, როცა გაჩერდება", shTip7: "ჩამოაგდე პატარები", shTip8: "🛡️ ჯავშანი + ყველაფერი", armourBroken: "ჯავშანი გატეხილია!", fuelLane: "საწვავის ზოლი: გაიარე მასში!", fuelFull: "ავზი სავსეა!"
+      shTip0: "მის ქვეშ დადექი და ესროლე", shTip1: "2 ზოლი ერთად", shTip2: "იპოვე თავისუფალი ზოლი", shTip3: "ესროლე, როცა ჩანს", shTip4: "იმოძრავე", shTip5: "🛡️ ჯერ ჯავშანი", shTip6: "ესროლე, როცა გაჩერდება", shTip7: "ჩამოაგდე პატარები", shTip8: "🛡️ ჯავშანი + ყველაფერი", armourBroken: "ჯავშანი გატეხილია!", fuelLane: "საწვავის ზოლი: გაიარე მასში!", fuelFull: "ავზი სავსეა!",
+      lmShare: "📍 Drone Dash-ში {name} გავიარე ({area} · დონე {n}). შენც იპოვი?"
     }
   };
   const NAMES = {
@@ -2640,8 +2669,11 @@ window.LD_RULES = (() => {
     // Difficulty curve per level
     // Quick-session pacing: fast from the first second, short levels, hazards early.
     levelLength:  L => 300 + 60 * (L - 1),                         // metres to next checkpoint
-    levelSpeed:   L => Math.min(320 + 55 * (L - 1), 860),          // px/s at level start: gentler start, same top speed by L11
-    fuelDrain:    L => Math.min(3.4 + 0.45 * (L - 1), 9.0),        // % per second (re-balanced with the slower start, simulated)
+    // Paced for human reactions: at top speed an obstacle is in view ~0.9 s on Career (580 units of road at 648 px/s),
+    // ~1.07 s on Learner, ~0.73 s on Expert. (It was 860 px/s: ~0.75 s on Career, fine for a bot, frantic for a thumb.)
+    levelSpeed:   L => Math.min(320 + 45 * (L - 1), 720),          // px/s at level start, top speed by L10
+    // % per second, scaled with the slower road so the fuel used per km (and per level) stays as it was
+    fuelDrain:    L => Math.min(3.4 + 0.45 * (L - 1), 9.0) * Math.min(320 + 45 * (L - 1), 720) / Math.min(320 + 55 * (L - 1), 860),
     doubleChance: L => Math.min(0.25 + 0.06 * (L - 1), 0.6),       // rows with 2 barriers
     rowPothole:   L => Math.min(0.2 + 0.08 * (L - 1), 0.6),        // pothole in a row's spare lane
     gapPothole:   L => L < 2 ? 0 : Math.min(0.15 + 0.07 * (L - 2), 0.55), // pothole between two rows
@@ -2787,7 +2819,8 @@ window.LD_RULES = (() => {
   let scroll = 0;              // total distance the road has scrolled, in px (places the scenery)
   // Landmarks: one famous sight per area, by the road on its second level. The first time you pass
   // each one it's added to your collection (Records shows how many you've seen).
-  let landmarks = [];
+  let landmarks = [], runLm = [];          // runLm: landmarks found for the first time this run (to share at the end)
+  const LM_BIG = 1.9;                       // how much bigger they stand by the road than on their Records cards
   // Fuel lanes: from level FUEL_LANE_FROM, once a level (less often with a full tank), one lane lights
   // up green for a couple of seconds of road. Driving along it fills the tank; nothing else spawns in it.
   const FUEL_LANE_FROM = 6, FUEL_LANE_RATE = 14, FUEL_LANE_SECS = 2.4;   // % a second while on it; ~+33% for the whole strip
@@ -2910,7 +2943,7 @@ window.LD_RULES = (() => {
   const DRONE = {
     // seconds between waves; past level 14 it keeps shrinking slowly, to 3.2 s at level 24
     gap:   L => (Math.max(L > 14 ? Math.max(3.2, 4.5 - 0.13 * (L - 14)) : 4.5, 13 - 0.9 * (L - 1)) + droneRand() * 4) * (twist.swarm ? 0.5 : 1),
-    extra: L => Math.min(120 + 15 * (L - 1), 260),                      // px/s faster than the road
+    extra: L => Math.min(100 + 12 * (L - 1), 200),                      // px/s faster than the road (eased with the road, for human reactions)
     size(L) {                                                            // drones per wave
       const r = droneRand();
       if (L >= 14 && r < 0.3) return 3;        // more 3-drone salvos past the plateau
@@ -2986,7 +3019,7 @@ window.LD_RULES = (() => {
   // Raid difficulty (Rookie / Veteran / Legend): hits each giant Shahed takes, and how spaced out its
   // drops and warnings are (bigger = more time).
   const RAID_HP = [1, 1.4, 1.75], RAID_BOMBS = [1.1, 0.85, 0.72];   // raid giant Shaheds: health, and time between bombs (lower = faster)
-  const RAID_OD_TIME = 3.5, FREE_RELOAD = 0.8;   // the raid's opening Overdrive (s); time between free rockets (s)
+  const RAID_OD_TIME = 3.5, FREE_RELOAD = 0.15, FREE_RELOAD_BOSS = 0.35;   // the raid's opening Overdrive (s); time between free rockets (s): spam away, a bit slower at a big Shahed
   let freeCool = 0;                        // combo for each rocket that hits its body
   const BOMB_FUEL = 6;                         // fuel lost to a direct hit from one of its bombs
   const BOMB_CHARGE = 0.7, BOMB_EXTRA = 140;   // warning before each drop (s); bombs then fly this much faster than the road
@@ -3130,6 +3163,19 @@ window.LD_RULES = (() => {
       src.connect(f).connect(g).connect(heavy || master);
       src.start(t); src.stop(t + dur + 0.05);
     }
+    // A whoosh: noise through a band that sweeps up to a peak and back down (a rocket leaving).
+    function sweep(dur, { vol = 0.2, from = 800, peak = 3500, to = 1200, delay = 0 } = {}) {
+      if (!ac) return;
+      const t = ac.currentTime + delay;
+      const src = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain();
+      src.buffer = noiseBuf; f.type = 'bandpass'; f.Q.value = 1.2;
+      f.frequency.setValueAtTime(from, t); f.frequency.exponentialRampToValueAtTime(peak, t + dur * 0.3);
+      f.frequency.exponentialRampToValueAtTime(to, t + dur);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      src.connect(f).connect(g).connect(master);
+      src.start(t); src.stop(t + dur + 0.02);
+    }
     function thump(freq, dur, vol, delay = 0) {                 // the low punch under a blast
       if (!ac) return;
       const t = ac.currentTime + delay, o = ac.createOscillator(), g = ac.createGain();
@@ -3164,6 +3210,17 @@ window.LD_RULES = (() => {
       outOfFuel() { for (let i = 0; i < 5; i++) { tone(95 - i * 10, 0.12, { type: 'sawtooth', vol: 0.16, delay: i * 0.18 }); noise(0.08, { vol: 0.12, from: 900, to: 200, delay: i * 0.18 }); } },
       gameOver()  { arp([392, 330, 262, 196], 0.16, { type: 'triangle', vol: 0.18, dur: 0.32, delay: 0.35 }); },
       launch()    { noise(0.45, { vol: 0.25, from: 4000, to: 700 }); tone(280, 0.35, { type: 'sawtooth', vol: 0.08, slide: 3 }); },
+      // Your rocket: the launcher's thunk, an ignition whoosh and a rising whine; more of everything with rocket power
+      // (★ louder and brighter, ★★ adds a low rumble, ★★★ a bright zap). quiet: Overdrive spam, so they don't pile up.
+      rocket(P = 0, quiet = false) {
+        if (!ac) return;
+        const k = (1 + 0.22 * P) * (quiet ? 0.55 : 1);
+        thump(95 - 8 * P, 0.14, 0.42 * k);
+        sweep(0.38 + 0.07 * P, { vol: 0.24 * k, from: 700, peak: 3200 + 700 * P, to: 1000 });
+        tone(210 + 45 * P, 0.32 + 0.05 * P, { type: 'sawtooth', vol: 0.045 * k, slide: 2.6, attack: 0.02 });
+        if (P >= 2) rumble(0.5, { vol: 0.16 * k, from: 500, to: 50 });
+        if (P >= 3) { tone(2200, 0.22, { type: 'triangle', vol: 0.05 * k, slide: 0.55 }); tone(3300, 0.12, { type: 'sine', vol: 0.03 * k, slide: 0.7, delay: 0.03 }); }
+      },
       // An explosion: a sharp crack, a heavy body with a long rumbling tail and a deep thump. k: size (1 = a Shahed).
       boom(k = 1) {
         noise(0.06, { vol: 0.32 * k, from: 7000, to: 2200 });              // the crack
@@ -3334,7 +3391,7 @@ window.LD_RULES = (() => {
     startLevel = level; speed = levelSpeed(level) * (raidOn ? RAID_SPEED : 1) * runDiff.speed; slip = 0;
     spawnDist = 200; flash = 0; roadOffset = 0; shake = 0; planner = R.newPlanner(roadRand);
     levelDist = 0; distance = 0; bonus = 0; fuel = 100; coins = 0; lowFuelT = 0; lowWarned = false; finishSpawned = false;
-    bossPlan = {}; breatherT = 0; landmarks = []; fuelLanePlan = -1;
+    bossPlan = {}; breatherT = 0; landmarks = []; runLm = []; fuelLanePlan = -1;
     combo = 0; comboIdle = 0; cleanLevel = true; odPhase = ''; odT = 0; odBoost = 1; overdrives = 0; warpT = 0; hurtT = 0; dents = []; smokeT = 0; rs = newRunStats(); boss = null; bossDoneLevel = 0; bossesRun = 0; whiteT = 0; sfx.pitch(1);
     // One rocket loaded from the start, so the first Shahed (7 s in, before 3 coins are usually collected) can be shot down.
     drones = []; rockets = []; booms = []; wallet = ROCKET_COST; droneT = twist.swarm ? 4 : 7; droneSeen = false; kills = 0; droneQueue = []; pendingShot = 0; resuming = false; runTime = 0; carNo = 1 + Math.floor(Math.random() * 99);
@@ -3907,7 +3964,7 @@ window.LD_RULES = (() => {
     const cost = odPhase === 'burst' ? 0 : ROCKET_COST;   // Overdrive: rockets are free...
     const emptyCost = cost === 0 ? 0 : EMPTY_COST;        // a shot with nothing to aim at is cheaper
     if (state !== 'play' || !DRONES() || wallet < emptyCost) return false;
-    if (cost === 0) { if (freeCool > 0) return false; freeCool = FREE_RELOAD; }   // ...but one every FREE_RELOAD s
+    if (cost === 0) { if (freeCool > 0) return false; freeCool = boss ? FREE_RELOAD_BOSS : FREE_RELOAD; }   // ...one every FREE_RELOAD s
     if (boss && !at) {                            // giant Shahed: FIRE sends a rocket straight up your lane
       if (wallet < cost) return false;
       wallet -= cost;
@@ -3915,7 +3972,7 @@ window.LD_RULES = (() => {
       rockets.push({ x: player.x, y: my, vx: 0, vy: -ROCKET_V * 1.6, boss: true });   // quick, so a steady aim pays off
       launcherKick = 1;
       burst(player.x, my, '#fefcbf', 8); burst(player.x, my, '#f6ad55', 6);
-      sfx.launch();
+      sfx.rocket(rocketPower(), cost === 0);
       return true;
     }
     const tg = at || target() || barrierAhead();  // drones first, then a barrier blocking your lane
@@ -3925,7 +3982,7 @@ window.LD_RULES = (() => {
       rockets.push({ x: player.x, y: my, vx: 0, vy: -ROCKET_V * 1.6, straight: true });
       launcherKick = 1;
       burst(player.x, my, '#fefcbf', 8); burst(player.x, my, '#f6ad55', 6);
-      sfx.launch();
+      sfx.rocket(rocketPower(), cost === 0);
       return true;
     }
     if (!tg || wallet < cost) return false;
@@ -3935,7 +3992,7 @@ window.LD_RULES = (() => {
     rockets.push({ x: player.x, y: my, vx: 0, vy: -ROCKET_V, target: tg, auto, miss, side: Math.random() < 0.5 ? -1 : 1 });
     launcherKick = 1;
     burst(player.x, my, '#fefcbf', 8); burst(player.x, my, '#f6ad55', 6);
-    sfx.launch();
+    sfx.rocket(rocketPower(), cost === 0);
     return true;
   }
   function explode(x, y, ring, big) {
@@ -4500,6 +4557,9 @@ window.LD_RULES = (() => {
     $('statKillsTile').hidden = !egg;
     $('statKills').textContent = num(kills);
     const A = AREAS[raidOn ? lookArea : areaFor(level)];
+    { const lb = $('lmShareBtn'), a = runLm[runLm.length - 1];       // a new landmark this run: share it
+      lb.hidden = a === undefined;
+      if (a !== undefined) { lb.textContent = '📍 ' + t('lm' + a) + ' · 📤 ' + t('share'); lb.onclick = () => shareLandmark(a); } }
     $('overTrip').textContent = (runDiffI !== 1 ? runDiff.icon + ' ' : '') + A.icon + ' ' + t(A.key) + ' · ⏱ ' + fmtTime(runTime) + (overdrives ? ' · ⚡ ' + num(overdrives) : '') + (bossesRun ? ' · 🛸 ' + num(bossesRun) : '');
     if (!separate) $('bestLine').textContent = t('bestLine', { best, level: bestLevel });
     paintOverMissions(msEndRun());
@@ -5101,6 +5161,53 @@ window.LD_RULES = (() => {
     } finally { ctx = keep.ctx; vergeW = keep.vergeW; W = keep.W; }
     return c;
   }
+  function showLmPop(a, fresh) {
+    const pop = $('lmPop'), art = $('lmPopArt');
+    art.textContent = ''; art.appendChild(landmarkCanvas(a, true));
+    $('lmPopTag').textContent = '📍 ' + (fresh ? t('lmNew') : AREAS[a].icon + ' ' + t(AREAS[a].key));
+    $('lmPopName').textContent = t('lm' + a);
+    pop.hidden = false; pop.classList.remove('show'); void pop.offsetWidth; pop.classList.add('show');
+    clearTimeout(showLmPop.t); showLmPop.t = setTimeout(() => { pop.hidden = true; }, 3400);
+  }
+  // Share a landmark: a postcard picture (the landmark, its name and area) and "can you find it too?"
+  function lmPostcard(a) {
+    const CW = 720, CH = 720, cv = document.createElement('canvas'); cv.width = CW; cv.height = CH;
+    const c = cv.getContext('2d'), A = AREAS[a];
+    const g = c.createLinearGradient(0, 0, 0, CH); g.addColorStop(0, '#14224a'); g.addColorStop(1, '#0a0e20');
+    c.fillStyle = g; c.fillRect(0, 0, CW, CH);
+    c.fillStyle = A.ground; c.globalAlpha = 0.35; c.fillRect(0, 470, CW, 250); c.globalAlpha = 1;
+    c.fillStyle = '#0057B7'; c.fillRect(0, 0, CW / 2, 10); c.fillStyle = '#FFD700'; c.fillRect(CW / 2, 0, CW / 2, 10);
+    const keep = { ctx, vergeW, W };
+    try {                                                    // the landmark, big, standing on the card's ground
+      ctx = c; vergeW = 27; W = 400;
+      c.save(); c.translate(CW / 2, 500); c.scale(4.2, 4.2); c.translate(-vergeW * 0.72, 0);
+      drawLandmark(a, 0, 0, false); c.restore();
+    } finally { ctx = keep.ctx; vergeW = keep.vergeW; W = keep.W; }
+    c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+    const fit = (txt, y, size, color, weight = 900) => {
+      let fs = size; c.font = `${weight} ${fs}px system-ui, sans-serif`;
+      while (c.measureText(txt).width > CW - 60 && fs > 18) { fs -= 2; c.font = `${weight} ${fs}px system-ui, sans-serif`; }
+      c.fillStyle = color; c.fillText(txt, CW / 2, y);
+    };
+    fit('📍 ' + t('lm' + a), 580, 52, '#ffffff');
+    fit(A.icon + ' ' + t(A.key) + ' · ' + t('lv', { n: a * 5 + 2 }), 630, 32, '#ffd84a', 800);
+    fit('DRONE DASH · ' + GAME_URL.replace(/^https:\/\//, ''), 690, 26, '#9fb3d9', 700);
+    return cv;
+  }
+  async function shareLandmark(a) {
+    ddTrack('share-landmark', 'Shared a landmark');
+    const A = AREAS[a], text = t('lmShare', { name: t('lm' + a), area: A.icon + ' ' + t(A.key), n: a * 5 + 2 });
+    try {
+      const blob = await new Promise(res => lmPostcard(a).toBlob(res, 'image/png'));
+      const file = blob && new File([blob], 'drone-dash-landmark.png', { type: 'image/png' });
+      if (file && navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text: text + ' ' + GAME_URL }); return; }
+      if (navigator.share) { await navigator.share({ text, url: GAME_URL }); return; }
+      await navigator.clipboard.writeText(text + ' ' + GAME_URL); toast(t('copied'));
+    } catch (e) {
+      if (e && e.name === 'AbortError') return;
+      try { await navigator.clipboard.writeText(text + ' ' + GAME_URL); toast(t('copied')); } catch { toast(t('shareFailed')); }
+    }
+  }
   function renderSights() {
     const box = $('recSightsBox'), seen = seenLandmarks(); box.textContent = '';
     const grid = document.createElement('div'); grid.className = 'lmGrid';
@@ -5110,7 +5217,14 @@ window.LD_RULES = (() => {
       const b = document.createElement('b'); b.textContent = on ? t('lm' + i) : '???';
       const sm = document.createElement('small');
       sm.textContent = A.icon + ' ' + t(A.key) + (on ? '' : ' · ' + t('lv', { n: i * 5 + 2 }));
-      card.append(landmarkCanvas(i, on), b, sm); grid.append(card);
+      card.append(landmarkCanvas(i, on), b, sm);
+      if (on) {                                                  // seen: tap to share it
+        card.classList.add('canShare'); card.tabIndex = 0; card.setAttribute('role', 'button');
+        card.setAttribute('aria-label', t('share') + ': ' + t('lm' + i));
+        card.addEventListener('click', () => shareLandmark(i));
+        card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); shareLandmark(i); } });
+      }
+      grid.append(card);
     });
     const note = document.createElement('p'); note.className = 'recNote'; note.textContent = t('lmWhere');
     box.append(grid, note);
@@ -5317,11 +5431,9 @@ window.LD_RULES = (() => {
       const ly = scroll - lm.k * SEG;
       if (!lm.passed && ly > H * 0.22) {               // well in view: its name at the top, and into the collection
         lm.passed = true;
-        const name = t('lm' + lm.a), seen = seenLandmarks();
-        if (!seen.includes(lm.a)) {
-          seen.push(lm.a); try { localStorage.setItem(LM_KEY, JSON.stringify(seen)); } catch {}
-          toast('📍 ' + t('lmNew') + ' · ' + name); buzz(25);
-        } else toast('📍 ' + name);
+        const seen = seenLandmarks(), fresh = !seen.includes(lm.a);
+        if (fresh) { seen.push(lm.a); runLm.push(lm.a); try { localStorage.setItem(LM_KEY, JSON.stringify(seen)); } catch {} buzz(25); sfx.mission(); }
+        showLmPop(lm.a, fresh);
       }
     }
     landmarks = landmarks.filter(lm => scroll - lm.k * SEG < H + 260);
@@ -6319,15 +6431,15 @@ window.LD_RULES = (() => {
       ctx.fillStyle = A.ground; ctx.fillRect(-10, y - 1, vergeW + 10, SEG + 2); ctx.fillRect(W - vergeW, y - 1, vergeW + 10, SEG + 2);
       for (const side of [0, 1]) { drawScenery(areaAtK(k), side ? W - vergeW : 0, y, k * 2 + side, false); drawProp(areaAtK(k), side ? W - vergeW : 0, y, k * 2 + side); }
     }
-    for (const lm of landmarks) { const ly = scroll - lm.k * SEG; if (ly > -40 && ly < H + 200) drawLandmark(lm.a, lm.side, ly); }
+    for (const lm of landmarks) { const ly = scroll - lm.k * SEG; if (ly > -40 && ly < H + 260) drawLandmark(lm.a, lm.side, ly, false, LM_BIG); }
     // a soft kerb between road and roadside
     ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(vergeW - 3, -10, 3, H + 20); ctx.fillRect(W - vergeW, -10, 3, H + 20);
   }
 
   // The landmarks, drawn tilted up (a side view standing on the roadside) so they read at a glance.
   // Base on the road at y, rising up the road; about 1.6x the roadside's width.
-  function drawLandmark(a, side, y, noGlow) {
-    const s = vergeW / 30 * 1.12, cx = side ? W - vergeW * 0.72 : vergeW * 0.72, tt = performance.now() / 1000;   // fully on screen
+  function drawLandmark(a, side, y, noGlow, big = 1) {             // big: the road draws them ~1.9x, cards at 1
+    const s = vergeW / 30 * 1.12 * big, off = 0.72 + 0.3 * (big - 1), cx = side ? W - vergeW * off : vergeW * off, tt = performance.now() / 1000;
     ctx.save(); ctx.translate(cx, y); ctx.scale(s, s);
     const glow = ctx.createRadialGradient(0, -22, 4, 0, -22, 40);                  // a warm glow so it stands out from the scenery
     glow.addColorStop(0, 'rgba(255,225,120,' + (0.42 + 0.12 * Math.sin(tt * 3)) + ')'); glow.addColorStop(1, 'rgba(255,225,120,0)');
@@ -6944,6 +7056,7 @@ window.LD_RULES = (() => {
     else if ((e.key === 'Enter' || e.key === ' ') && state === 'home' && !e.target.closest('button')) { e.preventDefault(); startPlay(); }
     else if ((e.key === 'Enter' || e.key === ' ') && state === 'menu' && !e.target.closest('button')) { e.preventDefault(); closeHelp(); }
     else if ((e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') && state === 'play' && DRONES()) { e.preventDefault(); fire(); }
+    else if (e.key === 'Escape' && !$('settingsView').classList.contains('hidden')) $('setDone').click();   // Settings: Esc = Done
     else if ((e.key === 'p' || e.key === 'P' || e.key === 'Escape') && (state === 'play' || state === 'countdown')) pauseGame();
     else if ((e.key === 'p' || e.key === 'P' || e.key === 'Escape') && state === 'paused') resumeGame();
     else if (e.key === 'Escape' && state === 'menu' && helpFrom === 'pause') closeHelp();   // back to the pause menu
@@ -7191,12 +7304,16 @@ window.LD_RULES = (() => {
     paintAutoFire(); updateHud();
   }
   autoFireBtn.addEventListener('click', toggleAutoFire);
-  // Settings drop-down in the pause menu
+  // Settings: its own screen, from the pause menu or the home screen (the same panel of switches, moved in)
   const setBtn = $('setBtn'), setPanel = $('setPanel'), soundBtn = $('soundBtn');
-  setBtn.addEventListener('click', () => {
-    setPanel.hidden = !setPanel.hidden;
-    setBtn.setAttribute('aria-expanded', String(!setPanel.hidden));
-  });
+  let setFrom = 'home';
+  function openSettings(from) {
+    setFrom = from;
+    if (from === 'home') state = 'settings';                      // from pause the run stays paused underneath
+    $('setHost').appendChild(setPanel); setPanel.hidden = false;
+    show('settingsView'); $('setDone').focus();
+  }
+  setBtn.addEventListener('click', () => openSettings('pause'));
   soundBtn.addEventListener('click', () => toggleMute());
   // The settings switches show "🔊 Sound: On" etc.; screen readers get the words without the emoji.
   new MutationObserver(() => {
@@ -7206,14 +7323,10 @@ window.LD_RULES = (() => {
     }
   }).observe(setPanel, { subtree: true, childList: true, characterData: true });
   // Settings from the home screen: borrow the pause menu's panel (same buttons, same settings).
-  $('homeSet').addEventListener('click', () => {
-    state = 'settings';
-    $('setHost').appendChild(setPanel); setPanel.hidden = false;
-    show('settingsView');
-  });
+  $('homeSet').addEventListener('click', () => openSettings('home'));
   $('setDone').addEventListener('click', () => {
-    setBtn.after(setPanel); setPanel.hidden = true; setBtn.setAttribute('aria-expanded', 'false');
-    goHome();
+    setBtn.after(setPanel); setPanel.hidden = true;
+    if (setFrom === 'pause') { show('pause'); setBtn.focus(); } else goHome();
   });
   $('homeSound').addEventListener('click', () => { toggleMute(); $('homeSound').blur(); });
   // Which side FIRE sits on. Left by default (the right thumb steers); left-handed players can swap.
