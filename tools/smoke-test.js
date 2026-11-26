@@ -226,7 +226,12 @@
       c.emptyShot = G().rockets.length <= k ? 'did not fire' : (rk.straight ? 'straight' : 'at a barrier') + ', cost ' + (w - G().wallet); }
     // a Shahed up: touching the stick fires at once
     n = 0; while (!shahedUp() && G().state === 'play' && n < 6000) { drive(); stepSafe(1); n++; }
-    if (shahedUp() && G().wallet >= 3) { const k = G().rockets.length; pe('pointerdown', cx); c.fireOnTouch = G().rockets.length > k; pe('pointerup', cx); }
+    if (shahedUp() && G().wallet >= 6) {
+      await new Promise(r => setTimeout(r, 500));                      // the thumb has been resting a while
+      const k = G().rockets.length; pe('pointerdown', cx); c.restNoFire = G().rockets.length === k;   // landing again: steers, no shot
+      pe('pointerup', cx); c.restTapFires = G().rockets.length > k;                                     // ...but a quick tap still fires
+      const k2 = G().rockets.length; pe('pointerdown', cx); c.fireOnTouch = G().rockets.length > k2; pe('pointerup', cx);   // tapping away: fires on press
+    }
     // switching Controls back to Tap lane brings the FIRE button back
     $('ctrlBtn').click(); c.tapLaneSwitch = !$('eggBar').classList.contains('stick') && localStorage.getItem('ddCtrl') === 'lane';
     report.checks.controls = c;

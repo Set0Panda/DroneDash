@@ -130,6 +130,7 @@
   #eggBar {
     /* two equal halves: FIRE + auto-fire on one side, coin info on the other */
     flex: none; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 10px; padding: 12px 12px 14px;
+    isolation: isolate;   /* the FIRE button's ring and badge stay inside the bar's layer, under menus */
     background: linear-gradient(#141831, #0f1220); border-top: 3px solid; border-image: linear-gradient(90deg, #0057B7 50%, #FFD700 50%) 1;
   }
   #wrap.at-home #eggBar { visibility: hidden; }
@@ -142,12 +143,13 @@
   #wrap #eggBar.stick .stick { order: 1; }
   #wrap #eggBar.stick .eggInfo { order: 2; justify-items: end; text-align: right; }
   #wrap #eggBar.stick .eggTop, #eggBar.stick .eggSub { justify-content: flex-end; }
-  #wrap #eggBar.stick .stick { display: block; position: relative; height: 78px; border-radius: 39px; touch-action: none; user-select: none; cursor: grab;
+  #wrap #eggBar.stick .stick { display: block; position: relative; height: 70px; border-radius: 35px;   /* as tall as the FIRE button: the bar keeps its size in both modes */
+    touch-action: none; user-select: none; cursor: grab;
     background: linear-gradient(#232a4d, #1a2040); box-shadow: inset 0 0 0 2px rgba(255,255,255,.14), inset 0 4px 10px rgba(0,0,0,.4); }
   /* three lane spots on the track, under where the knob rests for each lane */
   .stickSlot { position: absolute; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: rgba(255,255,255,.18); pointer-events: none; }
   .stickSlot.l { left: 34px; } .stickSlot.m { left: 50%; } .stickSlot.r { left: calc(100% - 34px); }
-  .stickKnob { position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%;
+  .stickKnob { position: absolute; left: 50%; top: 50%; width: 60px; height: 60px; margin: -30px 0 0 -30px; border-radius: 50%;
     display: grid; place-items: center; font-size: 26px; pointer-events: none; transition: transform .12s ease-out;
     background: radial-gradient(circle at 40% 35%, #ffe766, var(--ua-yellow) 60%, #d9a800); box-shadow: 0 4px 0 #a07c00, 0 6px 14px rgba(0,0,0,.45); }
   .stick.held .stickKnob { transition: none; }
@@ -2877,20 +2879,20 @@ window.LD_RULES = (() => {
     extra: L => Math.min(120 + 15 * (L - 1), 260),                      // px/s faster than the road
     size(L) {                                                            // drones per wave
       const r = droneRand();
-      if (L >= 14 && r < 0.35) return 3;       // more 3-drone salvos past the plateau
-      if (L >= 9 && r < 0.2) return 3;
-      if (L >= 6 && r < 0.45) return 2;
-      if (L >= 3 && r < 0.25) return 2;
+      if (L >= 14 && r < 0.3) return 3;        // more 3-drone salvos past the plateau
+      if (L >= 10 && r < 0.15) return 3;
+      if (L >= 7 && r < 0.4) return 2;
+      if (L >= 4 && r < 0.2) return 2;         // pairs ease in: rarer and later than before (play-test: too much early)
       return 1;
     },
     path(L) {                                  // straight dive, diagonal from aside, late swerve, zig-zag
       const r = droneRand();
       if (L >= 12 && r < 0.22) return 'zigzag';
       if (L >= 5 && r < 0.3) return 'swerve';
-      if (L >= 2 && r < 0.6) return 'diag';
+      if (L >= 4 && r < 0.55) return 'diag';      // from level 4: the first levels' drones come straight down
       return 'straight';
     },
-    stagger: 0.55,                             // seconds between drones in a wave
+    stagger: L => L < 10 ? 0.85 : L < 14 ? 0.7 : 0.55,   // seconds between drones in a wave: more time to deal with each early on
     // The wave's first drone (the hunter) follows your lane until this far into its dive, then
     // locks. Earlier at higher levels, where drones are faster, so the time left to react after
     // the lock stays around half a second.
@@ -3395,7 +3397,7 @@ window.LD_RULES = (() => {
     if (b.y > b.ty - 25 && (b.dropT -= dt) <= 0 && !falling) {    // drops small Shaheds into the lane below it (never on top of its last ones)
       b.dropT = Math.max(0.8, 2.3 - 0.16 * b.a) * (rage ? 0.7 : 1) * (raidOn ? RAID_BOMBS[runDiffI] : 1);   // ~2.1 s apart for the first one, 0.8 s by the last
       const lane = Math.max(0, Math.min(2, Math.round((b.x - vergeW - laneW / 2) / laneW)));
-      const ch = Math.max(0.45, BOMB_CHARGE - 0.028 * b.a) * (raidOn ? RAID_BOMBS[runDiffI] : 1);          // less warning each area: 0.67 s down to 0.45 s
+      const ch = Math.max(0.45, BOMB_CHARGE - 0.028 * b.a) * (raidOn ? RAID_BOMBS[runDiffI] : b.a <= 4 ? 1.3 : 1.15);   // less warning each area: 0.67 s down to 0.45 s; normal runs (with the road still busy) get longer, most in the first areas
       // Its moves: every one drops bombs on its own lane; each Shahed adds its own signature moves.
       const own = BOSS_MOVES[bossLook(b.a)];
       const move = own.length && droneRand() < 0.5 ? own[Math.floor(droneRand() * own.length)] : 'drop';
@@ -3822,7 +3824,7 @@ window.LD_RULES = (() => {
       // A wave: the first drone targets your lane, the others different lanes, launched a moment apart.
       const lanes = [player.lane, ...(droneRand() < 0.5 ? [0, 1, 2] : [2, 1, 0]).filter(l => l !== player.lane)];
       const n = DRONE.size(level);
-      for (let i = 0; i < n; i++) droneQueue.push({ at: i * DRONE.stagger, lane: lanes[i], path: DRONE.path(level), hunter: i === 0 });
+      for (let i = 0; i < n; i++) droneQueue.push({ at: i * DRONE.stagger(level), lane: lanes[i], path: DRONE.path(level), hunter: i === 0 });
       if (!droneSeen) {
         droneSeen = true; showBanner(t('shahedBanner'), t('shahedSub', { n: ROCKET_COST }), true);
         if (!readNum('laneDodgerFireHint')) { writeNum('laneDodgerFireHint', 1); showFireHint(); }   // once per player
@@ -6727,6 +6729,12 @@ window.LD_RULES = (() => {
   const touchFire = () => { const ok = fire(); if (ok) buzz(12); return ok; };
   // A touch that lands: fire straight away when there's anything to shoot (a Shahed, a barrier ahead),
   // or hold the shot for a Shahed that's about to appear. Plain steering touches fire nothing.
+  // A thumb coming back down after a break (lifted for a while) only steers: it fires on a quick tap
+  // (on release) instead of the moment it lands. Lifted only briefly = tapping away: fire on press.
+  const REST_MS = 450;
+  let lastLiftT = -1e9;
+  const landFire = () => performance.now() - lastLiftT < REST_MS ? pressFire() : false;
+  const tapFire = () => { if (!pressFire()) touchFire(); };   // a tap: at a target, a held shot for a Shahed on its way, else straight ahead
   const pressFire = () => {
     if (state !== 'play') return false;
     if (targetUp()) return touchFire();
@@ -6745,7 +6753,7 @@ window.LD_RULES = (() => {
     if (ctrl === 'thumb' && e.pointerType !== 'mouse') {
       touches++;
       if (thumb || held) { touchFire(); return; }          // a second finger while one steers: fire, steering carries on
-      thumb = { id: e.pointerId, x: e.clientX, t: performance.now(), lane: player.lane, moved: false, fired: pressFire() };
+      thumb = { id: e.pointerId, x: e.clientX, t: performance.now(), lane: player.lane, moved: false, fired: landFire() };
       return;
     }
     dragging = true;
@@ -6765,9 +6773,9 @@ window.LD_RULES = (() => {
     if (e && e.pointerType !== 'mouse' && ctrl === 'thumb') touches = Math.max(0, touches - 1);
     if (!thumb || (e && e.pointerId !== thumb.id)) return;
     const dx = e ? e.clientX - thumb.x : 0, quick = performance.now() - thumb.t < 260;
-    if (!thumb.moved && !thumb.fired && performance.now() - thumb.t < 400 && e && e.type === 'pointerup') touchFire();   // tap: fire
+    if (!thumb.moved && !thumb.fired && performance.now() - thumb.t < 400 && e && e.type === 'pointerup') tapFire();   // tap: fire
     else if (quick && Math.abs(dx) > 18 && player.lane === thumb.lane && canSteer()) setLane(thumb.lane + Math.sign(dx));   // flick: one lane
-    thumb = null;
+    thumb = null; lastLiftT = performance.now();
   };
   canvas.addEventListener('pointerup', endDrag);
   canvas.addEventListener('pointercancel', endDrag);
@@ -6995,7 +7003,7 @@ window.LD_RULES = (() => {
     e.preventDefault(); stick.setPointerCapture(e.pointerId);
     if (held || thumb) { touchFire(); return; }             // a second finger: fire, the first keeps steering
     stick.classList.add('pressed');                         // the knob squashes the moment it's touched
-    held = { id: e.pointerId, x: e.clientX, t: performance.now(), moved: false, fired: pressFire() };   // something to shoot: fire at once
+    held = { id: e.pointerId, x: e.clientX, t: performance.now(), moved: false, fired: landFire() };   // tapping away: fire at once
   });
   stick.addEventListener('pointermove', e => {
     if (!held || e.pointerId !== held.id) return;
@@ -7013,8 +7021,8 @@ window.LD_RULES = (() => {
   });
   const letGo = e => {
     if (!held || e.pointerId !== held.id) return;
-    if (!held.moved && !held.fired && performance.now() - held.t < 400 && e.type === 'pointerup') touchFire();   // tap: fire
-    held = null; stick.classList.remove('held', 'pressed'); syncStick();
+    if (!held.moved && !held.fired && performance.now() - held.t < 400 && e.type === 'pointerup') tapFire();   // tap: fire
+    held = null; lastLiftT = performance.now(); stick.classList.remove('held', 'pressed'); syncStick();
   };
   stick.addEventListener('pointerup', letGo);
   stick.addEventListener('pointercancel', letGo);
