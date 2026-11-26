@@ -53,6 +53,7 @@
     margin: 0; height: 100%; background: var(--bg); color: var(--text);
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none;
+    -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;   /* a held thumb never brings up a long-press menu */
   }
   #wrap {
     position: relative; width: 100%; height: 100%; max-width: 480px; margin: 0 auto;
@@ -4513,8 +4514,8 @@ window.LD_RULES = (() => {
   function show(id) {
     for (const o of ['home', 'intro', 'over', 'garage', 'records', 'pause', 'upgrades', 'raidHelp', 'settingsView']) $(o).classList.toggle('hidden', o !== id);
     shownOverlay = id;
-    if (id === 'home') { $('home').scrollTop = 0; fitLabels($('home').querySelectorAll('.menuRow button')); requestAnimationFrame(fitHome); }
-    else if (id) requestAnimationFrame(() => fitCard(id));
+    if (id === 'home') { $('home').scrollTop = 0; fitLabels($('home').querySelectorAll('.menuRow button')); fitHome(); requestAnimationFrame(fitHome); }
+    else if (id) { fitCard(id); requestAnimationFrame(() => fitCard(id)); }   // fit now, and again once it has drawn
     wrapEl.classList.toggle('at-home', ['home', 'garage', 'records', 'upgrades', 'settingsView'].includes(id));
   }
 
@@ -4558,7 +4559,7 @@ window.LD_RULES = (() => {
     st.style.zoom = '';
     fitLabels(h.querySelectorAll('.menuRow button'));
     const cs = getComputedStyle(h);
-    const avail = h.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 4;
+    const avail = h.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 12;   // a little spare: the last button's edge stays on screen
     const need = st.offsetHeight;
     if (need > avail) st.style.zoom = Math.max(0.55, avail / need).toFixed(3);
   }
@@ -6763,7 +6764,10 @@ window.LD_RULES = (() => {
     if (thumb && e.pointerId === thumb.id) {
       const dx = e.clientX - thumb.x, step = Math.max(26, laneW * viewK * 0.45);   // a bit under half a lane of thumb per lane
       if (Math.abs(dx) > 16) thumb.moved = true;
-      if (canSteer() && Math.abs(dx) >= 12) setLane(thumb.lane + Math.sign(dx) * Math.floor(Math.abs(dx) / step + 0.65));   // commits a third of the way
+      if (canSteer() && Math.abs(dx) >= 12) {
+        const l0 = player.lane; setLane(thumb.lane + Math.sign(dx) * Math.floor(Math.abs(dx) / step + 0.65));   // commits a third of the way
+        if (player.lane !== l0) thumb.moved = true;                       // it steered: the release isn't a fire-tap too
+      }
       return;
     }
     if (dragging) goToPointerLane(e);
@@ -6778,6 +6782,7 @@ window.LD_RULES = (() => {
     thumb = null; lastLiftT = performance.now();
   };
   canvas.addEventListener('pointerup', endDrag);
+  for (const n of [canvas, $('eggBar')]) n.addEventListener('contextmenu', e => e.preventDefault());   // long-press: no menu mid-run
   canvas.addEventListener('pointercancel', endDrag);
 
   // ---- Sound controls ----
@@ -6811,7 +6816,11 @@ window.LD_RULES = (() => {
   $('resumeBtn').addEventListener('click', resumeGame);
   $('pauseRetry').addEventListener('click', restart);
   $('pauseHome').addEventListener('click', goHome);
-  rocketBtn.addEventListener('click', () => { fire(); rocketBtn.blur(); });
+  rocketBtn.addEventListener('pointerdown', e => {               // fires on press, not on release
+    if (e.button > 0) return;
+    e.preventDefault(); touchFire();
+  });
+  rocketBtn.addEventListener('click', e => { if (e.detail === 0) fire(); rocketBtn.blur(); });   // keyboard (Enter/Space) only
   I18N.onChange(() => { rocketBtn.title = t('rocketTitle', { n: ROCKET_COST }); rocketBtn.setAttribute('aria-label', rocketBtn.title); layoutEgg(); fitFire(); });
   window.addEventListener('resize', fitFire);
   $('playBtn').addEventListener('click', () => { mode = 'normal'; startPlay(); });
@@ -7016,7 +7025,7 @@ window.LD_RULES = (() => {
       let l = player.lane; const sp = Math.max(1, span);
       while (l < 2 && off > (l - 1) * sp + 0.3 * sp) l++;          // 30% of the way to the next spot is enough
       while (l > 0 && off < (l - 1) * sp - 0.3 * sp) l--;
-      setLane(l);
+      if (l !== player.lane) { setLane(l); held.moved = true; }      // it steered: the release isn't a fire-tap too
     }
   });
   const letGo = e => {
