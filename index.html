@@ -2864,6 +2864,7 @@ window.LD_RULES = (() => {
   // Oil slicks: steering goes soft for a moment (slower lane changes), no fuel lost.
   let slip = 0;
   const SLIP_TIME = 1.2, SLIP_EASE = 12;
+  const LANE_EASE = 22;        // lane change glide: most of the way in ~60 ms, settled by ~120 ms (was 36: a 3-frame snap)
 
   let carNo = 7;          // racing number on the bonnet, picked at random for each run   // roof launcher recoil after firing, eases back to 0
   let runTime = 0;        // seconds of actual driving this run (not paused, not counting down)   // the 3-2-1 after Resume: road held still until GO, like everything else
@@ -4514,7 +4515,8 @@ window.LD_RULES = (() => {
   function show(id) {
     for (const o of ['home', 'intro', 'over', 'garage', 'records', 'pause', 'upgrades', 'raidHelp', 'settingsView']) $(o).classList.toggle('hidden', o !== id);
     shownOverlay = id;
-    if (id === 'home') { $('home').scrollTop = 0; fitLabels($('home').querySelectorAll('.menuRow button')); fitHome(); requestAnimationFrame(fitHome); }
+    if (id === 'home') { $('home').scrollTop = 0; fitLabels($('home').querySelectorAll('.menuRow button')); fitHome(); requestAnimationFrame(fitHome);
+      setTimeout(fitHome, 300); setTimeout(fitHome, 1000); }   // again once fonts, missions and the install button have settled
     else if (id) { fitCard(id); requestAnimationFrame(() => fitCard(id)); }   // fit now, and again once it has drawn
     wrapEl.classList.toggle('at-home', ['home', 'garage', 'records', 'upgrades', 'settingsView'].includes(id));
   }
@@ -4553,15 +4555,24 @@ window.LD_RULES = (() => {
     if (need > avail) { card.style.maxHeight = 'none'; card.style.zoom = Math.max(0.6, avail / need).toFixed(3); }
   }
   let shownOverlay = null;
+  window.ddFitHome = () => fitHome();        // for the install button, which appears from its own script
   function fitHome() {
     const h = $('home'), st = $('homeStack');
     if (h.classList.contains('hidden')) return;
     st.style.zoom = '';
     fitLabels(h.querySelectorAll('.menuRow button'));
     const cs = getComputedStyle(h);
-    const avail = h.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 12;   // a little spare: the last button's edge stays on screen
+    const gaps = 2 * (parseFloat(cs.rowGap) || 0);          // the spacers above and below the stack sit a gap away from it
+    const avail = h.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - gaps - 6;
     const need = st.offsetHeight;
     if (need > avail) st.style.zoom = Math.max(0.55, avail / need).toFixed(3);
+    // check where it really ends up (shadows, rounding) and shrink a touch more if the last button still pokes out
+    for (let i = 0; i < 3; i++) {
+      const over = st.getBoundingClientRect().bottom - (h.getBoundingClientRect().bottom - Math.max(10, parseFloat(cs.paddingBottom)));
+      if (over <= 0) break;
+      const z = parseFloat(st.style.zoom || 1), hh = st.getBoundingClientRect().height;
+      st.style.zoom = Math.max(0.55, z * (hh - over - 4) / hh).toFixed(3);
+    }
   }
   window.addEventListener('resize', () => requestAnimationFrame(() => { fitHome(); if (shownOverlay && shownOverlay !== 'home') fitCard(shownOverlay); }));
   // ---- Garage: hue wheel around a live preview of the car ----
@@ -5104,7 +5115,7 @@ window.LD_RULES = (() => {
   function slidePlayer(gameDt) {
     const dt = realDt || gameDt;
     slip = Math.max(0, slip - gameDt);
-    player.x += (laneX(player.lane) - player.x) * ease(slip > 0 ? SLIP_EASE : 36, dt);
+    player.x += (laneX(player.lane) - player.x) * ease(slip > 0 ? SLIP_EASE : LANE_EASE, dt);
     if (!raidFinale) player.y = H - 100;      // (the raid finale drives it off up the road)
   }
 
@@ -6527,7 +6538,7 @@ window.LD_RULES = (() => {
     const blink = odPhase === 'burst' && odT < OD_WIND && Math.floor(odT * 8) % 2 === 0;   // ending soon
     if (!(flash > 0 && Math.floor(flash * 16) % 2 === 0)) {
       // the car leans into a lane change and settles back as it arrives
-      const lean = Math.max(-1, Math.min(1, (laneX(player.lane) - player.x) / laneW)) * 0.2;
+      const lean = Math.max(-1, Math.min(1, (laneX(player.lane) - player.x) / laneW)) * 0.26;
       ctx.save();
       if (blink) ctx.globalAlpha = 0.45;
       if (lean) { const cy = player.y + player.h / 2; ctx.translate(player.x, cy); ctx.rotate(lean); ctx.translate(-player.x, -cy); }
@@ -7159,6 +7170,7 @@ window.LD_RULES = (() => {
   paintHint();
   I18N.onChange(paintHint);
   btn.hidden = false;
+  if (window.ddFitHome) window.ddFitHome();   // one more button on the home screen: fit it again
   window.addEventListener('beforeinstallprompt', e => {
     e.preventDefault();
     deferred = e;

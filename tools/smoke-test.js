@@ -188,6 +188,7 @@
     $('homeBtn').click(); $('recordsBtn').click(); await sleep(200);
     report.checks.recordsRows = document.querySelectorAll('#recList li').length;
     // tabs: each shows its own content and the tab row doesn't move
+    await sleep(450);                                                 // let the card finish sliding in first
     const tabTop = () => Math.round($('recTabs').getBoundingClientRect().top), top0 = tabTop(), tabs = {};
     for (const tb of ['raid', 'daily', 'runs']) {
       document.querySelector('#recTabs [data-tab=' + tb + ']').click(); await sleep(150);
