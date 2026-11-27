@@ -3834,6 +3834,9 @@ window.LD_RULES = (() => {
   const WING_STD = [[0, 26], [31, -13], [28, -18], [0, -11], [-28, -18], [-31, -13]];
   const WING_SWEPT = [[0, 30], [27, -12], [24, -18], [0, -13], [-24, -18], [-27, -12]];
   const WING_WIDE = [[0, 27], [37, -11], [33, -18], [0, -12], [-33, -18], [-37, -11]];
+  // The Mothership: a heavy bat wing with a jagged trailing edge (same nose and leading edge, so rockets hit it the same way)
+  const WING_MOTHER = [[0, 26], [34, -8], [37, -15], [29, -12], [25, -20], [17, -14], [9, -22], [0, -15],
+                       [-9, -22], [-17, -14], [-25, -20], [-29, -12], [-37, -15], [-34, -8]];
   const GIANT = [
     { skin: ['#5d626e', '#7d8291', '#868b99', '#5a5f6b'], wing: WING_STD },                                  // Shahed
     { skin: ['#9c8560', '#b9a072', '#c4ab7e', '#97805b'], wing: WING_STD, camo: '#7d6a48' },                  // Desert
@@ -3843,7 +3846,7 @@ window.LD_RULES = (() => {
     { skin: ['#555c66', '#77808c', '#838b97', '#525963'], wing: WING_STD, plates: true },                     // Armoured
     { skin: ['#3a4556', '#5a6779', '#64718a', '#384252'], wing: WING_SWEPT, jet: 1, minis: 2 },              // Jet
     { skin: ['#22373a', '#355055', '#3d5b60', '#203235'], wing: WING_WIDE, jet: 2, minis: 4 },               // Carrier
-    { skin: ['#1d1e24', '#32343d', '#393b45', '#1b1c22'], wing: WING_STD, stripes: true, minis: 6, fast: true }, // Mothership
+    { skin: ['#16161b', '#2b2c34', '#34353f', '#141419'], wing: WING_MOTHER, stripes: true, minis: 6, fast: true, hull: true }, // Mothership
   ];
   const giantWing = v => GIANT[v].wing;
   function drawMiniShahed(x, y, sc) {          // a small Shahed carried under the wing
@@ -3860,7 +3863,8 @@ window.LD_RULES = (() => {
     g.addColorStop(0, sk[0]); g.addColorStop(0.45, sk[1]); g.addColorStop(0.55, sk[2]); g.addColorStop(1, sk[3]);
     ctx.fillStyle = g; poly(WING);
     ctx.strokeStyle = v ? '#14151a' : '#3a3e48'; ctx.lineWidth = 0.9;              // leading edges
-    ctx.beginPath(); ctx.moveTo(WING[5][0], WING[5][1]); ctx.lineTo(0, WING[0][1]); ctx.lineTo(WING[1][0], WING[1][1]); ctx.stroke();
+    const LT = WING[WING.length - 1];
+    ctx.beginPath(); ctx.moveTo(LT[0], LT[1]); ctx.lineTo(0, WING[0][1]); ctx.lineTo(WING[1][0], WING[1][1]); ctx.stroke();
     ctx.save(); ctx.beginPath(); for (const [x, y] of WING) ctx.lineTo(x, y); ctx.closePath(); ctx.clip();   // markings stay on the wing
     if (G.camo) { ctx.fillStyle = G.camo; for (const [x, y, rx, ry] of [[-18, -8, 7, 4], [14, -10, 8, 3.5], [-6, 4, 6, 3], [22, -4, 5, 3], [-26, -12, 4, 2.5], [6, 12, 4, 3]]) { ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0.4, 0, 6.29); ctx.fill(); } }
     if (G.chevrons) { ctx.strokeStyle = G.chevrons; ctx.lineWidth = 2; for (const k of [0, 7]) { ctx.beginPath(); ctx.moveTo(-20, -10 + k); ctx.lineTo(0, 4 + k); ctx.lineTo(20, -10 + k); ctx.stroke(); } }
@@ -3884,9 +3888,11 @@ window.LD_RULES = (() => {
     if (G.minis === 2) for (const sg of [-1, 1]) { drawMiniShahed(sg * 12, -5, 0.6); drawMiniShahed(sg * 19, -10, 0.5); }
     if (G.minis === 4) for (const sg of [-1, 1]) { drawMiniShahed(sg * 11, -4, 0.55); drawMiniShahed(sg * 18, -8, 0.5); drawMiniShahed(sg * 25, -11, 0.45); drawMiniShahed(sg * 31, -13.5, 0.4); }
     if (G.minis === 6) for (const sg of [-1, 1]) for (let i = 0; i < 3; i++) drawMiniShahed(sg * (9 + i * 6.5), -3 - i * 3.5, 0.45);
+    if (!G.hull) {
     ctx.fillStyle = '#464a55';                                                   // elevons along the trailing edge
     for (const sg of [-1, 1]) poly([[sg * 9, -12.4], [sg * (tipX - 3), -17.2], [sg * (tipX - 2.4), -15.2], [sg * 9.2, -10.6]]);
-    for (const sg of [-1, 1]) {                                                  // upright fins at the wingtips
+    }
+    if (!G.hull) for (const sg of [-1, 1]) {                                     // upright fins at the wingtips
       ctx.fillStyle = '#2f323b'; ctx.fillRect(sg * tipX - 1.6, -23, 3.2, 13);
       ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(sg * tipX - 1.6, -23, 1, 13);
     }
@@ -3897,13 +3903,36 @@ window.LD_RULES = (() => {
     }
     ctx.font = '700 4.2px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(235,238,245,.35)';
     ctx.save(); ctx.translate(-16, -4); ctx.rotate(-0.15); ctx.fillText(['136', '136', '136', '136-N', '136-H', '136-A', '238', '238-C', 'M-1'][v], 0, 0); ctx.restore();   // stencil
-    const bg = ctx.createLinearGradient(-5, 0, 5, 0);                            // the tube body, shaded round
+    if (G.hull) {                                                                // the Mothership: an angular armoured hull
+      const hg = ctx.createLinearGradient(-11, 0, 11, 0);
+      hg.addColorStop(0, '#111216'); hg.addColorStop(0.5, '#454852'); hg.addColorStop(1, '#0f1014');
+      ctx.fillStyle = hg; poly([[0, 28], [9, 13], [11.5, -12], [7, -27], [-7, -27], [-11.5, -12], [-9, 13]]);
+      ctx.strokeStyle = 'rgba(0,0,0,.55)'; ctx.lineWidth = 0.7;                 // a spine and armour seams
+      ctx.beginPath(); ctx.moveTo(0, 27); ctx.lineTo(0, -26);
+      for (const y of [4, -8, -19]) { ctx.moveTo(-10.5, y - 3); ctx.lineTo(0, y); ctx.lineTo(10.5, y - 3); }
+      ctx.stroke();
+      ctx.fillStyle = '#0b0b0e'; poly([[0, 33], [2.4, 26], [-2.4, 26]]);         // a spike on the nose
+      for (const sg of [-1, 1]) poly([[sg * 11.5, -12], [sg * 15, -17], [sg * 10.5, -15]]);   // and on its shoulders
+      const eye = 0.55 + 0.45 * Math.sin(t * 4);                                // two red eye slits, glowing
+      ctx.fillStyle = `rgba(255,${Math.round(30 + 40 * eye)},40,${(0.6 + 0.4 * eye).toFixed(3)})`;
+      for (const sg of [-1, 1]) poly([[sg * 1.6, 13.5], [sg * 7, 9.5], [sg * 7.4, 11.2], [sg * 1.8, 15.6]]);
+      const hot = x => {                                                         // twin red-hot exhausts
+        ctx.fillStyle = '#0c0c0f'; roundRect(x - 3.6, -31, 7.2, 5, 2); ctx.fill();
+        const fl = 6 + Math.random() * 4, eg = ctx.createLinearGradient(0, -31, 0, -31 - fl);
+        eg.addColorStop(0, 'rgba(255,170,90,.95)'); eg.addColorStop(1, 'rgba(255,40,30,0)');
+        ctx.fillStyle = eg; poly([[x - 3, -31], [x + 3, -31], [x, -31 - fl]]);
+      };
+      hot(-4.5); hot(4.5);
+    } else {
+    const bg = ctx.createLinearGradient(-5, 0, 5, 0);                            // the fuselage: tapered and angular, shaded round
     bg.addColorStop(0, '#50545f'); bg.addColorStop(0.5, '#9298a6'); bg.addColorStop(1, '#4a4e59');
-    ctx.fillStyle = bg; roundRect(-4.6, -23, 9.2, 48, 4.6); ctx.fill();
+    ctx.fillStyle = bg;
+    poly([[0, 27.5], [2.6, 22], [4.4, 15], [4.8, 2], [4.2, -18], [3.4, -23], [-3.4, -23], [-4.2, -18], [-4.8, 2], [-4.4, 15], [-2.6, 22]]);
     ctx.strokeStyle = 'rgba(25,27,33,.5)'; ctx.lineWidth = 0.5;                  // seams
-    ctx.beginPath(); ctx.moveTo(-4.4, 12); ctx.lineTo(4.4, 12); ctx.moveTo(-4.6, -3); ctx.lineTo(4.6, -3); ctx.stroke();
-    ctx.fillStyle = '#2c2f37';                                                   // warhead nose
-    ctx.beginPath(); ctx.ellipse(0, 22, 4.4, 4.6, 0, 0, Math.PI); ctx.fill(); ctx.fillRect(-4.4, 19, 8.8, 3);
+    ctx.beginPath(); ctx.moveTo(-4.6, 12); ctx.lineTo(4.6, 12); ctx.moveTo(-4.8, -3); ctx.lineTo(4.8, -3); ctx.stroke();
+    ctx.fillStyle = '#2c2f37';                                                   // pointed warhead cone
+    poly([[0, 27.5], [2.6, 22], [3.6, 19], [-3.6, 19], [-2.6, 22]]);
+    ctx.fillStyle = 'rgba(255,255,255,.12)'; poly([[0, 27.5], [-2.6, 22], [-1, 22]]);   // a glint on the cone
     ctx.fillStyle = '#1c1e24'; ctx.fillRect(-6, -27, 12, 7);                      // engine block, with cooling fins
     ctx.fillStyle = 'rgba(255,255,255,.14)'; for (let i = 0; i < 4; i++) ctx.fillRect(-5.2 + i * 3, -26.2, 1.2, 5.4);
     if (dmg > 0.5) {                                                             // burning engine
@@ -3926,9 +3955,10 @@ window.LD_RULES = (() => {
       ctx.strokeStyle = 'rgba(30,32,38,.75)'; ctx.lineWidth = 1.6;
       ctx.beginPath(); ctx.moveTo(-pa, -28.5); ctx.lineTo(pa, -28.5); ctx.stroke();
     }
+    }
     const blink = Math.floor(t * (G.fast ? 6 : 3)) % 2 === 0;                    // nav lights (blue on the Night Shahed, fast on the Mothership)
     ctx.fillStyle = G.blue ? (blink ? '#5fb0ff' : '#1d3557') : blink ? '#ff4d4d' : '#5b1d1d';
-    const lights = [[0, 15], [-tipX, -10], [tipX, -10]];
+    const lights = G.hull ? [[-34, -9], [34, -9]] : [[0, 15], [-tipX, -10], [tipX, -10]];
     if (G.blue || G.fast) lights.push([-15, -12], [15, -12], [0, -16]);
     for (const [x, y] of lights) { ctx.beginPath(); ctx.arc(x, y, G.fast || G.blue ? 1.6 : 1.3, 0, 6.29); ctx.fill(); }
     ctx.restore();
@@ -5553,11 +5583,17 @@ window.LD_RULES = (() => {
 
   // The car answers your finger in real time: slow-motion moments (Overdrive starting, a kill's
   // hit-stop) slow the road, never your steering.
+  let puffT = 0;
   function slidePlayer(gameDt) {
     const dt = realDt || gameDt;
     slip = Math.max(0, slip - gameDt);
     player.x += (laneX(player.lane) - player.x) * ease(slip > 0 ? SLIP_EASE : LANE_EASE, dt);
     if (!raidFinale) player.y = H - 100;      // (the raid finale drives it off up the road)
+    if (state === 'play' && !calm && (puffT -= gameDt) <= 0) {      // little puffs from the twin exhausts
+      puffT = 0.06;
+      for (const sx of [-0.2, 0.2]) particles.push({ x: player.x + player.w * sx, y: player.y + player.h + 2, vx: (Math.random() - 0.5) * 24,
+        vy: 70 + speed * 0.2, life: 0.32, color: 'rgba(215,220,232,.75)', puff: 1 });
+    }
   }
 
   function update(dt) {
@@ -5846,7 +5882,8 @@ window.LD_RULES = (() => {
       for (const tx of [l - 4.5, r - ww + 4.5]) {
         ctx.fillStyle = '#14161e'; roundRect(tx, wy, ww, wh, 2.5); ctx.fill();          // tyre
         ctx.fillStyle = 'rgba(255,255,255,.14)';                                         // tread
-        for (let ty = wy + 2; ty < wy + wh - 1; ty += 3) ctx.fillRect(tx + 1, ty, ww - 2, 1);
+        const roll = (roadOffset * 0.35) % 3;                                         // the tread rolls with the road
+        for (let ty = wy + 1 + roll; ty < wy + wh - 1; ty += 3) ctx.fillRect(tx + 1, ty, ww - 2, 1);
         const outer = tx < x ? tx + 0.8 : tx + ww - 3.3;                                  // rim on the outside face
         if (neonRims) { ctx.save(); ctx.fillStyle = paint.glow; ctx.globalAlpha = 0.35; roundRect(outer - 2.5, wy + wh * 0.04, 7.5, wh * 0.92, 3); ctx.fill(); ctx.globalAlpha = 1; roundRect(outer - 0.5, wy + wh * 0.12, 3.5, wh * 0.76, 1.5); ctx.fill(); ctx.restore(); }
         ctx.fillStyle = rim; roundRect(outer, wy + wh * 0.18, 2.5, wh * 0.64, 1.2); ctx.fill();
@@ -6454,8 +6491,9 @@ window.LD_RULES = (() => {
     ctx.rotate(ang + Math.sin(t * 3) * 0.07);                  // heading + a little wobble
     ctx.fillStyle = '#7a7f8e';
     poly([[0, 26], [31, -13], [28, -18], [0, -11], [-28, -18], [-31, -13]]);
-    ctx.fillStyle = '#5b606e';
-    roundRect(-5, -22, 10, 46, 5); ctx.fill();
+    ctx.fillStyle = '#5b606e';                                 // tapered, angular fuselage with a pointed nose
+    poly([[0, 27], [3, 21], [4.8, 13], [5.2, 0], [4.6, -18], [3.6, -22], [-3.6, -22], [-4.6, -18], [-5.2, 0], [-4.8, 13], [-3, 21]]);
+    ctx.fillStyle = '#353944'; poly([[0, 27], [3, 21], [3.8, 18], [-3.8, 18], [-3, 21]]);
     ctx.fillStyle = '#3d414d';                                 // wingtip fins
     ctx.fillRect(-31, -21, 4, 11); ctx.fillRect(27, -21, 4, 11);
     ctx.fillStyle = Math.floor(t * 4) % 2 ? '#f56565' : '#5b1d1d'; // blinking light
@@ -7022,7 +7060,11 @@ window.LD_RULES = (() => {
       const lean = Math.max(-1, Math.min(1, (laneX(player.lane) - player.x) / laneW)) * 0.26;
       ctx.save();
       if (blink) ctx.globalAlpha = 0.45;
-      if (lean) { const cy = player.y + player.h / 2; ctx.translate(player.x, cy); ctx.rotate(lean); ctx.translate(-player.x, -cy); }
+      const live = state === 'play';
+      const bob = live && !calm ? Math.sin(runTime * 24) * 0.8 * Math.min(1, speed / 600) : 0;   // a little suspension bounce
+      const sq = live ? Math.max(0, 1 - (runTime - lastLaneChangeT) / 0.2) : 0;                // a quick squash as it switches lanes
+      { const cy = player.y + player.h / 2; ctx.translate(player.x, cy + bob); if (lean) ctx.rotate(lean);
+        if (sq) ctx.scale(1 - 0.06 * sq, 1 + 0.05 * sq); ctx.translate(-player.x, -cy); }
       if (odPhase) softGlow(player.x - player.w / 2, player.y, player.w, player.h, 14, `hsl(${trailHue(1)},100%,60%)`, 0.55, 14);
       drawCar(player.x, player.y, player.w, player.h, carPaint(carHue, carShade), level,
               { loaded: Math.min(MAX_ROCKETS, Math.floor(wallet / ROCKET_COST)), kick: launcherKick }, carNo);
@@ -7057,7 +7099,8 @@ window.LD_RULES = (() => {
     for (const p of particles) {
       ctx.globalAlpha = Math.max(0, p.life / 0.6);
       ctx.fillStyle = p.color;
-      ctx.fillRect(p.x - 3, p.y - 3, 6, 6);
+      if (p.puff) { ctx.beginPath(); ctx.arc(p.x, p.y, 2 + (0.32 - p.life) * 16, 0, 6.29); ctx.fill(); }   // a puff grows as it fades
+      else ctx.fillRect(p.x - 3, p.y - 3, 6, 6);
     }
     ctx.textAlign = 'center';
     for (const f of floats) {
