@@ -71,6 +71,10 @@
   }
   .hrow { display: flex; align-items: center; gap: 10px; }
   #score { font-weight: 800; font-size: 22px; font-variant-numeric: tabular-nums; }
+  /* ghost race: how far ahead (green) or behind (red) of the ghost you are */
+  .ghostChip { font-size: 12px; font-weight: 800; padding: 2px 7px; border-radius: 9px; background: rgba(255,255,255,.12); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .ghostChip.ahead { background: rgba(72,187,120,.3); } .ghostChip.behind { background: rgba(245,101,101,.3); }
+  .ghostLine { font-size: 15px; font-weight: 900; margin: -2px 0 0 !important; }
   /* Combo badge: xN in the tier's colour, with a thin bar filling towards the next tier
      (at x5: towards Overdrive; during Overdrive: the time left) */
   #streak {
@@ -993,7 +997,7 @@
   </div>
 
   <div id="hud">
-    <div class="hrow"><span id="score">0</span><span id="streak">×2</span><span class="livesBox"><span id="lives" role="img"></span><span id="heartProg" hidden></span></span><button id="pauseBtn" type="button" data-i18n-title="pause" data-i18n-aria="pause" aria-label="Pause">⏸</button></div>
+    <div class="hrow"><span id="score">0</span><span id="ghostChip" class="ghostChip" hidden></span><span id="streak">×2</span><span class="livesBox"><span id="lives" role="img"></span><span id="heartProg" hidden></span></span><button id="pauseBtn" type="button" data-i18n-title="pause" data-i18n-aria="pause" aria-label="Pause">⏸</button></div>
     <div class="hrow"><span class="tag" id="level">LV 1</span><div class="bar"><div id="prog"></div></div><span class="small" id="togo">400 m</span></div>
     <div class="hrow" id="fuelRow"><span class="tag" data-i18n="fuel">FUEL</span><div class="bar"><div id="fuel"></div></div><span id="hudRk" class="hudRk" aria-hidden="true"><b id="hudRkN">0</b><span class="hudRkPips"><i></i><i></i><i></i></span></span></div>
   </div>
@@ -1206,6 +1210,7 @@
         <div id="statKillsTile" hidden><i class="si" aria-hidden="true">🎯</i><b id="statKills">0</b><span data-i18n="shotDownStat">Shot down</span></div>
       </div>
       <p id="overDaily" class="overDaily" hidden></p>
+      <p id="ghostLine" class="ghostLine" hidden></p>
       <p id="overTrip" class="overTrip"></p>
       <p id="bestLine"></p>
       <div id="learnTip" class="learnTip" hidden><span data-i18n="learnTip">Finding it tough? Try Learner: a slower road.</span>
@@ -1337,7 +1342,8 @@ window.I18N = (() => {
       shTip0: "Get under it and fire", shTip1: "2 lanes at once", shTip2: "Find the open lane", shTip3: "Shoot when it shows", shTip4: "Keep moving", shTip5: "🛡️ Armour first", shTip6: "Shoot as it stops", shTip7: "Shoot the small ones", shTip8: "🛡️ Armour + every trick", armourBroken: "ARMOUR DOWN!", fuelLane: "Fuel lane: drive through it!", fuelFull: "Full tank!",
       lmShare: "📍 I passed {name} in Drone Dash ({area} · level {n}). Can you find it too?", setupTitle: "Your run",
       back: "Back",
-      finalBoss: "FINAL BOSS", enraged: "ENRAGED!"
+      finalBoss: "FINAL BOSS", enraged: "ENRAGED!",
+      ghostBeat: "👻 Race my ghost on today's Daily:", ghostReady: "👻 Ghost loaded: beat {score} in today's Daily", ghostOld: "👻 That ghost was for Daily #{n}", ghostWin: "👻 You beat the ghost by {n}!", ghostLose: "👻 The ghost won by {n}"
     },
     es: {
       tagline: "Esquiva obstáculos. Derriba drones.",
@@ -1447,7 +1453,8 @@ window.I18N = (() => {
       lmShare: "📍 Pasé por {name} en Drone Dash ({area} · nivel {n}). ¿Puedes encontrarlo tú también?",
       setupTitle: "Tu partida",
       back: "Atrás",
-      finalBoss: "JEFE FINAL", enraged: "¡FURIOSO!"
+      finalBoss: "JEFE FINAL", enraged: "¡FURIOSO!",
+      ghostBeat: "👻 Corre contra mi fantasma en el Desafío diario de hoy:", ghostReady: "👻 Fantasma listo: supera {score} en el Desafío diario de hoy", ghostOld: "👻 Ese fantasma era del Diario n.º {n}", ghostWin: "👻 ¡Le ganaste al fantasma por {n}!", ghostLose: "👻 El fantasma ganó por {n}"
     },
     fr: {
       tagline: "Évite les obstacles. Abats les drones.",
@@ -1557,7 +1564,8 @@ window.I18N = (() => {
       lmShare: "📍 J'ai croisé {name} dans Drone Dash ({area} · niveau {n}). Tu peux le trouver aussi ?",
       setupTitle: "Ta partie",
       back: "Retour",
-      finalBoss: "BOSS FINAL", enraged: "EN RAGE !"
+      finalBoss: "BOSS FINAL", enraged: "EN RAGE !",
+      ghostBeat: "👻 Affronte mon fantôme sur le Défi du jour :", ghostReady: "👻 Fantôme chargé : bats {score} sur le Défi du jour", ghostOld: "👻 Ce fantôme était pour le Défi n° {n}", ghostWin: "👻 Tu as battu le fantôme de {n} !", ghostLose: "👻 Le fantôme a gagné de {n}"
     },
     de: {
       tagline: "Ausweichen. Drohnen abschießen.",
@@ -1667,7 +1675,8 @@ window.I18N = (() => {
       lmShare: "📍 Ich bin in Drone Dash an {name} vorbeigefahren ({area} · Level {n}). Findest du es auch?",
       setupTitle: "Deine Fahrt",
       back: "Zurück",
-      finalBoss: "ENDGEGNER", enraged: "WÜTEND!"
+      finalBoss: "ENDGEGNER", enraged: "WÜTEND!",
+      ghostBeat: "👻 Fahr gegen meinen Geist in der heutigen Tagesaufgabe:", ghostReady: "👻 Geist geladen: schlag {score} in der heutigen Tagesaufgabe", ghostOld: "👻 Dieser Geist war für Tagesaufgabe Nr. {n}", ghostWin: "👻 Du hast den Geist um {n} geschlagen!", ghostLose: "👻 Der Geist hat um {n} gewonnen"
     },
     pt: {
       tagline: "Desvie dos obstáculos. Derrube drones.",
@@ -1777,7 +1786,8 @@ window.I18N = (() => {
       lmShare: "📍 Passei por {name} no Drone Dash ({area} · nível {n}). Consegue encontrar também?",
       setupTitle: "Sua corrida",
       back: "Voltar",
-      finalBoss: "CHEFE FINAL", enraged: "ENFURECIDO!"
+      finalBoss: "CHEFE FINAL", enraged: "ENFURECIDO!",
+      ghostBeat: "👻 Corra contra o meu fantasma no Desafio diário de hoje:", ghostReady: "👻 Fantasma carregado: supere {score} no Desafio diário de hoje", ghostOld: "👻 Esse fantasma era do Diário nº {n}", ghostWin: "👻 Você venceu o fantasma por {n}!", ghostLose: "👻 O fantasma venceu por {n}"
     },
     it: {
       tagline: "Schiva gli ostacoli. Abbatti i droni.",
@@ -1887,7 +1897,8 @@ window.I18N = (() => {
       lmShare: "📍 Ho superato {name} in Drone Dash ({area} · livello {n}). Riesci a trovarlo anche tu?",
       setupTitle: "La tua corsa",
       back: "Indietro",
-      finalBoss: "BOSS FINALE", enraged: "INFURIATO!"
+      finalBoss: "BOSS FINALE", enraged: "INFURIATO!",
+      ghostBeat: "👻 Sfida il mio fantasma nella Sfida del giorno:", ghostReady: "👻 Fantasma caricato: batti {score} nella Sfida di oggi", ghostOld: "👻 Quel fantasma era per la Sfida n. {n}", ghostWin: "👻 Hai battuto il fantasma di {n}!", ghostLose: "👻 Il fantasma ha vinto di {n}"
     },
     ja: {
       tagline: "障害物をよけ、ドローンを撃墜！",
@@ -1997,7 +2008,8 @@ window.I18N = (() => {
       lmShare: "📍 Drone Dashで{name}を通過！（{area}・レベル{n}）君も見つけられる？",
       setupTitle: "今回のラン",
       back: "戻る",
-      finalBoss: "ラスボス", enraged: "激怒！"
+      finalBoss: "ラスボス", enraged: "激怒！",
+      ghostBeat: "👻 今日のデイリーで私のゴーストと勝負：", ghostReady: "👻 ゴースト準備完了：今日のデイリーで {score} を超えよう", ghostOld: "👻 そのゴーストはデイリー #{n} のものです", ghostWin: "👻 ゴーストに {n} 差で勝った！", ghostLose: "👻 ゴーストの勝ち（{n} 差）"
     },
     zh: {
       tagline: "躲开障碍，击落无人机！",
@@ -2107,7 +2119,8 @@ window.I18N = (() => {
       lmShare: "📍 我在 Drone Dash 里经过了{name}（{area} · 第 {n} 关）。你也能找到吗？",
       setupTitle: "本局设置",
       back: "返回",
-      finalBoss: "最终头目", enraged: "暴怒！"
+      finalBoss: "最终头目", enraged: "暴怒！",
+      ghostBeat: "👻 来今天的每日挑战和我的幽灵比一比：", ghostReady: "👻 幽灵已载入：在今天的每日挑战中超过 {score}", ghostOld: "👻 这个幽灵属于每日挑战 #{n}", ghostWin: "👻 你以 {n} 分战胜了幽灵！", ghostLose: "👻 幽灵以 {n} 分获胜"
     },
     ko: {
       tagline: "장애물을 피하고 드론을 격추하라!",
@@ -2217,7 +2230,8 @@ window.I18N = (() => {
       lmShare: "📍 Drone Dash에서 {name}을(를) 지나쳤어 ({area} · 레벨 {n}). 너도 찾을 수 있어?",
       setupTitle: "이번 주행",
       back: "뒤로",
-      finalBoss: "최종 보스", enraged: "격노!"
+      finalBoss: "최종 보스", enraged: "격노!",
+      ghostBeat: "👻 오늘의 데일리에서 내 고스트와 겨뤄 봐:", ghostReady: "👻 고스트 준비 완료: 오늘의 데일리에서 {score}점을 넘어 봐", ghostOld: "👻 그 고스트는 데일리 #{n}용이었어요", ghostWin: "👻 고스트를 {n}점 차로 이겼어요!", ghostLose: "👻 고스트가 {n}점 차로 이겼어요"
     },
     hi: {
       tagline: "बाधाओं से बचो, ड्रोन मार गिराओ!",
@@ -2327,7 +2341,8 @@ window.I18N = (() => {
       lmShare: "📍 मैंने Drone Dash में {name} पार किया ({area} · लेवल {n})। क्या तुम भी इसे ढूँढ सकते हो?",
       setupTitle: "तुम्हारी दौड़",
       back: "वापस",
-      finalBoss: "आख़िरी बॉस", enraged: "ग़ुस्से में!"
+      finalBoss: "आख़िरी बॉस", enraged: "ग़ुस्से में!",
+      ghostBeat: "👻 आज के डेली में मेरे भूत से रेस करो:", ghostReady: "👻 भूत तैयार: आज के डेली में {score} को हराओ", ghostOld: "👻 वह भूत डेली #{n} का था", ghostWin: "👻 तुमने भूत को {n} से हराया!", ghostLose: "👻 भूत {n} से जीत गया"
     },
     uk: {
       tagline: "Оминай перешкоди. Збивай шахеди.",
@@ -2439,7 +2454,8 @@ window.I18N = (() => {
       lmShare: "📍 Я проїхав {name} у Drone Dash ({area} · рівень {n}). А ти знайдеш?",
       setupTitle: "Твій заїзд",
       back: "Назад",
-      finalBoss: "ФІНАЛЬНИЙ БОС", enraged: "ЛЮТУЄ!"
+      finalBoss: "ФІНАЛЬНИЙ БОС", enraged: "ЛЮТУЄ!",
+      ghostBeat: "👻 Обжени мого привида в сьогоднішньому щоденному виклику:", ghostReady: "👻 Привид готовий: побий {score} у сьогоднішньому щоденному виклику", ghostOld: "👻 Цей привид був для щоденного №{n}", ghostWin: "👻 Ти обігнав привида на {n}!", ghostLose: "👻 Привид переміг на {n}"
     },
     ka: {
       tagline: "აარიდე დაბრკოლებებს. ჩამოაგდე დრონები.",
@@ -2549,7 +2565,8 @@ window.I18N = (() => {
       lmShare: "📍 Drone Dash-ში {name} გავიარე ({area} · დონე {n}). შენც იპოვი?",
       setupTitle: "შენი რბოლა",
       back: "უკან",
-      finalBoss: "ფინალური ბოსი", enraged: "გაცოფდა!"
+      finalBoss: "ფინალური ბოსი", enraged: "გაცოფდა!",
+      ghostBeat: "👻 შეეჯიბრე ჩემს მოჩვენებას დღევანდელ გამოწვევაში:", ghostReady: "👻 მოჩვენება მზადაა: აჯობე {score}-ს დღევანდელ გამოწვევაში", ghostOld: "👻 ეს მოჩვენება გამოწვევა #{n}-ისთვის იყო", ghostWin: "👻 მოჩვენებას {n}-ით აჯობე!", ghostLose: "👻 მოჩვენებამ {n}-ით მოიგო"
     }
   };
   const NAMES = {
@@ -3110,7 +3127,7 @@ window.LD_RULES = (() => {
   const RAID_OD_TIME = 3.5, FREE_RELOAD = 0.15, FREE_RELOAD_BOSS = 0.35;   // the raid's opening Overdrive (s); time between free rockets (s): spam away, a bit slower at a big Shahed
   let freeCool = 0;                        // combo for each rocket that hits its body
   const BOMB_FUEL = 6;                         // fuel lost to a direct hit from one of its bombs
-  const RAID_DRAIN = [1.5, 2.2, 3], RAID_COIN_FUEL = [4, 3, 2.5];   // raid: fuel burnt per second, and fuel per coin (Rookie / Veteran / Legend)
+  const RAID_DRAIN = [1.2, 1.8, 2.5], RAID_COIN_FUEL = [4, 3, 2.5];   // raid: fuel burnt per second, and fuel per coin (Rookie / Veteran / Legend)
   const BOMB_CHARGE = 0.7, BOMB_EXTRA = 140;   // warning before each drop (s); bombs then fly this much faster than the road
   let boss = null, bossDoneLevel = 0, bossesRun = 0, whiteT = 0;
   const BREATHER = 8;                 // seconds of calmer road after a big Shahed (after its victory lap): 5 at 80%, then 3 easing back
@@ -3470,6 +3487,8 @@ window.LD_RULES = (() => {
     player = { lane: 1, x: laneX(1), y: H - 100, w: R.carW(laneW), h: R.CAR_H };
     objects = []; particles = []; floats = [];
     runDay = mode === 'daily' ? dayInfo() : null;
+    ghostRec = runDay ? [[1, 0, 0]] : null; ghostT = 0;              // daily runs record a ghost, and race one from a link
+    ghostRace = runDay && ghostLoaded && ghostLoaded.n === runDay.n ? ghostLoaded : null;
     raidOn = mode === 'raid'; raidWait = RAID_GAP; raidOD = false; raidFinale = 0; finaleV = 0;
     bestDistPx = Math.max(readNum('ddBestDist'), ...loadRuns().map(r => r.d || 0)) * PX_PER_M;   // older players: from their Records
     twist = runDay ? runDay.twist : NO_TWIST;
@@ -3497,6 +3516,7 @@ window.LD_RULES = (() => {
 
   function updateHud() {
     el.score.textContent = num(score());
+    paintGhostChip();
     paintCombo();
     const hearts = '♥'.repeat(lives) + '♡'.repeat(MAX_LIVES - lives);
     if (el.lives.textContent !== hearts) { el.lives.textContent = hearts; el.lives.setAttribute('aria-label', t('livesAria', { n: lives, max: MAX_LIVES })); }
@@ -4646,6 +4666,14 @@ window.LD_RULES = (() => {
     warpT = 0; boss = null;
     lastRun = { s, l: level, d: Math.floor(distance / PX_PER_M), c: coins, k: kills, o: overdrives, tm: Math.round(runTime), a: raidOn ? lookArea : areaFor(level),
                 h: carHue, v: carShade, no: carNo, f: carFinish, tr: carTrail(), km: bossMarks().length, b: bossesRun, day: runDay ? runDay.n : 0, tw: runDay ? twist.key : '', raid: raidOn ? bossesRun : -1 };
+    if (runDay && ghostRec) { ghostRec.push([player.lane, Math.floor(distance / PX_PER_M), s]); lastRun.g = ghostEncode(runDay.n, ghostRec, s, runTime); }
+    $('ghostLine').hidden = !ghostRace;
+    if (ghostRace) {
+      const d = s - ghostRace.end, gl = $('ghostLine');
+      gl.textContent = t(d > 0 ? 'ghostWin' : 'ghostLose', { n: num(Math.abs(d)) });
+      gl.style.color = d > 0 ? 'var(--ok, #68d391)' : 'var(--enemy, #fc8181)';
+      ddTrack(d > 0 ? 'ghost-win' : 'ghost-lose', 'Ghost race ' + (d > 0 ? 'won' : 'lost'));
+    }
     $('shareNote').hidden = true;
     $('overDaily').hidden = !runDay && !raidOn;
     const separate = runDay || raidOn;                            // daily and raid runs keep their own bests
@@ -4704,6 +4732,83 @@ window.LD_RULES = (() => {
     shownOverlay = 'over';
     requestAnimationFrame(() => fitCard('over'));
   }
+  // ---- Ghost races: race a friend's daily run from a link (no server needed) ----
+  // A daily run is sampled every half second (lane, metres, score). Sharing it puts those samples
+  // in the link; opening the link the same day lets you race that run as a see-through car.
+  const GHOST_DT = 0.5, GHOST_MAX = 1800;                     // samples every 0.5 s, up to 15 minutes
+  let ghostRec = null, ghostT = 0, ghostRace = null, ghostLoaded = null;
+  function ghostEncode(day, rec, end, tm) {
+    const b = [1];                                             // version
+    const v = x => { x = Math.max(0, Math.round(x)); while (x >= 128) { b.push((x & 127) | 128); x = Math.floor(x / 128); } b.push(x); };
+    v(day); v(carHue); v(carShade); v(end); v(tm * 10); v(rec.length);
+    let m0 = 0, s0 = 0;
+    for (const [ln, m, sc] of rec) { b.push(ln); v(m - m0); v(Math.floor(sc / 10) - s0); m0 = m; s0 = Math.floor(sc / 10); }
+    let bin = ''; for (const x of b) bin += String.fromCharCode(x);
+    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function ghostDecode(code) {
+    try {
+      const bin = atob(code.replace(/-/g, '+').replace(/_/g, '/')), b = [...bin].map(c => c.charCodeAt(0));
+      let i = 0;
+      const v = () => { let x = 0, k = 1, c; do { if (i >= b.length) throw 0; c = b[i++]; x += (c & 127) * k; k *= 128; } while (c & 128); return x; };
+      if (b[i++] !== 1) return null;
+      const g = { n: v(), h: v(), v: v(), end: v(), tm: v() / 10, s: [] }, len = v();
+      if (len > GHOST_MAX + 1) return null;                     // (+1: the final moment)
+      let m = 0, sc = 0;
+      for (let k = 0; k < len; k++) { const ln = b[i++]; if (!(ln <= 2)) return null; m += v(); sc += v(); g.s.push([ln, m, sc * 10]); }
+      return g.s.length ? g : null;
+    } catch { return null; }
+  }
+  // where the ghost is at a moment of its run: lane position (eased between samples), metres, score
+  function ghostAt(g, tm) {
+    const f = Math.min(tm, g.tm) / GHOST_DT, i = Math.min(g.s.length - 1, Math.floor(f)), j = Math.min(g.s.length - 1, i + 1), k = f - i;
+    const [l0, m0, s0] = g.s[i], [l1, m1, s1] = g.s[j];
+    return { lane: l0 + (l1 - l0) * Math.min(1, k / 0.35), m: m0 + (m1 - m0) * k, sc: tm >= g.tm ? g.end : s0 + (s1 - s0) * k };
+  }
+  function ghostRecord(dt) {
+    if (!ghostRec || ghostRec.length >= GHOST_MAX || (ghostT += dt) < GHOST_DT) return;
+    ghostT -= GHOST_DT; ghostRec.push([player.lane, Math.floor(distance / PX_PER_M), score()]);
+  }
+  function drawGhost() {
+    const g = ghostRace, gone = runTime - g.tm;                 // the ghost's run ended: it fades out
+    if (gone > 1) return;
+    const at = ghostAt(g, runTime), x = vergeW + laneW * at.lane + laneW / 2;
+    const ahead = at.m * PX_PER_M - distance;
+    let y = player.y - ahead, tag = '';
+    if (y < 34) { tag = '▲ ' + t('meters', { n: Math.round(ahead / PX_PER_M) }); y = 34; }
+    else if (y > H - player.h - 6) { tag = '▼ ' + t('meters', { n: Math.round(-ahead / PX_PER_M) }); y = H - player.h - 6; }
+    ctx.save();
+    ctx.globalAlpha = 0.38 * (gone > 0 ? 1 - gone : 1);
+    drawCar(x, y, player.w, player.h, carPaint(g.h, g.v, '', 0), level, { loaded: 0, kick: 0 }, 0);
+    ctx.globalAlpha = 0.9 * (gone > 0 ? 1 - gone : 1);
+    ctx.font = '800 12px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#fff';
+    ctx.fillText('👻' + (tag ? ' ' + tag : ''), x, y - 6);
+    ctx.restore();
+  }
+  function paintGhostChip() {
+    const c = $('ghostChip');
+    c.hidden = !ghostRace;
+    if (!ghostRace) return;
+    const d = score() - Math.round(ghostAt(ghostRace, runTime).sc), txt = '👻 ' + (d >= 0 ? '+' : '−') + num(Math.abs(d));
+    if (c.textContent !== txt) c.textContent = txt;
+    c.classList.toggle('ahead', d >= 0); c.classList.toggle('behind', d < 0);
+  }
+  // a ghost link: ?g=…  (kept for the rest of that day, so it survives a restart)
+  function ghostFromLink() {
+    let code = new URLSearchParams(location.search).get('g'), fresh = !!code;
+    if (fresh) history.replaceState(null, '', location.pathname + location.hash);
+    else { try { code = localStorage.getItem('ddGhost'); } catch {} }
+    if (!code) return;
+    const g = ghostDecode(code), today = dayInfo().n;
+    if (g && g.n === today) {
+      ghostLoaded = g;
+      if (fresh) { try { localStorage.setItem('ddGhost', code); } catch {} toast(t('ghostReady', { score: num(g.end) })); ddTrack('ghost-open', 'Opened a ghost race'); }
+    } else {
+      try { localStorage.removeItem('ddGhost'); } catch {}
+      if (fresh && g) toast(t('ghostOld', { n: g.n }));
+    }
+  }
+
   // ---- Share: a picture of the result plus a line of text, through the phone's share sheet ----
   let lastRun = null;
   const GAME_URL = 'https://set0panda.github.io/DroneDash/';
@@ -4716,7 +4821,7 @@ window.LD_RULES = (() => {
       : r.raid >= 0 ? '🛸 Drone Dash · ' + t('raidBtn') + ': ' + t('raidResult', { n: r.raid }) : '🚗 Drone Dash';
     const line = ['🏆 ' + t('sharePts', { score: r.s }), t('level') + ' ' + num(r.l), A.icon + ' ' + t(A.key), r.k ? '🎯 ' + num(r.k) : '']
       .filter(Boolean).join(' · ');
-    return head + '\n' + line + '\n' + t('beatIt');
+    return head + '\n' + line + '\n' + t(r.g ? 'ghostBeat' : 'beatIt');
   }
   function shareCard(r) {
     const cv = document.createElement('canvas'), CW = 1080, CH = 1350;
@@ -4783,18 +4888,18 @@ window.LD_RULES = (() => {
   async function shareRun(run) {
     const r = run && run.s !== undefined ? run : lastRun; if (!r) return;
     ddTrack('share', 'Shared a result');
-    const text = shareText(r), note = $('shareNote');
+    const text = shareText(r), note = $('shareNote'), url = r.g ? GAME_URL + '?g=' + r.g : GAME_URL;
     const say = k => { if (r === lastRun) { note.textContent = t(k); note.hidden = false; } else toast(t(k)); };   // from Records: a pop-up
     try {
       const blob = r.blob || await new Promise(res => shareCard(r).toBlob(res, 'image/png'));
       const file = blob && new File([blob], 'drone-dash.png', { type: 'image/png' });
       if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], text: text + ' ' + GAME_URL });
+        await navigator.share({ files: [file], text: text + ' ' + url });
         return;
       }
-      if (navigator.share) { await navigator.share({ text, url: GAME_URL }); return; }
+      if (navigator.share) { await navigator.share({ text, url: url }); return; }
       // Desktop without a share sheet: copy the text, and save the picture.
-      try { await navigator.clipboard.writeText(text + ' ' + GAME_URL); say('copied'); } catch { say('shareFailed'); }
+      try { await navigator.clipboard.writeText(text + ' ' + url); say('copied'); } catch { say('shareFailed'); }
       if (blob) {
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob); a.download = 'drone-dash.png';
@@ -4803,7 +4908,7 @@ window.LD_RULES = (() => {
       }
     } catch (e) {
       if (e && e.name === 'AbortError') return;   // closed the share sheet
-      try { await navigator.clipboard.writeText(text + ' ' + GAME_URL); say('copied'); } catch { say('shareFailed'); }
+      try { await navigator.clipboard.writeText(text + ' ' + url); say('copied'); } catch { say('shareFailed'); }
     }
   }
   // Long numbers ("123.456 m") and long labels ("ABGESCHOSSEN") shrink to fit their
@@ -5498,7 +5603,7 @@ window.LD_RULES = (() => {
   function paintHomeBest() {
     const { n, twist: tw } = dayInfo(), d = dailyNow();
     // today's twist on one line, your best and streak (once you have them) on the next
-    const mine = [d.best ? '🏆 ' + num(d.best) : '', d.streak ? '🔥 ' + num(d.streak) : ''].filter(Boolean).join(' · ');
+    const mine = [ghostLoaded && ghostLoaded.n === n ? '👻 ' + num(ghostLoaded.end) : '', d.best ? '🏆 ' + num(d.best) : '', d.streak ? '🔥 ' + num(d.streak) : ''].filter(Boolean).join(' · ');
     $('dailySub').textContent = t(tw.key) + (mine ? '\n' + mine : '');
     $('dayNo').textContent = '#' + n;
     paintMissions($('homeMissions'), true);
@@ -5675,6 +5780,7 @@ window.LD_RULES = (() => {
     const step = speed * odBoost * dt;
     distance += step;
     runTime += dt;
+    ghostRecord(dt);
     if (!boss && !raidOn) levelDist += step; // the level holds still while a giant Shahed is up (and all through a raid)
     flash = Math.max(0, flash - dt);
     slidePlayer(dt);
@@ -7063,6 +7169,7 @@ window.LD_RULES = (() => {
     if (!(flash > 0 && Math.floor(flash * 16) % 2 === 0)) {
       // the car leans into a lane change and settles back as it arrives
       const lean = Math.max(-1, Math.min(1, (laneX(player.lane) - player.x) / laneW)) * 0.26;
+      if (ghostRace) drawGhost();
       ctx.save();
       if (blink) ctx.globalAlpha = 0.45;
       const live = state === 'play';
@@ -7652,6 +7759,7 @@ window.LD_RULES = (() => {
   I18N.onChange(() => { paintMute(); updateHud(); paintHomeBest(); fitStats(); });
   I18N.apply();
 
+  ghostFromLink();
   goHome();
   requestAnimationFrame(loop);
 })();

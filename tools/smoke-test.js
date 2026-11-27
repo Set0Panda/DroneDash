@@ -50,6 +50,8 @@
     ["let carNo = 7;", "let carNo = 7; window.__end = () => gameOver('fuel'); window.__G = () => ({ state, level, lives, fuel, wallet, kills, coins, objects, drones, rockets, player, laneW, lookArea, combo, mult: comboMult(), odPhase, overdrives, bossesRun, bossLane: boss ? Math.max(0, Math.min(2, Math.round((boss.x - vergeW - laneW / 2) / laneW))) : -1, bossCharge: boss && boss.charge ? boss.charge.lanes : [] });"],
     // translations table, for the language check
     ["const STR = {", "const STR = window.__STR = {"],
+    // the last run (its ghost code)
+    ["let lastRun = null;", "let lastRun = null; window.__lr = () => lastRun; window.__ghostDecode = c => ghostDecode(c);"],
     // a hook to drive the giant Shahed code directly
     ["const rocketPower = () =>", "window.__T = { down: () => bossDown(), setRun: n => { bossesRun = n; }, draw: tier => drawGiantShahed(0, 0, 0, tier), finale: () => raidFinale, power: () => rocketPower(), boss: () => !!boss }; const rocketPower = () =>"],
     // count what happened, by the floating texts the game shows
@@ -175,6 +177,9 @@
     let df = 0; while (df < 30000 && $('over').classList.contains('hidden')) { drive(); stepSafe(1); df++; }
     if ($('over').classList.contains('hidden')) { window.__end(); stepSafe(5); }   // outlasted the budget: end it here
     report.checks.dailyGameOver = !$('over').classList.contains('hidden') && !$('overDaily').hidden;
+    { const g = __lr() && __lr().g, d = g && __ghostDecode(g);      // a daily run leaves a ghost for the share link
+      report.checks.dailyGhost = { chars: g ? g.length : 0, samples: d ? d.s.length : 0, end: d ? d.end : -1 };
+      if (!d || d.end !== __lr().s) report.errors.push('daily ghost: missing or wrong'); }
     $('shareBtn').click(); await sleep(600);
     report.checks.shareCopiesText = !!(window.__copied && window.__copied.includes('Drone Dash'));
     // Shahed Raid: straight into the giant Shaheds, one after another
