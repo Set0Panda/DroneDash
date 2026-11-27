@@ -3110,6 +3110,7 @@ window.LD_RULES = (() => {
   const RAID_OD_TIME = 3.5, FREE_RELOAD = 0.15, FREE_RELOAD_BOSS = 0.35;   // the raid's opening Overdrive (s); time between free rockets (s): spam away, a bit slower at a big Shahed
   let freeCool = 0;                        // combo for each rocket that hits its body
   const BOMB_FUEL = 6;                         // fuel lost to a direct hit from one of its bombs
+  const RAID_DRAIN = [1.5, 2.2, 3], RAID_COIN_FUEL = [4, 3, 2.5];   // raid: fuel burnt per second, and fuel per coin (Rookie / Veteran / Legend)
   const BOMB_CHARGE = 0.7, BOMB_EXTRA = 140;   // warning before each drop (s); bombs then fly this much faster than the road
   let boss = null, bossDoneLevel = 0, bossesRun = 0, whiteT = 0;
   const BREATHER = 8;                 // seconds of calmer road after a big Shahed (after its victory lap): 5 at 80%, then 3 easing back
@@ -3908,12 +3909,12 @@ window.LD_RULES = (() => {
     if (G.hull) {                                                                // the Mothership: an angular armoured hull
       const hg = ctx.createLinearGradient(-11, 0, 11, 0);
       hg.addColorStop(0, '#111216'); hg.addColorStop(0.5, '#454852'); hg.addColorStop(1, '#0f1014');
-      ctx.fillStyle = hg; poly([[0, 28], [9, 13], [11.5, -12], [7, -27], [-7, -27], [-11.5, -12], [-9, 13]]);
+      ctx.fillStyle = hg; poly([[-7, 27], [7, 27], [10, 15], [11.5, -12], [7, -27], [-7, -27], [-11.5, -12], [-10, 15]]);
       ctx.strokeStyle = 'rgba(0,0,0,.55)'; ctx.lineWidth = 0.7;                 // a spine and armour seams
-      ctx.beginPath(); ctx.moveTo(0, 27); ctx.lineTo(0, -26);
+      ctx.beginPath(); ctx.moveTo(0, 22); ctx.lineTo(0, -26);
       for (const y of [4, -8, -19]) { ctx.moveTo(-10.5, y - 3); ctx.lineTo(0, y); ctx.lineTo(10.5, y - 3); }
       ctx.stroke();
-      ctx.fillStyle = '#0b0b0e'; poly([[0, 33], [2.4, 26], [-2.4, 26]]);         // a spike on the nose
+      ctx.fillStyle = '#0b0b0e'; poly([[-8, 29], [8, 29], [7, 24], [-7, 24]]);  // a heavy armoured prow, flat across the front
       for (const sg of [-1, 1]) poly([[sg * 11.5, -12], [sg * 15, -17], [sg * 10.5, -15]]);   // and on its shoulders
       const eye = 0.55 + 0.45 * Math.sin(t * 4);                                // two red eye slits, glowing
       ctx.fillStyle = `rgba(255,${Math.round(30 + 40 * eye)},40,${(0.6 + 0.4 * eye).toFixed(3)})`;
@@ -4531,7 +4532,7 @@ window.LD_RULES = (() => {
       floatText(ox, o.y, '+' + num(pts), getVar('--coin'));
       sfx.coin(comboMult());
       addCombo(GAIN.coin);
-      fuel = Math.min(100, fuel + coinFuel(level));          // every coin: straight into the tank
+      fuel = Math.min(100, fuel + (raidOn ? RAID_COIN_FUEL[runDiffI] : coinFuel(level)));   // every coin: straight into the tank (less in a raid)
       el.fuel.classList.remove('gain'); void el.fuel.offsetWidth; el.fuel.classList.add('gain');
       return;
     }
@@ -5680,7 +5681,8 @@ window.LD_RULES = (() => {
 
     // first levels burn less (75% at LV 1, full from LV 5), so new players learn the road before fuel bites
     const fuelEase = level < 5 ? 0.75 + 0.0625 * (level - 1) : 1;
-    if (!odPhase && !boss && !raidOn && !onFuelLane) fuel = Math.max(0, fuel - fuelDrain(level) * fuelEase * runDiff.speed * dt);   // per distance: a slower road doesn't cost more fuel per level   // Overdrive, finales and raids burn no fuel
+    if (raidOn) { if (!odPhase && !raidFinale) fuel = Math.max(0, fuel - RAID_DRAIN[runDiffI] * dt); }   // a raid burns fuel the whole way: keep grabbing coins
+    else if (!odPhase && !boss && !onFuelLane) fuel = Math.max(0, fuel - fuelDrain(level) * fuelEase * runDiff.speed * dt);   // per distance: a slower road doesn't cost more fuel per level   // Overdrive, finales and raids burn no fuel
     if (raidFinale > 0) {                                  // the victory drive-off after the last giant Shahed
       raidFinale -= dt; finaleV += 1400 * dt; player.y -= finaleV * dt;
       if (Math.random() < dt * 40) particles.push({ x: player.x + (Math.random() - 0.5) * 10, y: player.y + player.h, vx: (Math.random() - 0.5) * 40, vy: 120, life: 0.4, color: '#f6ad55' });
@@ -7122,7 +7124,7 @@ window.LD_RULES = (() => {
     }
     ctx.globalAlpha = 1;
     ctx.restore();
-    if (state === 'play' && fuel <= 25 && !odPhase && !boss && !raidOn) {   // low fuel: red pulse round the edges
+    if (state === 'play' && fuel <= 25 && !odPhase && (raidOn || !boss)) {   // low fuel: red pulse round the edges
       const k = (0.5 + 0.5 * Math.sin(performance.now() / (fuel <= 10 ? 110 : 220))) * (calm ? 0.35 : 1);
       const a = (0.38 + 0.37 * k).toFixed(3), bw = Math.max(50, W * 0.13);
       for (const [x0, x1] of [[0, bw], [W, W - bw]]) {                 // left and right edges

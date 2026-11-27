@@ -183,8 +183,8 @@
     $('raidGo').click(); stepSafe(100);
     $('pauseBtn').click(); $('pauseHelp').click(); report.checks.raidHelpFromPause = !$('raidHelp').classList.contains('hidden');
     $('raidGo').click(); $('resumeBtn').click();
-    let rf = 0; while (rf < 20000 && $('over').classList.contains('hidden')) { drive(); stepSafe(1); rf++; }
-    report.checks.raid = { frames: rf, giantShahedsDown: __G().bossesRun, title: $('overTitle').textContent, line: $('overDaily').textContent };
+    let rf = 0, minFuel = 100; while (rf < 20000 && $('over').classList.contains('hidden')) { drive(); stepSafe(1); rf++; if (__G().state === 'play') minFuel = Math.min(minFuel, __G().fuel); }
+    report.checks.raid = { frames: rf, giantShahedsDown: __G().bossesRun, minFuel: Math.round(minFuel), title: $('overTitle').textContent, line: $('overDaily').textContent };
     $('homeBtn').click(); $('recordsBtn').click(); await sleep(200);
     report.checks.recordsRows = document.querySelectorAll('#recList li').length;
     // tabs: each shows its own content and the tab row doesn't move
