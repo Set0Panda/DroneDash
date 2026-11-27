@@ -112,6 +112,7 @@
     pointer-events: auto; font-size: 0; color: transparent;   /* bars are drawn below, not the ⏸ emoji (it sits off-centre) */
     background: rgba(255,255,255,.14); box-shadow: 0 3px 0 rgba(0,0,0,.35);
   }
+  #over.guard button { pointer-events: none; }   /* just crashed: the buttons wait a moment */
   #pauseBtn::before, #pauseBtn::after {
     content: ""; position: absolute; top: 50%; width: 5px; height: 16px; margin-top: -8px;
     border-radius: 2px; background: var(--text);
@@ -4727,11 +4728,14 @@ window.LD_RULES = (() => {
     $('overTrip').textContent = (runDiffI !== 1 ? runDiff.icon + ' ' : '') + A.icon + ' ' + t(A.key) + ' · ⏱ ' + fmtTime(runTime) + (overdrives ? ' · ⚡ ' + num(overdrives) : '') + (bossesRun ? ' · 🛸 ' + num(bossesRun) : '');
     if (!separate) $('bestLine').textContent = t('bestLine', { best, level: bestLevel });
     paintOverMissions(msEndRun());
+    el.over.classList.add('guard');                                // a tap meant for the road doesn't land on Retry
+    clearTimeout(overGuardT); overGuardT = setTimeout(() => el.over.classList.remove('guard'), OVER_GUARD_MS);
     el.over.classList.remove('hidden');
     fitStats();
     shownOverlay = 'over';
     requestAnimationFrame(() => fitCard('over'));
   }
+  const OVER_GUARD_MS = 600; let overGuardT = 0;
   // ---- Ghost races: race a friend's daily run from a link (no server needed) ----
   // A daily run is sampled every half second (lane, metres, score). Sharing it puts those samples
   // in the link; opening the link the same day lets you race that run as a see-through car.
@@ -7326,6 +7330,18 @@ window.LD_RULES = (() => {
     ctx.lineTo(player.x + player.w * 0.15, y0 + len); ctx.lineTo(player.x - player.w * 0.15, y0 + len); ctx.closePath(); ctx.fill();
   }
 
+  // The screen stays awake while you drive (it can dim on pause, game over and the menus).
+  // The browser drops the lock when the page is hidden; the next frame of driving asks again.
+  let wakeLock = null, wakeAsking = false, wakeRetryAt = 0;
+  function wakeSync(want) {
+    if (!('wakeLock' in navigator)) return;
+    if (want && !wakeLock && !wakeAsking && !document.hidden && performance.now() >= wakeRetryAt) {
+      wakeAsking = true;
+      navigator.wakeLock.request('screen').then(l => { wakeLock = l; l.addEventListener('release', () => { if (wakeLock === l) wakeLock = null; }); })
+        .catch(() => { wakeRetryAt = performance.now() + 5000; })   // refused (battery saver, no permission): ask again later, not every frame
+        .finally(() => { wakeAsking = false; });
+    } else if (!want && wakeLock) { const l = wakeLock; wakeLock = null; l.release().catch(() => {}); }
+  }
   function loop(t) {
     if (canvas.clientWidth !== sizedW || canvas.clientHeight !== sizedH) resize();   // screen changed size without telling us
     if (saver && last && t - last < 30) { requestAnimationFrame(loop); return; }   // battery saver: about 30 frames a second
@@ -7344,6 +7360,7 @@ window.LD_RULES = (() => {
       sfx.hum(state === 'play' ? (boss && !bossHidden() ? (boss.final ? 0.075 : 0.05) : near ? 0.015 + 0.05 * near : 0) : 0, boss ? (boss.final ? 2 : 1) : 0);
     }
     sfx.buzz(state === 'play' && (drones.length > 0 || !!boss));
+    wakeSync(state === 'play' || state === 'stall' || state === 'countdown');
     sfx.music(state === 'home' || state === 'garage' || state === 'records' || state === 'upgrades' || state === 'settings' || (state === 'menu' && helpFrom !== 'pause'));
     requestAnimationFrame(loop);
   }
@@ -7361,7 +7378,7 @@ window.LD_RULES = (() => {
     else if ((e.key === 'p' || e.key === 'P' || e.key === 'Escape') && state === 'paused') resumeGame();
     else if (e.key === 'Escape' && state === 'menu' && helpFrom === 'pause') closeHelp();   // back to the pause menu
     else if (e.key === 'Escape' && ['menu', 'over', 'garage', 'records'].includes(state)) goHome();
-    else if ((e.key === 'Enter' || e.key === ' ') && state === 'over') { e.preventDefault(); restart(); }
+    else if ((e.key === 'Enter' || e.key === ' ') && state === 'over') { e.preventDefault(); if (!el.over.classList.contains('guard')) restart(); }
   });
 
   // Touch / mouse: the car goes straight to the lane under your finger,
