@@ -722,9 +722,9 @@
   .setupLine b { flex: none; font-size: 20px; color: var(--ua-yellow); }
   .msChip b { flex: none; color: var(--coin); font-size: 14px; }
   .modeRow { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .modeRow .dailyBtn, .modeRow .raidBtn { margin: 0; min-width: 0; padding: 9px 6px 8px !important; font-size: 17px; gap: 2px; align-content: start; }
+  .modeRow .dailyBtn, .modeRow .raidBtn { margin: 0; min-width: 0; padding: 9px 6px 8px !important; font-size: 17px; gap: 3px; align-content: center; text-wrap: balance; }
   .modeRow .btnIco { position: static !important; transform: none !important; font-size: 26px !important; }
-  .modeRow small { font-size: 11.5px !important; line-height: 1.25 !important; }
+  .modeRow small { font-size: 11.5px !important; line-height: 1.3 !important; opacity: .85 !important; white-space: pre-line; text-wrap: balance; max-width: 100%; }
   .setupCard .startPick, .msCard .missions { width: 100%; }
   .setupCard, .msCard { gap: 12px; }
   .dailyBtn { display: grid; gap: 2px; justify-items: center; padding: 10px 10px; font-size: 22px; line-height: 1.15; }
@@ -5496,7 +5496,7 @@ window.LD_RULES = (() => {
     const { n, twist: tw } = dayInfo(), d = dailyNow();
     // today's twist on one line, your best and streak (once you have them) on the next
     const mine = [d.best ? '🏆 ' + num(d.best) : '', d.streak ? '🔥 ' + num(d.streak) : ''].filter(Boolean).join(' · ');
-    $('dailySub').textContent = '#' + n + ' · ' + t(tw.key) + (mine ? '\n' + mine : '');
+    $('dailySub').textContent = t(tw.key) + '\n#' + n + (mine ? ' · ' + mine : '');
     paintMissions($('homeMissions'), true);
     {                                                              // on the home screen: the missions in one line, tap for the list
       const done = ms.active.filter(m => m.done).length, mc = $('msChip');
@@ -5514,7 +5514,7 @@ window.LD_RULES = (() => {
     $('raidBtn').classList.toggle('locked', !raidOpen);
     $('raidBtn').setAttribute('aria-disabled', String(!raidOpen));
     $('raidBtn').querySelector('small').textContent = !raidOpen ? '🔒 ' + t('raidLocked')
-      : rb.n ? DIFFS[diffI].icon + ' ' + t('raidBest', { n: rb.n, time: fmtTime(rb.tm || 0) }) : t('raidSub');
+      : rb.n ? DIFFS[diffI].icon + ' ' + t('raidBest', { n: rb.n, time: fmtTime(rb.tm || 0) }).replace(' · ', '\n') : t('raidSub');
     const best = readNum('laneDodgerBest');
     const hb = $('homeBest');
     hb.hidden = !best;

@@ -4,7 +4,7 @@
 // offline or on a very slow connection. Icons and the manifest are served from the cache and
 // refreshed in the background.
 // Bump VERSION whenever you want installed copies to drop the old cache.
-const VERSION = 'drone-dash-v226';
+const VERSION = 'drone-dash-v227';
 const ASSETS = [
   './',
   './index.html',
